@@ -1,12 +1,17 @@
 # Resell Backend
+
 An open-sourced backend service for Resell.
 
 ## Setup
+
 Make sure that `npm` installed (`nvm` is recomended to manage node versions.)  
 Depending on preference, either run `yarn install` or `npm install` to ensure
-all required dependencies are installed. 
+all required dependencies are installed. Copy the `.env_template` to either a
+`.env` file , and update with necessary credentials. Sourcing the file is not
+necessary.
 
 ## Running
+
 To run in a development environment, open two terminal tabs. In one, run either
 `yarn dev` if using yarn, or `npm run dev` otherwise. This command will
 watch the TypeScript files for changes and recompile the JavaScript whenever an
