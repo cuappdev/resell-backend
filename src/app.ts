@@ -1,18 +1,30 @@
+//Necessary immediate imports
 import dotenv from 'dotenv';
 dotenv.config();
+import "reflect-metadata";
 
 import express from 'express';
+
+import resellConnection from './utils/db';
 import routers from './routers/Routers';
 
-const app = express();
-const port = process.env.PORT || 3000;
+async function main() {
+  const conn = await resellConnection().catch(e => {
+    throw Error(JSON.stringify({ message: "Could not connect to DB.", error: e }));
+  });
 
-app.get('/', (_, res) => {
-  res.send('Nothing to see here');
-});
+  const app = express();
+  const port = process.env.PORT || 3000;
 
-app.use(routers);
+  app.get('/', (_, res) => {
+    res.send('Nothing to see here');
+  });
 
-const server = app.listen(port, () => {
-  console.log('Listening on localhost:3000');
-});
+  app.use(routers);
+
+  const server = app.listen(port, () => {
+    console.log('Listening on localhost:3000');
+  });
+}
+
+main();
