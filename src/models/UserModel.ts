@@ -1,4 +1,6 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+
+import Post from "./PostModel"
 
 @Entity()
 export default class User extends BaseEntity {
@@ -17,4 +19,9 @@ export default class User extends BaseEntity {
 
   @Column({ unique: true })
   email: string;
+
+  @OneToMany(() => Post, post => post.user, { onDelete: "CASCADE" })
+  posts: Post[];
+
+
 }
