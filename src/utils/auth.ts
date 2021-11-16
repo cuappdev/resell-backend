@@ -5,9 +5,10 @@ const client: OAuth2Client = new OAuth2Client(process.env.OAUTH_CLIENT_ID);
 
 export async function verify(token: string): Promise<TokenPayload | undefined> {
   try {
+    const audience = [process.env?.OAUTH_ANDROID_ID, process.env?.OAUTH_BACKEND_ID, process.env?.OAUTH_IOS_ID].map(String);
     const ticket: LoginTicket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.OAUTH_CLIENT_ID
+      audience
     });
     const payload = ticket.getPayload();
     if (payload === undefined) {
