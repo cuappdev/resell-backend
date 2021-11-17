@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { verify } from 'src/utils/auth';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import User from './UserModel';
 
 @Entity()
@@ -21,5 +22,9 @@ export default class UserSession {
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
+
+  async createUserFromToken(idToken: string) {
+    const loginTicket = verify(idToken);
+  }
 
 }
