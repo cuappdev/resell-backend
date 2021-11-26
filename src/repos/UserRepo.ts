@@ -23,7 +23,6 @@ async function createUser(
   email: string
 ): Promise<User> {
   const existingUser = await repo().findOne({ where: [{ googleId: googleId }, { email: email }] });
-  console.log(existingUser)
   if (existingUser) throw Error('User already exists!');
   const user = repo().create({
     googleId,

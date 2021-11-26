@@ -72,5 +72,4 @@ afterEach(async () => {
 
 afterAll(async () => {
   await conn.close();
-  console.log('Passed all UserRepo tests!');
 });

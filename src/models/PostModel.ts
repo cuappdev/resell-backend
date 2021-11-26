@@ -1,6 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import User from "./UserModel";
-import Image from "./ImageModel";
 
 @Entity()
 export default class Post extends BaseEntity {
@@ -14,12 +13,13 @@ export default class Post extends BaseEntity {
   @Column()
   description: string;
 
+  @Column("text", { array: true })
+  images: string[];
+
   @Column(({ nullable: true }))
   location: string;
 
   @ManyToOne(() => User, user => user.posts)
   user: User;
 
-  @OneToMany(() => Image, image => image.post, { onDelete: "CASCADE" })
-  images: Image[];
 }

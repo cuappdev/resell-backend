@@ -7,11 +7,10 @@ import UserRepo from "../../repos/UserRepo";
 import { Connection } from "typeorm";
 
 let post1: Post;
-let user1: User
+let user1: User;
 let conn: Connection;
 
 beforeAll(async () => {
-
   conn = await resellConnection().catch(e => {
     throw Error(JSON.stringify(
       {
@@ -19,23 +18,22 @@ beforeAll(async () => {
         error: e
       }
     ));
-    process.exit();
   });
-  user1 = await UserRepo.createUser('google-1', 'name-1', 'display-1', 'email-1');
+  user1 = await UserRepo.createUser('google-post', 'name-post', 'display-post', 'email-post');
 });
 
 
 
 beforeEach(async () => {
-  post1 = await PostRepo.createPost('title-1', 'description-1', 'location-1', user1, []);
+  post1 = await PostRepo.createPost('title-1', 'description-1', [], 'location-1', user1);
 });
 
 
 test('Posts Created Correctly', async () => {
-  expect(post1.id).toBe('id-1');
-  expect(post1.title).toBe('tile-1');
+  expect(post1.title).toBe('title-1');
   expect(post1.description).toBe('description-1');
-  expect(post1.user).toBe(user1);
+  expect(post1.images).toEqual([]);
+  expect(post1.location).toBe('location-1');
 });
 
 test('Get Post By Id', async () => {
@@ -44,22 +42,36 @@ test('Get Post By Id', async () => {
   expect(gotPost?.id).toBe(post1.id);
   expect(gotPost?.title).toBe(post1.title);
   expect(gotPost?.description).toBe(post1.description);
-  expect(gotPost?.user).toBe(post1.user);
+  expect(gotPost?.images).toEqual(post1.images);
+});
+
+test('Get Post By User Id', async () => {
+  const posts = await PostRepo.getPostsByUserId(user1.id);
+  expect(posts.length).toBe(1);
+});
+
+test('Get User By Post Id', async () => {
+  const gotUser = await PostRepo.getUserByPostId(post1.id);
+  expect(gotUser).not.toBeUndefined();
+  expect(gotUser?.id).toBe(user1.id);
+  expect(gotUser?.fullName).toBe(user1.fullName);
+  expect(gotUser?.googleId).toBe(user1.googleId);
+  expect(gotUser?.email).toBe(user1.email);
+  expect(gotUser?.displayName).toBe(user1.displayName);
 });
 
 test('Delete Post', async () => {
-  await PostRepo.deletePost(post1);
+  await PostRepo.deletePost(post1.id);
   expect(await PostRepo.getPostById(post1.id)).toBeUndefined();
 });
 
 afterEach(async () => {
   try {
-    await PostRepo.deletePost(post1);
+    await PostRepo.deletePost(post1.id);
   } catch (e) { console.log('Post 1 cannot be deleted'); }
 });
 
 afterAll(async () => {
   await UserRepo.deleteUser(user1);
   await conn.close();
-  console.log('Passed all PostRepo tests!');
 });
