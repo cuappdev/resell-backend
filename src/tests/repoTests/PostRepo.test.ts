@@ -19,7 +19,7 @@ beforeAll(async () => {
       }
     ));
   });
-  user1 = await UserRepo.createUser('google-post', 'name-post', 'display-post', 'email-post');
+  user1 = await UserRepo.createDummyUser("post-test");
 });
 
 
@@ -48,16 +48,18 @@ test('Get Post By Id', async () => {
 test('Get Post By User Id', async () => {
   const posts = await PostRepo.getPostsByUserId(user1.id);
   expect(posts.length).toBe(1);
+  if (posts.length > 0) expect(posts[0].id).toBe(post1.id);
 });
 
 test('Get User By Post Id', async () => {
   const gotUser = await PostRepo.getUserByPostId(post1.id);
   expect(gotUser).not.toBeUndefined();
   expect(gotUser?.id).toBe(user1.id);
-  expect(gotUser?.fullName).toBe(user1.fullName);
+  expect(gotUser?.bio).toBe(user1.bio);
+  expect(gotUser?.name).toBe(user1.name);
   expect(gotUser?.googleId).toBe(user1.googleId);
   expect(gotUser?.email).toBe(user1.email);
-  expect(gotUser?.displayName).toBe(user1.displayName);
+  expect(gotUser?.profilePictureUrl).toBe(user1.profilePictureUrl);
 });
 
 test('Delete Post', async () => {
@@ -72,6 +74,6 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await UserRepo.deleteUser(user1);
+  await UserRepo.deleteUserById(user1.id);
   await conn.close();
 });

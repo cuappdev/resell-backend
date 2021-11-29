@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 't
 import User from "./UserModel";
 
 @Entity()
-export default class Post extends BaseEntity {
+export default class Post {
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
