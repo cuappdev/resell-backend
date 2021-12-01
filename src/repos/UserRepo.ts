@@ -4,44 +4,81 @@ import User from "../models/UserModel";
 
 const repo = (): Repository<User> => getRepository(User);
 
-async function getUserById(id: string): Promise<User | undefined> {
-  return await repo().findOne(id);
-}
+const getUserById = async (id: string): Promise<User | undefined> => {
+  return await repo()
+    .createQueryBuilder("user")
+    .where("user.id = :id", { id })
+    .getOne();
+};
 
-async function getUserByEmail(email: string): Promise<User | undefined> {
-  return await repo().findOne({ where: { email: email } });
-}
+const getUserByEmail = async (email: string): Promise<User | undefined> => {
+  return await repo()
+    .createQueryBuilder("user")
+    .where("user.email = :email", { email })
+    .getOne();
+};
 
-async function getUserByGoogleId(googleId: string): Promise<User | undefined> {
-  return await repo().findOne({ where: { googleId: googleId } });
-}
+const getUserByGoogleId = async (googleId: string): Promise<User | undefined> => {
+  return await repo()
+    .createQueryBuilder("user")
+    .where("user.googleId = :googleId", { googleId })
+    .getOne();
+};
 
-async function createUser(
+const createUser = async (
+  email: string,
   googleId: string,
-  fullName: string,
-  displayName: string,
-  email: string
-): Promise<User> {
-  const existingUser = await repo().findOne({ where: [{ googleId: googleId }, { email: email }] });
-  if (existingUser) throw Error('User already exists!');
-  const user = repo().create({
-    googleId,
-    fullName,
-    displayName,
-    email,
-  });
+  name: string,
+  profilePictureUrl: string,
+  bio?: string
+): Promise<User> => {
+  let existingUser = await repo()
+    .createQueryBuilder("user")
+    .where("user.email = :email", { email })
+    .getOne();
+  if (existingUser) throw Error('User with same email already exists!');
+
+  existingUser = await repo()
+    .createQueryBuilder("user")
+    .where("user.googleId = :googleId", { googleId })
+    .getOne();
+  if (existingUser) throw Error('User with same google ID already exists!');
+
+  const user = new User();
+  user.bio = bio || user.bio;
+  user.email = email;
+  user.googleId = googleId;
+  user.name = name;
+  user.profilePictureUrl = profilePictureUrl;
   await repo().save(user);
   return user;
-}
+};
 
-async function deleteUser(user: User): Promise<boolean> {
-  await repo().delete(user);
+const createDummyUser = async (tag: string): Promise<User> => {
+  const user = new User();
+  user.bio = `bio-${tag}`;
+  user.email = `email-${tag}`;
+  user.googleId = `googleId-${tag}`;
+  user.name = `name-${tag}`;
+  user.profilePictureUrl = `pfp-${tag}`;
+  await repo().save(user);
+  return user;
+};
+
+const deleteUserById = async (id: string): Promise<boolean> => {
+  const user = await repo()
+    .createQueryBuilder("user")
+    .where("user.id = :id", { id })
+    .getOne();
+  if (!user) return false;
+  await repo().remove(user);
   return true;
-}
+};
 
 export default {
   createUser,
-  deleteUser,
+  createDummyUser,
+  deleteUserById,
   getUserById,
   getUserByEmail,
   getUserByGoogleId

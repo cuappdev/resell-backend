@@ -1,20 +1,27 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import UserSession from './UserSessionModel';
 
 @Entity()
-export default class User extends BaseEntity {
+export default class User {
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ type: "text" })
+  bio = "User has not entered a bio.";
+
+  @Column({ unique: true })
+  email: string;
 
   @Column({ unique: true })
   googleId: string;
 
   @Column()
-  fullName: string;
+  name: string;
 
   @Column()
-  displayName: string;
+  profilePictureUrl: string;
 
-  @Column({ unique: true })
-  email: string;
+  @OneToMany(() => UserSession, session => session.user)
+  sessions: UserSession[];
 }
