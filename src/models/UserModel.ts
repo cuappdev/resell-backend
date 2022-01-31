@@ -1,4 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { PrivateProfile, PublicProfile, Uuid } from '../types'
 import Post from './PostModel';
 import UserSession from './UserSessionModel';
 
@@ -7,6 +8,12 @@ export default class User {
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  profilePictureUrl: string;
 
   @Column({ type: "text" })
   bio = "User has not entered a bio.";
@@ -17,16 +24,20 @@ export default class User {
   @Column({ unique: true })
   googleId: string;
 
-  @Column()
-  name: string;
-
-  @Column()
-  profilePictureUrl: string;
-
   @OneToMany(() => Post, post => post.user, { onDelete: "CASCADE" })
   posts: Post[];
 
   @OneToMany(() => UserSession, session => session.user)
   sessions: UserSession[];
 
+  public getFullUserProfile(): PrivateProfile {
+    return {
+      id: this.id,
+      name: this.name,
+      profilePictureUrl: this.profilePictureUrl,
+      bio: this.bio,
+      email: this.email,
+      googleId: this.googleId,
+    };
+  }
 }
