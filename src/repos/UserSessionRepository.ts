@@ -3,7 +3,7 @@ import User from "src/models/UserModel";
 import { getRepository, Repository } from "typeorm";
 
 import UserSession from '../models/UserSessionModel';
-import UserRepo from "./UserRepo";
+import { UserRepository } from "./UserRepository";
 
 const repo = (): Repository<UserSession> => getRepository(UserSession);
 
@@ -15,16 +15,16 @@ const createSession = async (user: User): Promise<UserSession> => {
   return session;
 };
 
-const createUserAndSession = async (
-  email: string,
-  googleId: string,
-  name: string,
-  profilePictureUrl: string,
-  bio?: string,
-): Promise<UserSession> => {
-  const user = await UserRepo.createUser(email, googleId, name, profilePictureUrl, bio);
-  return await createSession(user);
-};
+// const createUserAndSession = async (
+//   email: string,
+//   googleId: string,
+//   name: string,
+//   profilePictureUrl: string,
+//   bio?: string,
+// ): Promise<UserSession> => {
+  // const user = await UserRepository.createUser(email, googleId, name, profilePictureUrl, bio);
+  // return await createSession(user);
+// };
 
 const deleteSessionById = async (id: string): Promise<boolean> => {
   const session = await repo()
@@ -89,7 +89,8 @@ const getUserFromToken = async (accessToken: string): Promise<User | undefined> 
     .where("usersession.accessToken = :accessToken", { accessToken })
     .getOne();
   const userId = session?.user.id;
-  return userId ? UserRepo.getUserById(userId) : undefined;
+  return undefined;
+  // return userId ? UserRepository.getUserById(userId) : undefined;
 };
 
 const updateSession = async (refreshToken: string): Promise<UserSession | undefined> => {
@@ -111,7 +112,7 @@ const verifySession = async (accessToken: string): Promise<boolean> => {
 
 export default {
   createSession,
-  createUserAndSession,
+  // createUserAndSession,
   deleteSessionById,
   deleteSessionByUserId,
   expireSession,

@@ -4,7 +4,7 @@ import Post from './PostModel';
 import UserSession from './UserSessionModel';
 
 @Entity()
-export default class User {
+export default class UserModel {
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -30,7 +30,7 @@ export default class User {
   @OneToMany(() => UserSession, session => session.user)
   sessions: UserSession[];
 
-  public getFullUserProfile(): PrivateProfile {
+  public getUserProfile(): PrivateProfile {
     return {
       id: this.id,
       name: this.name,

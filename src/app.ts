@@ -5,13 +5,17 @@ import "reflect-metadata";
 
 // import alphabetically below VVV
 import { controllers } from './controllers';
-import { createExpressServer, useContainer as routingUseContainer } from 'routing-controllers';
 import express from 'express';
-
-import resellConnection from './utils/db';
+import { createExpressServer, useContainer as routingUseContainer } from 'routing-controllers';
 import routers from './routers/Routers';
+import { Container } from 'typeorm-typedi-extensions';
+import { useContainer } from 'typeorm';
+import resellConnection from './utils/db';
 
 async function main() {
+  routingUseContainer(Container);
+  useContainer(Container);
+
   const conn = await resellConnection().catch(e => {
     throw Error(JSON.stringify({ message: "Could not connect to DB.", error: e }));
   });

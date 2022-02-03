@@ -28,6 +28,10 @@ export interface PrivateProfile extends PublicProfile {
     googleId: string,
 }
 
-export interface GetCurrentUserResponse extends ApiResponse {
+export interface GetAllUsersResponse extends ApiResponse {
+    users: PrivateProfile[];
+}
+
+export interface GetUserResponse extends ApiResponse {
     user: PrivateProfile;
 }
