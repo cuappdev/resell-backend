@@ -1,13 +1,14 @@
 import { APIUserSession } from '../routers/APITypes';
 import crypto from 'crypto';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import User from './UserModel';
+import { UserModel } from './UserModel';
+import { Uuid } from '../types'
 
 @Entity()
 export default class UserSession {
 
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: Uuid;
 
   @Column()
   accessToken: string;
@@ -18,8 +19,8 @@ export default class UserSession {
   @Column()
   refreshToken: string;
 
-  @ManyToOne(() => User, user => user.sessions, { cascade: true, onDelete: "CASCADE" })
-  user: User;
+  @ManyToOne(() => UserModel, user => user.sessions, { cascade: true, onDelete: "CASCADE" })
+  user: UserModel;
 
   update = (accessToken?: string, refreshToken?: string): UserSession => {
     this.accessToken = accessToken || crypto.randomBytes(64).toString('hex');

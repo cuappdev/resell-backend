@@ -4,7 +4,7 @@ dotenv.config();
 import "reflect-metadata";
 
 // import alphabetically below VVV
-import { controllers } from './controllers';
+import { controllers } from './api/controllers';
 import express from 'express';
 import { createExpressServer, useContainer as routingUseContainer } from 'routing-controllers';
 import routers from './routers/Routers';

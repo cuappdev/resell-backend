@@ -1,13 +1,14 @@
 import { LoginTicket } from "google-auth-library";
-import User from "src/models/UserModel";
+import { UserModel } from "src/models/UserModel";
 import { getRepository, Repository } from "typeorm";
 
 import UserSession from '../models/UserSessionModel';
 import { UserRepository } from "./UserRepository";
+import { Uuid } from '../types'
 
 const repo = (): Repository<UserSession> => getRepository(UserSession);
 
-const createSession = async (user: User): Promise<UserSession> => {
+const createSession = async (user: UserModel): Promise<UserSession> => {
   const session = new UserSession();
   session.user = user;
   session.update();
@@ -26,7 +27,7 @@ const createSession = async (user: User): Promise<UserSession> => {
   // return await createSession(user);
 // };
 
-const deleteSessionById = async (id: string): Promise<boolean> => {
+const deleteSessionById = async (id: Uuid): Promise<boolean> => {
   const session = await repo()
     .createQueryBuilder("usersession")
     .where("usersession.id = :id", { id })
@@ -55,7 +56,7 @@ const expireSession = async (session: UserSession): Promise<UserSession> => {
   return session;
 };
 
-const getSessionById = async (id: string): Promise<UserSession | undefined> => {
+const getSessionById = async (id: Uuid): Promise<UserSession | undefined> => {
   return await repo()
     .createQueryBuilder("usersession")
     .where("usersession.id = :id", { id })
@@ -80,7 +81,7 @@ const getSessionsByUserId = async (userId: string): Promise<UserSession[]> => {
     .getMany();
 };
 
-const getUserFromToken = async (accessToken: string): Promise<User | undefined> => {
+const getUserFromToken = async (accessToken: string): Promise<UserModel | undefined> => {
   const verified = await verifySession(accessToken);
   if (!verified) return undefined;
   const session = await repo()

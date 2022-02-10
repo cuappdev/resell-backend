@@ -1,9 +1,14 @@
 import { EntityManager } from 'typeorm';
 import { UserRepository } from './UserRepository';
+import { PostRepository } from './PostRepository';
 
 export default class Repositories {
   public static user(transactionalEntityManager: EntityManager): UserRepository {
     return transactionalEntityManager.getCustomRepository(UserRepository);
+  }
+
+  public static post(transactionalEntityManager: EntityManager): PostRepository {
+    return transactionalEntityManager.getCustomRepository(PostRepository);
   }
 }
 

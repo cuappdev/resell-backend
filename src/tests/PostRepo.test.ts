@@ -3,7 +3,7 @@
 // import User from "../../models/UserModel";
 
 // import PostRepo from "../../repos/PostRepository";
-// import { UserRepository } from "../../repos/UserRepository";
+// import Repositories from "../../repos";
 // import { Connection } from "typeorm";
 
 // let post1: Post;
@@ -22,12 +22,9 @@
 //   user1 = await UserRepository.createDummyUser("post-test");
 // });
 
-
-
 // beforeEach(async () => {
 //   post1 = await PostRepo.createPost('title-1', 'description-1', [], 'location-1', user1);
 // });
-
 
 // test('Posts Created Correctly', async () => {
 //   expect(post1.title).toBe('title-1');
