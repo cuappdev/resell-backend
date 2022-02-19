@@ -1,13 +1,14 @@
 import { LoginTicket } from "google-auth-library";
-import User from "src/models/UserModel";
+import { UserModel } from "src/models/UserModel";
 import { getRepository, Repository } from "typeorm";
 
 import UserSession from '../models/UserSessionModel';
-import UserRepo from "./UserRepo";
+import { UserRepository } from "./UserRepository";
+import { Uuid } from '../types'
 
 const repo = (): Repository<UserSession> => getRepository(UserSession);
 
-const createSession = async (user: User): Promise<UserSession> => {
+const createSession = async (user: UserModel): Promise<UserSession> => {
   const session = new UserSession();
   session.user = user;
   session.update();
@@ -15,18 +16,18 @@ const createSession = async (user: User): Promise<UserSession> => {
   return session;
 };
 
-const createUserAndSession = async (
-  email: string,
-  googleId: string,
-  name: string,
-  profilePictureUrl: string,
-  bio?: string,
-): Promise<UserSession> => {
-  const user = await UserRepo.createUser(email, googleId, name, profilePictureUrl, bio);
-  return await createSession(user);
-};
+// const createUserAndSession = async (
+//   email: string,
+//   googleId: string,
+//   name: string,
+//   profilePictureUrl: string,
+//   bio?: string,
+// ): Promise<UserSession> => {
+  // const user = await UserRepository.createUser(email, googleId, name, profilePictureUrl, bio);
+  // return await createSession(user);
+// };
 
-const deleteSessionById = async (id: string): Promise<boolean> => {
+const deleteSessionById = async (id: Uuid): Promise<boolean> => {
   const session = await repo()
     .createQueryBuilder("usersession")
     .where("usersession.id = :id", { id })
@@ -55,7 +56,7 @@ const expireSession = async (session: UserSession): Promise<UserSession> => {
   return session;
 };
 
-const getSessionById = async (id: string): Promise<UserSession | undefined> => {
+const getSessionById = async (id: Uuid): Promise<UserSession | undefined> => {
   return await repo()
     .createQueryBuilder("usersession")
     .where("usersession.id = :id", { id })
@@ -80,7 +81,7 @@ const getSessionsByUserId = async (userId: string): Promise<UserSession[]> => {
     .getMany();
 };
 
-const getUserFromToken = async (accessToken: string): Promise<User | undefined> => {
+const getUserFromToken = async (accessToken: string): Promise<UserModel | undefined> => {
   const verified = await verifySession(accessToken);
   if (!verified) return undefined;
   const session = await repo()
@@ -89,7 +90,8 @@ const getUserFromToken = async (accessToken: string): Promise<User | undefined> 
     .where("usersession.accessToken = :accessToken", { accessToken })
     .getOne();
   const userId = session?.user.id;
-  return userId ? UserRepo.getUserById(userId) : undefined;
+  return undefined;
+  // return userId ? UserRepository.getUserById(userId) : undefined;
 };
 
 const updateSession = async (refreshToken: string): Promise<UserSession | undefined> => {
@@ -111,7 +113,7 @@ const verifySession = async (accessToken: string): Promise<boolean> => {
 
 export default {
   createSession,
-  createUserAndSession,
+  // createUserAndSession,
   deleteSessionById,
   deleteSessionByUserId,
   expireSession,

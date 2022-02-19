@@ -1,15 +1,25 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import Post from './PostModel';
+import { PrivateProfile, PublicProfile, Uuid } from '../types'
+import { PostModel } from './PostModel';
 import UserSession from './UserSessionModel';
 
 @Entity()
-export default class User {
+export class UserModel {
 
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: Uuid;
 
-  @Column({ type: "text" })
-  bio = "User has not entered a bio.";
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  profilePictureUrl: string;
+
+  @Column({ unique: true })
+  venmoHandle: string;
 
   @Column({ unique: true })
   email: string;
@@ -17,16 +27,30 @@ export default class User {
   @Column({ unique: true })
   googleId: string;
 
-  @Column()
-  name: string;
+  @Column({ type: "text" })
+  bio = "User has not entered a bio.";
 
-  @Column()
-  profilePictureUrl: string;
+  @OneToMany(() => PostModel, post => post.user, { onDelete: "CASCADE" })
+  posts: PostModel[];
 
-  @OneToMany(() => Post, post => post.user, { onDelete: "CASCADE" })
-  posts: Post[];
+  @OneToMany(() => PostModel, post => post.user)
+  saved: PostModel[];
 
   @OneToMany(() => UserSession, session => session.user)
   sessions: UserSession[];
 
+  public getUserProfile(): PrivateProfile {
+    return {
+      id: this.id,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      profilePictureUrl: this.profilePictureUrl,
+      venmoHandle: this.venmoHandle,
+      email: this.email,
+      googleId: this.googleId,
+      bio: this.bio,
+      posts: this.posts,
+      saved: this.saved,
+    };
+  }
 }

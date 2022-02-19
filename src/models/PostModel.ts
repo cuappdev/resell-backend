@@ -1,11 +1,12 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import User from "./UserModel";
+import { UserModel } from "./UserModel";
+import { Uuid, Post } from '../types'
 
 @Entity()
-export default class Post {
+export class PostModel {
 
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: Uuid;
 
   @Column()
   title: string;
@@ -13,13 +14,27 @@ export default class Post {
   @Column()
   description: string;
 
+  @Column("numeric", { scale: 2 } )
+  price: number;
+
   @Column("text", { array: true })
   images: string[];
 
   @Column(({ nullable: true }))
   location: string;
 
-  @ManyToOne(() => User, user => user.posts)
-  user: User;
+  @ManyToOne(() => UserModel, user => user.posts)
+  user: UserModel;
 
+  public getPostInfo(): Post {
+    return {
+      id: this.id,
+      title: this.title,
+      description: this.description,
+      price: this.price,
+      images: this.images,
+      location: this.location,
+      user: this.user,
+    };
+  }
 }
