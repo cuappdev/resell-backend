@@ -1,4 +1,4 @@
-import { Min, IsEmail, IsUUID } from 'class-validator';
+import { IsEmail, IsUUID } from 'class-validator';
 import { Uuid } from '../../types'
 
 export class EmailParam {

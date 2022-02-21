@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, } from 'typeorm';
 import { UserModel } from "./UserModel";
 import { Uuid, Post } from '../types'
 

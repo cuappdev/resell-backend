@@ -16,17 +16,6 @@ const createSession = async (user: UserModel): Promise<UserSession> => {
   return session;
 };
 
-// const createUserAndSession = async (
-//   email: string,
-//   googleId: string,
-//   name: string,
-//   profilePictureUrl: string,
-//   bio?: string,
-// ): Promise<UserSession> => {
-  // const user = await UserRepository.createUser(email, googleId, name, profilePictureUrl, bio);
-  // return await createSession(user);
-// };
-
 const deleteSessionById = async (id: Uuid): Promise<boolean> => {
   const session = await repo()
     .createQueryBuilder("usersession")
@@ -91,7 +80,6 @@ const getUserFromToken = async (accessToken: string): Promise<UserModel | undefi
     .getOne();
   const userId = session?.user.id;
   return undefined;
-  // return userId ? UserRepository.getUserById(userId) : undefined;
 };
 
 const updateSession = async (refreshToken: string): Promise<UserSession | undefined> => {
@@ -113,7 +101,6 @@ const verifySession = async (accessToken: string): Promise<boolean> => {
 
 export default {
   createSession,
-  // createUserAndSession,
   deleteSessionById,
   deleteSessionByUserId,
   expireSession,

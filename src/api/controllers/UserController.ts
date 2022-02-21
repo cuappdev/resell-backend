@@ -1,22 +1,17 @@
 import {
-  JsonController, Params, Get, Post, Delete, UseBefore, Body, BodyParam,
+  Body, Delete, Get, JsonController, Params, Post,
 } from 'routing-controllers';
-import { UserModel } from '../../models/UserModel'
+import { UuidParam } from '../validators/GenericRequests';
 import { UserService } from '../../services/UserService';
-import { Inject } from 'typedi';
 import {
-  GetUsersResponse,
-  GetUserResponse,
   CreateUserRequest,
-  Uuid,
-  GenericSuccessResponse,
+  ErrorResponse,
+  GetUserByEmailRequest,
+  GetUserResponse,
+  GetUsersResponse,
+  getErrorMessage,
 } from '../../types';
-import { EmailParam, UuidParam } from '../validators/GenericRequests';
 
-// import { UserAuthentication } from '../middleware/UserAuthentication';
-// import { AuthenticatedUser } from '../decorators/AuthenticatedUser';
-
-// @UseBefore(UserAuthentication)
 @JsonController('user/')
 export class UserController {
   private userService: UserService;
@@ -26,39 +21,69 @@ export class UserController {
   }
 
   @Get()
-  async getUsers(): Promise<GetUsersResponse> {
-    const users = await this.userService.getAllUsers();
-    return { error: null, users: users.map((user) => user.getUserProfile()) };
+  async getUsers(): Promise<GetUsersResponse | ErrorResponse> {
+    try {
+      const users = await this.userService.getAllUsers();
+      return { success: true, users: users.map((user) => user.getUserProfile()) };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
+    }
   }
 
   @Get('id/:id/')
-  async getUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
-    return { error: null, user: await this.userService.getUserById(params.id) };
+  async getUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
+    try {
+      return { success: true, user: await this.userService.getUserById(params.id) };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
+    }
+    
   }
   
   @Get('googleId/:id/')
-  async getUserByGoogleId(@Params() params: UuidParam): Promise<GetUserResponse> {
-    return { error: null, user: await this.userService.getUserByGoogleId(params.id) };
+  async getUserByGoogleId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
+    try {
+      return { success: true, user: await this.userService.getUserByGoogleId(params.id) };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
+    }
   }
 
   @Get('postId/:id/')
-    async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse> {
-      return { error: null, user: await this.userService.getUserByPostId(params.id) }; 
+    async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
+      try {
+        return { success: true, user: await this.userService.getUserByPostId(params.id) }; 
+      } catch (error) {
+        return { success: false, error: getErrorMessage(error) }
+      }
     }
 
-  @Get('email/:email/')
-  async getUserByEmail(@Params() params: EmailParam): Promise<GetUserResponse> {
-    return { error: null, user: await this.userService.getUserByEmail(params.email) }; 
+  @Post('email/')
+  async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest):
+      Promise<GetUserResponse | ErrorResponse> {
+    try {
+      return { success: true, user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
+    }
   }
   
   @Post()
-  async createUser(@Body() createUserRequest: CreateUserRequest): Promise<GetUserResponse> {
-    const user = await this.userService.createUser(createUserRequest);
-    return { error: null, user: user };
+  async createUser(@Body() createUserRequest: CreateUserRequest): Promise<GetUserResponse | ErrorResponse> {
+    try {
+      const user = await this.userService.createUser(createUserRequest);
+      return { success: true, user: user };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
+    }
   }
 
   @Delete('id/:id/')
-  async deleteUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
-    return { error: null, user: await this.userService.deleteUserById(params.id) };
+  async deleteUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
+    try {
+      return { success: true, user: await this.userService.deleteUserById(params.id) };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
+    }
   }
 }

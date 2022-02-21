@@ -3,20 +3,43 @@ import { PostModel } from '../models/PostModel';
 
 // API response types
 
-export interface CustomErrorBody {
-    name: string;
-    message: string;
-    httpCode: number;
-    stack?: string;
-    errors?: any;
-}
-
-export interface ApiResponse {
-    error: CustomErrorBody | null;
-}
-
-export interface GenericSuccessResponse extends ApiResponse {
+export interface GenericSuccessResponse {
     success: boolean;
+}
+
+export interface ErrorResponse extends GenericSuccessResponse {
+    error: string;
+}
+
+// ERROR CHECKER
+
+type ErrorWithMessage = {
+    message: string
+}
+
+function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
+    return (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as Record<string, unknown>).message === 'string'
+    )
+}
+
+function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
+    if (isErrorWithMessage(maybeError)) return maybeError
+
+    try {
+        return new Error(JSON.stringify(maybeError))
+    } catch {
+        // fallback in case there's an error stringifying the maybeError
+        // like with circular references for example.
+        return new Error(String(maybeError))
+    }
+}
+
+export function getErrorMessage(error: unknown) {  
+    return toErrorWithMessage(error).message
 }
 
 // USER
@@ -37,11 +60,11 @@ export interface PrivateProfile extends PublicProfile {
     saved: PostModel[],
 }
 
-export interface GetUsersResponse extends ApiResponse {
+export interface GetUsersResponse extends GenericSuccessResponse {
     users: PrivateProfile[];
 }
 
-export interface GetUserResponse extends ApiResponse {
+export interface GetUserResponse extends GenericSuccessResponse {
     user: PrivateProfile | null;
 }
 
@@ -57,10 +80,10 @@ export interface Post {
     user: PublicProfile,
 }
 
-export interface GetPostsResponse extends ApiResponse {
+export interface GetPostsResponse extends GenericSuccessResponse {
     posts: Post[];
 }
 
-export interface GetPostResponse extends ApiResponse {
+export interface GetPostResponse extends GenericSuccessResponse {
     post: Post;
 }

@@ -1,9 +1,8 @@
-
+import { NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
-import { InjectManager } from 'typeorm-typedi-extensions';
 import { EntityManager } from 'typeorm';
+import { InjectManager } from 'typeorm-typedi-extensions';
 import Repositories, { TransactionsManager } from '../repositories';
-import { NotFoundError, ForbiddenError } from 'routing-controllers';
 import {
   CreateUserRequest,
   PrivateProfile,

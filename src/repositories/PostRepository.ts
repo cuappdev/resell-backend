@@ -1,9 +1,6 @@
 import {
   AbstractRepository,
   EntityRepository,
-  getRepository,
-  Repository,
-  SelectQueryBuilder,
 } from "typeorm";
 
 import { PostModel } from "../models/PostModel";

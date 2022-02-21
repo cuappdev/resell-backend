@@ -1,22 +1,20 @@
-//Necessary immediate imports
+// Necessary immediate imports
 import dotenv from 'dotenv';
 dotenv.config();
 import "reflect-metadata";
 
-// import alphabetically below VVV
-import { controllers } from './api/controllers';
-import express from 'express';
+
 import { createExpressServer, useContainer as routingUseContainer } from 'routing-controllers';
-import routers from './routers/Routers';
-import { Container } from 'typeorm-typedi-extensions';
 import { useContainer } from 'typeorm';
+import { Container } from 'typeorm-typedi-extensions';
+import { controllers } from './api/controllers';
 import resellConnection from './utils/db';
 
 async function main() {
   routingUseContainer(Container);
   useContainer(Container);
 
-  const conn = await resellConnection().catch(e => {
+  await resellConnection().catch(e => {
     throw Error(JSON.stringify({ message: "Could not connect to DB.", error: e }));
   });
 
@@ -24,7 +22,6 @@ async function main() {
     cors: true,
     routePrefix: '/api/',
     controllers: controllers,
-    // middlewares: middlewares,
     defaults: {
       paramOptions: {
         required: true,
@@ -40,8 +37,8 @@ async function main() {
   
   const port = process.env.PORT || 3000;
 
-  const server = app.listen(port, () => {
-    console.log('Listening on localhost:3000');
+  app.listen(port, () => {
+    console.log(`Resell backend bartering 🛍  on localhost:${port}`);
   });
 }
 

@@ -2,6 +2,8 @@ import { Uuid } from '.';
 
 // REQUEST TYPES
 
+// USER
+
 export interface CreateUserRequest {
     firstName: string;
     lastName: string;
@@ -11,6 +13,12 @@ export interface CreateUserRequest {
     googleId: string;
     bio: string;
 }
+
+export interface GetUserByEmailRequest {
+    email: string;
+}
+
+// POST
 
 export interface CreatePostRequest {
     title: string;
