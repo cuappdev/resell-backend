@@ -1,6 +1,7 @@
 import { EntityManager } from 'typeorm';
-import { UserRepository } from './UserRepository';
+
 import { PostRepository } from './PostRepository';
+import { UserRepository } from './UserRepository';
 
 export default class Repositories {
   public static user(transactionalEntityManager: EntityManager): UserRepository {

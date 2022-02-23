@@ -1,11 +1,8 @@
-import {
-  AbstractRepository,
-  EntityRepository,
-} from "typeorm";
+import { AbstractRepository, EntityRepository } from 'typeorm';
 
-import { PostModel } from "../models/PostModel";
-import { UserModel } from "../models/UserModel";
-import { Uuid } from '../types'
+import { PostModel } from '../models/PostModel';
+import { UserModel } from '../models/UserModel';
+import { Uuid } from '../types';
 
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {

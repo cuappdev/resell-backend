@@ -2,13 +2,10 @@ import { NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
-import Repositories, { TransactionsManager } from '../repositories';
-import {
-  CreateUserRequest,
-  PrivateProfile,
-  Uuid,
-} from '../types';
+
 import { UserModel } from '../models/UserModel';
+import Repositories, { TransactionsManager } from '../repositories';
+import { CreateUserRequest, PrivateProfile, Uuid } from '../types';
 
 @Service()
 export class AuthService {

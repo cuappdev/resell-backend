@@ -1,14 +1,15 @@
 // Necessary immediate imports
+import 'reflect-metadata';
+
 import dotenv from 'dotenv';
-dotenv.config();
-import "reflect-metadata";
-
-
 import { createExpressServer, useContainer as routingUseContainer } from 'routing-controllers';
 import { useContainer } from 'typeorm';
 import { Container } from 'typeorm-typedi-extensions';
+
 import { controllers } from './api/controllers';
 import resellConnection from './utils/db';
+
+dotenv.config();
 
 async function main() {
   routingUseContainer(Container);

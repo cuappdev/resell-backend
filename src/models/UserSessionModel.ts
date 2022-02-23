@@ -1,7 +1,8 @@
 import crypto from 'crypto';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+
+import { APIUserSession, Uuid } from '../types';
 import { UserModel } from './UserModel';
-import { APIUserSession, Uuid, } from '../types'
 
 @Entity()
 export default class UserSession {

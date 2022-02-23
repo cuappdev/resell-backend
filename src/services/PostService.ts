@@ -2,13 +2,10 @@ import { NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
-import Repositories, { TransactionsManager } from '../repositories';
-import {
-  CreatePostRequest,
-  Post,
-  Uuid,
-} from '../types';
+
 import { PostModel } from '../models/PostModel';
+import Repositories, { TransactionsManager } from '../repositories';
+import { CreatePostRequest, Post, Uuid } from '../types';
 
 @Service()
 export class PostService {

@@ -1,7 +1,7 @@
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
 
-// API response types
+// RESPONSE TYPES
 
 export interface GenericSuccessResponse {
     success: boolean;
@@ -38,7 +38,7 @@ function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
     }
 }
 
-export function getErrorMessage(error: unknown) {  
+export function getErrorMessage(error: unknown): string {  
     return toErrorWithMessage(error).message
 }
 

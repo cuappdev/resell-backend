@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, } from 'typeorm';
-import { PrivateProfile, Uuid } from '../types'
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
+import { PrivateProfile, Uuid } from '../types';
 import { PostModel } from './PostModel';
 import UserSession from './UserSessionModel';
 

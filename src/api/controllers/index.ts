@@ -1,6 +1,6 @@
 import { AuthController } from './AuthController';
-import { UserController } from './UserController';
 import { PostController } from './PostController';
+import { UserController } from './UserController';
 
 export const controllers = [
   AuthController,

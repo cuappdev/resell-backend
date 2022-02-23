@@ -1,16 +1,15 @@
-import {
-  Body, Delete, Get, JsonController, Params, Post,
-} from 'routing-controllers';
-import { UuidParam } from '../validators/GenericRequests';
+import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
+
 import { UserService } from '../../services/UserService';
 import {
   CreateUserRequest,
   ErrorResponse,
+  getErrorMessage,
   GetUserByEmailRequest,
   GetUserResponse,
   GetUsersResponse,
-  getErrorMessage,
 } from '../../types';
+import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
 export class UserController {

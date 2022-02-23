@@ -1,15 +1,8 @@
-import {
-  Body, Delete, Get, JsonController, Params, Post,
-} from 'routing-controllers';
-import { UuidParam } from '../validators/GenericRequests';
-import {
-  CreatePostRequest,
-  ErrorResponse,
-  GetPostResponse,
-  GetPostsResponse,
-  getErrorMessage,
-} from '../../types';
+import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
+
 import { PostService } from '../../services/PostService';
+import { CreatePostRequest, ErrorResponse, getErrorMessage, GetPostResponse, GetPostsResponse } from '../../types';
+import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('post/')
 export class PostController {

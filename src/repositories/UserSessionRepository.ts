@@ -1,10 +1,8 @@
-import { LoginTicket } from "google-auth-library";
-import { UserModel } from "src/models/UserModel";
-import { getRepository, Repository } from "typeorm";
+import { UserModel } from 'src/models/UserModel';
+import { getRepository, Repository } from 'typeorm';
 
 import UserSession from '../models/UserSessionModel';
-import { UserRepository } from "./UserRepository";
-import { Uuid } from '../types'
+import { Uuid } from '../types';
 
 const repo = (): Repository<UserSession> => getRepository(UserSession);
 
