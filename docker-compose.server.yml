@@ -2,7 +2,9 @@ version: "3.6"
 
 services:
   app:
+    build: .
     image: cornellappdev/resell-dev:${IMAGE_TAG}
     env_file: .env
     ports:
       - "3000:3000"
+    restart: on-failure

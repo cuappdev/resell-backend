@@ -2,10 +2,10 @@
   "name": "resell-server",
   "version": "1.0.0",
   "description": "An open-sourced backend service for Resell.",
-  "main": "index.js",
+  "main": "src/app.ts",
   "scripts": {
-    "dev": "tsc-watch --onSuccess 'node dist/app.js'",
-    "start": "node dist/app.js",
+    "dev": "tsc-watch --onSuccess 'ts-node src/app.ts'",
+    "start": "ts-node src/app.ts",
     "test": "jest"
   },
   "repository": {
@@ -46,6 +46,7 @@
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.9.0",
+    "ts-node": "^10.5.0",
     "typedi": "^0.10.0",
     "typeorm": "^0.2.38",
     "typeorm-typedi-extensions": "^0.4.1"
