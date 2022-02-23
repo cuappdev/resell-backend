@@ -1,8 +1,8 @@
-import { APIUserSession } from '../routers/APITypes';
 import crypto from 'crypto';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+
+import { APIUserSession, Uuid } from '../types';
 import { UserModel } from './UserModel';
-import { Uuid } from '../types'
 
 @Entity()
 export default class UserSession {

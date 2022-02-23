@@ -1,6 +1,7 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { UserModel } from "./UserModel";
-import { Uuid, Post } from '../types'
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+
+import { Post, Uuid } from '../types';
+import { UserModel } from './UserModel';
 
 @Entity()
 export class PostModel {

@@ -1,6 +1,7 @@
 import { Connection, createConnection } from 'typeorm';
-import { UserModel } from '../models/UserModel';
+
 import { PostModel } from '../models/PostModel';
+import { UserModel } from '../models/UserModel';
 import UserSession from '../models/UserSessionModel';
 
 export default async function resellConnection(): Promise<Connection> {

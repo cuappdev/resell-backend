@@ -1,10 +1,8 @@
-import { LoginTicket } from "google-auth-library";
-import { UserModel } from "src/models/UserModel";
-import { getRepository, Repository } from "typeorm";
+import { UserModel } from 'src/models/UserModel';
+import { getRepository, Repository } from 'typeorm';
 
 import UserSession from '../models/UserSessionModel';
-import { UserRepository } from "./UserRepository";
-import { Uuid } from '../types'
+import { Uuid } from '../types';
 
 const repo = (): Repository<UserSession> => getRepository(UserSession);
 
@@ -15,17 +13,6 @@ const createSession = async (user: UserModel): Promise<UserSession> => {
   await repo().save(session);
   return session;
 };
-
-// const createUserAndSession = async (
-//   email: string,
-//   googleId: string,
-//   name: string,
-//   profilePictureUrl: string,
-//   bio?: string,
-// ): Promise<UserSession> => {
-  // const user = await UserRepository.createUser(email, googleId, name, profilePictureUrl, bio);
-  // return await createSession(user);
-// };
 
 const deleteSessionById = async (id: Uuid): Promise<boolean> => {
   const session = await repo()
@@ -91,7 +78,6 @@ const getUserFromToken = async (accessToken: string): Promise<UserModel | undefi
     .getOne();
   const userId = session?.user.id;
   return undefined;
-  // return userId ? UserRepository.getUserById(userId) : undefined;
 };
 
 const updateSession = async (refreshToken: string): Promise<UserSession | undefined> => {
@@ -113,7 +99,6 @@ const verifySession = async (accessToken: string): Promise<boolean> => {
 
 export default {
   createSession,
-  // createUserAndSession,
   deleteSessionById,
   deleteSessionByUserId,
   expireSession,
