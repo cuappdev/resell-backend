@@ -15,8 +15,8 @@ async function main() {
   routingUseContainer(Container);
   useContainer(Container);
 
-  await resellConnection().catch(e => {
-    throw Error(JSON.stringify({ message: "Could not connect to DB.", error: e }));
+  await resellConnection().catch((error: any) => {
+    console.log(error);
   });
 
   const app = createExpressServer({
@@ -37,9 +37,10 @@ async function main() {
   });
   
   const port = process.env.PORT || 3000;
+  const host = process.env.HOST || 'localhost';
 
   app.listen(port, () => {
-    console.log(`Resell backend bartering 🛍  on localhost:${port}`);
+    console.log(`Resell backend bartering 🛍  on ${host}:${port}`);
   });
 }
 
