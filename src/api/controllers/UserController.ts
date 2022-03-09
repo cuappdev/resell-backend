@@ -1,6 +1,7 @@
-import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
+import { Body, Delete, Get, JsonController, Params, Post, Put } from 'routing-controllers';
 
 import { UserService } from '../../services/UserService';
+import { PostService } from '../../services/PostService';
 import {
   CreateUserRequest,
   ErrorResponse,
@@ -8,8 +9,10 @@ import {
   GetUserByEmailRequest,
   GetUserResponse,
   GetUsersResponse,
+  GetPostResponse,
+  GetPostsResponse,
 } from '../../types';
-import { UuidParam } from '../validators/GenericRequests';
+import { UuidParam, PostAndUserUuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
 export class UserController {
@@ -49,13 +52,24 @@ export class UserController {
   }
 
   @Get('postId/:id/')
-    async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
-      try {
-        return { success: true, user: await this.userService.getUserByPostId(params.id) }; 
-      } catch (error) {
-        return { success: false, error: getErrorMessage(error) }
-      }
+  async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
+    try {
+      return { success: true, user: await this.userService.getUserByPostId(params.id) }; 
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
     }
+  }
+
+  @Get('save/userId/:userId/postId/:postId/') 
+  async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse | ErrorResponse> {
+    try {
+      const post = await this.userService.savePost(params.userId, params.postId)
+      return { success: true, post }; 
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
+    }
+  }
+  
 
   @Post('email/')
   async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest):
@@ -85,4 +99,13 @@ export class UserController {
       return { success: false, error: getErrorMessage(error) }
     }
   }
+
+  // @Get('search/')
+  // async searchItems(@Body() searchRequest: String): Promise<GetPostsResponse | ErrorResponse> {
+  //   try {
+  //     return {success: true, posts: await this.userService.searchItems(searchRequest) }
+  //   } catch (error) {
+  //     return { success: false, error: getErrorMessage(error) }
+  //   }
+  // }
 }
