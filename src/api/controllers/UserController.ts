@@ -1,14 +1,7 @@
-import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
+import { Body, Get, JsonController, Params, Post } from 'routing-controllers';
 
 import { UserService } from '../../services/UserService';
-import {
-  CreateUserRequest,
-  ErrorResponse,
-  getErrorMessage,
-  GetUserByEmailRequest,
-  GetUserResponse,
-  GetUsersResponse,
-} from '../../types';
+import { ErrorResponse, getErrorMessage, GetUserByEmailRequest, GetUserResponse, GetUsersResponse } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
@@ -62,25 +55,6 @@ export class UserController {
       Promise<GetUserResponse | ErrorResponse> {
     try {
       return { success: true, user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
-    } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
-    }
-  }
-  
-  @Post()
-  async createUser(@Body() createUserRequest: CreateUserRequest): Promise<GetUserResponse | ErrorResponse> {
-    try {
-      const user = await this.userService.createUser(createUserRequest);
-      return { success: true, user: user };
-    } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
-    }
-  }
-
-  @Delete('id/:id/')
-  async deleteUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
-    try {
-      return { success: true, user: await this.userService.deleteUserById(params.id) };
     } catch (error) {
       return { success: false, error: getErrorMessage(error) }
     }

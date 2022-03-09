@@ -5,7 +5,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreateUserRequest, PrivateProfile, Uuid } from '../types';
+import { Uuid } from '../types';
 
 @Service()
 export class UserService {
@@ -55,23 +55,6 @@ export class UserService {
       const user = await userRepository.getUserByEmail(email);
       if (!user) throw new NotFoundError('User not found!');
       return user;
-    });
-  }
-
-  public async createUser(user: CreateUserRequest): Promise<PrivateProfile> {
-    return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const userRepository = Repositories.user(transactionalEntityManager);
-      return userRepository.createUser(user.firstName, user.lastName,
-        user.profilePictureUrl, user.venmoHandle, user.email, user.googleId, user.bio);
-    });
-  }
-
-  public async deleteUserById(id: Uuid): Promise<UserModel> {
-    return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserById(id);
-      if (!user) throw new NotFoundError('User not found!');
-      return userRepository.deleteUser(user);
     });
   }
 }
