@@ -7,7 +7,9 @@ import { Uuid } from '../types';
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
   public async getAllPosts(): Promise<PostModel[]> {
-    return this.repository.find();
+    return await this.repository.createQueryBuilder("post")
+    .leftJoinAndSelect("post.user", "user")
+    .getMany();
   }
 
   public async getPostById(id: Uuid): Promise<PostModel | undefined> {

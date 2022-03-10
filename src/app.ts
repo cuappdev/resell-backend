@@ -41,7 +41,7 @@ async function main() {
   const PORT = +(process.env.PORT ?? 3000);
 
   app.listen(PORT, () => {
-    console.log(`Resell backend bartering 🛍  on ${HOST}:${PORT}`);
+    console.log(`Resell backend bartering on ${HOST}:${PORT}`);
   });
 }
 
