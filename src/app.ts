@@ -17,6 +17,7 @@ async function main() {
 
   await resellConnection().catch((error: any) => {
     console.log(error);
+    throw new Error(`Server couldn't connect to the database, check details in error message above.`);
   });
 
   const app = createExpressServer({
@@ -36,11 +37,11 @@ async function main() {
     defaultErrorHandler: false,
   });
   
-  const port = process.env.PORT || 3000;
-  const host = process.env.HOST || 'localhost';
+  const HOST = process.env.HOST || 'localhost';
+  const PORT = +(process.env.PORT ?? 3000);
 
-  app.listen(port, () => {
-    console.log(`Resell backend bartering 🛍  on ${host}:${port}`);
+  app.listen(PORT, () => {
+    console.log(`Resell backend bartering on ${HOST}:${PORT}`);
   });
 }
 

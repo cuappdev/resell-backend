@@ -4,7 +4,7 @@
   "description": "An open-sourced backend service for Resell.",
   "main": "src/app.ts",
   "scripts": {
-    "dev": "tsc-watch --onSuccess 'ts-node src/app.ts'",
+    "dev": "tsc-watch --onSuccess \"ts-node src/app.ts\"",
     "start": "ts-node src/app.ts",
     "test": "jest"
   },

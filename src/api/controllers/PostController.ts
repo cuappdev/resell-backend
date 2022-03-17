@@ -22,7 +22,7 @@ export class PostController {
     }
   }
 
-  @Get('id/:postId/')
+  @Get('id/:id/')
   async getPostById(@Params() params: UuidParam): Promise<GetPostResponse | ErrorResponse> {
     try {
       return { success: true, post: await this.postService.getPostById(params.id) };
@@ -31,7 +31,7 @@ export class PostController {
     }
   }
 
-  @Get('userId/:userId/')
+  @Get('userId/:id/')
   async getPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse | ErrorResponse> {
     try {
       return { success: true, posts: await this.postService.getPostsByUserId(params.id) };
