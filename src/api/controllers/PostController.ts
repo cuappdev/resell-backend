@@ -1,7 +1,7 @@
 import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 
 import { PostService } from '../../services/PostService';
-import { CreatePostRequest, ErrorResponse, getErrorMessage, GetPostResponse, GetPostsResponse } from '../../types';
+import { CreatePostRequest, ErrorResponse, getErrorMessage, GetPostResponse, GetPostsResponse, getSavedPostsRequest } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('post/')
@@ -54,6 +54,16 @@ export class PostController {
   async deletePostById(@Params() params: UuidParam): Promise<GetPostResponse | ErrorResponse> {
     try {
       return { success: true, post: await this.postService.deletePostById(params.id) };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
+    }
+  }
+
+  
+  @Post('search/')
+  async searchPosts(@Body() getSavedPostsRequest: getSavedPostsRequest): Promise<GetPostsResponse | ErrorResponse> {
+    try {
+      return { success: true, posts: await this.postService.searchPosts(getSavedPostsRequest) };
     } catch (error) {
       return { success: false, error: getErrorMessage(error) }
     }
