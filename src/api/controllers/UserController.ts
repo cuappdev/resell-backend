@@ -60,13 +60,20 @@ export class UserController {
   @Get('save/userId/:userId/postId/:postId/') 
   async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse | ErrorResponse> {
     try {
-      const post = await this.userService.savePost(params.userId, params.postId)
-      return { success: true, post }; 
+      return { success: true, post: await this.userService.savePost(params) }; 
     } catch (error) {
       return { success: false, error: getErrorMessage(error) }
     }
   }
-  
+
+  @Get('unsave/userId/:userId/postId/:postId/') 
+  async unsavePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse | ErrorResponse> {
+    try {
+      return { success: true, post: await this.userService.unsavePost(params) }; 
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) }
+    }
+  }
 
   @Post('email/')
   async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest):

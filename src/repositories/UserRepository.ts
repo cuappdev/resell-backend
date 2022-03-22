@@ -25,14 +25,15 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
-  public async savePost(User: UserModel, Post: PostModel): Promise<PostModel | undefined> {
-    const post = Post
-    const user= User
-    if (!user.saved) {
-      user.saved = [];
-    }
+  public async savePost(user: UserModel, post: PostModel): Promise<PostModel | undefined> {
     user.saved.push(post)
-    this.repository.save(user)
+    await this.repository.save(user)
+    return post
+  }
+
+  public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel | undefined> {
+    user.saved.splice(user.saved.indexOf(post))
+    await this.repository.save(user)
     return post
   }
 
