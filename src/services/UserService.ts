@@ -53,12 +53,12 @@ export class UserService {
 
   public async savePost(params: PostAndUserUuidParam): Promise<PostModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const postRepository = Repositories.post(transactionalEntityManager);
       const userRepository = Repositories.user(transactionalEntityManager);
       const user = await userRepository.getUserById(params.userId);
+      if (!user) throw new NotFoundError('User not found!');
+      const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.postId);
       if (!post) throw new NotFoundError('Post not found!');
-      if (!user) throw new NotFoundError('User not found!');
       await userRepository.savePost(user, post);
       return post
     });
@@ -66,12 +66,12 @@ export class UserService {
 
   public async unsavePost(params: PostAndUserUuidParam): Promise<PostModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const postRepository = Repositories.post(transactionalEntityManager);
       const userRepository = Repositories.user(transactionalEntityManager);
       const user = await userRepository.getUserById(params.userId);
+      if (!user) throw new NotFoundError('User not found!');
+      const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.postId);
       if (!post) throw new NotFoundError('Post not found!');
-      if (!user) throw new NotFoundError('User not found!');
       await userRepository.unsavePost(user, post);
       return post
     });
