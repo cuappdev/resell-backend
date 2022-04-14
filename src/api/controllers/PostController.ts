@@ -16,27 +16,27 @@ export class PostController {
   async getPosts(): Promise<GetPostsResponse | ErrorResponse> {
     try {
       const posts = await this.postService.getAllPosts();
-      return { success: true, posts: posts.map((post) => post.getPostInfo()) };
+      return { posts: posts.map((post) => post.getPostInfo()) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Get('id/:postId/')
   async getPostById(@Params() params: UuidParam): Promise<GetPostResponse | ErrorResponse> {
     try {
-      return { success: true, post: await this.postService.getPostById(params.id) };
+      return { post: await this.postService.getPostById(params.id) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Get('userId/:userId/')
   async getPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse | ErrorResponse> {
     try {
-      return { success: true, posts: await this.postService.getPostsByUserId(params.id) };
+      return { posts: await this.postService.getPostsByUserId(params.id) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
@@ -44,18 +44,18 @@ export class PostController {
   async createPost(@Body() createPostRequest: CreatePostRequest): Promise<GetPostResponse | ErrorResponse> {
     try {
       const post = await this.postService.createPost(createPostRequest);
-    return { success: true, post: post };
+    return { post: post };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Delete(':id/')
   async deletePostById(@Params() params: UuidParam): Promise<GetPostResponse | ErrorResponse> {
     try {
-      return { success: true, post: await this.postService.deletePostById(params.id) };
+      return { post: await this.postService.deletePostById(params.id) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 }

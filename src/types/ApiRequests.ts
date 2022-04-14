@@ -4,10 +4,24 @@ import { Uuid } from '.';
 
 // AUTH
 
+export interface GoogleLoginUser {
+    id: string;
+    email: string;
+    familyName: string;
+    givenName: string;
+    name: string;
+    photoUrl: string;
+}
+
+export interface AuthRequest {
+    idToken: string;
+    user: GoogleLoginUser;
+}
+
 export interface CreateUserRequest {
-    firstName: string;
-    lastName: string;
-    profilePictureUrl: string;
+    givenName: string;
+    familyName: string;
+    photoUrl: string;
     venmoHandle: string;
     email: string;
     googleId: string;

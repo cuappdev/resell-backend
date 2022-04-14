@@ -1,13 +1,10 @@
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
+import { APIUserSession } from '../types';
 
 // RESPONSE TYPES
 
-export interface GenericSuccessResponse {
-    success: boolean;
-}
-
-export interface ErrorResponse extends GenericSuccessResponse {
+export interface ErrorResponse {
     error: string;
 }
 
@@ -46,9 +43,9 @@ export function getErrorMessage(error: unknown): string {
 
 export interface PublicProfile {
     id: Uuid,
-    firstName: string,
-    lastName: string,
-    profilePictureUrl: string,
+    givenName: string,
+    familyName: string,
+    photoUrl: string,
     venmoHandle: string,
     bio: string,
     posts: PostModel[],
@@ -60,12 +57,12 @@ export interface PrivateProfile extends PublicProfile {
     saved: PostModel[],
 }
 
-export interface GetUsersResponse extends GenericSuccessResponse {
+export interface GetUsersResponse {
     users: PrivateProfile[];
 }
 
-export interface GetUserResponse extends GenericSuccessResponse {
-    user: PrivateProfile | null;
+export interface GetUserResponse {
+    user: PrivateProfile | undefined;
 }
 
 // POST
@@ -80,10 +77,20 @@ export interface Post {
     user: PublicProfile,
 }
 
-export interface GetPostsResponse extends GenericSuccessResponse {
+export interface GetPostsResponse {
     posts: Post[];
 }
 
-export interface GetPostResponse extends GenericSuccessResponse {
+export interface GetPostResponse {
     post: Post;
+}
+
+// SESSIONS
+
+export interface GetSessionsReponse {
+    sessions: APIUserSession[];
+}
+
+export interface LogoutResponse {
+    logoutSuccess: boolean;
 }

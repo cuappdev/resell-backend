@@ -1,111 +1,111 @@
-import { UserModel } from 'src/models/UserModel';
-import { getRepository, Repository } from 'typeorm';
+import { AbstractRepository, EntityRepository } from 'typeorm';
 
-import UserSession from '../models/UserSessionModel';
+import { UserModel } from '../models/UserModel';
+import { UserSessionModel } from '../models/UserSessionModel';
 import { Uuid } from '../types';
 
-const repo = (): Repository<UserSession> => getRepository(UserSession);
+@EntityRepository(UserSessionModel)
+export class UserSessionRepository extends AbstractRepository<UserSessionModel> {
 
-const createSession = async (user: UserModel): Promise<UserSession> => {
-  const session = new UserSession();
-  session.user = user;
-  session.update();
-  await repo().save(session);
-  return session;
-};
-
-const deleteSessionById = async (id: Uuid): Promise<boolean> => {
-  const session = await repo()
-    .createQueryBuilder("usersession")
-    .where("usersession.id = :id", { id })
-    .getOne();
-  if (!session) return false;
-  await repo().remove(session);
-  return true;
-};
-
-const deleteSessionByUserId = async (userId: string): Promise<boolean> => {
-  const sessions = await repo()
-    .createQueryBuilder("usersession")
-    .leftJoinAndSelect("usersession.user", "user")
-    .where("user.id = :userId", { userId })
-    .getMany();
-  let allTrue = true;
-  for (const session of sessions) {
-    allTrue = allTrue && (await deleteSessionById(session.id));
-  }
-  return allTrue;
-};
-
-const expireSession = async (session: UserSession): Promise<UserSession> => {
-  session.expiresAt = new Date(Date.now() - 1);
-  await repo().save(session);
-  return session;
-};
-
-const getSessionById = async (id: Uuid): Promise<UserSession | undefined> => {
-  return await repo()
-    .createQueryBuilder("usersession")
-    .where("usersession.id = :id", { id })
-    .getOne();
-};
-
-const getSessionByToken = async (accessToken?: string, refreshToken?: string): Promise<UserSession | undefined> => {
-  const token = accessToken || refreshToken;
-  const session = await repo()
-    .createQueryBuilder("usersession")
-    .where("usersession.accessToken = :accessToken", { accessToken: token })
-    .orWhere("usersession.refreshToken = :refreshToken", { refreshToken: token })
-    .getOne();
-  return session;
-};
-
-const getSessionsByUserId = async (userId: string): Promise<UserSession[]> => {
-  return await repo()
-    .createQueryBuilder("usersession")
-    .leftJoinAndSelect("usersession.user", "user")
-    .where("user.id = :userId", { userId })
-    .getMany();
-};
-
-const getUserFromToken = async (accessToken: string): Promise<UserModel | undefined> => {
-  const verified = await verifySession(accessToken);
-  if (!verified) return undefined;
-  const session = await repo()
-    .createQueryBuilder("usersession")
-    .leftJoinAndSelect("usersession.user", "user")
-    .where("usersession.accessToken = :accessToken", { accessToken })
-    .getOne();
-  const userId = session?.user.id;
-  return undefined;
-};
-
-const updateSession = async (refreshToken: string): Promise<UserSession | undefined> => {
-  const session = await repo().findOne({ where: { refreshToken } });
-  if (session) {
+  public async createSession(user: UserModel): Promise<UserSessionModel> {
+    const session = new UserSessionModel();
+    session.user = user;
+    session.userId = user.id;
     session.update();
-    await repo().save(session);
+    await this.repository.save(session);
+    return session;
   }
-  return session;
-};
 
-const verifySession = async (accessToken: string): Promise<boolean> => {
-  const session = await repo()
-    .createQueryBuilder("usersession")
-    .where("usersession.accessToken = :accessToken", { accessToken })
-    .getOne();
-  return session ? session.expiresAt.getTime() > Date.now() : false;
-};
+  public async deleteSessionByAccessToken(accessToken: string): Promise<boolean> {
+    const session = await this.repository
+      .createQueryBuilder("UserSessionModel")
+      .where("UserSessionModel.accessToken = :accessToken", { accessToken })
+      .getOne();
+    if (!session) return false;
+    await this.repository.remove(session);
+    return true;
+  }
 
-export default {
-  createSession,
-  deleteSessionById,
-  deleteSessionByUserId,
-  expireSession,
-  getSessionById,
-  getSessionByToken,
-  getSessionsByUserId,
-  getUserFromToken,
-  updateSession,
-  verifySession
-};
+  public async deleteSessionById(id: Uuid): Promise<boolean> {
+    const session = await this.repository
+      .createQueryBuilder("UserSessionModel")
+      .where("UserSessionModel.id = :id", { id })
+      .getOne();
+    if (!session) return false;
+    await this.repository.remove(session);
+    return true;
+  }
+
+  public async deleteSessionByUserId(userId: string): Promise<boolean> {
+    const sessions = await this.repository
+      .createQueryBuilder("UserSessionModel")
+      .leftJoinAndSelect("UserSessionModel.user", "user")
+      .where("user.id = :userId", { userId })
+      .getMany();
+    let allTrue = true;
+    for (const session of sessions) {
+      allTrue = allTrue && (await this.deleteSessionById(session.id));
+    }
+    return allTrue;
+  }
+
+  public async expireSession(session: UserSessionModel): Promise<UserSessionModel> {
+    session.expiresAt = new Date(Date.now() - 7);
+    await this.repository.save(session);
+    return session;
+  }
+
+  public async getSessionById(id: Uuid): Promise<UserSessionModel | undefined> {
+    return await this.repository
+      .createQueryBuilder("UserSessionModel")
+      .where("UserSessionModel.id = :id", { id })
+      .getOne();
+  }
+
+  public async getSessionByToken(accessToken?: string, refreshToken?: string): Promise<UserSessionModel | undefined> {
+    const token = accessToken || refreshToken;
+    const session = await this.repository
+      .createQueryBuilder("UserSessionModel")
+      .where("UserSessionModel.accessToken = :accessToken", { accessToken: token })
+      .orWhere("UserSessionModel.refreshToken = :refreshToken", { refreshToken: token })
+      .getOne();
+    return session;
+  }
+
+  public async getSessionsByUserId(userId: string): Promise<UserSessionModel[]> {
+    return await this.repository
+      .createQueryBuilder("UserSessionModel")
+      .leftJoinAndSelect("UserSessionModel.user", "user")
+      .where("user.id = :userId", { userId })
+      .getMany();
+  }
+
+  public async getUserIdFromToken(accessToken: string): Promise<Uuid | undefined> {
+    const verified = await this.verifySession(accessToken);
+    if (!verified) return undefined;
+    const session = await this.repository
+      .createQueryBuilder("UserSessionModel")
+      .leftJoinAndSelect("UserSessionModel.user", "user")
+      .where("UserSessionModel.accessToken = :accessToken", { accessToken })
+      .getOne();
+    const userId = session?.user.id;
+    return userId;
+  }
+
+  public async updateSession(refreshToken: string): Promise<UserSessionModel | undefined> {
+    const session = await this.repository.findOne({ where: { refreshToken } });
+    if (session) {
+      session.update();
+      await this.repository.save(session);
+    }
+    return session;
+  }
+
+  public async verifySession(accessToken: string): Promise<boolean> {
+    const session = await this.repository
+      .createQueryBuilder("UserSessionModel")
+      .where("UserSessionModel.accessToken = :accessToken", { accessToken })
+      .getOne();
+    return session ? session.expiresAt.getTime() > Date.now() : false;
+  }
+}

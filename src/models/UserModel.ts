@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { PrivateProfile, Uuid } from '../types';
 import { PostModel } from './PostModel';
-import UserSession from './UserSessionModel';
+import { UserSessionModel } from './UserSessionModel';
 
 @Entity()
 export class UserModel {
@@ -11,15 +11,15 @@ export class UserModel {
   id: Uuid;
 
   @Column()
-  firstName: string;
+  givenName: string;
 
   @Column()
-  lastName: string;
+  familyName: string;
 
-  @Column()
-  profilePictureUrl: string;
+  @Column({ nullable: true })
+  photoUrl: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   venmoHandle: string;
 
   @Column({ unique: true })
@@ -29,23 +29,23 @@ export class UserModel {
   googleId: string;
 
   @Column({ type: "text" })
-  bio = "User has not entered a bio.";
+  bio = "";
 
-  @OneToMany(() => PostModel, post => post.user, { onDelete: "CASCADE" })
+  @OneToMany(() => PostModel, post => post.user, { cascade: true })
   posts: PostModel[];
 
-  @OneToMany(() => PostModel, post => post.user)
+  @OneToMany(() => PostModel, post => post.user, { cascade: true })
   saved: PostModel[];
 
-  @OneToMany(() => UserSession, session => session.user)
-  sessions: UserSession[];
+  @OneToMany(() => UserSessionModel, session => session.user, { cascade: true })
+  sessions: UserSessionModel;
 
   public getUserProfile(): PrivateProfile {
     return {
       id: this.id,
-      firstName: this.firstName,
-      lastName: this.lastName,
-      profilePictureUrl: this.profilePictureUrl,
+      givenName: this.givenName,
+      familyName: this.familyName,
+      photoUrl: this.photoUrl,
       venmoHandle: this.venmoHandle,
       email: this.email,
       googleId: this.googleId,
