@@ -50,3 +50,7 @@ export interface CreatePostRequest {
     images: string[];
     userId: Uuid;
 }
+
+export interface getSavedPostsRequest {
+    keywords: string;
+}
