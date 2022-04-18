@@ -8,6 +8,7 @@ import { Uuid } from '../types';
 export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
   public async getAllFeedback(): Promise<FeedbackModel[]> {
     return await this.repository.createQueryBuilder("feedback")
+    .leftJoinAndSelect("feedback.user", "user")
     .getMany();
   }
 
@@ -17,6 +18,14 @@ export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
     .where("feedback.id=:id", { id })
     .getOne();
   return feedback;
+  }
+
+  public async getFeedbackByUserId(userId: Uuid): Promise<FeedbackModel[]> {
+    return await this.repository
+      .createQueryBuilder("feedback")
+      .leftJoinAndSelect("feedback.user", "user")
+      .where("user.id = :userId", { userId })
+      .getMany();
   }
 
   public async createFeedback (
@@ -31,14 +40,6 @@ export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
     });
     await this.repository.save(feedback);
     return feedback;
-  }
-
-  public async getFeedbackByUserId(userId: Uuid): Promise<FeedbackModel[]> {
-    return await this.repository
-      .createQueryBuilder("feedback")
-      .leftJoinAndSelect("feedback.user", "user")
-      .where("user.id = :userId", { userId })
-      .getMany();
   }
 
   public async deleteFeedback(feedback: FeedbackModel): Promise<FeedbackModel> {

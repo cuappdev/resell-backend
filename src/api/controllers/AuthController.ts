@@ -16,18 +16,18 @@ export class AuthController {
   async createUser(@Body() createUserRequest: CreateUserRequest): Promise<GetUserResponse | ErrorResponse> {
     try {
       const user = await this.authService.createUser(createUserRequest);
-      return { success: true, user: user };
+      return { user: user };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Delete('id/:id/')
   async deleteUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
     try {
-      return { success: true, user: await this.authService.deleteUserById(params.id) };
+      return { user: await this.authService.deleteUserById(params.id) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 }

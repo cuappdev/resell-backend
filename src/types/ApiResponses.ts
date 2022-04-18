@@ -1,3 +1,4 @@
+import { FeedbackModel } from 'src/models/FeedbackModel';
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
 
@@ -55,6 +56,7 @@ export interface PrivateProfile extends PublicProfile {
     email: string,
     googleId: string,
     saved: PostModel[],
+    feedback: FeedbackModel[],
 }
 
 export interface GetUsersResponse {
