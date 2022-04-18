@@ -18,6 +18,13 @@ export interface AuthRequest {
     user: GoogleLoginUser;
 }
 
+export interface EditProfileRequest {
+    photoUrl: string | undefined;
+    username: string | undefined;
+    venmoHandle: string | undefined;
+    bio: string | undefined;
+}
+
 export interface CreateUserRequest {
     givenName: string;
     familyName: string;

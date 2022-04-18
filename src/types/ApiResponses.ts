@@ -43,6 +43,8 @@ export function getErrorMessage(error: unknown): string {
 
 export interface PublicProfile {
     id: Uuid,
+    username: string,
+    netid: string,
     givenName: string,
     familyName: string,
     photoUrl: string,

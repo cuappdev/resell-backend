@@ -31,6 +31,8 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async createUser(
+    username: string,
+    netid: string,
     givenName: string,
     familyName: string,
     photoUrl: string,
@@ -50,13 +52,28 @@ export class UserRepository extends AbstractRepository<UserModel> {
     if (await existingUser) throw Error('UserModel with same google ID already exists!');
     
     const user = new UserModel();
-      user.givenName = givenName;
-      user.familyName = familyName;
-      user.photoUrl = photoUrl;
-      user.email = email;
-      user.googleId = googleId;
-      this.repository.save(user);
-      return user;
+    user.username = username;
+    user.netid = netid;
+    user.givenName = givenName;
+    user.familyName = familyName;
+    user.photoUrl = photoUrl;
+    user.email = email;
+    user.googleId = googleId;
+    return this.repository.save(user);
+  }
+
+  public async updateUser(
+    user: UserModel,
+    username: string | undefined,
+    photoUrl: string | undefined,
+    venmoHandle: string | undefined,
+    bio: string | undefined
+  ): Promise<UserModel> {
+    user.username = username ?? user.username;
+    user.photoUrl = photoUrl ?? user.photoUrl;
+    user.venmoHandle = venmoHandle ?? user.venmoHandle;
+    user.bio = bio ?? user.bio;
+    return this.repository.save(user);
   }
 
   public async deleteUser(user: UserModel): Promise<UserModel> {

@@ -4,6 +4,7 @@ import { UserModel } from '../../models/UserModel';
 import { AuthService } from '../../services/AuthService';
 import {
   APIUserSession,
+  EditProfileRequest,
   ErrorResponse,
   getErrorMessage,
   GetSessionsReponse,
@@ -53,6 +54,19 @@ export class AuthController {
       return { logoutSuccess: success };
     } catch (error) {
       return { error: getErrorMessage(error) }
+    }
+  }
+
+  @Post('edit/')
+  async editProfile(@Body() editProfileRequest: EditProfileRequest, @CurrentUser() user?: UserModel): Promise<GetUserResponse | ErrorResponse> {
+    try {
+      if (!user) {
+        return { error: 'Invalid session token!' };
+      }
+      const editedUser = await this.authService.updateUser(editProfileRequest, user);
+      return { user: editedUser.getUserProfile() };
+    } catch (error) {
+      return { error: getErrorMessage(error) };
     }
   }
 

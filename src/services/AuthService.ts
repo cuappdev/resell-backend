@@ -7,7 +7,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UserModel } from '../models/UserModel';
 import { UserSessionModel } from '../models/UserSessionModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { APIUserSession, AuthRequest, CreateUserRequest, PrivateProfile, Uuid } from '../types';
+import { APIUserSession, AuthRequest, EditProfileRequest, Uuid } from '../types';
 
 const client = new OAuth2Client(process.env.OAUTH_BACKEND_ID);
 
@@ -21,7 +21,8 @@ export class AuthService {
 
   public async loginUser(authRequest: AuthRequest): Promise<UserSessionModel | undefined> {
     // checks if the email is a Cornell email
-    if (authRequest.user.email.indexOf('@cornell.edu') === -1) {
+    const emailIndex = authRequest.user.email.indexOf('@cornell.edu')
+    if (emailIndex === -1) {
       throw new Error('Non-Cornell email used!');
     } 
 
@@ -53,7 +54,9 @@ export class AuthService {
           const sessionsRepository = Repositories.session(transactionalEntityManager);
           if (!user) {
             // if the user is not in the database, create a new user
-            user = await userRepository.createUser(newUser.givenName, newUser.familyName,
+            // extracts everything before @cornell.edu in variable "netid"
+            const netid = authRequest.user.email.substring(0, emailIndex);
+            user = await userRepository.createUser(netid, netid, newUser.givenName, newUser.familyName,
               newUser.photoUrl, newUser.email, userId);
           }
           // since they're logging in, create a new session for them
@@ -67,11 +70,11 @@ export class AuthService {
     }
   }
 
-  public async createUser(user: CreateUserRequest): Promise<PrivateProfile> {
+  public async updateUser(editProfileRequest: EditProfileRequest, user: UserModel): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      return userRepository.createUser(user.givenName, user.familyName,
-        user.photoUrl, user.email, user.googleId);
+      return userRepository.updateUser(user, editProfileRequest.username, editProfileRequest.photoUrl,
+        editProfileRequest.venmoHandle, editProfileRequest.bio);
     });
   }
 

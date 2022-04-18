@@ -11,6 +11,12 @@ export class UserModel {
   id: Uuid;
 
   @Column()
+  username: string;
+
+  @Column()
+  netid: string;
+
+  @Column()
   givenName: string;
 
   @Column()
@@ -28,8 +34,8 @@ export class UserModel {
   @Column({ unique: true })
   googleId: string;
 
-  @Column({ type: "text" })
-  bio = "";
+  @Column({ type: "text", default: "" })
+  bio: string;
 
   @OneToMany(() => PostModel, post => post.user, { cascade: true })
   posts: PostModel[];
@@ -43,6 +49,8 @@ export class UserModel {
   public getUserProfile(): PrivateProfile {
     return {
       id: this.id,
+      username: this.username,
+      netid: this.netid,
       givenName: this.givenName,
       familyName: this.familyName,
       photoUrl: this.photoUrl,
