@@ -1,5 +1,6 @@
 import { EntityManager } from 'typeorm';
 
+import { FeedbackRepository } from './FeedbackRepository';
 import { PostRepository } from './PostRepository';
 import { UserRepository } from './UserRepository';
 
@@ -11,6 +12,10 @@ export default class Repositories {
   public static post(transactionalEntityManager: EntityManager): PostRepository {
     return transactionalEntityManager.getCustomRepository(PostRepository);
   }
+
+  public static feedback(transactionalEntityManager: EntityManager): FeedbackRepository {
+    return transactionalEntityManager.getCustomRepository(FeedbackRepository);
+  } 
 }
 
 export class TransactionsManager {

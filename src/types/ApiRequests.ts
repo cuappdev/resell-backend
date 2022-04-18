@@ -30,6 +30,18 @@ export interface CreatePostRequest {
     userId: Uuid;
 }
 
-export interface getSavedPostsRequest {
+export interface GetSearchedPostsRequest {
+    keywords: string;
+}
+
+// FEEDBACK
+
+export interface CreateFeedbackRequest {
+    description: string;
+    images: string[];
+    userId:Uuid
+}
+
+export interface GetSearchedFeedbackRequest {
     keywords: string;
 }

@@ -87,3 +87,20 @@ export interface GetPostsResponse extends GenericSuccessResponse {
 export interface GetPostResponse extends GenericSuccessResponse {
     post: Post;
 }
+
+// FEEDBACK
+
+export interface Feedback {
+    id: Uuid,
+    description: string,
+    images: string[],
+    user: PublicProfile,
+}
+
+export interface GetFeedbacksResponse extends GenericSuccessResponse {
+    feedback: Feedback[];
+}
+
+export interface GetFeedbackResponse extends GenericSuccessResponse {
+    feedback: Feedback;
+}

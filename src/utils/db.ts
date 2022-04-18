@@ -1,5 +1,6 @@
 import { Connection, createConnection } from 'typeorm';
 
+import { FeedbackModel } from '../models/FeedbackModel';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import UserSession from '../models/UserSessionModel';
@@ -7,6 +8,7 @@ import UserSession from '../models/UserSessionModel';
 const models =[
   UserModel,
   PostModel,
+  FeedbackModel,
   UserSession
 ];
 
