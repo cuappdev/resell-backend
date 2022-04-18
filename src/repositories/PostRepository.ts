@@ -7,7 +7,9 @@ import { Uuid } from '../types';
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
   public async getAllPosts(): Promise<PostModel[]> {
-    return this.repository.find();
+    return await this.repository.createQueryBuilder("post")
+    .leftJoinAndSelect("post.user", "user")
+    .getMany();
   }
 
   public async getPostById(id: Uuid): Promise<PostModel | undefined> {
@@ -55,5 +57,21 @@ export class PostRepository extends AbstractRepository<PostModel> {
 
   public async deletePost(post: PostModel): Promise<PostModel> {
     return this.repository.remove(post);
+  }
+
+  public async searchPostsByTitle(keywords: String): Promise<PostModel[]> {
+    const posts = await this.repository
+      .createQueryBuilder("post")
+      .where("post.title like :keywords", {keywords: `%${keywords}%`})
+      .getMany();
+    return posts;
+  }
+
+  public async searchPostsByDescription(keywords: String): Promise<PostModel[]> {
+    const posts = await this.repository
+      .createQueryBuilder("post")
+      .where("post.description like :keywords", {keywords: `%${keywords}%`})
+      .getMany();
+    return posts;
   }
 }

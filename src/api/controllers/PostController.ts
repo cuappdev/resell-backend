@@ -1,7 +1,14 @@
 import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 
 import { PostService } from '../../services/PostService';
-import { CreatePostRequest, ErrorResponse, getErrorMessage, GetPostResponse, GetPostsResponse } from '../../types';
+import {
+  CreatePostRequest,
+  ErrorResponse,
+  getErrorMessage,
+  GetPostResponse,
+  GetPostsResponse,
+  getSavedPostsRequest,
+} from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('post/')
@@ -22,7 +29,7 @@ export class PostController {
     }
   }
 
-  @Get('id/:postId/')
+  @Get('id/:id/')
   async getPostById(@Params() params: UuidParam): Promise<GetPostResponse | ErrorResponse> {
     try {
       return { post: await this.postService.getPostById(params.id) };
@@ -31,7 +38,7 @@ export class PostController {
     }
   }
 
-  @Get('userId/:userId/')
+  @Get('userId/:id/')
   async getPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse | ErrorResponse> {
     try {
       return { posts: await this.postService.getPostsByUserId(params.id) };
@@ -54,6 +61,16 @@ export class PostController {
   async deletePostById(@Params() params: UuidParam): Promise<GetPostResponse | ErrorResponse> {
     try {
       return { post: await this.postService.deletePostById(params.id) };
+    } catch (error) {
+      return { error: getErrorMessage(error) }
+    }
+  }
+
+  
+  @Post('search/')
+  async searchPosts(@Body() getSavedPostsRequest: getSavedPostsRequest): Promise<GetPostsResponse | ErrorResponse> {
+    try {
+      return { posts: await this.postService.searchPosts(getSavedPostsRequest) };
     } catch (error) {
       return { error: getErrorMessage(error) }
     }

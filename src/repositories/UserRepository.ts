@@ -1,3 +1,4 @@
+import { PostModel } from 'src/models/PostModel';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
 import { UserModel } from '../models/UserModel';
@@ -12,6 +13,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getUserById(id: Uuid): Promise<UserModel | undefined> {
     return this.repository
       .createQueryBuilder("user")
+      .leftJoinAndSelect("user.saved", "post")
       .where("user.id = :id", { id })
       .getOne();
   }
@@ -21,6 +23,17 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .createQueryBuilder("user")
       .where("user.googleId = :googleId", { googleId })
       .getOne();
+  }
+
+  public async savePost(User: UserModel, Post: PostModel): Promise<PostModel | undefined> {
+    const post = Post
+    const user= User
+    if (!user.saved) {
+      user.saved = [];
+    }
+    user.saved.push(post)
+    this.repository.save(user)
+    return post
   }
 
   public async getUserByEmail(email: string): Promise<UserModel | undefined> {

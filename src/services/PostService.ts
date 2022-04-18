@@ -5,7 +5,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { PostModel } from '../models/PostModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, Post, Uuid } from '../types';
+import { CreatePostRequest, getSavedPostsRequest, Post, Uuid } from '../types';
 
 @Service()
 export class PostService {
@@ -58,4 +58,31 @@ export class PostService {
       return postRepository.deletePost(post);
     });
   }
+
+  
+  public async searchPosts(getSavedPostsRequest:getSavedPostsRequest): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const postsByTitle = await postRepository.searchPostsByTitle(getSavedPostsRequest.keywords);
+      const postsByDescription = await postRepository.searchPostsByDescription(getSavedPostsRequest.keywords.toLowerCase());
+      const posts = postsByTitle;
+      postsByDescription.forEach((pd) => {
+        let contains:boolean = false
+        posts.forEach((p) => {
+          if (p.id == pd.id)
+          {
+            contains=true;
+            posts.splice(posts.indexOf(p), 1);
+            posts.unshift(p);
+          }
+        });
+        if (!contains)
+        {
+          posts.push(pd);
+        }
+      });
+      return posts;
+    });
+  }
+
 }

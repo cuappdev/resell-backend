@@ -6,12 +6,12 @@ import {
   EditProfileRequest,
   ErrorResponse,
   getErrorMessage,
+  GetPostResponse,
   GetUserByEmailRequest,
   GetUserResponse,
   GetUsersResponse,
 } from '../../types';
-import { UuidParam } from '../validators/GenericRequests';
-
+import { PostAndUserUuidParam, UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
 export class UserController {
@@ -77,6 +77,16 @@ export class UserController {
       Promise<GetUserResponse | ErrorResponse> {
     try {
       return { user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
+    } catch (error) {
+      return { error: getErrorMessage(error) }
+    }
+  }
+
+  @Get('save/userId/:userId/postId/:postId/') 
+  async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse | ErrorResponse> {
+    try {
+      const post = await this.userService.savePost(params.userId, params.postId)
+      return { post }; 
     } catch (error) {
       return { error: getErrorMessage(error) }
     }

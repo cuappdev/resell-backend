@@ -50,8 +50,8 @@ async function main() {
     defaultErrorHandler: false,
   });
   
-  const host = process.env.HOST || 'localhost';
-  const port = process.env.PORT || 3000;
+  const host = process.env.HOST ?? 'localhost';
+  const port = +(process.env.PORT ?? 3000);
 
   app.listen(port, () => {
     console.log(`Resell backend bartering on ${host}:${port}`);
