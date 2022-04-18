@@ -41,7 +41,7 @@ export class FeedbackController {
   }
 
   @Post()
-  async createPost(@Body() createFeedbackRequest: CreateFeedbackRequest): Promise<GetFeedbackResponse | ErrorResponse> {
+  async createFeedback(@Body() createFeedbackRequest: CreateFeedbackRequest): Promise<GetFeedbackResponse | ErrorResponse> {
     try {
       const feedback = await this.feedbackService.createFeedback(createFeedbackRequest);
     return { feedback: feedback };
@@ -61,7 +61,7 @@ export class FeedbackController {
 
   
   @Post('search/')
-  async searchPosts(@Body() GetSearchedFeedbackRequest: GetSearchedFeedbackRequest): Promise<GetFeedbacksResponse | ErrorResponse> {
+  async searchFeedback(@Body() GetSearchedFeedbackRequest: GetSearchedFeedbackRequest): Promise<GetFeedbacksResponse | ErrorResponse> {
     try {
       return { feedback: await this.feedbackService.searchFeedback(GetSearchedFeedbackRequest) };
     } catch (error) {

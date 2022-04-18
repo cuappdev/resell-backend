@@ -5,7 +5,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { PostModel } from '../models/PostModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, GetSearchedFeedbackRequest, Post, Uuid } from '../types';
+import { CreatePostRequest, GetSearchedPostsRequest, Post, Uuid } from '../types';
 
 @Service()
 export class PostService {
@@ -60,11 +60,11 @@ export class PostService {
   }
 
   
-  public async searchPosts(getSearchedFeedbackRequest:GetSearchedFeedbackRequest): Promise<PostModel[]> {
+  public async searchPosts(getSearchedPostsRequest: GetSearchedPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const postsByTitle = await postRepository.searchPostsByTitle(getSearchedFeedbackRequest.keywords);
-      const postsByDescription = await postRepository.searchPostsByDescription(getSearchedFeedbackRequest.keywords.toLowerCase());
+      const postsByTitle = await postRepository.searchPostsByTitle(getSearchedPostsRequest.keywords);
+      const postsByDescription = await postRepository.searchPostsByDescription(getSearchedPostsRequest.keywords.toLowerCase());
       const posts = postsByTitle;
       postsByDescription.forEach((pd) => {
         let contains:boolean = false
