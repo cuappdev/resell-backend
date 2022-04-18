@@ -1,7 +1,15 @@
-import { Body, Get, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, Get, JsonController, Params, Post } from 'routing-controllers';
 
+import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import { ErrorResponse, getErrorMessage, GetUserByEmailRequest, GetUserResponse, GetUsersResponse } from '../../types';
+import {
+  EditProfileRequest,
+  ErrorResponse,
+  getErrorMessage,
+  GetUserByEmailRequest,
+  GetUserResponse,
+  GetUsersResponse,
+} from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 
@@ -20,6 +28,19 @@ export class UserController {
       return { users: users.map((user) => user.getUserProfile()) };
     } catch (error) {
       return { error: getErrorMessage(error) }
+    }
+  }
+
+  @Post()
+  async editProfile(@Body() editProfileRequest: EditProfileRequest, @CurrentUser() user?: UserModel): Promise<GetUserResponse | ErrorResponse> {
+    try {
+      if (!user) {
+        return { error: 'Invalid session token!' };
+      }
+      const editedUser = await this.userService.updateUser(editProfileRequest, user);
+      return { user: editedUser.getUserProfile() };
+    } catch (error) {
+      return { error: getErrorMessage(error) };
     }
   }
 

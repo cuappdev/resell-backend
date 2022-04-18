@@ -42,11 +42,10 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
       .leftJoinAndSelect("UserSessionModel.user", "user")
       .where("user.id = :userId", { userId })
       .getMany();
-    let allTrue = true;
     for (const session of sessions) {
-      allTrue = allTrue && (await this.deleteSessionById(session.id));
+      if (!await this.repository.remove(session)) return false;
     }
-    return allTrue;
+    return true;
   }
 
   public async expireSession(session: UserSessionModel): Promise<UserSessionModel> {

@@ -7,7 +7,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UserModel } from '../models/UserModel';
 import { UserSessionModel } from '../models/UserSessionModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { APIUserSession, AuthRequest, EditProfileRequest, Uuid } from '../types';
+import { APIUserSession, AuthRequest, Uuid } from '../types';
 
 const client = new OAuth2Client(process.env.OAUTH_BACKEND_ID);
 
@@ -68,14 +68,6 @@ export class AuthService {
     } else {
       throw new Error('env variables not set');
     }
-  }
-
-  public async updateUser(editProfileRequest: EditProfileRequest, user: UserModel): Promise<UserModel> {
-    return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const userRepository = Repositories.user(transactionalEntityManager);
-      return userRepository.updateUser(user, editProfileRequest.username, editProfileRequest.photoUrl,
-        editProfileRequest.venmoHandle, editProfileRequest.bio);
-    });
   }
 
   public async deleteUserById(id: Uuid): Promise<UserModel> {
