@@ -3,11 +3,8 @@ import { PostModel } from '../models/PostModel';
 
 // RESPONSE TYPES
 
-export interface GenericSuccessResponse {
-    success: boolean;
-}
 
-export interface ErrorResponse extends GenericSuccessResponse {
+export interface ErrorResponse {
     error: string;
 }
 
@@ -60,12 +57,12 @@ export interface PrivateProfile extends PublicProfile {
     saved: PostModel[],
 }
 
-export interface GetUsersResponse extends GenericSuccessResponse {
+export interface GetUsersResponse {
     users: PrivateProfile[];
 }
 
-export interface GetUserResponse extends GenericSuccessResponse {
-    user: PrivateProfile | null;
+export interface GetUserResponse {
+    user: PrivateProfile | undefined;
 }
 
 // POST
@@ -80,11 +77,11 @@ export interface Post {
     user: PublicProfile,
 }
 
-export interface GetPostsResponse extends GenericSuccessResponse {
+export interface GetPostsResponse {
     posts: Post[];
 }
 
-export interface GetPostResponse extends GenericSuccessResponse {
+export interface GetPostResponse {
     post: Post;
 }
 
@@ -97,10 +94,10 @@ export interface Feedback {
     user: PublicProfile,
 }
 
-export interface GetFeedbacksResponse extends GenericSuccessResponse {
+export interface GetFeedbacksResponse {
     feedback: Feedback[];
 }
 
-export interface GetFeedbackResponse extends GenericSuccessResponse {
+export interface GetFeedbackResponse {
     feedback: Feedback;
 }

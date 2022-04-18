@@ -16,27 +16,27 @@ export class FeedbackController {
   async getAllFeedback(): Promise<GetFeedbacksResponse | ErrorResponse> {
     try {
       const feedback = await this.feedbackService.getAllFeedback();
-      return { success: true, feedback: feedback.map((f) => f.getFeedbackInfo()) };
+      return { feedback: feedback.map((f) => f.getFeedbackInfo()) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Get('id/:id/')
   async getFeedbackById(@Params() params: UuidParam): Promise<GetFeedbackResponse | ErrorResponse> {
     try {
-      return { success: true, feedback: await this.feedbackService.getFeedbackById(params.id) };
+      return { feedback: await this.feedbackService.getFeedbackById(params.id) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Get('userId/:id/')
   async getFeedbackByUserId(@Params() params: UuidParam): Promise<GetFeedbacksResponse | ErrorResponse> {
     try {
-      return { success: true, feedback: await this.feedbackService.getFeedbackByUserId(params.id) };
+      return { feedback: await this.feedbackService.getFeedbackByUserId(params.id) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
@@ -44,18 +44,18 @@ export class FeedbackController {
   async createPost(@Body() createFeedbackRequest: CreateFeedbackRequest): Promise<GetFeedbackResponse | ErrorResponse> {
     try {
       const feedback = await this.feedbackService.createFeedback(createFeedbackRequest);
-    return { success: true, feedback: feedback };
+    return { feedback: feedback };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Delete('id/:id/')
   async deletePostById(@Params() params: UuidParam): Promise<GetFeedbackResponse | ErrorResponse> {
     try {
-      return { success: true, feedback: await this.feedbackService.deleteFeedbackById(params.id) };
+      return { feedback: await this.feedbackService.deleteFeedbackById(params.id) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
@@ -63,9 +63,9 @@ export class FeedbackController {
   @Post('search/')
   async searchPosts(@Body() GetSearchedFeedbackRequest: GetSearchedFeedbackRequest): Promise<GetFeedbacksResponse | ErrorResponse> {
     try {
-      return { success: true, feedback: await this.feedbackService.searchFeedback(GetSearchedFeedbackRequest) };
+      return { feedback: await this.feedbackService.searchFeedback(GetSearchedFeedbackRequest) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 }

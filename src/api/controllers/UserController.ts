@@ -23,18 +23,18 @@ export class UserController {
   async getUsers(): Promise<GetUsersResponse | ErrorResponse> {
     try {
       const users = await this.userService.getAllUsers();
-      return { success: true, users: users.map((user) => user.getUserProfile()) };
+      return { users: users.map((user) => user.getUserProfile()) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Get('id/:id/')
   async getUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
     try {
-      return { success: true, user: await this.userService.getUserById(params.id) };
+      return { user: await this.userService.getUserById(params.id) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
     
   }
@@ -42,36 +42,36 @@ export class UserController {
   @Get('googleId/:id/')
   async getUserByGoogleId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
     try {
-      return { success: true, user: await this.userService.getUserByGoogleId(params.id) };
+      return { user: await this.userService.getUserByGoogleId(params.id) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Get('postId/:id/')
   async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
     try {
-      return { success: true, user: await this.userService.getUserByPostId(params.id) }; 
+      return { user: await this.userService.getUserByPostId(params.id) }; 
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Get('save/userId/:userId/postId/:postId/') 
   async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse | ErrorResponse> {
     try {
-      return { success: true, post: await this.userService.savePost(params) }; 
+      return { post: await this.userService.savePost(params) }; 
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
   @Get('unsave/userId/:userId/postId/:postId/') 
   async unsavePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse | ErrorResponse> {
     try {
-      return { success: true, post: await this.userService.unsavePost(params) }; 
+      return { post: await this.userService.unsavePost(params) }; 
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 
@@ -79,9 +79,9 @@ export class UserController {
   async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest):
       Promise<GetUserResponse | ErrorResponse> {
     try {
-      return { success: true, user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
+      return { user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
     } catch (error) {
-      return { success: false, error: getErrorMessage(error) }
+      return { error: getErrorMessage(error) }
     }
   }
 }
