@@ -5,7 +5,7 @@ import { APIUserSession, Uuid } from '../types';
 import { UserModel } from './UserModel';
 
 @Entity()
-export default class UserSession {
+export class UserSessionModel {
 
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
@@ -19,23 +19,29 @@ export default class UserSession {
   @Column()
   refreshToken: string;
 
-  @ManyToOne(() => UserModel, user => user.sessions, { cascade: true, onDelete: "CASCADE" })
+  @ManyToOne(() => UserModel, user => user.sessions, { onDelete: "CASCADE" })
   user: UserModel;
 
-  update = (accessToken?: string, refreshToken?: string): UserSession => {
+  @Column()
+  userId: Uuid;
+
+  public update(accessToken?: string, refreshToken?: string): UserSessionModel {
     this.accessToken = accessToken || crypto.randomBytes(64).toString('hex');
     this.refreshToken = refreshToken || crypto.randomBytes(64).toString('hex');
-    this.expiresAt = new Date(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24);
+    // expires the next week (added time is one month)
+    // in milliseconds
+    this.expiresAt = new Date(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30);
     return this;
-  };
+  }
 
-  serialize = (): APIUserSession => {
+  public serializeToken(): APIUserSession {
     return {
+      userId: this.userId,
       accessToken: this.accessToken,
       active: this.expiresAt.getTime() > Date.now(),
       expiresAt: this.expiresAt.getTime(),
       refreshToken: this.refreshToken,
     };
-  };
+  }
 
 }
