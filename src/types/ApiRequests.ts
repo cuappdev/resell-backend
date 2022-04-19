@@ -25,6 +25,7 @@ export interface GetUserByEmailRequest {
 export interface CreatePostRequest {
     title: string;
     description: string;
+    categories: string[];
     price: number;
     images: string[];
     userId: Uuid;
@@ -32,4 +33,8 @@ export interface CreatePostRequest {
 
 export interface getSavedPostsRequest {
     keywords: string;
+}
+
+export interface filterPostsRequest {
+    category: string;
 }

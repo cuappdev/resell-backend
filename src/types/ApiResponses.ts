@@ -3,11 +3,7 @@ import { PostModel } from '../models/PostModel';
 
 // RESPONSE TYPES
 
-export interface GenericSuccessResponse {
-    success: boolean;
-}
-
-export interface ErrorResponse extends GenericSuccessResponse {
+export interface ErrorResponse {
     error: string;
 }
 
@@ -60,11 +56,11 @@ export interface PrivateProfile extends PublicProfile {
     saved: PostModel[],
 }
 
-export interface GetUsersResponse extends GenericSuccessResponse {
+export interface GetUsersResponse {
     users: PrivateProfile[];
 }
 
-export interface GetUserResponse extends GenericSuccessResponse {
+export interface GetUserResponse {
     user: PrivateProfile | null;
 }
 
@@ -74,16 +70,17 @@ export interface Post {
     id: Uuid,
     title: string,
     description: string,
+    categories: string[],
     price: number,
     images: string[],
     location: string,
     user: PublicProfile,
 }
 
-export interface GetPostsResponse extends GenericSuccessResponse {
+export interface GetPostsResponse {
     posts: Post[];
 }
 
-export interface GetPostResponse extends GenericSuccessResponse {
+export interface GetPostResponse {
     post: Post;
 }

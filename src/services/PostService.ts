@@ -5,7 +5,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { PostModel } from '../models/PostModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, getSavedPostsRequest, Post, Uuid } from '../types';
+import { CreatePostRequest, filterPostsRequest, getSavedPostsRequest, Post, Uuid } from '../types';
 
 @Service()
 export class PostService {
@@ -46,7 +46,7 @@ export class PostService {
       const user = await userRepository.getUserById(post.userId);
       if (!user) throw new NotFoundError('User not found!');
       const postRepository = Repositories.post(transactionalEntityManager);
-      return postRepository.createPost(post.title, post.description, post.price, post.images, user);
+      return postRepository.createPost(post.title, post.description, post.categories, post.price, post.images, user);
     });
   }
 
@@ -85,4 +85,11 @@ export class PostService {
     });
   }
 
+  public async filterPosts(filterPostsRequest:filterPostsRequest): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const posts = await postRepository.filterPosts(filterPostsRequest.category);
+      return posts;
+    });
+  }
 }
