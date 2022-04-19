@@ -6,6 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { PostModel } from '../models/PostModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { CreatePostRequest, getSavedPostsRequest, Post, Uuid } from '../types';
+import { uploadImage } from '../utils/Requests';
 
 @Service()
 export class PostService {
@@ -46,7 +47,13 @@ export class PostService {
       const user = await userRepository.getUserById(post.userId);
       if (!user) throw new NotFoundError('User not found!');
       const postRepository = Repositories.post(transactionalEntityManager);
-      return postRepository.createPost(post.title, post.description, post.price, post.images, user);
+      const images: string[] = [];
+      for (const image_base64 of post.images_base64) {
+        const image = await uploadImage(image_base64);
+        const imageUrl = image.data;
+        images.push(imageUrl);
+      }
+      return postRepository.createPost(post.title, post.description, post.price, images, user);
     });
   }
 
@@ -67,7 +74,7 @@ export class PostService {
       const postsByDescription = await postRepository.searchPostsByDescription(getSavedPostsRequest.keywords.toLowerCase());
       const posts = postsByTitle;
       postsByDescription.forEach((pd) => {
-        let contains:boolean = false
+        let contains = false;
         posts.forEach((p) => {
           if (p.id == pd.id)
           {
