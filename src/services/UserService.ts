@@ -6,7 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { Uuid } from '../types';
+import { EditProfileRequest, Uuid } from '../types';
 
 @Service()
 export class UserService {
@@ -70,6 +70,14 @@ export class UserService {
       const user = await userRepository.getUserByEmail(email);
       if (!user) throw new NotFoundError('User not found!');
       return user;
+    });
+  }
+
+  public async updateUser(editProfileRequest: EditProfileRequest, user: UserModel): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      return userRepository.updateUser(user, editProfileRequest.username, editProfileRequest.photoUrl,
+        editProfileRequest.venmoHandle, editProfileRequest.bio);
     });
   }
 }

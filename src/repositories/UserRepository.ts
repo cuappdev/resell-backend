@@ -44,13 +44,13 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async createUser(
-    firstName: string,
-    lastName: string,
-    profilePictureUrl: string,
-    venmoHandle: string,
+    username: string,
+    netid: string,
+    givenName: string,
+    familyName: string,
+    photoUrl: string,
     email: string,
     googleId: string,
-    bio?: string,
   ): Promise<UserModel> {
     let existingUser = this.repository
       .createQueryBuilder("user")
@@ -63,23 +63,30 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .where("user.googleId = :googleId", { googleId })
       .getOne();
     if (await existingUser) throw Error('UserModel with same google ID already exists!');
-
-    existingUser = this.repository
-      .createQueryBuilder("user")
-      .where("user.venmoHandle = :venmoHandle", { venmoHandle })
-      .getOne();
-    if (await existingUser) throw Error('UserModel with same venmo handle already exists!');
-
+    
     const user = new UserModel();
-    user.firstName = firstName;
-    user.lastName = lastName;
-    user.profilePictureUrl = profilePictureUrl;
-    user.venmoHandle = venmoHandle;
-    user.bio = bio || user.bio;
+    user.username = username;
+    user.netid = netid;
+    user.givenName = givenName;
+    user.familyName = familyName;
+    user.photoUrl = photoUrl;
     user.email = email;
     user.googleId = googleId;
-    this.repository.save(user);
-    return user;
+    return this.repository.save(user);
+  }
+
+  public async updateUser(
+    user: UserModel,
+    username: string | undefined,
+    photoUrl: string | undefined,
+    venmoHandle: string | undefined,
+    bio: string | undefined
+  ): Promise<UserModel> {
+    user.username = username ?? user.username;
+    user.photoUrl = photoUrl ?? user.photoUrl;
+    user.venmoHandle = venmoHandle ?? user.venmoHandle;
+    user.bio = bio ?? user.bio;
+    return this.repository.save(user);
   }
 
   public async deleteUser(user: UserModel): Promise<UserModel> {
