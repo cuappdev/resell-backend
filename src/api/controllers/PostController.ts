@@ -51,7 +51,7 @@ export class PostController {
   async createPost(@Body() createPostRequest: CreatePostRequest): Promise<GetPostResponse | ErrorResponse> {
     try {
       const post = await this.postService.createPost(createPostRequest);
-    return { post: post };
+      return { post: post };
     } catch (error) {
       return { error: getErrorMessage(error) }
     }

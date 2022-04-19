@@ -9,7 +9,7 @@ import { Container } from 'typeorm-typedi-extensions';
 import { controllers } from './api/controllers';
 import { UserModel } from './models/UserModel';
 import { UserSessionModel } from './models/UserSessionModel';
-import resellConnection from './utils/db';
+import resellConnection from './utils/DB';
 
 dotenv.config();
 
