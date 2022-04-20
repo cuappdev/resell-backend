@@ -7,6 +7,7 @@ import { getManager, useContainer } from 'typeorm';
 import { Container } from 'typeorm-typedi-extensions';
 
 import { controllers } from './api/controllers';
+import { middlewares } from './api/middlewares';
 import { UserModel } from './models/UserModel';
 import { UserSessionModel } from './models/UserSessionModel';
 import resellConnection from './utils/DB';
@@ -26,6 +27,7 @@ async function main() {
     cors: true,
     routePrefix: '/api/',
     controllers: controllers,
+    middlewares: middlewares,
     currentUserChecker: async (action: any) => {
       const accessToken = action.request.headers["authorization"];
       const manager = getManager();
