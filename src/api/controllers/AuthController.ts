@@ -1,15 +1,18 @@
-import { Body, CurrentUser, Delete, Get, HeaderParam, JsonController, Params, Post } from 'routing-controllers';
+import {
+  Body,
+  CurrentUser,
+  Delete,
+  ForbiddenError,
+  Get,
+  HeaderParam,
+  JsonController,
+  Params,
+  Post,
+} from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel';
 import { AuthService } from '../../services/AuthService';
-import {
-  APIUserSession,
-  ErrorResponse,
-  getErrorMessage,
-  GetSessionsReponse,
-  GetUserResponse,
-  LogoutResponse,
-} from '../../types';
+import { APIUserSession, ErrorResponse, GetSessionsReponse, GetUserResponse, LogoutResponse } from '../../types';
 import { LoginRequest } from '../validators/AuthControllerRequests';
 import { UuidParam } from '../validators/GenericRequests';
 
@@ -23,55 +26,34 @@ export class AuthController {
 
   @Get()
   async currentUser(@CurrentUser({ required: false }) user?: UserModel): Promise<GetUserResponse | ErrorResponse> {
-    try {
-      if (!user) {
-        return { error: 'Invalid session token!' };
-      }
-      return { user: user.getUserProfile() };
-    } catch (error) {
-      return { error: getErrorMessage(error) };
+    if (!user) {
+      throw new ForbiddenError("Invalid session token");
     }
+    return { user: user.getUserProfile() };
   }
 
   @Post('login/')
   async login(@Body() loginRequest: LoginRequest): Promise<APIUserSession | ErrorResponse> {
-    try {
-      const session = await this.authService.loginUser(loginRequest);
-      if (!session) {
-        return { error: 'Invalid credentials' };
-      }
-      return session.serializeToken();
-    } catch (error) {
-      return { error: getErrorMessage(error) }
+    const session = await this.authService.loginUser(loginRequest);
+    if (!session) {
+      throw new ForbiddenError("Invalid credentials");
     }
+    return session.serializeToken();
   }
 
   @Post('logout/')
   async logout(@HeaderParam("authorization") accessToken: string): Promise<LogoutResponse | ErrorResponse> {
-    try {
-      const success = await this.authService.deleteSessionByAccessToken(accessToken);
-      return { logoutSuccess: success };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+    return { logoutSuccess: await this.authService.deleteSessionByAccessToken(accessToken) };
   }
 
   @Delete('id/:id/')
   async deleteUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
-    try {
-      return { user: await this.authService.deleteUserById(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+    return { user: await this.authService.deleteUserById(params.id) };
   }
 
   @Get('sessions/:id/')
   async getSessionsByUserId(@Params() params: UuidParam):
       Promise<GetSessionsReponse | ErrorResponse> {
-    try {
-      return { sessions: await this.authService.getSessionsByUserId(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+    return { sessions: await this.authService.getSessionsByUserId(params.id) };
   }
 }

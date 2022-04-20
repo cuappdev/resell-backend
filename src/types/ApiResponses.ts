@@ -6,6 +6,7 @@ import { APIUserSession } from '../types';
 
 export interface ErrorResponse {
     error: string;
+    httpCode: number;
 }
 
 // ERROR CHECKER

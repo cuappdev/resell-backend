@@ -1,11 +1,10 @@
-import { Body, CurrentUser, Get, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, Get, JsonController, NotFoundError, Params, Post } from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
 import {
   EditProfileRequest,
   ErrorResponse,
-  getErrorMessage,
   GetPostResponse,
   GetUserByEmailRequest,
   GetUserResponse,
@@ -23,72 +22,42 @@ export class UserController {
 
   @Get()
   async getUsers(): Promise<GetUsersResponse | ErrorResponse> {
-    try {
-      const users = await this.userService.getAllUsers();
-      return { users: users.map((user) => user.getUserProfile()) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+    const users = await this.userService.getAllUsers();
+    return { users: users.map((user) => user.getUserProfile()) };
   }
 
   @Post()
   async editProfile(@Body() editProfileRequest: EditProfileRequest, @CurrentUser() user?: UserModel): Promise<GetUserResponse | ErrorResponse> {
-    try {
-      if (!user) {
-        return { error: 'Invalid session token!' };
-      }
-      const editedUser = await this.userService.updateUser(editProfileRequest, user);
-      return { user: editedUser.getUserProfile() };
-    } catch (error) {
-      return { error: getErrorMessage(error) };
+    if (!user) {
+      throw new NotFoundError("User not found!");
     }
+    const editedUser = await this.userService.updateUser(editProfileRequest, user);
+    return { user: editedUser.getUserProfile() };
   }
 
   @Get('id/:id/')
   async getUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
-    try {
-      return { user: await this.userService.getUserById(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
-    
+    return { user: await this.userService.getUserById(params.id) };
   }
   
   @Get('googleId/:id/')
   async getUserByGoogleId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
-    try {
-      return { user: await this.userService.getUserByGoogleId(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+    return { user: await this.userService.getUserByGoogleId(params.id) };
   }
 
   @Get('postId/:id/')
     async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
-      try {
-        return { user: await this.userService.getUserByPostId(params.id) }; 
-      } catch (error) {
-        return { error: getErrorMessage(error) }
-      }
+      return { user: await this.userService.getUserByPostId(params.id) };
     }
 
   @Post('email/')
   async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest):
       Promise<GetUserResponse | ErrorResponse> {
-    try {
-      return { user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+    return { user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
   }
 
   @Get('save/userId/:userId/postId/:postId/') 
   async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse | ErrorResponse> {
-    try {
-      const post = await this.userService.savePost(params.userId, params.postId)
-      return { post }; 
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+    return { post: await this.userService.savePost(params.userId, params.postId) }; 
   }
 }

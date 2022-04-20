@@ -13,7 +13,7 @@ export class UserModel {
   @Column()
   username: string;
 
-  @Column()
+  @Column({ unique: true })
   netid: string;
 
   @Column()
