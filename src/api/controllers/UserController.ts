@@ -2,14 +2,7 @@ import { Body, CurrentUser, Get, JsonController, NotFoundError, Params, Post } f
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import {
-  EditProfileRequest,
-  ErrorResponse,
-  GetPostResponse,
-  GetUserByEmailRequest,
-  GetUserResponse,
-  GetUsersResponse,
-} from '../../types';
+import { EditProfileRequest, GetPostResponse, GetUserByEmailRequest, GetUserResponse, GetUsersResponse } from '../../types';
 import { PostAndUserUuidParam, UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
@@ -21,13 +14,13 @@ export class UserController {
   }
 
   @Get()
-  async getUsers(): Promise<GetUsersResponse | ErrorResponse> {
+  async getUsers(): Promise<GetUsersResponse> {
     const users = await this.userService.getAllUsers();
     return { users: users.map((user) => user.getUserProfile()) };
   }
 
   @Post()
-  async editProfile(@Body() editProfileRequest: EditProfileRequest, @CurrentUser() user?: UserModel): Promise<GetUserResponse | ErrorResponse> {
+  async editProfile(@Body() editProfileRequest: EditProfileRequest, @CurrentUser() user?: UserModel): Promise<GetUserResponse> {
     if (!user) {
       throw new NotFoundError("User not found!");
     }
@@ -36,28 +29,28 @@ export class UserController {
   }
 
   @Get('id/:id/')
-  async getUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
+  async getUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
     return { user: await this.userService.getUserById(params.id) };
   }
   
   @Get('googleId/:id/')
-  async getUserByGoogleId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
+  async getUserByGoogleId(@Params() params: UuidParam): Promise<GetUserResponse> {
     return { user: await this.userService.getUserByGoogleId(params.id) };
   }
 
   @Get('postId/:id/')
-    async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
+    async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse> {
       return { user: await this.userService.getUserByPostId(params.id) };
     }
 
   @Post('email/')
   async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest):
-      Promise<GetUserResponse | ErrorResponse> {
+      Promise<GetUserResponse> {
     return { user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
   }
 
   @Get('save/userId/:userId/postId/:postId/') 
-  async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse | ErrorResponse> {
+  async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
     return { post: await this.userService.savePost(params.userId, params.postId) }; 
   }
 }

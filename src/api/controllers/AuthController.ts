@@ -12,7 +12,7 @@ import {
 
 import { UserModel } from '../../models/UserModel';
 import { AuthService } from '../../services/AuthService';
-import { APIUserSession, ErrorResponse, GetSessionsReponse, GetUserResponse, LogoutResponse } from '../../types';
+import { APIUserSession, GetSessionsReponse, GetUserResponse, LogoutResponse } from '../../types';
 import { LoginRequest } from '../validators/AuthControllerRequests';
 import { UuidParam } from '../validators/GenericRequests';
 
@@ -25,7 +25,7 @@ export class AuthController {
   }
 
   @Get()
-  async currentUser(@CurrentUser({ required: false }) user?: UserModel): Promise<GetUserResponse | ErrorResponse> {
+  async currentUser(@CurrentUser({ required: false }) user?: UserModel): Promise<GetUserResponse> {
     if (!user) {
       throw new ForbiddenError("Invalid session token");
     }
@@ -33,7 +33,7 @@ export class AuthController {
   }
 
   @Post('login/')
-  async login(@Body() loginRequest: LoginRequest): Promise<APIUserSession | ErrorResponse> {
+  async login(@Body() loginRequest: LoginRequest): Promise<APIUserSession> {
     const session = await this.authService.loginUser(loginRequest);
     if (!session) {
       throw new ForbiddenError("Invalid credentials");
@@ -42,18 +42,18 @@ export class AuthController {
   }
 
   @Post('logout/')
-  async logout(@HeaderParam("authorization") accessToken: string): Promise<LogoutResponse | ErrorResponse> {
+  async logout(@HeaderParam("authorization") accessToken: string): Promise<LogoutResponse> {
     return { logoutSuccess: await this.authService.deleteSessionByAccessToken(accessToken) };
   }
 
   @Delete('id/:id/')
-  async deleteUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
+  async deleteUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
     return { user: await this.authService.deleteUserById(params.id) };
   }
 
   @Get('sessions/:id/')
   async getSessionsByUserId(@Params() params: UuidParam):
-      Promise<GetSessionsReponse | ErrorResponse> {
+      Promise<GetSessionsReponse> {
     return { sessions: await this.authService.getSessionsByUserId(params.id) };
   }
 }
