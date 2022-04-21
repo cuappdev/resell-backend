@@ -15,7 +15,7 @@ export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
   public async getFeedbackById(id: Uuid): Promise<FeedbackModel | undefined> {
     const feedback = await this.repository
     .createQueryBuilder("feedback")
-    .where("feedback.id=:id", { id })
+    .where("feedback.id = :id", { id })
     .getOne();
   return feedback;
   }
