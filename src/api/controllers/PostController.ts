@@ -30,8 +30,7 @@ export class PostController {
 
   @Post()
   async createPost(@Body() createPostRequest: CreatePostRequest): Promise<GetPostResponse> {
-    const post = await this.postService.createPost(createPostRequest);
-    return { post: post };
+    return { post: await this.postService.createPost(createPostRequest) };
   }
 
   @Delete(':id/')
