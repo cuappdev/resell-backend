@@ -83,6 +83,18 @@ export class UserRepository extends AbstractRepository<UserModel> {
     venmoHandle: string | undefined,
     bio: string | undefined
   ): Promise<UserModel> {
+    let existingUser = this.repository
+      .createQueryBuilder("user")
+      .where("user.username = :username", { username })
+      .getOne();
+    if (await existingUser) throw Error('UserModel with same username already exists!');
+
+    existingUser = this.repository
+      .createQueryBuilder("user")
+      .where("user.venmoHandle = :venmoHandle", { venmoHandle })
+      .getOne();
+    if (await existingUser) throw Error('UserModel with same venmo handle already exists!');
+
     user.username = username ?? user.username;
     user.photoUrl = photoUrl ?? user.photoUrl;
     user.venmoHandle = venmoHandle ?? user.venmoHandle;

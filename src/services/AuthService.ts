@@ -36,11 +36,6 @@ export class AuthService {
 
       if (payload){
         // token checking in payload
-        if (process.env.IS_PROD?.toLowerCase() === "true" &&
-            (payload.aud !== process.env.OAUTH_ANDROID_CLIENT || payload.aud !== process.env.OAUTH_IOS_ID)) {
-          throw new Error('Invalid token (audience)');
-        }
-
         if (payload.iss !== 'accounts.google.com' && payload.iss !== 'https://accounts.google.com') {
           throw new Error('Invalid token (issuer)');
         }

@@ -1,7 +1,7 @@
 import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 
 import { FeedbackService } from '../../services/FeedbackService';
-import { CreateFeedbackRequest, ErrorResponse, getErrorMessage, GetFeedbackResponse, GetFeedbacksResponse, GetSearchedFeedbackRequest } from '../../types';
+import { CreateFeedbackRequest, GetFeedbackResponse, GetFeedbacksResponse, GetSearchedFeedbackRequest } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('feedback/')
@@ -13,59 +13,34 @@ export class FeedbackController {
   }
 
   @Get()
-  async getAllFeedback(): Promise<GetFeedbacksResponse | ErrorResponse> {
-    try {
-      const feedback = await this.feedbackService.getAllFeedback();
-      return { feedback: feedback.map((f) => f.getFeedbackInfo()) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async getAllFeedback(): Promise<GetFeedbacksResponse> {
+    const feedback = await this.feedbackService.getAllFeedback();
+    return { feedback: feedback.map((f) => f.getFeedbackInfo()) };
   }
 
   @Get('id/:id/')
-  async getFeedbackById(@Params() params: UuidParam): Promise<GetFeedbackResponse | ErrorResponse> {
-    try {
-      return { feedback: await this.feedbackService.getFeedbackById(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async getFeedbackById(@Params() params: UuidParam): Promise<GetFeedbackResponse> {
+    return { feedback: await this.feedbackService.getFeedbackById(params.id) };
   }
 
   @Get('userId/:id/')
-  async getFeedbackByUserId(@Params() params: UuidParam): Promise<GetFeedbacksResponse | ErrorResponse> {
-    try {
-      return { feedback: await this.feedbackService.getFeedbackByUserId(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async getFeedbackByUserId(@Params() params: UuidParam): Promise<GetFeedbacksResponse> {
+    return { feedback: await this.feedbackService.getFeedbackByUserId(params.id) };
   }
 
   @Post()
-  async createFeedback(@Body() createFeedbackRequest: CreateFeedbackRequest): Promise<GetFeedbackResponse | ErrorResponse> {
-    try {
-      const feedback = await this.feedbackService.createFeedback(createFeedbackRequest);
-    return { feedback: feedback };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async createFeedback(@Body() createFeedbackRequest: CreateFeedbackRequest): Promise<GetFeedbackResponse> {
+    return { feedback: await this.feedbackService.createFeedback(createFeedbackRequest) };
   }
 
   @Delete('id/:id/')
-  async deletePostById(@Params() params: UuidParam): Promise<GetFeedbackResponse | ErrorResponse> {
-    try {
-      return { feedback: await this.feedbackService.deleteFeedbackById(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async deletePostById(@Params() params: UuidParam): Promise<GetFeedbackResponse> {
+    return { feedback: await this.feedbackService.deleteFeedbackById(params.id) };
   }
 
   
   @Post('search/')
-  async searchFeedback(@Body() GetSearchedFeedbackRequest: GetSearchedFeedbackRequest): Promise<GetFeedbacksResponse | ErrorResponse> {
-    try {
-      return { feedback: await this.feedbackService.searchFeedback(GetSearchedFeedbackRequest) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async searchFeedback(@Body() GetSearchedFeedbackRequest: GetSearchedFeedbackRequest): Promise<GetFeedbacksResponse> {
+    return { feedback: await this.feedbackService.searchFeedback(GetSearchedFeedbackRequest) };
   }
 }
