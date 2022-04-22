@@ -3,6 +3,7 @@ import { EntityManager } from 'typeorm';
 import { FeedbackRepository } from './FeedbackRepository';
 import { PostRepository } from './PostRepository';
 import { UserRepository } from './UserRepository';
+import { UserSessionRepository } from './UserSessionRepository';
 
 export default class Repositories {
   public static user(transactionalEntityManager: EntityManager): UserRepository {
@@ -16,6 +17,10 @@ export default class Repositories {
   public static feedback(transactionalEntityManager: EntityManager): FeedbackRepository {
     return transactionalEntityManager.getCustomRepository(FeedbackRepository);
   } 
+  
+  public static session(transactionalEntityManager: EntityManager): UserSessionRepository {
+    return transactionalEntityManager.getCustomRepository(UserSessionRepository);
+  }
 }
 
 export class TransactionsManager {

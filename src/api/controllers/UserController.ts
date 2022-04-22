@@ -1,7 +1,9 @@
-import { Body, Get, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, Get, JsonController, Params, Post } from 'routing-controllers';
 
+import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
 import {
+  EditProfileRequest,
   ErrorResponse,
   getErrorMessage,
   GetPostResponse,
@@ -29,6 +31,19 @@ export class UserController {
     }
   }
 
+  @Post()
+  async editProfile(@Body() editProfileRequest: EditProfileRequest, @CurrentUser() user?: UserModel): Promise<GetUserResponse | ErrorResponse> {
+    try {
+      if (!user) {
+        return { error: 'Invalid session token!' };
+      }
+      const editedUser = await this.userService.updateUser(editProfileRequest, user);
+      return { user: editedUser.getUserProfile() };
+    } catch (error) {
+      return { error: getErrorMessage(error) };
+    }
+  }
+  
   @Get('id/:id/')
   async getUserById(@Params() params: UuidParam): Promise<GetUserResponse | ErrorResponse> {
     try {

@@ -43,8 +43,7 @@ export class PostController {
   @Post()
   async createPost(@Body() createPostRequest: CreatePostRequest): Promise<GetPostResponse | ErrorResponse> {
     try {
-      const post = await this.postService.createPost(createPostRequest);
-    return { post: post };
+      return { post: await this.postService.createPost(createPostRequest) };
     } catch (error) {
       return { error: getErrorMessage(error) }
     }

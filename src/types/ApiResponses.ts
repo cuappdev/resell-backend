@@ -1,9 +1,9 @@
 import { FeedbackModel } from 'src/models/FeedbackModel';
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
+import { APIUserSession } from '../types';
 
 // RESPONSE TYPES
-
 
 export interface ErrorResponse {
     error: string;
@@ -44,9 +44,11 @@ export function getErrorMessage(error: unknown): string {
 
 export interface PublicProfile {
     id: Uuid,
-    firstName: string,
-    lastName: string,
-    profilePictureUrl: string,
+    username: string,
+    netid: string,
+    givenName: string,
+    familyName: string,
+    photoUrl: string,
     venmoHandle: string,
     bio: string,
     posts: PostModel[],
@@ -102,4 +104,14 @@ export interface GetFeedbacksResponse {
 
 export interface GetFeedbackResponse {
     feedback: Feedback;
+}
+
+// SESSIONS
+
+export interface GetSessionsReponse {
+    sessions: APIUserSession[];
+}
+
+export interface LogoutResponse {
+    logoutSuccess: boolean;
 }
