@@ -46,6 +46,7 @@ export interface GetUserByEmailRequest {
 export interface CreatePostRequest {
     title: string;
     description: string;
+    categories: string[];
     price: number;
     images_base64: string[];
     userId: Uuid;
@@ -65,4 +66,8 @@ export interface CreateFeedbackRequest {
 
 export interface GetSearchedFeedbackRequest {
     keywords: string;
+}
+
+export interface FilterPostsRequest {
+    category: string;
 }

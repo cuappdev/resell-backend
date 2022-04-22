@@ -1,6 +1,7 @@
 import { FeedbackModel } from 'src/models/FeedbackModel';
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
+import { UserModel } from '../models/UserModel';
 import { APIUserSession } from '../types';
 
 // RESPONSE TYPES
@@ -45,10 +46,11 @@ export interface Post {
     id: Uuid,
     title: string,
     description: string,
+    categories: string[],
     price: number,
     images: string[],
     location: string,
-    user: PublicProfile,
+    user: PrivateProfile,
 }
 
 export interface GetPostsResponse {

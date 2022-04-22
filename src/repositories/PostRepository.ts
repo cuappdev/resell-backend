@@ -40,6 +40,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
   public async createPost (
     title: string,
     description: string,
+    categories: string[],
     price: number,
     images: string[],
     user: UserModel,
@@ -47,6 +48,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     const post = new PostModel();
     post.title = title;
     post.description = description;
+    post.categories = categories;
     post.price = price;
     post.images = images;
     post.user = user;
@@ -69,6 +71,14 @@ export class PostRepository extends AbstractRepository<PostModel> {
     const posts = await this.repository
       .createQueryBuilder("post")
       .where("post.description like :keywords", {keywords: `%${keywords}%`})
+      .getMany();
+    return posts;
+  }
+
+  public async filterPosts(category: string): Promise<PostModel[]> {
+    const posts = await this.repository
+      .createQueryBuilder("post")
+      .where(":category = ANY (post.categories)", {category: category})
       .getMany();
     return posts;
   }

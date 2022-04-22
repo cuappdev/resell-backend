@@ -5,7 +5,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { PostModel } from '../models/PostModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, GetSearchedPostsRequest, Post, Uuid } from '../types';
+import { CreatePostRequest, GetSearchedPostsRequest, FilterPostsRequest, Uuid } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -41,7 +41,7 @@ export class PostService {
     });
   }
 
-  public async createPost(post: CreatePostRequest): Promise<Post> {
+  public async createPost(post: CreatePostRequest): Promise<PostModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
       const user = await userRepository.getUserById(post.userId);
@@ -53,7 +53,7 @@ export class PostService {
         const imageUrl = image.data;
         images.push(imageUrl);
       }
-      return postRepository.createPost(post.title, post.description, post.price, images, user);
+      return postRepository.createPost(post.title, post.description, post.categories, post.price, images, user);
     });
   }
 
@@ -92,4 +92,11 @@ export class PostService {
     });
   }
 
+  public async filterPosts(filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const posts = await postRepository.filterPosts(filterPostsRequest.category);
+      return posts;
+    });
+  }
 }
