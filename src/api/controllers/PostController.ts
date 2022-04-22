@@ -1,7 +1,7 @@
 import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 
 import { PostService } from '../../services/PostService';
-import { CreatePostRequest, ErrorResponse, filterPostsRequest, getErrorMessage, GetPostResponse, GetPostsResponse, getSavedPostsRequest } from '../../types';
+import { CreatePostRequest, GetPostResponse, GetPostsResponse, GetSearchedPostsRequest, FilterPostsRequest } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('post/')
@@ -13,67 +13,39 @@ export class PostController {
   }
 
   @Get()
-  async getPosts(): Promise<GetPostsResponse | ErrorResponse> {
-    try {
-      const posts = await this.postService.getAllPosts();
-      return { posts: posts.map((post) => post.getPostInfo()) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async getPosts(): Promise<GetPostsResponse> {
+    const posts = await this.postService.getAllPosts();
+    return { posts: posts.map((post) => post.getPostInfo()) };
   }
 
   @Get('id/:id/')
-  async getPostById(@Params() params: UuidParam): Promise<GetPostResponse | ErrorResponse> {
-    try {
-      return { post: await this.postService.getPostById(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async getPostById(@Params() params: UuidParam): Promise<GetPostResponse  | undefined> {
+    return { post: await this.postService.getPostById(params.id) };
   }
 
   @Get('userId/:id/')
-  async getPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse | ErrorResponse> {
-    try {
-      return { posts: await this.postService.getPostsByUserId(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async getPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getPostsByUserId(params.id) };
   }
 
   @Post()
-  async createPost(@Body() createPostRequest: CreatePostRequest): Promise<GetPostResponse | ErrorResponse> {
-    try {
-      const post = await this.postService.createPost(createPostRequest);
+  async createPost(@Body() createPostRequest: CreatePostRequest): Promise<GetPostResponse> {
+    const post = await this.postService.createPost(createPostRequest);
     return { post: post };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
   }
 
   @Delete(':id/')
-  async deletePostById(@Params() params: UuidParam): Promise<GetPostResponse | ErrorResponse> {
-    try {
-      return { post: await this.postService.deletePostById(params.id) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async deletePostById(@Params() params: UuidParam): Promise<GetPostResponse> {
+    return { post: await this.postService.deletePostById(params.id) };
   }
 
   @Post('search/')
-  async searchPosts(@Body() getSavedPostsRequest: getSavedPostsRequest): Promise<GetPostsResponse | ErrorResponse> {
-    try {
-      return { posts: await this.postService.searchPosts(getSavedPostsRequest) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async searchPosts(@Body() getSearchedPostsRequest: GetSearchedPostsRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.searchPosts(getSearchedPostsRequest) };
   }
 
   @Post('filter/')
-  async filterPosts(@Body() filterPostsRequest: filterPostsRequest): Promise<GetPostsResponse | ErrorResponse> {
-    try {
-      return { posts: await this.postService.filterPosts(filterPostsRequest) };
-    } catch (error) {
-      return { error: getErrorMessage(error) }
-    }
+  async filterPosts(@Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPosts(filterPostsRequest) };
   }
 }

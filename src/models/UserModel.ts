@@ -1,8 +1,9 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { PrivateProfile, Uuid } from '../types';
+import { FeedbackModel } from './FeedbackModel';
 import { PostModel } from './PostModel';
-import UserSession from './UserSessionModel';
+import { UserSessionModel } from './UserSessionModel';
 
 @Entity()
 export class UserModel {
@@ -11,15 +12,21 @@ export class UserModel {
   id: Uuid;
 
   @Column()
-  firstName: string;
-
-  @Column()
-  lastName: string;
-
-  @Column()
-  profilePictureUrl: string;
+  username: string;
 
   @Column({ unique: true })
+  netid: string;
+
+  @Column()
+  givenName: string;
+
+  @Column()
+  familyName: string;
+
+  @Column({ nullable: true })
+  photoUrl: string;
+
+  @Column({ unique: true, nullable: true })
   venmoHandle: string;
 
   @Column({ unique: true })
@@ -28,30 +35,36 @@ export class UserModel {
   @Column({ unique: true })
   googleId: string;
 
-  @Column({ type: "text" })
-  bio = "User has not entered a bio.";
+  @Column({ type: "text", default: "" })
+  bio: string;
 
-  @OneToMany(() => PostModel, post => post.user, { onDelete: "CASCADE" })
+  @OneToMany(() => PostModel, post => post.user, { cascade: true })
   posts: PostModel[];
 
-  @OneToMany(() => PostModel, post => post.user)
+  @OneToMany(() => PostModel, post => post.user, { cascade: true })
   saved: PostModel[];
 
-  @OneToMany(() => UserSession, session => session.user)
-  sessions: UserSession[];
+  @OneToMany(() => UserSessionModel, session => session.user, { cascade: true })
+  sessions: UserSessionModel;
+
+  @OneToMany(() => FeedbackModel, feedback => feedback.user)
+  feedback: FeedbackModel[];
 
   public getUserProfile(): PrivateProfile {
     return {
       id: this.id,
-      firstName: this.firstName,
-      lastName: this.lastName,
-      profilePictureUrl: this.profilePictureUrl,
+      username: this.username,
+      netid: this.netid,
+      givenName: this.givenName,
+      familyName: this.familyName,
+      photoUrl: this.photoUrl,
       venmoHandle: this.venmoHandle,
       email: this.email,
       googleId: this.googleId,
       bio: this.bio,
       posts: this.posts,
       saved: this.saved,
+      feedback: this.feedback,
     };
   }
 }

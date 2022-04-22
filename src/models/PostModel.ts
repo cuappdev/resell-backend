@@ -39,7 +39,7 @@ export class PostModel {
       price: this.price,
       images: this.images,
       location: this.location,
-      user: this.user,
+      user: this.user.getUserProfile()
     };
   }
 }

@@ -45,23 +45,21 @@ export class PostRepository extends AbstractRepository<PostModel> {
     images: string[],
     user: UserModel,
   ): Promise<PostModel> {
-    const post = this.repository.create({
-      title,
-      description,
-      categories,
-      price,
-      images,
-      user
-    });
-    await this.repository.save(post);
-    return post;
+    const post = new PostModel();
+    post.title = title;
+    post.description = description;
+    post.categories = categories;
+    post.price = price;
+    post.images = images;
+    post.user = user;
+    return await this.repository.save(post);
   }
 
   public async deletePost(post: PostModel): Promise<PostModel> {
     return this.repository.remove(post);
   }
 
-  public async searchPostsByTitle(keywords: String): Promise<PostModel[]> {
+  public async searchPostsByTitle(keywords: string): Promise<PostModel[]> {
     const posts = await this.repository
       .createQueryBuilder("post")
       .where("post.title like :keywords", {keywords: `%${keywords}%`})
@@ -69,7 +67,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return posts;
   }
 
-  public async searchPostsByDescription(keywords: String): Promise<PostModel[]> {
+  public async searchPostsByDescription(keywords: string): Promise<PostModel[]> {
     const posts = await this.repository
       .createQueryBuilder("post")
       .where("post.description like :keywords", {keywords: `%${keywords}%`})
