@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { PrivateProfile, Uuid } from '../types';
+import { FeedbackModel } from './FeedbackModel';
 import { PostModel } from './PostModel';
 import { UserSessionModel } from './UserSessionModel';
 
@@ -46,6 +47,9 @@ export class UserModel {
   @OneToMany(() => UserSessionModel, session => session.user, { cascade: true })
   sessions: UserSessionModel;
 
+  @OneToMany(() => FeedbackModel, feedback => feedback.user)
+  feedback: FeedbackModel[];
+
   public getUserProfile(): PrivateProfile {
     return {
       id: this.id,
@@ -60,6 +64,7 @@ export class UserModel {
       bio: this.bio,
       posts: this.posts,
       saved: this.saved,
+      feedback: this.feedback,
     };
   }
 }

@@ -1,4 +1,5 @@
 import { NotFoundError } from 'routing-controllers';
+import { PostAndUserUuidParam } from 'src/api/validators/GenericRequests';
 import { PostModel } from 'src/models/PostModel';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
@@ -50,16 +51,28 @@ export class UserService {
     });
   }
 
-
-  public async savePost(id: Uuid, postId: Uuid): Promise<PostModel> {
+  public async savePost(params: PostAndUserUuidParam): Promise<PostModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const postRepository = Repositories.post(transactionalEntityManager);
       const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserById(id);
-      const post = await postRepository.getPostById(postId);
-      if (!post) throw new NotFoundError('Post not found!');
+      const user = await userRepository.getUserById(params.userId);
       if (!user) throw new NotFoundError('User not found!');
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.postId);
+      if (!post) throw new NotFoundError('Post not found!');
       await userRepository.savePost(user, post);
+      return post
+    });
+  }
+
+  public async unsavePost(params: PostAndUserUuidParam): Promise<PostModel> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const user = await userRepository.getUserById(params.userId);
+      if (!user) throw new NotFoundError('User not found!');
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.postId);
+      if (!post) throw new NotFoundError('Post not found!');
+      await userRepository.unsavePost(user, post);
       return post
     });
   }

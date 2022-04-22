@@ -5,7 +5,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { PostModel } from '../models/PostModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, getSavedPostsRequest, Post, Uuid } from '../types';
+import { CreatePostRequest, GetSearchedPostsRequest, Post, Uuid } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -34,8 +34,8 @@ export class PostService {
 
   public async getPostsByUserId(userId: Uuid): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-    const postRepository = Repositories.post(transactionalEntityManager);
-    const posts = await postRepository.getPostsByUserId(userId);
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const posts = await postRepository.getPostsByUserId(userId);
       if (!posts) throw new NotFoundError('User not found!');
       return posts;
     });
@@ -67,11 +67,11 @@ export class PostService {
   }
 
   
-  public async searchPosts(getSavedPostsRequest:getSavedPostsRequest): Promise<PostModel[]> {
+  public async searchPosts(getSearchedPostsRequest: GetSearchedPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const postsByTitle = await postRepository.searchPostsByTitle(getSavedPostsRequest.keywords);
-      const postsByDescription = await postRepository.searchPostsByDescription(getSavedPostsRequest.keywords.toLowerCase());
+      const postsByTitle = await postRepository.searchPostsByTitle(getSearchedPostsRequest.keywords);
+      const postsByDescription = await postRepository.searchPostsByDescription(getSearchedPostsRequest.keywords.toLowerCase());
       const posts = postsByTitle;
       postsByDescription.forEach((pd) => {
         let contains = false;

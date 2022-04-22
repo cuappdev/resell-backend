@@ -1,3 +1,4 @@
+import { FeedbackModel } from 'src/models/FeedbackModel';
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
 import { APIUserSession } from '../types';
@@ -7,37 +8,6 @@ import { APIUserSession } from '../types';
 export interface ErrorResponse {
     error: string;
     httpCode: number;
-}
-
-// ERROR CHECKER
-
-type ErrorWithMessage = {
-    message: string
-}
-
-function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
-    return (
-        typeof error === 'object' &&
-        error !== null &&
-        'message' in error &&
-        typeof (error as Record<string, unknown>).message === 'string'
-    )
-}
-
-function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
-    if (isErrorWithMessage(maybeError)) return maybeError
-
-    try {
-        return new Error(JSON.stringify(maybeError))
-    } catch {
-        // fallback in case there's an error stringifying the maybeError
-        // like with circular references for example.
-        return new Error(String(maybeError))
-    }
-}
-
-export function getErrorMessage(error: unknown): string {  
-    return toErrorWithMessage(error).message
 }
 
 // USER
@@ -58,6 +28,7 @@ export interface PrivateProfile extends PublicProfile {
     email: string,
     googleId: string,
     saved: PostModel[],
+    feedback: FeedbackModel[],
 }
 
 export interface GetUsersResponse {
@@ -86,6 +57,23 @@ export interface GetPostsResponse {
 
 export interface GetPostResponse {
     post: Post;
+}
+
+// FEEDBACK
+
+export interface Feedback {
+    id: Uuid,
+    description: string,
+    images: string[],
+    user: PublicProfile,
+}
+
+export interface GetFeedbacksResponse {
+    feedback: Feedback[];
+}
+
+export interface GetFeedbackResponse {
+    feedback: Feedback;
 }
 
 // SESSIONS

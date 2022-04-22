@@ -27,7 +27,7 @@ export class UserController {
     const editedUser = await this.userService.updateUser(editProfileRequest, user);
     return { user: editedUser.getUserProfile() };
   }
-
+  
   @Get('id/:id/')
   async getUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
     return { user: await this.userService.getUserById(params.id) };
@@ -39,18 +39,22 @@ export class UserController {
   }
 
   @Get('postId/:id/')
-    async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse> {
-      return { user: await this.userService.getUserByPostId(params.id) };
-    }
-
-  @Post('email/')
-  async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest):
-      Promise<GetUserResponse> {
-    return { user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
+  async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse> {
+    return { user: await this.userService.getUserByPostId(params.id) }; 
   }
 
   @Get('save/userId/:userId/postId/:postId/') 
   async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
-    return { post: await this.userService.savePost(params.userId, params.postId) }; 
+    return { post: await this.userService.savePost(params) }; 
+  }
+
+  @Get('unsave/userId/:userId/postId/:postId/') 
+  async unsavePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
+      return { post: await this.userService.unsavePost(params) };
+  }
+
+  @Post('email/')
+  async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest): Promise<GetUserResponse> {
+    return { user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
   }
 }

@@ -1,7 +1,7 @@
 import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 
 import { PostService } from '../../services/PostService';
-import { CreatePostRequest, GetPostResponse, GetPostsResponse, getSavedPostsRequest } from '../../types';
+import { CreatePostRequest, GetPostResponse, GetPostsResponse, GetSearchedPostsRequest } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('post/')
@@ -41,7 +41,7 @@ export class PostController {
 
   
   @Post('search/')
-  async searchPosts(@Body() getSavedPostsRequest: getSavedPostsRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.searchPosts(getSavedPostsRequest) };
+  async searchPosts(@Body() getSearchedPostsRequest: GetSearchedPostsRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.searchPosts(getSearchedPostsRequest) };
   }
 }
