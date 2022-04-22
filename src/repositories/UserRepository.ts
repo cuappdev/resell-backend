@@ -1,6 +1,7 @@
 import { PostModel } from 'src/models/PostModel';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
+import { ConflictError } from '../errors';
 import { UserModel } from '../models/UserModel';
 import { Uuid } from '../types';
 
@@ -56,13 +57,13 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .createQueryBuilder("user")
       .where("user.email = :email", { email })
       .getOne();
-    if (await existingUser) throw Error('UserModel with same email already exists!');
+    if (await existingUser) throw new ConflictError('UserModel with same email already exists!');
 
     existingUser = this.repository
       .createQueryBuilder("user")
       .where("user.googleId = :googleId", { googleId })
       .getOne();
-    if (await existingUser) throw Error('UserModel with same google ID already exists!');
+    if (await existingUser) throw new ConflictError('UserModel with same google ID already exists!');
     
     const user = new UserModel();
     user.username = username;
@@ -86,13 +87,21 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .createQueryBuilder("user")
       .where("user.username = :username", { username })
       .getOne();
-    if (await existingUser) throw Error('UserModel with same username already exists!');
+    if (await existingUser) {
+      if (username !== user.username) {
+        throw new ConflictError('UserModel with same username already exists!');
+      }
+    }
 
     existingUser = this.repository
       .createQueryBuilder("user")
       .where("user.venmoHandle = :venmoHandle", { venmoHandle })
       .getOne();
-    if (await existingUser) throw Error('UserModel with same venmo handle already exists!');
+      if (await existingUser) {
+        if (venmoHandle !== user.venmoHandle) {
+          throw new ConflictError('UserModel with same venmo handle already exists!');
+        }
+      }
 
     user.username = username ?? user.username;
     user.photoUrl = photoUrl ?? user.photoUrl;

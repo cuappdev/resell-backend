@@ -7,6 +7,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { EditProfileRequest, Uuid } from '../types';
+import { uploadImage } from '../utils/Requests';
 
 @Service()
 export class UserService {
@@ -76,7 +77,12 @@ export class UserService {
   public async updateUser(editProfileRequest: EditProfileRequest, user: UserModel): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      return userRepository.updateUser(user, editProfileRequest.username, editProfileRequest.photoUrl,
+      let imageUrl = undefined;
+      if (editProfileRequest.photoUrl_base64) {
+        const image = await uploadImage(editProfileRequest.photoUrl_base64);
+        imageUrl = image.data;
+      }
+      return userRepository.updateUser(user, editProfileRequest.username, imageUrl,
         editProfileRequest.venmoHandle, editProfileRequest.bio);
     });
   }

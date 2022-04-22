@@ -1,5 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
-import { NotFoundError } from 'routing-controllers';
+import { NotFoundError, UnauthorizedError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
@@ -7,7 +7,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UserModel } from '../models/UserModel';
 import { UserSessionModel } from '../models/UserSessionModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { APIUserSession, AuthRequest, Uuid } from '../types';
+import { APIUserSession, AuthRequest, CreateUserRequest, Uuid } from '../types';
 
 const client = new OAuth2Client(process.env.OAUTH_BACKEND_ID);
 
@@ -23,7 +23,7 @@ export class AuthService {
     // checks if the email is a Cornell email
     const emailIndex = authRequest.user.email.indexOf('@cornell.edu')
     if (emailIndex === -1) {
-      throw new Error('Non-Cornell email used!');
+      throw new UnauthorizedError('Non-Cornell email used!');
     } 
 
     if (process.env.OAUTH_ANDROID_CLIENT && process.env.OAUTH_IOS_ID) {
@@ -37,7 +37,7 @@ export class AuthService {
       if (payload){
         // token checking in payload
         if (payload.iss !== 'accounts.google.com' && payload.iss !== 'https://accounts.google.com') {
-          throw new Error('Invalid token (issuer)');
+          throw new UnauthorizedError('Invalid token (issuer)');
         }
 
         // gets Google ID and checks if the user is already in the database
@@ -63,6 +63,15 @@ export class AuthService {
     } else {
       throw new Error('env variables not set');
     }
+  }
+
+  public async createUser(createUserRequest: CreateUserRequest): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      return userRepository.createUser(createUserRequest.username, createUserRequest.netid, 
+        createUserRequest.givenName, createUserRequest.familyName, createUserRequest.photoUrl,
+        createUserRequest.email, createUserRequest.googleId);
+    });
   }
 
   public async deleteUserById(id: Uuid): Promise<UserModel> {
