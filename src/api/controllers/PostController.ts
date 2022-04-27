@@ -20,23 +20,22 @@ export class PostController {
 
   @Get('id/:id/')
   async getPostById(@Params() params: UuidParam): Promise<GetPostResponse  | undefined> {
-    return { post: await this.postService.getPostById(params.id) };
+    return { post: await this.postService.getPostById(params) };
   }
 
   @Get('userId/:id/')
   async getPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse> {
-    return { posts: await this.postService.getPostsByUserId(params.id) };
+    return { posts: await this.postService.getPostsByUserId(params) };
   }
 
   @Post()
   async createPost(@Body() createPostRequest: CreatePostRequest): Promise<GetPostResponse> {
-    const post = await this.postService.createPost(createPostRequest);
-    return { post: post };
+    return { post: await this.postService.createPost(createPostRequest) };
   }
 
   @Delete(':id/')
   async deletePostById(@Params() params: UuidParam): Promise<GetPostResponse> {
-    return { post: await this.postService.deletePostById(params.id) };
+    return { post: await this.postService.deletePostById(params) };
   }
 
   @Post('search/')

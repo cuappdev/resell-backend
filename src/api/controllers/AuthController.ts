@@ -26,18 +26,14 @@ export class AuthController {
 
   @Get()
   async currentUser(@CurrentUser({ required: false }) user?: UserModel): Promise<GetUserResponse> {
-    if (!user) {
-      throw new ForbiddenError("Invalid session token");
-    }
+    if (!user) throw new ForbiddenError("Invalid session token");
     return { user: user.getUserProfile() };
   }
 
   @Post('login/')
   async login(@Body() loginRequest: LoginRequest): Promise<APIUserSession> {
     const session = await this.authService.loginUser(loginRequest);
-    if (!session) {
-      throw new ForbiddenError("Invalid credentials");
-    }
+    if (!session) throw new ForbiddenError("Invalid credentials");
     return session.serializeToken();
   }
 
@@ -48,12 +44,11 @@ export class AuthController {
 
   @Delete('id/:id/')
   async deleteUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
-    return { user: await this.authService.deleteUserById(params.id) };
+    return { user: await this.authService.deleteUserById(params) };
   }
 
   @Get('sessions/:id/')
-  async getSessionsByUserId(@Params() params: UuidParam):
-      Promise<GetSessionsReponse> {
-    return { sessions: await this.authService.getSessionsByUserId(params.id) };
+  async getSessionsByUserId(@Params() params: UuidParam): Promise<GetSessionsReponse> {
+    return { sessions: await this.authService.getSessionsByUserId(params) };
   }
 }

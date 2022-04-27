@@ -1,5 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
 import { NotFoundError } from 'routing-controllers';
+import { UuidParam } from 'src/api/validators/GenericRequests';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
@@ -65,19 +66,19 @@ export class AuthService {
     }
   }
 
-  public async deleteUserById(id: Uuid): Promise<UserModel> {
+  public async deleteUserById(params: UuidParam): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserById(id);
+      const user = await userRepository.getUserById(params.id);
       if (!user) throw new NotFoundError('User not found!');
-      return userRepository.deleteUser(user);
+      return await userRepository.deleteUser(user);
     });
   }
 
-  public async getSessionsByUserId(id: Uuid): Promise<APIUserSession[]> {
+  public async getSessionsByUserId(params: UuidParam): Promise<APIUserSession[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const sessionRepository = Repositories.session(transactionalEntityManager);
-      const sessions = await sessionRepository.getSessionsByUserId(id);
+      const sessions = await sessionRepository.getSessionsByUserId(params.id);
       if (!sessions) throw new NotFoundError('User not found!');
       const apiSessions: APIUserSession[] = [];
       sessions.forEach(function (session) {
@@ -90,8 +91,7 @@ export class AuthService {
   public async deleteSessionByAccessToken(accessToken: string): Promise<boolean> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const sessionRepository = Repositories.session(transactionalEntityManager);
-      const success = await sessionRepository.deleteSessionByAccessToken(accessToken);
-      return success;
+      return await sessionRepository.deleteSessionByAccessToken(accessToken);
     });
   }
 }

@@ -1,11 +1,12 @@
 import { NotFoundError } from 'routing-controllers';
+import { UuidParam } from 'src/api/validators/GenericRequests';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { FeedbackModel } from '../models/FeedbackModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreateFeedbackRequest, GetSearchedFeedbackRequest, Uuid } from '../types';
+import { CreateFeedbackRequest, GetSearchedFeedbackRequest } from '../types';
 
 @Service()
 export class FeedbackService {
@@ -22,19 +23,19 @@ export class FeedbackService {
     });
   }
 
-  public async getFeedbackById(id: Uuid): Promise<FeedbackModel> {
+  public async getFeedbackById(params: UuidParam): Promise<FeedbackModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const feedbackRepository = Repositories.feedback(transactionalEntityManager);
-      const feedback = await feedbackRepository.getFeedbackById(id);
+      const feedback = await feedbackRepository.getFeedbackById(params.id);
       if (!feedback) throw new NotFoundError('Feedback not found!');
       return feedback;
     });
   }
 
-  public async getFeedbackByUserId(userId: Uuid): Promise<FeedbackModel[]> {
+  public async getFeedbackByUserId(params: UuidParam): Promise<FeedbackModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
     const feedbackRepository = Repositories.feedback(transactionalEntityManager);
-    const feedback = await feedbackRepository.getFeedbackByUserId(userId);
+    const feedback = await feedbackRepository.getFeedbackByUserId(params.id);
     if (!feedback) throw new NotFoundError('User not found!');
     return feedback;
     });
@@ -50,10 +51,10 @@ export class FeedbackService {
     });
   }
 
-  public async deleteFeedbackById(id: Uuid): Promise<FeedbackModel> {
+  public async deleteFeedbackById(params: UuidParam): Promise<FeedbackModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const feedbackRepository = Repositories.feedback(transactionalEntityManager);
-      const feedback = await feedbackRepository.getFeedbackById(id);
+      const feedback = await feedbackRepository.getFeedbackById(params.id);
       if (!feedback) throw new NotFoundError('Feedback not found!');
       return await feedbackRepository.deleteFeedback(feedback);
     });

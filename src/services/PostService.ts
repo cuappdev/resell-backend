@@ -1,4 +1,5 @@
 import { NotFoundError } from 'routing-controllers';
+import { UuidParam } from 'src/api/validators/GenericRequests';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
@@ -19,23 +20,23 @@ export class PostService {
   public async getAllPosts(): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      return postRepository.getAllPosts();
+      return await postRepository.getAllPosts();
     });
   }
 
-  public async getPostById(id: Uuid): Promise<PostModel> {
+  public async getPostById(params: UuidParam): Promise<PostModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const post = await postRepository.getPostById(id);
+      const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
       return post;
     });
   }
 
-  public async getPostsByUserId(userId: Uuid): Promise<PostModel[]> {
+  public async getPostsByUserId(params: UuidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.getPostsByUserId(userId);
+      const posts = await postRepository.getPostsByUserId(params.id);
       if (!posts) throw new NotFoundError('User not found!');
       return posts;
     });
@@ -53,16 +54,16 @@ export class PostService {
         const imageUrl = image.data;
         images.push(imageUrl);
       }
-      return postRepository.createPost(post.title, post.description, post.categories, post.price, images, user);
+      return await postRepository.createPost(post.title, post.description, post.categories, post.price, images, user);
     });
   }
 
-  public async deletePostById(id: Uuid): Promise<PostModel> {
+  public async deletePostById(params: UuidParam): Promise<PostModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const post = await postRepository.getPostById(id);
+      const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
-      return postRepository.deletePost(post);
+      return await postRepository.deletePost(post);
     });
   }
 
@@ -95,8 +96,7 @@ export class PostService {
   public async filterPosts(filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPosts(filterPostsRequest.category);
-      return posts;
+      return await postRepository.filterPosts(filterPostsRequest.category);
     });
   }
 }
