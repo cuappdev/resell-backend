@@ -5,9 +5,10 @@ import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
+import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest, Uuid } from '../types';
+import { EditProfileRequest } from '../types';
 
 @Service()
 export class UserService {
@@ -24,28 +25,28 @@ export class UserService {
     });
   }
 
-  public async getUserById(id: Uuid): Promise<UserModel> {
+  public async getUserById(params: UuidParam): Promise<UserModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserById(id);
+      const user = await userRepository.getUserById(params.id);
       if (!user) throw new NotFoundError('User not found!');
       return user;
     });
   }
 
-  public async getUserByGoogleId(googleId: Uuid): Promise<UserModel> {
+  public async getUserByGoogleId(params: UuidParam): Promise<UserModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserByGoogleId(googleId);
+      const user = await userRepository.getUserByGoogleId(params.id);
       if (!user) throw new NotFoundError('User not found!');
       return user;
     });
   }
 
-  public async getUserByPostId(id: Uuid): Promise<UserModel> {
+  public async getUserByPostId(params: UuidParam): Promise<UserModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const user = await postRepository.getUserByPostId(id);
+      const user = await postRepository.getUserByPostId(params.id);
       if (!user) throw new NotFoundError('Post not found!');
       return user;
     });

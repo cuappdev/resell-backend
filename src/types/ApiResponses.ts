@@ -1,7 +1,7 @@
 import { FeedbackModel } from 'src/models/FeedbackModel';
+
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
-import { UserModel } from '../models/UserModel';
 import { APIUserSession } from '../types';
 
 // RESPONSE TYPES
@@ -86,4 +86,10 @@ export interface GetSessionsReponse {
 
 export interface LogoutResponse {
     logoutSuccess: boolean;
+}
+
+// IMAGES
+
+export interface ImageUrlResponse {
+    image: string;
 }

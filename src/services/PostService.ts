@@ -1,11 +1,13 @@
-import { NotFoundError } from 'routing-controllers';
+import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
+import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
+import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, GetSearchedPostsRequest, FilterPostsRequest, Uuid } from '../types';
+import { CreatePostRequest, FilterPostsRequest, GetSearchedPostsRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -23,19 +25,19 @@ export class PostService {
     });
   }
 
-  public async getPostById(id: Uuid): Promise<PostModel> {
+  public async getPostById(params: UuidParam): Promise<PostModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const post = await postRepository.getPostById(id);
+      const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
       return post;
     });
   }
 
-  public async getPostsByUserId(userId: Uuid): Promise<PostModel[]> {
+  public async getPostsByUserId(params: UuidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.getPostsByUserId(userId);
+      const posts = await postRepository.getPostsByUserId(params.id);
       if (!posts) throw new NotFoundError('User not found!');
       return posts;
     });
@@ -48,8 +50,8 @@ export class PostService {
       if (!user) throw new NotFoundError('User not found!');
       const postRepository = Repositories.post(transactionalEntityManager);
       const images: string[] = [];
-      for (const image_base64 of post.images_base64) {
-        const image = await uploadImage(image_base64);
+      for (const imageBase64 of post.imagesBase64) {
+        const image = await uploadImage(imageBase64);
         const imageUrl = image.data;
         images.push(imageUrl);
       }
@@ -57,11 +59,12 @@ export class PostService {
     });
   }
 
-  public async deletePostById(id: Uuid): Promise<PostModel> {
+  public async deletePostById(user: UserModel, params: UuidParam): Promise<PostModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const post = await postRepository.getPostById(id);
+      const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
+      if (user.id != post.user.id) throw new ForbiddenError('User is not poster!');
       return postRepository.deletePost(post);
     });
   }

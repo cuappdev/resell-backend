@@ -1,4 +1,4 @@
-import { Body, CurrentUser, Get, JsonController, NotFoundError, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, Get, JsonController, Params, Post } from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
@@ -20,27 +20,23 @@ export class UserController {
   }
 
   @Post()
-  async editProfile(@Body() editProfileRequest: EditProfileRequest, @CurrentUser() user?: UserModel): Promise<GetUserResponse> {
-    if (!user) {
-      throw new NotFoundError("User not found!");
-    }
-    const editedUser = await this.userService.updateUser(editProfileRequest, user);
-    return { user: editedUser.getUserProfile() };
+  async editProfile(@Body() editProfileRequest: EditProfileRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+    return { user: await this.userService.updateUser(editProfileRequest, user) };
   }
   
   @Get('id/:id/')
   async getUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
-    return { user: await this.userService.getUserById(params.id) };
+    return { user: await this.userService.getUserById(params) };
   }
   
   @Get('googleId/:id/')
   async getUserByGoogleId(@Params() params: UuidParam): Promise<GetUserResponse> {
-    return { user: await this.userService.getUserByGoogleId(params.id) };
+    return { user: await this.userService.getUserByGoogleId(params) };
   }
 
   @Get('postId/:id/')
   async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse> {
-    return { user: await this.userService.getUserByPostId(params.id) }; 
+    return { user: await this.userService.getUserByPostId(params) }; 
   }
 
   @Get('save/userId/:userId/postId/:postId/') 

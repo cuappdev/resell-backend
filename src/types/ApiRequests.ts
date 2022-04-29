@@ -48,7 +48,7 @@ export interface CreatePostRequest {
     description: string;
     categories: string[];
     price: number;
-    images_base64: string[];
+    imagesBase64: string[];
     userId: Uuid;
 }
 
@@ -70,4 +70,10 @@ export interface GetSearchedFeedbackRequest {
 
 export interface FilterPostsRequest {
     category: string;
+}
+
+// GENERAL IMAGES
+
+export interface UploadImageRequest {
+    imageBase64: string;
 }

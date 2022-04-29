@@ -15,7 +15,7 @@ export class PostModel {
   @Column()
   description: string;
 
-  @Column("text", {array: true })
+  @Column("text", { array: true })
   categories: string[];
 
   @Column("numeric", { scale: 2 } )

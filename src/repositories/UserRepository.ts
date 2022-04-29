@@ -11,7 +11,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async getUserById(id: Uuid): Promise<UserModel | undefined> {
-    return this.repository
+    return await this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.saved", "post")
       .where("user.id = :id", { id })
@@ -19,7 +19,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async getUserByGoogleId(googleId: Uuid): Promise<UserModel | undefined> {
-    return this.repository
+    return await this.repository
       .createQueryBuilder("user")
       .where("user.googleId = :googleId", { googleId })
       .getOne();
@@ -38,7 +38,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async getUserByEmail(email: string): Promise<UserModel | undefined> {
-    return this.repository
+    return await this.repository
       .createQueryBuilder("user")
       .where("user.email = :email", { email })
       .getOne();
@@ -83,17 +83,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
     venmoHandle: string | undefined,
     bio: string | undefined
   ): Promise<UserModel> {
-    let existingUser = this.repository
+    const existingUser = this.repository
       .createQueryBuilder("user")
       .where("user.username = :username", { username })
       .getOne();
     if (await existingUser) throw Error('UserModel with same username already exists!');
-
-    existingUser = this.repository
-      .createQueryBuilder("user")
-      .where("user.venmoHandle = :venmoHandle", { venmoHandle })
-      .getOne();
-    if (await existingUser) throw Error('UserModel with same venmo handle already exists!');
 
     user.username = username ?? user.username;
     user.photoUrl = photoUrl ?? user.photoUrl;
@@ -103,6 +97,6 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async deleteUser(user: UserModel): Promise<UserModel> {
-    return this.repository.remove(user);
+    return await this.repository.remove(user);
   }
 }

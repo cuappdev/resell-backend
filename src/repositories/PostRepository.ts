@@ -13,11 +13,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
   }
 
   public async getPostById(id: Uuid): Promise<PostModel | undefined> {
-    const post = await this.repository
+    return await this.repository
     .createQueryBuilder("post")
-    .where("post.id=:id", { id })
+    .leftJoinAndSelect("post.user", "user")
+    .where("post.id = :id", { id })
     .getOne();
-  return post;
   }
 
   public async getPostsByUserId(userId: Uuid): Promise<PostModel[]> {
@@ -60,26 +60,26 @@ export class PostRepository extends AbstractRepository<PostModel> {
   }
 
   public async searchPostsByTitle(keywords: string): Promise<PostModel[]> {
-    const posts = await this.repository
+    return await this.repository
       .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
       .where("post.title like :keywords", {keywords: `%${keywords}%`})
       .getMany();
-    return posts;
   }
 
   public async searchPostsByDescription(keywords: string): Promise<PostModel[]> {
-    const posts = await this.repository
+    return await this.repository
       .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
       .where("post.description like :keywords", {keywords: `%${keywords}%`})
       .getMany();
-    return posts;
   }
 
   public async filterPosts(category: string): Promise<PostModel[]> {
-    const posts = await this.repository
+    return await this.repository
       .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
       .where(":category = ANY (post.categories)", {category: category})
       .getMany();
-    return posts;
   }
 }

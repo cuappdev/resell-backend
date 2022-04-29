@@ -26,5 +26,12 @@ export default async function resellConnection(): Promise<Connection> {
     extra: {
       ssl: (process.env.IS_PROD?.toLowerCase() === "true"),
     },
+    migrations: [
+      'src/migrations/*.ts',
+    ],
+    cli: {
+      entitiesDir: 'src/models/',
+      migrationsDir: 'src/migrations',
+    },
   });
 }

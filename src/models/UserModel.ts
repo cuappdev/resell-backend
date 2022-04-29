@@ -11,7 +11,7 @@ export class UserModel {
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 
-  @Column()
+  @Column({ unique: true })
   username: string;
 
   @Column({ unique: true })
@@ -26,7 +26,7 @@ export class UserModel {
   @Column({ nullable: true })
   photoUrl: string;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ nullable: true })
   venmoHandle: string;
 
   @Column({ unique: true })
@@ -45,7 +45,7 @@ export class UserModel {
   saved: PostModel[];
 
   @OneToMany(() => UserSessionModel, session => session.user, { cascade: true })
-  sessions: UserSessionModel;
+  sessions: UserSessionModel[];
 
   @OneToMany(() => FeedbackModel, feedback => feedback.user)
   feedback: FeedbackModel[];

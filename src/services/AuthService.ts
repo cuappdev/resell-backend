@@ -1,5 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
-import { NotFoundError } from 'routing-controllers';
+import { ForbiddenError, NotFoundError } from 'routing-controllers';
+import { UuidParam } from 'src/api/validators/GenericRequests';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
@@ -7,7 +8,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UserModel } from '../models/UserModel';
 import { UserSessionModel } from '../models/UserSessionModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { APIUserSession, AuthRequest, Uuid } from '../types';
+import { APIUserSession, AuthRequest } from '../types';
 
 const client = new OAuth2Client(process.env.OAUTH_BACKEND_ID);
 
@@ -19,7 +20,7 @@ export class AuthService {
     this.transactions = new TransactionsManager(entityManager);
   }
 
-  public async loginUser(authRequest: AuthRequest): Promise<UserSessionModel | undefined> {
+  public async loginUser(authRequest: AuthRequest): Promise<UserSessionModel> {
     // checks if the email is a Cornell email
     const emailIndex = authRequest.user.email.indexOf('@cornell.edu')
     if (emailIndex === -1) {
@@ -59,25 +60,25 @@ export class AuthService {
           return session;
         });
       }
-      return undefined;
+      throw new ForbiddenError("Invalid credentials");
     } else {
       throw new Error('env variables not set');
     }
   }
 
-  public async deleteUserById(id: Uuid): Promise<UserModel> {
+  public async deleteUserById(params: UuidParam): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserById(id);
+      const user = await userRepository.getUserById(params.id);
       if (!user) throw new NotFoundError('User not found!');
       return userRepository.deleteUser(user);
     });
   }
 
-  public async getSessionsByUserId(id: Uuid): Promise<APIUserSession[]> {
+  public async getSessionsByUserId(params: UuidParam): Promise<APIUserSession[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const sessionRepository = Repositories.session(transactionalEntityManager);
-      const sessions = await sessionRepository.getSessionsByUserId(id);
+      const sessions = await sessionRepository.getSessionsByUserId(params.id);
       if (!sessions) throw new NotFoundError('User not found!');
       const apiSessions: APIUserSession[] = [];
       sessions.forEach(function (session) {
