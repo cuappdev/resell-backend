@@ -2,7 +2,7 @@ import { Body, CurrentUser, Delete, Get, HeaderParam, JsonController, Params, Po
 
 import { UserModel } from '../../models/UserModel';
 import { AuthService } from '../../services/AuthService';
-import { APIUserSession, GetSessionsReponse, GetUserResponse, LogoutResponse } from '../../types';
+import { APIUserSession, CreateUserRequest, GetSessionsReponse, GetUserResponse, LogoutResponse } from '../../types';
 import { LoginRequest } from '../validators/AuthControllerRequests';
 import { UuidParam } from '../validators/GenericRequests';
 
@@ -17,6 +17,11 @@ export class AuthController {
   @Get()
   async currentUser(@CurrentUser() user: UserModel): Promise<GetUserResponse> {
     return { user: user.getUserProfile() };
+  }
+
+  @Post()
+  async createUser(@Body() createUserRequest: CreateUserRequest): Promise<GetUserResponse> {
+    return { user: await this.authService.createUser(createUserRequest) };
   }
 
   @Post('login/')

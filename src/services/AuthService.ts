@@ -8,7 +8,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UserModel } from '../models/UserModel';
 import { UserSessionModel } from '../models/UserSessionModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { APIUserSession, AuthRequest } from '../types';
+import { APIUserSession, AuthRequest, CreateUserRequest } from '../types';
 
 const client = new OAuth2Client(process.env.OAUTH_BACKEND_ID);
 
@@ -18,6 +18,14 @@ export class AuthService {
 
   constructor(@InjectManager() entityManager: EntityManager) {
     this.transactions = new TransactionsManager(entityManager);
+  }
+
+  public async createUser(createUserRequest: CreateUserRequest): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      return userRepository.createUser(createUserRequest.username, createUserRequest.netid, createUserRequest.givenName,
+        createUserRequest.familyName, createUserRequest.photoUrl, createUserRequest.email, createUserRequest.googleId);
+    });
   }
 
   public async loginUser(authRequest: AuthRequest): Promise<UserSessionModel> {

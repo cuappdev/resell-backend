@@ -34,10 +34,10 @@ export class UserService {
     });
   }
 
-  public async getUserByGoogleId(params: UuidParam): Promise<UserModel> {
+  public async getUserByGoogleId(id: string): Promise<UserModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserByGoogleId(params.id);
+      const user = await userRepository.getUserByGoogleId(id);
       if (!user) throw new NotFoundError('User not found!');
       return user;
     });

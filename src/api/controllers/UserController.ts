@@ -1,4 +1,4 @@
-import { Body, CurrentUser, Get, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, Get, JsonController, Param, Params, Post } from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
@@ -30,8 +30,8 @@ export class UserController {
   }
   
   @Get('googleId/:id/')
-  async getUserByGoogleId(@Params() params: UuidParam): Promise<GetUserResponse> {
-    return { user: await this.userService.getUserByGoogleId(params) };
+  async getUserByGoogleId(@Param("id") id: string): Promise<GetUserResponse> {
+    return { user: await this.userService.getUserByGoogleId(id) };
   }
 
   @Get('postId/:id/')

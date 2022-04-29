@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { PrivateProfile, Uuid } from '../types';
 import { FeedbackModel } from './FeedbackModel';
@@ -41,7 +41,7 @@ export class UserModel {
   @OneToMany(() => PostModel, post => post.user, { cascade: true })
   posts: PostModel[];
 
-  @OneToMany(() => PostModel, post => post.user, { cascade: true })
+  @ManyToMany(() => PostModel, post => post.savers)
   saved: PostModel[];
 
   @OneToMany(() => UserSessionModel, session => session.user, { cascade: true })

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Post, Uuid } from '../types';
 import { UserModel } from './UserModel';
@@ -29,6 +29,19 @@ export class PostModel {
 
   @ManyToOne(() => UserModel, user => user.posts)
   user: UserModel;
+  
+  @ManyToMany(() => UserModel, user => user.saved)
+  @JoinTable({
+    name: "user_saved_posts",
+    joinColumn: {
+     name: "saved",
+     referencedColumnName: "id"
+    },
+    inverseJoinColumn: {
+     name: "savers",
+     referencedColumnName: "id"
+     }})
+  savers: UserModel[];
 
   public getPostInfo(): Post {
     return {
@@ -39,7 +52,8 @@ export class PostModel {
       price: this.price,
       images: this.images,
       location: this.location,
-      user: this.user.getUserProfile()
+      user: this.user.getUserProfile(),
+      savers: this.savers.map(user => user.getUserProfile()),
     };
   }
 }

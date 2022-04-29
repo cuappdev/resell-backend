@@ -51,6 +51,7 @@ export interface Post {
     images: string[],
     location: string,
     user: PrivateProfile,
+    savers: PrivateProfile[],
 }
 
 export interface GetPostsResponse {

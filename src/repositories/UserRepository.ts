@@ -7,13 +7,14 @@ import { Uuid } from '../types';
 @EntityRepository(UserModel)
 export class UserRepository extends AbstractRepository<UserModel> {
   public async getAllUsers(): Promise<UserModel[]> {
-    return this.repository.find();
+    return await this.repository.find();
   }
 
   public async getUserById(id: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .leftJoinAndSelect("user.saved", "post")
+      .leftJoin("user.saved", "post")
+      .leftJoinAndSelect("user.saved", "postSelect")
       .where("user.id = :id", { id })
       .getOne();
   }

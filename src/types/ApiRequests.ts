@@ -30,6 +30,8 @@ export interface CreateUserRequest {
     familyName: string;
     photoUrl: string;
     venmoHandle: string;
+    netid: string;
+    username: string;
     email: string;
     googleId: string;
     bio: string;
