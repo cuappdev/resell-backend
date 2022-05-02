@@ -53,7 +53,7 @@ export class PostModel {
       images: this.images,
       location: this.location,
       user: this.user.getUserProfile(),
-      savers: this.savers.map(user => user.getUserProfile()),
+      savers: this.savers?.map(user => user.getUserProfile()),
     };
   }
 }

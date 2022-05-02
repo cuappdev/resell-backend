@@ -62,6 +62,10 @@ export interface GetPostResponse {
     post: Post;
 }
 
+export interface IsSavedPostResponse {
+    isSaved: boolean;
+}
+
 // FEEDBACK
 
 export interface Feedback {

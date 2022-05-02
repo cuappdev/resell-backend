@@ -2,8 +2,8 @@ import { Body, CurrentUser, Get, JsonController, Param, Params, Post } from 'rou
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import { EditProfileRequest, GetPostResponse, GetUserByEmailRequest, GetUserResponse, GetUsersResponse } from '../../types';
-import { PostAndUserUuidParam, UuidParam } from '../validators/GenericRequests';
+import { EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse } from '../../types';
+import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
 export class UserController {
@@ -37,16 +37,6 @@ export class UserController {
   @Get('postId/:id/')
   async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse> {
     return { user: await this.userService.getUserByPostId(params) }; 
-  }
-
-  @Get('save/userId/:userId/postId/:postId/') 
-  async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
-    return { post: await this.userService.savePost(params) }; 
-  }
-
-  @Get('unsave/userId/:userId/postId/:postId/') 
-  async unsavePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
-      return { post: await this.userService.unsavePost(params) };
   }
 
   @Post('email/')
