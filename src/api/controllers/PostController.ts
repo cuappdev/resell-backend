@@ -8,8 +8,9 @@ import {
   GetPostResponse,
   GetPostsResponse,
   GetSearchedPostsRequest,
+  IsSavedPostResponse,
 } from '../../types';
-import { UuidParam } from '../validators/GenericRequests';
+import { PostAndUserUuidParam, UuidParam } from '../validators/GenericRequests';
 
 @JsonController('post/')
 export class PostController {
@@ -53,5 +54,20 @@ export class PostController {
   @Post('filter/')
   async filterPosts(@Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
     return { posts: await this.postService.filterPosts(filterPostsRequest) };
+  }
+
+  @Get('save/userId/:userId/postId/:postId/') 
+  async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
+    return { post: await this.postService.savePost(params) }; 
+  }
+
+  @Get('unsave/userId/:userId/postId/:postId/') 
+  async unsavePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
+      return { post: await this.postService.unsavePost(params) };
+  }
+  
+  @Get('isSaved/userId/:userId/postId/:postId/') 
+  async isSavedPost(@Params() params: PostAndUserUuidParam): Promise<IsSavedPostResponse> {
+    return { isSaved: await this.postService.isSavedPost(params) }; 
   }
 }
