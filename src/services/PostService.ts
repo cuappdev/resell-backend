@@ -21,7 +21,8 @@ export class PostService {
   public async getAllPosts(): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      return postRepository.getAllPosts();
+      console.log(await postRepository.getAllPosts());
+      return await postRepository.getAllPosts();
     });
   }
 
