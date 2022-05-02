@@ -1,5 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
-import { ForbiddenError, NotFoundError } from 'routing-controllers';
+import { ForbiddenError, NotFoundError, UnauthorizedError } from 'routing-controllers';
 import { UuidParam } from 'src/api/validators/GenericRequests';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
@@ -32,7 +32,7 @@ export class AuthService {
     // checks if the email is a Cornell email
     const emailIndex = authRequest.user.email.indexOf('@cornell.edu')
     if (emailIndex === -1) {
-      throw new Error('Non-Cornell email used!');
+      throw new UnauthorizedError('Non-Cornell email used!');
     } 
 
     if (process.env.OAUTH_ANDROID_CLIENT && process.env.OAUTH_IOS_ID) {
@@ -46,7 +46,7 @@ export class AuthService {
       if (payload){
         // token checking in payload
         if (payload.iss !== 'accounts.google.com' && payload.iss !== 'https://accounts.google.com') {
-          throw new Error('Invalid token (issuer)');
+          throw new UnauthorizedError('Invalid token (issuer)');
         }
 
         // gets Google ID and checks if the user is already in the database

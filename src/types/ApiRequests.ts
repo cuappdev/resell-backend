@@ -19,19 +19,19 @@ export interface AuthRequest {
 }
 
 export interface EditProfileRequest {
-    photoUrl: string | undefined;
+    photoUrl_base64: string | undefined;
     username: string | undefined;
     venmoHandle: string | undefined;
     bio: string | undefined;
 }
 
 export interface CreateUserRequest {
+    username: string;
+    netid: string;
     givenName: string;
     familyName: string;
     photoUrl: string;
     venmoHandle: string;
-    netid: string;
-    username: string;
     email: string;
     googleId: string;
     bio: string;
