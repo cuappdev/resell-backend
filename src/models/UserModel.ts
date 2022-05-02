@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { PrivateProfile, Uuid } from '../types';
 import { FeedbackModel } from './FeedbackModel';
@@ -11,7 +11,7 @@ export class UserModel {
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 
-  @Column()
+  @Column({ unique: true })
   username: string;
 
   @Column({ unique: true })
@@ -26,7 +26,7 @@ export class UserModel {
   @Column({ nullable: true })
   photoUrl: string;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ nullable: true })
   venmoHandle: string;
 
   @Column({ unique: true })
@@ -41,11 +41,11 @@ export class UserModel {
   @OneToMany(() => PostModel, post => post.user, { cascade: true })
   posts: PostModel[];
 
-  @OneToMany(() => PostModel, post => post.user, { cascade: true })
+  @ManyToMany(() => PostModel, post => post.savers)
   saved: PostModel[];
 
   @OneToMany(() => UserSessionModel, session => session.user, { cascade: true })
-  sessions: UserSessionModel;
+  sessions: UserSessionModel[];
 
   @OneToMany(() => FeedbackModel, feedback => feedback.user)
   feedback: FeedbackModel[];

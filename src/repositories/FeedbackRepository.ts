@@ -13,11 +13,10 @@ export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
   }
 
   public async getFeedbackById(id: Uuid): Promise<FeedbackModel | undefined> {
-    const feedback = await this.repository
+    return await this.repository
     .createQueryBuilder("feedback")
     .where("feedback.id = :id", { id })
     .getOne();
-  return feedback;
   }
 
   public async getFeedbackByUserId(userId: Uuid): Promise<FeedbackModel[]> {
@@ -46,11 +45,10 @@ export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
     return this.repository.remove(feedback);
   }
 
-  public async searchFeedback(keywords: String): Promise<FeedbackModel[]> {
-    const feedback = await this.repository
+  public async searchFeedback(keywords: string): Promise<FeedbackModel[]> {
+    return await this.repository
       .createQueryBuilder("feedback")
       .where("feedback.description like :keywords", {keywords: `%${keywords}%`})
       .getMany();
-    return feedback;
   }
 }

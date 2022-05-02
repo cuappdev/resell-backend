@@ -11,10 +11,10 @@ export async function externalRequest(url: string, method: string, body={}): Pro
   return await response.clone().json();
 }
 
-export async function uploadImage(image_base64: string): Promise<any> {
+export async function uploadImage(imageBase64: string): Promise<any> {
   const requestBody = {
     bucket: process.env.UPLOAD_BUCKET_NAME,
-    image: image_base64
+    image: imageBase64
   }
   if (process.env.IMAGE_UPLOAD_URL === undefined) {
     throw new Error('IMAGE_UPLOAD_URL is not defined');

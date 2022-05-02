@@ -1,14 +1,4 @@
-import {
-  Body,
-  CurrentUser,
-  Delete,
-  ForbiddenError,
-  Get,
-  HeaderParam,
-  JsonController,
-  Params,
-  Post,
-} from 'routing-controllers';
+import { Body, CurrentUser, Delete, Get, HeaderParam, JsonController, Params, Post } from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel';
 import { AuthService } from '../../services/AuthService';
@@ -25,10 +15,7 @@ export class AuthController {
   }
 
   @Get()
-  async currentUser(@CurrentUser({ required: false }) user?: UserModel): Promise<GetUserResponse> {
-    if (!user) {
-      throw new ForbiddenError("Invalid session token");
-    }
+  async currentUser(@CurrentUser() user: UserModel): Promise<GetUserResponse> {
     return { user: user.getUserProfile() };
   }
 
@@ -39,11 +26,7 @@ export class AuthController {
 
   @Post('login/')
   async login(@Body() loginRequest: LoginRequest): Promise<APIUserSession> {
-    const session = await this.authService.loginUser(loginRequest);
-    if (!session) {
-      throw new ForbiddenError("Invalid credentials");
-    }
-    return session.serializeToken();
+    return (await this.authService.loginUser(loginRequest)).serializeToken();
   }
 
   @Post('logout/')
@@ -53,12 +36,11 @@ export class AuthController {
 
   @Delete('id/:id/')
   async deleteUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
-    return { user: await this.authService.deleteUserById(params.id) };
+    return { user: await this.authService.deleteUserById(params) };
   }
 
   @Get('sessions/:id/')
-  async getSessionsByUserId(@Params() params: UuidParam):
-      Promise<GetSessionsReponse> {
-    return { sessions: await this.authService.getSessionsByUserId(params.id) };
+  async getSessionsByUserId(@Params() params: UuidParam): Promise<GetSessionsReponse> {
+    return { sessions: await this.authService.getSessionsByUserId(params) };
   }
 }

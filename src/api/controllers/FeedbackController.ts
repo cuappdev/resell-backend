@@ -20,12 +20,12 @@ export class FeedbackController {
 
   @Get('id/:id/')
   async getFeedbackById(@Params() params: UuidParam): Promise<GetFeedbackResponse> {
-    return { feedback: await this.feedbackService.getFeedbackById(params.id) };
+    return { feedback: await this.feedbackService.getFeedbackById(params) };
   }
 
   @Get('userId/:id/')
   async getFeedbackByUserId(@Params() params: UuidParam): Promise<GetFeedbacksResponse> {
-    return { feedback: await this.feedbackService.getFeedbackByUserId(params.id) };
+    return { feedback: await this.feedbackService.getFeedbackByUserId(params) };
   }
 
   @Post()
@@ -35,7 +35,7 @@ export class FeedbackController {
 
   @Delete('id/:id/')
   async deletePostById(@Params() params: UuidParam): Promise<GetFeedbackResponse> {
-    return { feedback: await this.feedbackService.deleteFeedbackById(params.id) };
+    return { feedback: await this.feedbackService.deleteFeedbackById(params) };
   }
 
   

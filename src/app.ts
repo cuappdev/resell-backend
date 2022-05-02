@@ -2,7 +2,7 @@
 import 'reflect-metadata';
 
 import dotenv from 'dotenv';
-import { createExpressServer, useContainer as routingUseContainer } from 'routing-controllers';
+import { createExpressServer, ForbiddenError, useContainer as routingUseContainer } from 'routing-controllers';
 import { getManager, useContainer } from 'typeorm';
 import { Container } from 'typeorm-typedi-extensions';
 
@@ -37,7 +37,7 @@ async function main() {
         const userId = session.userId;
         return await manager.findOne(UserModel, { id: userId });
       }
-      return undefined;
+      throw new ForbiddenError("User unauthorized");
     },
     defaults: {
       paramOptions: {

@@ -8,19 +8,20 @@ import { Uuid } from '../types';
 @EntityRepository(UserModel)
 export class UserRepository extends AbstractRepository<UserModel> {
   public async getAllUsers(): Promise<UserModel[]> {
-    return this.repository.find();
+    return await this.repository.find();
   }
 
   public async getUserById(id: Uuid): Promise<UserModel | undefined> {
-    return this.repository
+    return await this.repository
       .createQueryBuilder("user")
-      .leftJoinAndSelect("user.saved", "post")
+      .leftJoin("user.saved", "post")
+      .leftJoinAndSelect("user.saved", "postSelect")
       .where("user.id = :id", { id })
       .getOne();
   }
 
   public async getUserByGoogleId(googleId: Uuid): Promise<UserModel | undefined> {
-    return this.repository
+    return await this.repository
       .createQueryBuilder("user")
       .where("user.googleId = :googleId", { googleId })
       .getOne();
@@ -39,7 +40,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async getUserByEmail(email: string): Promise<UserModel | undefined> {
-    return this.repository
+    return await this.repository
       .createQueryBuilder("user")
       .where("user.email = :email", { email })
       .getOne();
@@ -84,7 +85,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
     venmoHandle: string | undefined,
     bio: string | undefined
   ): Promise<UserModel> {
-    let existingUser = this.repository
+    const existingUser = this.repository
       .createQueryBuilder("user")
       .where("user.username = :username", { username })
       .getOne();
@@ -94,16 +95,6 @@ export class UserRepository extends AbstractRepository<UserModel> {
       }
     }
 
-    existingUser = this.repository
-      .createQueryBuilder("user")
-      .where("user.venmoHandle = :venmoHandle", { venmoHandle })
-      .getOne();
-      if (await existingUser) {
-        if (venmoHandle !== user.venmoHandle) {
-          throw new ConflictError('UserModel with same venmo handle already exists!');
-        }
-      }
-
     user.username = username ?? user.username;
     user.photoUrl = photoUrl ?? user.photoUrl;
     user.venmoHandle = venmoHandle ?? user.venmoHandle;
@@ -112,6 +103,6 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async deleteUser(user: UserModel): Promise<UserModel> {
-    return this.repository.remove(user);
+    return await this.repository.remove(user);
   }
 }

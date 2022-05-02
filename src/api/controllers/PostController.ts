@@ -1,7 +1,14 @@
-import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 
+import { UserModel } from '../../models/UserModel';
 import { PostService } from '../../services/PostService';
-import { CreatePostRequest, GetPostResponse, GetPostsResponse, GetSearchedPostsRequest, FilterPostsRequest } from '../../types';
+import {
+  CreatePostRequest,
+  FilterPostsRequest,
+  GetPostResponse,
+  GetPostsResponse,
+  GetSearchedPostsRequest,
+} from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('post/')
@@ -20,12 +27,12 @@ export class PostController {
 
   @Get('id/:id/')
   async getPostById(@Params() params: UuidParam): Promise<GetPostResponse  | undefined> {
-    return { post: await this.postService.getPostById(params.id) };
+    return { post: await this.postService.getPostById(params) };
   }
 
   @Get('userId/:id/')
   async getPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse> {
-    return { posts: await this.postService.getPostsByUserId(params.id) };
+    return { posts: await this.postService.getPostsByUserId(params) };
   }
 
   @Post()
@@ -33,9 +40,9 @@ export class PostController {
     return { post: await this.postService.createPost(createPostRequest) };
   }
 
-  @Delete(':id/')
-  async deletePostById(@Params() params: UuidParam): Promise<GetPostResponse> {
-    return { post: await this.postService.deletePostById(params.id) };
+  @Delete('id/:id/')
+  async deletePostById(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
+    return { post: await this.postService.deletePostById(user, params) };
   }
 
   @Post('search/')
