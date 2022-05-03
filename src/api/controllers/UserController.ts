@@ -20,7 +20,7 @@ export class UserController {
   }
 
   @Post()
-  async editProfile(@Body() editProfileRequest: EditProfileRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+  async editProfile(@Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) editProfileRequest: EditProfileRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
     return { user: await this.userService.updateUser(editProfileRequest, user) };
   }
   

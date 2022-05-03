@@ -37,7 +37,7 @@ export class PostController {
   }
 
   @Post()
-  async createPost(@Body() createPostRequest: CreatePostRequest): Promise<GetPostResponse> {
+  async createPost(@Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) createPostRequest: CreatePostRequest): Promise<GetPostResponse> {
     return { post: await this.postService.createPost(createPostRequest) };
   }
 
