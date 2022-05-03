@@ -63,7 +63,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where("post.title like :keywords", {keywords: `%${keywords}%`})
+      .where("LOWER(post.title) like LOWER(:keywords)", {keywords: `%${keywords}%`})
       .getMany();
   }
 
@@ -71,7 +71,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where("post.description like :keywords", {keywords: `%${keywords}%`})
+      .where("LOWER(post.description) like LOWER(:keywords)", {keywords: `%${keywords}%`})
       .getMany();
   }
 
