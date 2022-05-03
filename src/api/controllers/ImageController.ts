@@ -12,7 +12,7 @@ export class ImageController {
   }
 
   @Post()
-  async uploadImage(@Body() uploadImageRequest: UploadImageRequest): Promise<ImageUrlResponse> {
+  async uploadImage(@Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) uploadImageRequest: UploadImageRequest): Promise<ImageUrlResponse> {
     return { image: await this.imageService.uploadImage(uploadImageRequest) };
   }
 }

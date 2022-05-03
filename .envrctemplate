@@ -14,3 +14,4 @@ export OAUTH_CLIENT_SECRET=
 export OAUTH_IOS_ID=
 export PORT=
 export UPLOAD_BUCKET_NAME=
+export UPLOAD_SIZE_LIMIT=
