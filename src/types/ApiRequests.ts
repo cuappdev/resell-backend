@@ -19,7 +19,7 @@ export interface AuthRequest {
 }
 
 export interface EditProfileRequest {
-    photoUrl_base64: string | undefined;
+    photoUrlBase64: string | undefined;
     username: string | undefined;
     venmoHandle: string | undefined;
     bio: string | undefined;
