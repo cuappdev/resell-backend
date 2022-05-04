@@ -23,8 +23,12 @@ export class AuthService {
   public async createUser(createUserRequest: CreateUserRequest): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      return userRepository.createUser(createUserRequest.username, createUserRequest.netid, createUserRequest.givenName,
+      const user = await userRepository.createUser(createUserRequest.username, createUserRequest.netid, createUserRequest.givenName,
         createUserRequest.familyName, createUserRequest.photoUrl, createUserRequest.email, createUserRequest.googleId);
+
+      const sessionsRepository = Repositories.session(transactionalEntityManager);
+      sessionsRepository.createSession(user);
+      return user;
     });
   }
 
