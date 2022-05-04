@@ -64,8 +64,8 @@ export class UserService {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
       let imageUrl = undefined;
-      if (editProfileRequest.photoUrl_base64) {
-        const image = await uploadImage(editProfileRequest.photoUrl_base64);
+      if (editProfileRequest.photoUrlBase64) {
+        const image = await uploadImage(editProfileRequest.photoUrlBase64);
         imageUrl = image.data;
       }
       return userRepository.updateUser(user, editProfileRequest.username, imageUrl,
