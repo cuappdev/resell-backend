@@ -69,7 +69,7 @@ export class PostService {
     });
   }
 
-  
+
   public async searchPosts(getSearchedPostsRequest: GetSearchedPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
@@ -79,15 +79,13 @@ export class PostService {
       postsByDescription.forEach((pd) => {
         let contains = false;
         posts.forEach((p) => {
-          if (p.id == pd.id)
-          {
-            contains=true;
+          if (p.id == pd.id) {
+            contains = true;
             posts.splice(posts.indexOf(p), 1);
             posts.unshift(p);
           }
         });
-        if (!contains)
-        {
+        if (!contains) {
           posts.push(pd);
         }
       });
@@ -138,6 +136,15 @@ export class PostService {
       const post = await postRepository.getPostById(params.postId);
       if (!post) throw new NotFoundError('Post not found!');
       return await userRepository.isSavedPost(user, post);
+    });
+  }
+
+  public async getSavedPostsByUserId(params: UuidParam): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const user = await userRepository.getUserById(params.id);
+      if (!user) throw new NotFoundError('User not found!');
+      return user.saved;
     });
   }
 }

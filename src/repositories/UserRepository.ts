@@ -14,8 +14,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getUserById(id: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .leftJoin("user.saved", "post")
-      .leftJoinAndSelect("user.saved", "postSelect")
+      .leftJoinAndSelect("user.saved", "post")
       .where("user.id = :id", { id })
       .getOne();
   }
@@ -75,7 +74,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .where("user.googleId = :googleId", { googleId })
       .getOne();
     if (await existingUser) throw new ConflictError('UserModel with same google ID already exists!');
-    
+
     const user = new UserModel();
     user.username = username;
     user.netid = netid;

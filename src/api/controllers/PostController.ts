@@ -27,7 +27,7 @@ export class PostController {
   }
 
   @Get('id/:id/')
-  async getPostById(@Params() params: UuidParam): Promise<GetPostResponse  | undefined> {
+  async getPostById(@Params() params: UuidParam): Promise<GetPostResponse | undefined> {
     return { post: await this.postService.getPostById(params) };
   }
 
@@ -56,18 +56,23 @@ export class PostController {
     return { posts: await this.postService.filterPosts(filterPostsRequest) };
   }
 
-  @Get('save/userId/:userId/postId/:postId/') 
+  @Get('save/userId/:userId/postId/:postId/')
   async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
-    return { post: await this.postService.savePost(params) }; 
+    return { post: await this.postService.savePost(params) };
   }
 
-  @Get('unsave/userId/:userId/postId/:postId/') 
+  @Get('unsave/userId/:userId/postId/:postId/')
   async unsavePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
-      return { post: await this.postService.unsavePost(params) };
+    return { post: await this.postService.unsavePost(params) };
   }
-  
-  @Get('isSaved/userId/:userId/postId/:postId/') 
+
+  @Get('isSaved/userId/:userId/postId/:postId/')
   async isSavedPost(@Params() params: PostAndUserUuidParam): Promise<IsSavedPostResponse> {
-    return { isSaved: await this.postService.isSavedPost(params) }; 
+    return { isSaved: await this.postService.isSavedPost(params) };
+  }
+
+  @Get('savedPosts/userId/:userId/')
+  async getSavedPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getSavedPostsByUserId(params) };
   }
 }
