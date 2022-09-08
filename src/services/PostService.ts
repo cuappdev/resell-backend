@@ -142,7 +142,7 @@ export class PostService {
   public async getSavedPostsByUserId(params: UuidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserById(params.id);
+      const user = await userRepository.getSavedPostsByUserId(params.id);
       if (!user) throw new NotFoundError('User not found!');
       return user.saved;
     });
