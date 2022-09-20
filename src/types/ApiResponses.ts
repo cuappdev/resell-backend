@@ -26,6 +26,7 @@ export interface PublicProfile {
 }
 
 export interface PrivateProfile extends PublicProfile {
+    admin: boolean,
     email: string,
     googleId: string,
     saved: PostModel[],

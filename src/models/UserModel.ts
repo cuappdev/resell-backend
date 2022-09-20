@@ -23,6 +23,9 @@ export class UserModel {
   @Column()
   familyName: string;
 
+  @Column()
+  admin: boolean;
+
   @Column({ nullable: true })
   photoUrl: string;
 
@@ -57,6 +60,7 @@ export class UserModel {
       netid: this.netid,
       givenName: this.givenName,
       familyName: this.familyName,
+      admin: this.admin,
       photoUrl: this.photoUrl,
       venmoHandle: this.venmoHandle,
       email: this.email,

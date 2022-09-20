@@ -35,20 +35,20 @@ export class AuthService {
   public async loginUser(authRequest: AuthRequest): Promise<UserSessionModel> {
     // checks if the email is a Cornell email or in the allowed emails list
     const emailIndex = authRequest.user.email.indexOf('@cornell.edu')
-    const allowedEmails = process.env.ALLOWED_EMAILS?.split(",");
-    if (emailIndex === -1 || allowedEmails?.includes(authRequest.user.email)) {
+    const adminEmails = process.env.ADMIN_EMAILS?.split(",");
+    if (emailIndex === -1 && !adminEmails?.includes(authRequest.user.email)) {
       throw new UnauthorizedError('Non-Cornell email used!');
-    } 
+    }
 
     if (process.env.OAUTH_ANDROID_CLIENT && process.env.OAUTH_IOS_ID) {
       // verifies info using id token
       const ticket = await client.verifyIdToken({
         idToken: authRequest.idToken,
       });
-    
+
       const payload = ticket.getPayload();
 
-      if (payload){
+      if (payload) {
         // token checking in payload
         if (payload.iss !== 'accounts.google.com' && payload.iss !== 'https://accounts.google.com') {
           throw new UnauthorizedError('Invalid token (issuer)');
