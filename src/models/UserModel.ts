@@ -5,7 +5,7 @@ import { FeedbackModel } from './FeedbackModel';
 import { PostModel } from './PostModel';
 import { UserSessionModel } from './UserSessionModel';
 
-@Entity()
+@Entity('Users')
 export class UserModel {
 
   @PrimaryGeneratedColumn('uuid')

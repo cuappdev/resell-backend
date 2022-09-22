@@ -27,7 +27,7 @@ export class PostController {
   }
 
   @Get('id/:id/')
-  async getPostById(@Params() params: UuidParam): Promise<GetPostResponse  | undefined> {
+  async getPostById(@Params() params: UuidParam): Promise<GetPostResponse> {
     return { post: await this.postService.getPostById(params) };
   }
 

@@ -3,7 +3,7 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColum
 import { Post, Uuid } from '../types';
 import { UserModel } from './UserModel';
 
-@Entity()
+@Entity('Posts')
 export class PostModel {
 
   @PrimaryGeneratedColumn('uuid')
@@ -19,7 +19,7 @@ export class PostModel {
   categories: string[];
 
   @Column("numeric", { scale: 2 } )
-  price: number;
+  price: number | string;
 
   @Column("text", { array: true })
   images: string[];

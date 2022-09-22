@@ -61,12 +61,11 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
       .getOne();
   }
 
-  public async getSessionByToken(accessToken?: string, refreshToken?: string): Promise<UserSessionModel | undefined> {
-    const token = accessToken || refreshToken;
+  public async getSessionByToken(accessToken?: string): Promise<UserSessionModel | undefined> {
+    const token = accessToken;
     const session = await this.repository
       .createQueryBuilder("UserSessionModel")
       .where("UserSessionModel.accessToken = :accessToken", { accessToken: token })
-      .orWhere("UserSessionModel.refreshToken = :refreshToken", { refreshToken: token })
       .getOne();
     return session;
   }
@@ -89,15 +88,6 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
       .getOne();
     const userId = session?.user.id;
     return userId;
-  }
-
-  public async updateSession(refreshToken: string): Promise<UserSessionModel | undefined> {
-    const session = await this.repository.findOne({ where: { refreshToken } });
-    if (session) {
-      session.update();
-      await this.repository.save(session);
-    }
-    return session;
   }
 
   public async verifySession(accessToken: string): Promise<boolean> {

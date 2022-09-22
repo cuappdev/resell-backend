@@ -4,7 +4,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { APIUserSession, Uuid } from '../types';
 import { UserModel } from './UserModel';
 
-@Entity()
+@Entity('UserSessions')
 export class UserSessionModel {
 
   @PrimaryGeneratedColumn('uuid')
@@ -16,21 +16,17 @@ export class UserSessionModel {
   @Column({ type: 'timestamptz' })
   expiresAt: Date;
 
-  @Column()
-  refreshToken: string;
-
   @ManyToOne(() => UserModel, user => user.sessions, { onDelete: "CASCADE" })
   user: UserModel;
 
   @Column()
   userId: Uuid;
 
-  public update(accessToken?: string, refreshToken?: string): UserSessionModel {
+  public update(accessToken?: string): UserSessionModel {
     this.accessToken = accessToken || crypto.randomBytes(64).toString('hex');
-    this.refreshToken = refreshToken || crypto.randomBytes(64).toString('hex');
-    // expires the next week (added time is one month)
+    // expires the next week (added time is one year)
     // in milliseconds
-    this.expiresAt = new Date(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30);
+    this.expiresAt = new Date(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 365);
     return this;
   }
 
@@ -40,7 +36,6 @@ export class UserSessionModel {
       accessToken: this.accessToken,
       active: this.expiresAt.getTime() > Date.now(),
       expiresAt: this.expiresAt.getTime(),
-      refreshToken: this.refreshToken,
     };
   }
 

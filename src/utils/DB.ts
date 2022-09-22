@@ -1,16 +1,5 @@
 import { Connection, createConnection } from 'typeorm';
-
-import { FeedbackModel } from '../models/FeedbackModel';
-import { PostModel } from '../models/PostModel';
-import { UserModel } from '../models/UserModel';
-import { UserSessionModel } from '../models/UserSessionModel';
-
-const models =[
-  UserModel,
-  PostModel,
-  FeedbackModel,
-  UserSessionModel
-];
+import { models } from '../models';
 
 export default async function resellConnection(): Promise<Connection> {
   return await createConnection({
