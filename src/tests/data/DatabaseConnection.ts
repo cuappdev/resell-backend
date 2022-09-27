@@ -28,10 +28,10 @@ export class DatabaseConnection {
       // the order of elements matters here, since this will be the order of deletion.
       // if a table (A) exists with an fkey to another table (B), make sure B is listed higher than A.
       const tableNames = [
-        'Feedbacks',
-        'Posts',
-        'UserSessions',
-        'Users',
+        'Feedback',
+        'Post',
+        'UserSession',
+        'User',
       ];
       await Promise.all(tableNames.map((t) => txn.query(`DELETE FROM "${t}"`)));
     });

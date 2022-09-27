@@ -4,7 +4,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { APIUserSession, Uuid } from '../types';
 import { UserModel } from './UserModel';
 
-@Entity('UserSessions')
+@Entity('UserSession')
 export class UserSessionModel {
 
   @PrimaryGeneratedColumn('uuid')

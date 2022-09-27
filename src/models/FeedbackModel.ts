@@ -3,7 +3,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Feedback, Uuid } from '../types';
 import { UserModel } from './UserModel';
 
-@Entity('Feedbacks')
+@Entity('Feedback')
 export class FeedbackModel {
 
   @PrimaryGeneratedColumn('uuid')
