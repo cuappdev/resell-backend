@@ -3,7 +3,6 @@ import * as faker from 'faker';
 import { PostModel } from '../../models/PostModel';
 import FactoryUtils from './FactoryUtils';
 
-// import { UserFactory } from '.';
 export class PostFactory {  
     public static create(n: number): PostModel[] {
       return FactoryUtils.create(n, PostFactory.fake);
