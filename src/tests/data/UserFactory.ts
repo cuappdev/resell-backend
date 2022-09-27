@@ -5,10 +5,23 @@ import FactoryUtils from './FactoryUtils';
 
 export class UserFactory {  
     public static create(n: number): UserModel[] {
-      return FactoryUtils.create(n, UserFactory.fake);
+        /**
+         * Returns a list of n number of random UserModel objects
+         * 
+         * @param n The number of desired random UserModel objects
+         * @returns The list of n number of random UserModel objects
+         */
+        return FactoryUtils.create(n, UserFactory.fake);
     }
 
     public static fakeTemplate(): UserModel {
+        /**
+         * Returns a predefined UserModel object. Useful for testing
+         * specific instance variables since we already know the value of them
+         * 
+         * @returns The predefined UserModel object, look at UserFactory.ts
+         * for exact details
+         */
         const fakeUser = new UserModel();
         fakeUser.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
         fakeUser.givenName = 'Shungo';
@@ -24,6 +37,11 @@ export class UserFactory {
     }
   
     public static fake(): UserModel {
+        /**
+         * Returns a UserModel with random values in its instance variables
+         * 
+         * @returns The UserModel object with random values in its instance variables
+         */
         const firstName = faker.name.firstName();
         const lastName = faker.name.lastName();
 

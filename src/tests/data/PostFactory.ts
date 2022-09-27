@@ -5,10 +5,23 @@ import FactoryUtils from './FactoryUtils';
 
 export class PostFactory {  
     public static create(n: number): PostModel[] {
-      return FactoryUtils.create(n, PostFactory.fake);
+        /**
+         * Returns a list of n number of random PostModel objects
+         * 
+         * @param n The number of desired random PostModel objects
+         * @returns The list of n number of random PostModel objects
+         */
+        return FactoryUtils.create(n, PostFactory.fake);
     }
 
     public static fakeTemplate(): PostModel {
+        /**
+         * Returns a predefined PostModel object. Useful for testing
+         * specific instance variables since we already know the value of them
+         * 
+         * @returns The predefined PostModel object, look at PostFactory.ts
+         * for exact details
+         */
         const fakePost = new PostModel();
         fakePost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
         fakePost.title = 'Mateo\'s Kombucha';
@@ -22,6 +35,11 @@ export class PostFactory {
     }
   
     public static fake(): PostModel {
+        /**
+         * Returns a PostModel with random values in its instance variables
+         * 
+         * @returns The PostModel object with random values in its instance variables
+         */
         const fakePost = new PostModel();
         fakePost.title = faker.vehicle.bicycle();
         fakePost.description = faker.vehicle.color();
