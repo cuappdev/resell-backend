@@ -19,7 +19,7 @@ export class PostModel {
   categories: string[];
 
   @Column("numeric", { scale: 2 } )
-  price: number | string;
+  price: number;
 
   @Column("text", { array: true })
   images: string[];

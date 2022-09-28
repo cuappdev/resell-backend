@@ -25,7 +25,7 @@ beforeEach(async () => {
   expectedPost.title = 'Mateo\'s Kombucha';
   expectedPost.description = 'Fermented since o-week';
   expectedPost.categories = ['HANDMADE', 'OTHER'];
-  expectedPost.price = "500.15";
+  expectedPost.price = 500.15;
   expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
   expectedPost.location = 'The Dorm Hotel';
 });
@@ -89,6 +89,7 @@ describe('post tests', () => {
     expectedPost.user = post.user;
 
     const getPostResponse = await postController.getPostById(uuidParam);
+    getPostResponse.post.price = Number(getPostResponse.post.price);
 
     expect(getPostResponse.post).toEqual(expectedPost);
   });
@@ -105,9 +106,10 @@ describe('post tests', () => {
 
     expectedPost.user = post.user;
 
-    const getPostResponse = await postController.getPostsByUserId(uuidParam);
+    const getPostsResponse = await postController.getPostsByUserId(uuidParam);
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
 
-    expect(getPostResponse.posts).toEqual([expectedPost]);
+    expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
 
   test('create post', async () => {
@@ -147,6 +149,7 @@ describe('post tests', () => {
     expectedPost.user = post.user;
 
     let getPostsResponse = await postController.getPosts();
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
     expect(getPostsResponse.posts).toHaveLength(1);
 
     const getPostResponse = await postController.deletePostById(post.user, uuidParam);
@@ -172,8 +175,10 @@ describe('post tests', () => {
       keywords: 'Kombucha',
     }
 
-    const getPostResponse = await postController.searchPosts(search);
-    expect(getPostResponse.posts).toEqual([expectedPost]);
+    const getPostsResponse = await postController.searchPosts(search);
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+
+    expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
 
   test('search posts - substring', async () => {
@@ -192,8 +197,10 @@ describe('post tests', () => {
       keywords: 'S KOM',
     }
 
-    const getPostResponse = await postController.searchPosts(search);
-    expect(getPostResponse.posts).toEqual([expectedPost]);
+    const getPostsResponse = await postController.searchPosts(search);
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    
+    expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
 
   test('search posts - case mismatch', async () => {
@@ -212,8 +219,10 @@ describe('post tests', () => {
       keywords: 'FermenteD',
     }
 
-    const getPostResponse = await postController.searchPosts(search);
-    expect(getPostResponse.posts).toEqual([expectedPost]);
+    const getPostsResponse = await postController.searchPosts(search);
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    
+    expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
 
   test('search posts - no matches', async () => {
@@ -232,8 +241,9 @@ describe('post tests', () => {
       keywords: 'Kobucha',
     }
 
-    const getPostResponse = await postController.searchPosts(search);
-    expect(getPostResponse.posts).toEqual([]);
+    const getPostsResponse = await postController.searchPosts(search);
+    
+    expect(getPostsResponse.posts).toEqual([]);
   });
 
   test('filter posts', async () => {
@@ -252,22 +262,27 @@ describe('post tests', () => {
       category: 'HANDMADE',
     }
 
-    let getPostResponse = await postController.filterPosts(filter);
-    expect(getPostResponse.posts).toEqual([expectedPost]);
+    let getPostsResponse = await postController.filterPosts(filter);
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+
+    expect(getPostsResponse.posts).toEqual([expectedPost]);
 
     filter = {
       category: 'OTHER',
     }
 
-    getPostResponse = await postController.filterPosts(filter);
-    expect(getPostResponse.posts).toEqual([expectedPost]);
+    getPostsResponse = await postController.filterPosts(filter);
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+
+    expect(getPostsResponse.posts).toEqual([expectedPost]);
 
     filter = {
       category: 'SCHOOL',
     }
 
-    getPostResponse = await postController.filterPosts(filter);
-    expect(getPostResponse.posts).toEqual([]);
+    getPostsResponse = await postController.filterPosts(filter);
+    
+    expect(getPostsResponse.posts).toEqual([]);
   });
 
   test('save/unsave posts', async () => {
@@ -291,6 +306,9 @@ describe('post tests', () => {
 
     let getPostResponse = await postController.savePost(postAndUserUuidParam);
     userResponse = (await userController.getUserByGoogleId('shungoGoogleID')).user;
+    if (userResponse) {
+      userResponse.saved[0].price = Number(userResponse.saved[0].price);
+    }
     expect(userResponse?.saved).toEqual([expectedPost]);
 
     getPostResponse = await postController.unsavePost(postAndUserUuidParam);
