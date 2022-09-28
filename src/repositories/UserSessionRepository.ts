@@ -61,11 +61,12 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
       .getOne();
   }
 
-  public async getSessionByToken(accessToken?: string): Promise<UserSessionModel | undefined> {
-    const token = accessToken;
+  public async getSessionByToken(accessToken?: string, refreshToken?: string): Promise<UserSessionModel | undefined> {
+    const token = accessToken || refreshToken;
     const session = await this.repository
       .createQueryBuilder("UserSessionModel")
       .where("UserSessionModel.accessToken = :accessToken", { accessToken: token })
+      .orWhere("UserSessionModel.refreshToken = :refreshToken", { refreshToken: token })
       .getOne();
     return session;
   }
