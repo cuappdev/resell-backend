@@ -5,6 +5,8 @@ import { UserModel } from '../models/UserModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, UserFactory, UserSessionFactory } from './data';
 
+let uuidParam: UuidParam;
+let expectedUser: UserModel;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -12,6 +14,21 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await DatabaseConnection.clear();
+
+  uuidParam = new UuidParam();
+  uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+
+  expectedUser = new UserModel();
+  expectedUser.givenName = 'Shungo';
+  expectedUser.familyName = 'Najima';
+  expectedUser.username = 'snajima';
+  expectedUser.netid = 'sn685';
+  expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
+  expectedUser.email = expectedUser.netid + '@cornell.edu';
+  expectedUser.googleId = 'shungoGoogleID';
+  expectedUser.bio = "";
+  expectedUser.saved = [];
+  expectedUser.venmoHandle = "@Shungo-Najima";
 });
 
 afterAll(async () => {
@@ -50,21 +67,6 @@ describe('user session tests', () => {
       .createUsers(user)
       .write();
 
-    const uuidParam = new UuidParam();
-    uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-
-    const expectedUser = new UserModel();
-    expectedUser.givenName = 'Shungo';
-    expectedUser.familyName = 'Najima';
-    expectedUser.username = 'snajima';
-    expectedUser.netid = 'sn685';
-    expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
-    expectedUser.email = expectedUser.netid + '@cornell.edu';
-    expectedUser.googleId = 'shungoGoogleID';
-    expectedUser.bio = "";
-    expectedUser.saved = [];
-    expectedUser.venmoHandle = "@Shungo-Najima";
-
     const getUsersResponse = await authController.deleteUserById(uuidParam);
 
     expect(getUsersResponse.user).toEqual(expectedUser);
@@ -85,7 +87,6 @@ describe('user session tests', () => {
       .createUserSessions(session1, session2)
       .write();
     
-    const uuidParam = new UuidParam();
     uuidParam.id = user.id;
 
     const getSessionsResponse = await authController.getSessionsByUserId(uuidParam);
