@@ -13,11 +13,11 @@ export class UserSessionModel {
   @Column()
   accessToken: string;
 
-  @Column()
-  refreshToken: string;
-
   @Column({ type: 'timestamptz' })
   expiresAt: Date;
+
+  @Column()
+  refreshToken: string;
 
   @ManyToOne(() => UserModel, user => user.sessions, { onDelete: "CASCADE" })
   user: UserModel;
@@ -39,9 +39,9 @@ export class UserSessionModel {
     return {
       userId: this.userId,
       accessToken: this.accessToken,
-      refreshToken: this.refreshToken,
       active: this.expiresAt.getTime() > Date.now(),
       expiresAt: this.expiresAt.getTime(),
+      refreshToken: this.refreshToken,
     };
   }
 
