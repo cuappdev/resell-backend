@@ -47,7 +47,7 @@ export interface Post {
     title: string,
     description: string,
     categories: string[],
-    price: number | string,
+    price: number,
     images: string[],
     location: string,
     user: PrivateProfile,

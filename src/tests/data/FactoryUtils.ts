@@ -12,7 +12,7 @@ export default class FactoryUtils {
 
   public static getRandomNumber(min: number, max: number, scale = 1): number {
     const value = Math.floor(Math.random() * (max - min + 1)) + min;
-    return Math.floor(value / scale) * scale;
+    return value * scale;
   }
 
   public static getRandomLetter(): string {
@@ -23,7 +23,7 @@ export default class FactoryUtils {
     return Boolean(Math.round(Math.random()));
   }
 
-  public static randomHexString(): string {
+  public static getRandomHexString(): string {
     return faker.datatype.hexaDecimal(10);
   }
 }
