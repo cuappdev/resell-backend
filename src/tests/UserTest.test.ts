@@ -1,3 +1,5 @@
+import { Connection } from 'typeorm';
+
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import { ControllerFactory } from './controllers';
@@ -5,6 +7,7 @@ import { DatabaseConnection, DataFactory, UserFactory } from './data';
 
 let uuidParam: UuidParam;
 let expectedUser: UserModel;
+let conn: Connection;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -12,6 +15,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await DatabaseConnection.clear();
+  conn = await DatabaseConnection.connect();
 
   uuidParam = new UuidParam();
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
@@ -37,7 +41,6 @@ afterAll(async () => {
 
 describe('user tests', () => {
   test('get all users - no users', async () => {
-    const conn = await DatabaseConnection.connect();
     const userController = ControllerFactory.user(conn);
 
     const getUsersResponse = await userController.getUsers();
@@ -46,7 +49,6 @@ describe('user tests', () => {
   });
 
   test('get all users - one user', async () => {
-    const conn = await DatabaseConnection.connect();
     const userController = ControllerFactory.user(conn);
     const user = UserFactory.fake();
 
@@ -60,7 +62,6 @@ describe('user tests', () => {
   });
 
   test('get all users - multiple users', async () => {
-    const conn = await DatabaseConnection.connect();
     const userController = ControllerFactory.user(conn);
     const [user1, user2] = UserFactory.create(2);
 
@@ -74,7 +75,6 @@ describe('user tests', () => {
   });
 
   test('get user by id', async () => {
-    const conn = await DatabaseConnection.connect();
     const userController = ControllerFactory.user(conn);
     const user = UserFactory.fakeTemplate();
 
@@ -88,7 +88,6 @@ describe('user tests', () => {
   });
 
   test('get user by email', async () => {
-    const conn = await DatabaseConnection.connect();
     const userController = ControllerFactory.user(conn);
     const user = UserFactory.fakeTemplate();
 
@@ -102,7 +101,6 @@ describe('user tests', () => {
   });
 
   test('get user by google id', async () => {
-    const conn = await DatabaseConnection.connect();
     const userController = ControllerFactory.user(conn);
     const user = UserFactory.fakeTemplate();
 
@@ -116,7 +114,6 @@ describe('user tests', () => {
   });
 
   test('edit profile', async () => {
-    const conn = await DatabaseConnection.connect();
     const userController = ControllerFactory.user(conn);
     const user = UserFactory.fakeTemplate();
 

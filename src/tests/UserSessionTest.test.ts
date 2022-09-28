@@ -1,4 +1,5 @@
 import { AuthController } from 'src/api/controllers/AuthController';
+import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
@@ -7,6 +8,7 @@ import { DatabaseConnection, DataFactory, UserFactory, UserSessionFactory } from
 
 let uuidParam: UuidParam;
 let expectedUser: UserModel;
+let conn: Connection;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -14,6 +16,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await DatabaseConnection.clear();
+  conn = await DatabaseConnection.connect();
 
   uuidParam = new UuidParam();
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
@@ -38,7 +41,6 @@ afterAll(async () => {
 
 describe('user session tests', () => {
   test('create new user', async () => {
-    const conn = await DatabaseConnection.connect();
     const authController = ControllerFactory.auth(conn);
 
     const createUserRequest = {
@@ -59,7 +61,6 @@ describe('user session tests', () => {
   });
 
   test('delete user', async () => {
-    const conn = await DatabaseConnection.connect();
     const authController = ControllerFactory.auth(conn);
     const user = UserFactory.fakeTemplate();
 
@@ -73,7 +74,6 @@ describe('user session tests', () => {
   });
 
   test('get sessions by user id', async () => {
-    const conn = await DatabaseConnection.connect();
     const authController = ControllerFactory.auth(conn);
     const user = UserFactory.fake();
     const [session1, session2] = UserSessionFactory.create(2);
