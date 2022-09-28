@@ -3,6 +3,8 @@ import { UserModel } from '../models/UserModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, UserFactory } from './data';
 
+let uuidParam: UuidParam;
+let expectedUser: UserModel;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -10,6 +12,22 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await DatabaseConnection.clear();
+
+  uuidParam = new UuidParam();
+  uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+
+  expectedUser = new UserModel();
+  expectedUser.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+  expectedUser.givenName = 'Shungo';
+  expectedUser.familyName = 'Najima';
+  expectedUser.username = 'snajima';
+  expectedUser.netid = 'sn685';
+  expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
+  expectedUser.email = expectedUser.netid + '@cornell.edu';
+  expectedUser.googleId = 'shungoGoogleID';
+  expectedUser.bio = "";
+  expectedUser.saved = [];
+  expectedUser.venmoHandle = "@Shungo-Najima";
 });
 
 afterAll(async () => {
@@ -64,22 +82,6 @@ describe('user tests', () => {
       .createUsers(user)
       .write();
 
-    const uuidParam = new UuidParam();
-    uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-
-    const expectedUser = new UserModel();
-    expectedUser.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-    expectedUser.givenName = 'Shungo';
-    expectedUser.familyName = 'Najima';
-    expectedUser.username = 'snajima';
-    expectedUser.netid = 'sn685';
-    expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
-    expectedUser.email = expectedUser.netid + '@cornell.edu';
-    expectedUser.googleId = 'shungoGoogleID';
-    expectedUser.bio = "";
-    expectedUser.saved = [];
-    expectedUser.venmoHandle = "@Shungo-Najima";
-
     const getUserResponse = await userController.getUserById(uuidParam);
 
     expect(getUserResponse.user).toEqual(expectedUser);
@@ -94,19 +96,6 @@ describe('user tests', () => {
       .createUsers(user)
       .write();
 
-    const expectedUser = new UserModel();
-    expectedUser.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-    expectedUser.givenName = 'Shungo';
-    expectedUser.familyName = 'Najima';
-    expectedUser.username = 'snajima';
-    expectedUser.netid = 'sn685';
-    expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
-    expectedUser.email = expectedUser.netid + '@cornell.edu';
-    expectedUser.googleId = 'shungoGoogleID';
-    expectedUser.bio = "";
-    expectedUser.saved = [];
-    expectedUser.venmoHandle = "@Shungo-Najima";
-
     const getUserResponse = await userController.getUserByEmail({email: 'sn685@cornell.edu'});
 
     expect(getUserResponse.user).toEqual(expectedUser);
@@ -120,19 +109,6 @@ describe('user tests', () => {
     await new DataFactory()
       .createUsers(user)
       .write();
-
-    const expectedUser = new UserModel();
-    expectedUser.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-    expectedUser.givenName = 'Shungo';
-    expectedUser.familyName = 'Najima';
-    expectedUser.username = 'snajima';
-    expectedUser.netid = 'sn685';
-    expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
-    expectedUser.email = expectedUser.netid + '@cornell.edu';
-    expectedUser.googleId = 'shungoGoogleID';
-    expectedUser.bio = "";
-    expectedUser.saved = [];
-    expectedUser.venmoHandle = "@Shungo-Najima";
 
     const getUserResponse = await userController.getUserByGoogleId('shungoGoogleID');
 
@@ -155,17 +131,7 @@ describe('user tests', () => {
       bio: 'Mateo Slay'
     }, user);
 
-    const expectedUser = new UserModel();
-    expectedUser.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-    expectedUser.givenName = 'Shungo';
-    expectedUser.familyName = 'Najima';
-    expectedUser.username = 'snajima';
-    expectedUser.netid = 'sn685';
-    expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
-    expectedUser.email = expectedUser.netid + '@cornell.edu';
-    expectedUser.googleId = 'shungoGoogleID';
-    expectedUser.bio = 'Mateo Slay';
-    expectedUser.saved = [];
+    expectedUser.bio = "Mateo Slay";
     expectedUser.venmoHandle = "@Shungo-Najima1";
 
     const getUserResponse = await userController.getUserByGoogleId('shungoGoogleID');
