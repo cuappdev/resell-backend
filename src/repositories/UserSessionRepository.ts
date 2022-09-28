@@ -90,6 +90,15 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
     return userId;
   }
 
+  public async updateSession(refreshToken: string): Promise<UserSessionModel | undefined> {
+    const session = await this.repository.findOne({ where: { refreshToken } });
+    if (session) {
+      session.update();
+      await this.repository.save(session);
+    }
+    return session;
+  }
+
   public async verifySession(accessToken: string): Promise<boolean> {
     const session = await this.repository
       .createQueryBuilder("UserSessionModel")

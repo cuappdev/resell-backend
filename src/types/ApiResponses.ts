@@ -89,6 +89,10 @@ export interface GetSessionsReponse {
     sessions: APIUserSession[];
 }
 
+export interface GetSessionReponse {
+    session: APIUserSession;
+}
+
 export interface LogoutResponse {
     logoutSuccess: boolean;
 }

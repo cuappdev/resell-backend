@@ -13,6 +13,9 @@ export class UserSessionModel {
   @Column()
   accessToken: string;
 
+  @Column()
+  refreshToken: string;
+
   @Column({ type: 'timestamptz' })
   expiresAt: Date;
 
@@ -22,11 +25,13 @@ export class UserSessionModel {
   @Column()
   userId: Uuid;
 
-  public update(accessToken?: string): UserSessionModel {
+  public update(accessToken?: string, refreshToken?: string): UserSessionModel {
     this.accessToken = accessToken || crypto.randomBytes(64).toString('hex');
-    // expires the next week (added time is one year)
+    this.refreshToken = refreshToken || crypto.randomBytes(64).toString('hex');
+    // expires the next week (added time is one month)
     // in milliseconds
-    this.expiresAt = new Date(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 365);
+    this.expiresAt = new Date(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30);
+
     return this;
   }
 
@@ -34,6 +39,7 @@ export class UserSessionModel {
     return {
       userId: this.userId,
       accessToken: this.accessToken,
+      refreshToken: this.refreshToken,
       active: this.expiresAt.getTime() > Date.now(),
       expiresAt: this.expiresAt.getTime(),
     };

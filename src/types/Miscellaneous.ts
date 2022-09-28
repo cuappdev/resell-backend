@@ -1,6 +1,7 @@
 export type APIUserSession = {
     userId: string,
     accessToken: string,
+    refreshToken: string,
     active: boolean,
     expiresAt: number,
   }

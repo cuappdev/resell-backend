@@ -3,12 +3,27 @@ import { PostModel } from '../models/PostModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, PostFactory, UserFactory } from './data';
 
+let uuidParam: UuidParam;
+let expectedPost: PostModel;
+
 beforeAll(async () => {
   await DatabaseConnection.connect();
 });
 
 beforeEach(async () => {
   await DatabaseConnection.clear();
+  
+  uuidParam = new UuidParam();
+  uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+
+  expectedPost = new PostModel();
+  expectedPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+  expectedPost.title = 'Mateo\'s Kombucha';
+  expectedPost.description = 'Fermented since o-week';
+  expectedPost.categories = ['HANDMADE', 'OTHER'];
+  expectedPost.price = "500.15";
+  expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
+  expectedPost.location = 'The Dorm Hotel';
 });
 
 afterAll(async () => {
@@ -70,18 +85,7 @@ describe('post tests', () => {
       .createPosts(post)
       .createUsers(post.user)
       .write();
-
-    const uuidParam = new UuidParam();
-    uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-
-    const expectedPost = new PostModel();
-    expectedPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-    expectedPost.title = 'Mateo\'s Kombucha';
-    expectedPost.description = 'Fermented since o-week';
-    expectedPost.categories = ['HANDMADE', 'OTHER'];
-    expectedPost.price = "500.15";
-    expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
-    expectedPost.location = 'The Dorm Hotel';
+      
     expectedPost.user = post.user;
 
     const getPostResponse = await postController.getPostById(uuidParam);
@@ -100,17 +104,6 @@ describe('post tests', () => {
       .createUsers(post.user)
       .write();
 
-    const uuidParam = new UuidParam();
-    uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-
-    const expectedPost = new PostModel();
-    expectedPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-    expectedPost.title = 'Mateo\'s Kombucha';
-    expectedPost.description = 'Fermented since o-week';
-    expectedPost.categories = ['HANDMADE', 'OTHER'];
-    expectedPost.price = "500.15";
-    expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
-    expectedPost.location = 'The Dorm Hotel';
     expectedPost.user = post.user;
 
     const getPostResponse = await postController.getPostsByUserId(uuidParam);
@@ -153,30 +146,20 @@ describe('post tests', () => {
       .createPosts(post)
       .createUsers(post.user)
       .write();
-
-    const uuidParam = new UuidParam();
-    uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-
-    const expectedPost = new PostModel();
-    expectedPost.title = 'Mateo\'s Kombucha';
-    expectedPost.description = 'Fermented since o-week';
-    expectedPost.categories = ['HANDMADE', 'OTHER'];
-    expectedPost.price = "500.15";
-    expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
-    expectedPost.location = 'The Dorm Hotel';
+      
     expectedPost.user = post.user;
 
     let getPostsResponse = await postController.getPosts();
     expect(getPostsResponse.posts).toHaveLength(1);
 
     const getPostResponse = await postController.deletePostById(post.user, uuidParam);
-    expect(getPostResponse.post).toEqual(expectedPost);
+    expect(getPostResponse.post.title).toEqual("Mateo's Kombucha");
 
     getPostsResponse = await postController.getPosts();
     expect(getPostsResponse.posts).toHaveLength(0);
   });
 
-  test('search posts', async () => {
+  test('search posts - direct string match', async () => {
     const conn = await DatabaseConnection.connect();
     const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
@@ -187,45 +170,76 @@ describe('post tests', () => {
       .createUsers(post.user)
       .write();
 
-    const uuidParam = new UuidParam();
-    uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-
-    const expectedPost = new PostModel();
-    expectedPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-    expectedPost.title = 'Mateo\'s Kombucha';
-    expectedPost.description = 'Fermented since o-week';
-    expectedPost.categories = ['HANDMADE', 'OTHER'];
-    expectedPost.price = "500.15";
-    expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
-    expectedPost.location = 'The Dorm Hotel';
     expectedPost.user = post.user;
 
-    let search = {
+    const search = {
       keywords: 'Kombucha',
     }
 
-    let getPostResponse = await postController.searchPosts(search);
+    const getPostResponse = await postController.searchPosts(search);
     expect(getPostResponse.posts).toEqual([expectedPost]);
+  });
 
-    search = {
+  test('search posts - substring', async () => {
+    const conn = await DatabaseConnection.connect();
+    const postController = ControllerFactory.post(conn);
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user)
+      .write();
+
+    expectedPost.user = post.user;
+    
+    const search = {
       keywords: 'S KOM',
     }
 
-    getPostResponse = await postController.searchPosts(search);
+    const getPostResponse = await postController.searchPosts(search);
     expect(getPostResponse.posts).toEqual([expectedPost]);
+  });
 
-    search = {
+  test('search posts - case mismatch', async () => {
+    const conn = await DatabaseConnection.connect();
+    const postController = ControllerFactory.post(conn);
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user)
+      .write();
+
+    expectedPost.user = post.user;
+
+    const search = {
       keywords: 'FermenteD',
     }
 
-    getPostResponse = await postController.searchPosts(search);
+    const getPostResponse = await postController.searchPosts(search);
     expect(getPostResponse.posts).toEqual([expectedPost]);
+  });
 
-    search = {
+  test('search posts - no matches', async () => {
+    const conn = await DatabaseConnection.connect();
+    const postController = ControllerFactory.post(conn);
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user)
+      .write();
+
+    expectedPost.user = post.user;
+
+    const search = {
       keywords: 'Kobucha',
     }
 
-    getPostResponse = await postController.searchPosts(search);
+    const getPostResponse = await postController.searchPosts(search);
     expect(getPostResponse.posts).toEqual([]);
   });
 
@@ -239,18 +253,7 @@ describe('post tests', () => {
       .createPosts(post)
       .createUsers(post.user)
       .write();
-
-    const uuidParam = new UuidParam();
-    uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-
-    const expectedPost = new PostModel();
-    expectedPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-    expectedPost.title = 'Mateo\'s Kombucha';
-    expectedPost.description = 'Fermented since o-week';
-    expectedPost.categories = ['HANDMADE', 'OTHER'];
-    expectedPost.price = "500.15";
-    expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
-    expectedPost.location = 'The Dorm Hotel';
+      
     expectedPost.user = post.user;
 
     let filter = {
@@ -290,15 +293,6 @@ describe('post tests', () => {
     const postAndUserUuidParam = new PostAndUserUuidParam();
     postAndUserUuidParam.postId = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
     postAndUserUuidParam.userId = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-
-    const expectedPost = new PostModel();
-    expectedPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
-    expectedPost.title = 'Mateo\'s Kombucha';
-    expectedPost.description = 'Fermented since o-week';
-    expectedPost.categories = ['HANDMADE', 'OTHER'];
-    expectedPost.price = "500.15";
-    expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
-    expectedPost.location = 'The Dorm Hotel';
 
     let userResponse = (await userController.getUserByGoogleId('shungoGoogleID')).user;
     expect(userResponse).not.toBeUndefined();
