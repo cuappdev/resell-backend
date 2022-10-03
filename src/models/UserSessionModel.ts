@@ -4,7 +4,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { APIUserSession, Uuid } from '../types';
 import { UserModel } from './UserModel';
 
-@Entity()
+@Entity('UserSession')
 export class UserSessionModel {
 
   @PrimaryGeneratedColumn('uuid')
@@ -31,6 +31,7 @@ export class UserSessionModel {
     // expires the next week (added time is one month)
     // in milliseconds
     this.expiresAt = new Date(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30);
+
     return this;
   }
 

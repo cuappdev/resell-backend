@@ -2,7 +2,14 @@ import { Body, CurrentUser, Delete, Get, HeaderParam, JsonController, Params, Po
 
 import { UserModel } from '../../models/UserModel';
 import { AuthService } from '../../services/AuthService';
-import { APIUserSession, CreateUserRequest, GetSessionsReponse, GetUserResponse, LogoutResponse } from '../../types';
+import {
+  APIUserSession,
+  CreateUserRequest,
+  GetSessionReponse,
+  GetSessionsReponse,
+  GetUserResponse,
+  LogoutResponse,
+} from '../../types';
 import { LoginRequest } from '../validators/AuthControllerRequests';
 import { UuidParam } from '../validators/GenericRequests';
 

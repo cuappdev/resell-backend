@@ -34,9 +34,9 @@ export class AuthService {
 
   public async loginUser(authRequest: AuthRequest): Promise<UserSessionModel> {
     // checks if the email is a Cornell email or in the allowed emails list
-    const emailIndex = authRequest.user.email.indexOf('@cornell.edu')
+    const emailIndex = authRequest.user.email.indexOf('@cornell.edu');
     const allowedEmails = process.env.ALLOWED_EMAILS?.split(",");
-    if (emailIndex === -1 || allowedEmails?.includes(authRequest.user.email)) {
+    if (emailIndex === -1 && !allowedEmails?.includes(authRequest.user.email)) {
       throw new UnauthorizedError('Non-Cornell email used!');
     } 
 
