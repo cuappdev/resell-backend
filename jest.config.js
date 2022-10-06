@@ -4,5 +4,6 @@ module.exports = {
   roots: [
     'src'
   ],
+  maxWorkers: 1,
   //verbose: true
 };

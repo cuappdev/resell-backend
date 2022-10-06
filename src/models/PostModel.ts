@@ -3,7 +3,7 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColum
 import { Post, Uuid } from '../types';
 import { UserModel } from './UserModel';
 
-@Entity()
+@Entity('Post')
 export class PostModel {
 
   @PrimaryGeneratedColumn('uuid')
