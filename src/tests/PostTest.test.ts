@@ -357,7 +357,7 @@ describe('post tests', () => {
     expect(getPostsResponse.posts).toHaveLength(2);
   });
 
-  test('get archived post by user id', async () => {
+  test('get archived posts by user id - one post', async () => {
     const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
@@ -375,6 +375,25 @@ describe('post tests', () => {
     getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
+  });
+
+  test('get archived posts by user id - multiple posts', async () => {
+    const postController = ControllerFactory.post(conn);
+    const [post1, post2] = PostFactory.create(2);
+    const user = UserFactory.fakeTemplate();
+    post1.user = user
+    post2.user = user;
+    post1.archive = true;
+    post2.archive = true;
+
+    await new DataFactory()
+      .createPosts(post1, post2)
+      .createUsers(user)
+      .write();
+
+    const getPostsResponse = await postController.getArchivedPostsByUserId(uuidParam);
+
+    expect(getPostsResponse.posts).toHaveLength(2);
   });
 
   test('archive post', async () => {
