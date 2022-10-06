@@ -11,10 +11,3 @@ export class UuidParam {
   @IsUUID()
   id: Uuid;
 }
-
-export class PostAndUserUuidParam {
-  @IsUUID()
-  userId: Uuid;
-  @IsUUID()
-  postId: Uuid;
-}
