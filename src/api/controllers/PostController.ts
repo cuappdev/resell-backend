@@ -10,7 +10,7 @@ import {
   GetSearchedPostsRequest,
   IsSavedPostResponse,
 } from '../../types';
-import { PostAndUserUuidParam, UuidParam } from '../validators/GenericRequests';
+import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('post/')
 export class PostController {
@@ -22,8 +22,7 @@ export class PostController {
 
   @Get()
   async getPosts(): Promise<GetPostsResponse> {
-    const posts = await this.postService.getAllPosts();
-    return { posts: posts.map((post) => post.getPostInfo()) };
+    return { posts: await this.postService.getAllPosts() };
   }
 
   @Get('id/:id/')
@@ -56,18 +55,33 @@ export class PostController {
     return { posts: await this.postService.filterPosts(filterPostsRequest) };
   }
 
-  @Get('save/userId/:userId/postId/:postId/') 
-  async savePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
-    return { post: await this.postService.savePost(params) }; 
+  @Get('archive/')
+  async getArchivedPosts(): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getArchivedPosts() };
   }
 
-  @Get('unsave/userId/:userId/postId/:postId/') 
-  async unsavePost(@Params() params: PostAndUserUuidParam): Promise<GetPostResponse> {
-      return { post: await this.postService.unsavePost(params) };
+  @Get('archive/userId/:id/')
+  async getArchivedPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getArchivedPostsByUserId(params) };
   }
-  
-  @Get('isSaved/userId/:userId/postId/:postId/') 
-  async isSavedPost(@Params() params: PostAndUserUuidParam): Promise<IsSavedPostResponse> {
-    return { isSaved: await this.postService.isSavedPost(params) }; 
+
+  @Get('archive/postId/:id/')
+  async archivePost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
+    return { post: await this.postService.archivePost(user, params) };
+  }
+
+  @Get('save/postId/:id/')
+  async savePost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
+    return { post: await this.postService.savePost(user, params) };
+  }
+
+  @Get('unsave/postId/:id/')
+  async unsavePost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
+    return { post: await this.postService.unsavePost(user, params) };
+  }
+
+  @Get('isSaved/postId/:id/')
+  async isSavedPost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<IsSavedPostResponse> {
+    return { isSaved: await this.postService.isSavedPost(user, params) };
   }
 }

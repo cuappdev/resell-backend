@@ -29,16 +29,16 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
-  public async savePost(user: UserModel, post: PostModel): Promise<PostModel | undefined> {
-    user.saved.push(post)
-    await this.repository.save(user)
-    return post
+  public async savePost(user: UserModel, post: PostModel): Promise<PostModel> {
+    user.saved.push(post);
+    await this.repository.save(user);
+    return post;
   }
 
-  public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel | undefined> {
-    user.saved.splice(user.saved.indexOf(post))
-    await this.repository.save(user)
-    return post
+  public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel> {
+    user.saved.splice(user.saved.indexOf(post));
+    await this.repository.save(user);
+    return post;
   }
 
   public async isSavedPost(user: UserModel, post: PostModel): Promise<boolean> {
@@ -79,7 +79,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .where("user.googleId = :googleId", { googleId })
       .getOne();
     if (await existingUser) throw new ConflictError('UserModel with same google ID already exists!');
-    
+
     const user = new UserModel();
     user.username = username;
     user.netid = netid;
@@ -112,7 +112,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
     user.photoUrl = photoUrl ?? user.photoUrl;
     user.venmoHandle = venmoHandle ?? user.venmoHandle;
     user.bio = bio ?? user.bio;
-    return this.repository.save(user);
+    return await this.repository.save(user);
   }
 
   public async deleteUser(user: UserModel): Promise<UserModel> {
