@@ -109,7 +109,7 @@ describe('user session tests', () => {
     const refreshToken = session.refreshToken;
     const accessToken = session.accessToken;
 
-    const getSessionResponse = await authController.refreshTokens(refreshToken);
+    const getSessionResponse = await authController.refreshToken(refreshToken);
 
     expect(getSessionResponse.session.accessToken).not.toEqual(accessToken);
     expect(getSessionResponse.session.refreshToken).not.toEqual(refreshToken);

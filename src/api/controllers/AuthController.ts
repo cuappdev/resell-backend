@@ -52,7 +52,7 @@ export class AuthController {
   }
 
   @Get('refresh/')
-  async refreshTokens(@HeaderParam("authorization") refreshToken: string): Promise<GetSessionReponse> {
+  async refreshToken(@HeaderParam("authorization") refreshToken: string): Promise<GetSessionReponse> {
     return { session: await this.authService.updateSession(refreshToken) };
   }
 }
