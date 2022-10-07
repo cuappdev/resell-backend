@@ -50,4 +50,9 @@ export class AuthController {
   async getSessionsByUserId(@Params() params: UuidParam): Promise<GetSessionsReponse> {
     return { sessions: await this.authService.getSessionsByUserId(params) };
   }
+
+  @Get('refresh/')
+  async refreshTokens(@HeaderParam("authorization") refreshToken: string): Promise<GetSessionReponse> {
+    return { session: await this.authService.updateSession(refreshToken) };
+  }
 }
