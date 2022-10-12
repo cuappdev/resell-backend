@@ -3,7 +3,7 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColum
 import { Post, Uuid } from '../types';
 import { UserModel } from './UserModel';
 
-@Entity()
+@Entity('Post')
 export class PostModel {
 
   @PrimaryGeneratedColumn('uuid')
@@ -18,7 +18,7 @@ export class PostModel {
   @Column("text", { array: true })
   categories: string[];
 
-  @Column("numeric", { scale: 2 } )
+  @Column("numeric", { scale: 2 })
   price: number;
 
   @Column("text", { array: true })
@@ -27,20 +27,24 @@ export class PostModel {
   @Column(({ nullable: true }))
   location: string;
 
+  @Column({ default: false })
+  archive: boolean;
+
   @ManyToOne(() => UserModel, user => user.posts)
   user: UserModel;
-  
+
   @ManyToMany(() => UserModel, user => user.saved)
   @JoinTable({
     name: "user_saved_posts",
     joinColumn: {
-     name: "saved",
-     referencedColumnName: "id"
+      name: "saved",
+      referencedColumnName: "id"
     },
     inverseJoinColumn: {
-     name: "savers",
-     referencedColumnName: "id"
-     }})
+      name: "savers",
+      referencedColumnName: "id"
+    }
+  })
   savers: UserModel[];
 
   public getPostInfo(): Post {
@@ -52,6 +56,7 @@ export class PostModel {
       price: this.price,
       images: this.images,
       location: this.location,
+      archive: this.archive,
       user: this.user.getUserProfile(),
       savers: this.savers?.map(user => user.getUserProfile()),
     };

@@ -51,6 +51,7 @@ export interface Post {
     price: number,
     images: string[],
     location: string,
+    archive: boolean,
     user: PrivateProfile,
     savers: PrivateProfile[],
 }
@@ -88,6 +89,10 @@ export interface GetFeedbackResponse {
 
 export interface GetSessionsReponse {
     sessions: APIUserSession[];
+}
+
+export interface GetSessionReponse {
+    session: APIUserSession;
 }
 
 export interface LogoutResponse {

@@ -23,20 +23,22 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getUserByGoogleId(googleId: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
+      .leftJoin("user.saved", "post")
+      .leftJoinAndSelect("user.saved", "postSelect")
       .where("user.googleId = :googleId", { googleId })
       .getOne();
   }
 
-  public async savePost(user: UserModel, post: PostModel): Promise<PostModel | undefined> {
-    user.saved.push(post)
-    await this.repository.save(user)
-    return post
+  public async savePost(user: UserModel, post: PostModel): Promise<PostModel> {
+    user.saved.push(post);
+    await this.repository.save(user);
+    return post;
   }
 
-  public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel | undefined> {
-    user.saved.splice(user.saved.indexOf(post))
-    await this.repository.save(user)
-    return post
+  public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel> {
+    user.saved.splice(user.saved.indexOf(post));
+    await this.repository.save(user);
+    return post;
   }
 
   public async isSavedPost(user: UserModel, post: PostModel): Promise<boolean> {
@@ -51,6 +53,8 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getUserByEmail(email: string): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
+      .leftJoin("user.saved", "post")
+      .leftJoinAndSelect("user.saved", "postSelect")
       .where("user.email = :email", { email })
       .getOne();
   }
@@ -76,12 +80,15 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
     if (await existingUser) throw new ConflictError('UserModel with same google ID already exists!');
 
+    const adminEmails = process.env.ADMIN_EMAILS?.split(",");
+    const adminStatus = adminEmails?.includes(email);
+
     const user = new UserModel();
     user.username = username;
     user.netid = netid;
     user.givenName = givenName;
     user.familyName = familyName;
-    user.admin = false;
+    user.admin = adminStatus || false;
     user.photoUrl = photoUrl;
     user.email = email;
     user.googleId = googleId;
@@ -109,7 +116,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
     user.photoUrl = photoUrl ?? user.photoUrl;
     user.venmoHandle = venmoHandle ?? user.venmoHandle;
     user.bio = bio ?? user.bio;
-    return this.repository.save(user);
+    return await this.repository.save(user);
   }
 
   public async setAdmin(user: UserModel, status: boolean): Promise<UserModel> {
