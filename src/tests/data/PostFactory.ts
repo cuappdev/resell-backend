@@ -3,7 +3,7 @@ import * as faker from 'faker';
 import { PostModel } from '../../models/PostModel';
 import FactoryUtils from './FactoryUtils';
 
-export class PostFactory {  
+export class PostFactory {
     public static create(n: number): PostModel[] {
         /**
          * Returns a list of n number of random PostModel objects
@@ -26,6 +26,7 @@ export class PostFactory {
         fakePost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
         fakePost.title = 'Mateo\'s Kombucha';
         fakePost.description = 'Fermented since o-week';
+        fakePost.archive = false;
         fakePost.categories = ['HANDMADE', 'OTHER'];
         fakePost.price = 500.15;
         fakePost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
@@ -33,7 +34,7 @@ export class PostFactory {
 
         return fakePost;
     }
-  
+
     public static fake(): PostModel {
         /**
          * Returns a PostModel with random values in its instance variables
@@ -43,6 +44,7 @@ export class PostFactory {
         const fakePost = new PostModel();
         fakePost.title = faker.vehicle.bicycle();
         fakePost.description = faker.vehicle.color();
+        fakePost.archive = false;
         fakePost.categories = ['SPORTS & OUTDOORS'];
         fakePost.price = Number(faker.commerce.price(100, 400));
         fakePost.images = [faker.internet.url()];

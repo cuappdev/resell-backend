@@ -21,22 +21,20 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getUserByGoogleId(googleId: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .leftJoin("user.saved", "post")
-      .leftJoinAndSelect("user.saved", "postSelect")
       .where("user.googleId = :googleId", { googleId })
       .getOne();
   }
 
-  public async savePost(user: UserModel, post: PostModel): Promise<PostModel | undefined> {
-    user.saved.push(post)
-    await this.repository.save(user)
-    return post
+  public async savePost(user: UserModel, post: PostModel): Promise<PostModel> {
+    user.saved.push(post);
+    await this.repository.save(user);
+    return post;
   }
 
-  public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel | undefined> {
-    user.saved.splice(user.saved.indexOf(post))
-    await this.repository.save(user)
-    return post
+  public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel> {
+    user.saved.splice(user.saved.indexOf(post));
+    await this.repository.save(user);
+    return post;
   }
 
   public async isSavedPost(user: UserModel, post: PostModel): Promise<boolean> {
@@ -51,16 +49,14 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getSavedPostsByUserId(id: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .leftJoinAndSelect("user.saved", "post")
       .where("user.id = :id", { id })
+      .leftJoinAndSelect("user.saved", "post")
       .getOne();
   }
 
   public async getUserByEmail(email: string): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .leftJoin("user.saved", "post")
-      .leftJoinAndSelect("user.saved", "postSelect")
       .where("user.email = :email", { email })
       .getOne();
   }
@@ -118,7 +114,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
     user.photoUrl = photoUrl ?? user.photoUrl;
     user.venmoHandle = venmoHandle ?? user.venmoHandle;
     user.bio = bio ?? user.bio;
-    return this.repository.save(user);
+    return await this.repository.save(user);
   }
 
   public async deleteUser(user: UserModel): Promise<UserModel> {

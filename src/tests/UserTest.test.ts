@@ -30,7 +30,6 @@ beforeEach(async () => {
   expectedUser.email = expectedUser.netid + '@cornell.edu';
   expectedUser.googleId = 'shungoGoogleID';
   expectedUser.bio = "";
-  expectedUser.saved = [];
   expectedUser.venmoHandle = "@Shungo-Najima";
 });
 
@@ -95,7 +94,7 @@ describe('user tests', () => {
       .createUsers(user)
       .write();
 
-    const getUserResponse = await userController.getUserByEmail({email: 'sn685@cornell.edu'});
+    const getUserResponse = await userController.getUserByEmail({ email: 'sn685@cornell.edu' });
 
     expect(getUserResponse.user).toEqual(expectedUser);
   });

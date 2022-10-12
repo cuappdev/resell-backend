@@ -1,3 +1,4 @@
+import { userInfo } from 'os';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
 import { PostModel } from '../models/PostModel';
@@ -7,17 +8,19 @@ import { Uuid } from '../types';
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
   public async getAllPosts(): Promise<PostModel[]> {
-    return await this.repository.createQueryBuilder("post")
-    .leftJoinAndSelect("post.user", "user")
-    .getMany();
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.archive = false")
+      .getMany();
   }
 
   public async getPostById(id: Uuid): Promise<PostModel | undefined> {
     return await this.repository
-    .createQueryBuilder("post")
-    .leftJoinAndSelect("post.user", "user")
-    .where("post.id = :id", { id })
-    .getOne();
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.id = :id", { id })
+      .getOne();
   }
 
   public async getPostsByUserId(userId: Uuid): Promise<PostModel[]> {
@@ -25,6 +28,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where("user.id = :userId", { userId })
+      .andWhere("post.archive = false")
       .getMany();
   }
 
@@ -37,7 +41,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return post?.user;
   }
 
-  public async createPost (
+  public async createPost(
     title: string,
     description: string,
     categories: string[],
@@ -51,19 +55,21 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.categories = categories;
     post.price = price;
     post.images = images;
+    post.archive = false;
     post.user = user;
     return await this.repository.save(post);
   }
 
   public async deletePost(post: PostModel): Promise<PostModel> {
-    return this.repository.remove(post);
+    return await this.repository.remove(post);
   }
 
   public async searchPostsByTitle(keywords: string): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where("LOWER(post.title) like LOWER(:keywords)", {keywords: `%${keywords}%`})
+      .where("LOWER(post.title) like LOWER(:keywords)", { keywords: `%${keywords}%` })
+      .andWhere("post.archive = false")
       .getMany();
   }
 
@@ -71,7 +77,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where("LOWER(post.description) like LOWER(:keywords)", {keywords: `%${keywords}%`})
+      .where("LOWER(post.description) like LOWER(:keywords)", { keywords: `%${keywords}%` })
+      .andWhere("post.archive = false")
       .getMany();
   }
 
@@ -79,7 +86,30 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where(":category = ANY (post.categories)", {category: category})
+      .where(":category = ANY (post.categories)", { category: category })
+      .andWhere("post.archive = false")
       .getMany();
+  }
+
+  public async getArchivedPosts(): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .andWhere("post.archive = true")
+      .getMany();
+  }
+
+  public async getArchivedPostsByUserId(userId: Uuid): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("user.id = :userId", { userId })
+      .andWhere("post.archive = true")
+      .getMany();
+  }
+
+  public async archivePost(post: PostModel): Promise<PostModel> {
+    post.archive = true;
+    return await this.repository.save(post)
   }
 }

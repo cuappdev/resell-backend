@@ -30,7 +30,6 @@ beforeEach(async () => {
   expectedUser.email = expectedUser.netid + '@cornell.edu';
   expectedUser.googleId = 'shungoGoogleID';
   expectedUser.bio = "";
-  expectedUser.saved = [];
   expectedUser.venmoHandle = "@Shungo-Najima";
 });
 
@@ -86,7 +85,7 @@ describe('user session tests', () => {
       .createUsers(user)
       .createUserSessions(session1, session2)
       .write();
-    
+
     uuidParam.id = user.id;
 
     const getSessionsResponse = await authController.getSessionsByUserId(uuidParam);
