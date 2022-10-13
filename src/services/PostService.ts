@@ -156,6 +156,16 @@ export class PostService {
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
       const userRepository = Repositories.user(transactionalEntityManager);
+      return await userRepository.savePost(user, post);
+    });
+  }
+
+  public async unsavePost(user: UserModel, params: UuidParam): Promise<PostModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.id);
+      if (!post) throw new NotFoundError('Post not found!');
+      const userRepository = Repositories.user(transactionalEntityManager);
       return await userRepository.unsavePost(user, post);
     });
   }
