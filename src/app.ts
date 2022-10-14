@@ -33,7 +33,8 @@ async function main() {
       const manager = getManager();
       // find the user who has a token in their sessions field
       const session = await manager.findOne(UserSessionModel, { accessToken: accessToken });
-      if (session) {
+      // check if the session token has expired
+      if (session && session.expiresAt.getTime() > Date.now()) {
         const userId = session.userId;
         return await manager.findOne(UserModel, { id: userId });
       }
