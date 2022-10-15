@@ -5,6 +5,7 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, UserFactory, UserSessionFactory } from './data';
+import { FactoryUtils, TimeUnits } from './data/FactoryUtils';
 
 let uuidParam: UuidParam;
 let expectedUser: UserModel;
@@ -113,7 +114,8 @@ describe('user session tests', () => {
 
     expect(getSessionResponse.session.accessToken).not.toEqual(accessToken);
     expect(getSessionResponse.session.refreshToken).not.toEqual(refreshToken);
-    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30, -3);
+    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) +
+      FactoryUtils.getTimeInMilliseconds(1, TimeUnits.Months), -3);
   });
 
   test('refresh expired session', async () => {
@@ -136,6 +138,7 @@ describe('user session tests', () => {
 
     expect(getSessionResponse.session.accessToken).not.toEqual(accessToken);
     expect(getSessionResponse.session.refreshToken).not.toEqual(refreshToken);
-    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30, -3);
+    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) +
+      FactoryUtils.getTimeInMilliseconds(1, TimeUnits.Months), -3);
   });
 });

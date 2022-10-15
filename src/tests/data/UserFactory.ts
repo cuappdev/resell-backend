@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 
 import { UserModel } from '../../models/UserModel';
-import FactoryUtils from './FactoryUtils';
+import { FactoryUtils } from './FactoryUtils';
 
 export class UserFactory {  
     public static create(n: number): UserModel[] {
