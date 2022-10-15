@@ -28,8 +28,8 @@ export class UserSessionModel {
   public update(accessToken?: string, refreshToken?: string): UserSessionModel {
     this.accessToken = accessToken || crypto.randomBytes(64).toString('hex');
     this.refreshToken = refreshToken || crypto.randomBytes(64).toString('hex');
-    // expires the next week (added time is one month)
-    // in milliseconds
+    // expires the next month 
+    // (added time is one month in milliseconds)
     this.expiresAt = new Date(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30);
 
     return this;
