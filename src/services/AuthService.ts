@@ -108,4 +108,13 @@ export class AuthService {
       return success;
     });
   }
+
+  public async updateSession(refreshToken: string): Promise<APIUserSession> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const sessionRepository = Repositories.session(transactionalEntityManager);
+      const session = await sessionRepository.updateSession(refreshToken);
+      if (!session) throw new UnauthorizedError('Invalid refresh token!');
+      return session.serializeToken();
+    });
+  }
 }

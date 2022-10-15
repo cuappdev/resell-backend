@@ -1,5 +1,3 @@
-import { userInfo } from 'os';
-import { UnauthorizedError } from 'routing-controllers';
 import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';

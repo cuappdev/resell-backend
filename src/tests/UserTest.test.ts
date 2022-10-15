@@ -1,4 +1,3 @@
-import { PrivateProfile } from 'src/types';
 import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';

@@ -94,4 +94,49 @@ describe('user session tests', () => {
 
     expect(getSessionsResponse.sessions).toHaveLength(2);
   });
+
+  test('refresh unexpired session', async () => {
+    const authController = ControllerFactory.auth(conn);
+    const user = UserFactory.fake();
+    const session = UserSessionFactory.fake();
+    session.user = user;
+    session.userId = user.id;
+
+    await new DataFactory()
+      .createUsers(user)
+      .createUserSessions(session)
+      .write();
+    
+    const refreshToken = session.refreshToken;
+    const accessToken = session.accessToken;
+
+    const getSessionResponse = await authController.refreshToken(refreshToken);
+
+    expect(getSessionResponse.session.accessToken).not.toEqual(accessToken);
+    expect(getSessionResponse.session.refreshToken).not.toEqual(refreshToken);
+    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30, -3);
+  });
+
+  test('refresh expired session', async () => {
+    const authController = ControllerFactory.auth(conn);
+    const user = UserFactory.fake();
+    const session = UserSessionFactory.fake();
+    session.expiresAt = new Date();
+    session.user = user;
+    session.userId = user.id;
+
+    await new DataFactory()
+      .createUsers(user)
+      .createUserSessions(session)
+      .write();
+    
+    const refreshToken = session.refreshToken;
+    const accessToken = session.accessToken;
+
+    const getSessionResponse = await authController.refreshToken(refreshToken);
+
+    expect(getSessionResponse.session.accessToken).not.toEqual(accessToken);
+    expect(getSessionResponse.session.refreshToken).not.toEqual(refreshToken);
+    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30, -3);
+  });
 });
