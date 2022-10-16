@@ -1,4 +1,4 @@
-import { NotFoundError } from 'routing-controllers';
+import { NotFoundError, UnauthorizedError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
@@ -6,7 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest } from '../types';
+import { EditProfileRequest, SetAdminByEmailRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -70,6 +70,19 @@ export class UserService {
       }
       return userRepository.updateUser(user, editProfileRequest.username, imageUrl,
         editProfileRequest.venmoHandle, editProfileRequest.bio);
+    });
+  }
+
+  public async setAdmin(superAdmin: UserModel, setAdminByEmailRequest: SetAdminByEmailRequest): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const adminEmails = process.env.ADMIN_EMAILS?.split(",");
+      if (!adminEmails?.includes(superAdmin.email)) {
+        throw new UnauthorizedError('Only super admin can set admin status!');
+      }
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const user = await userRepository.getUserByEmail(setAdminByEmailRequest.email)
+      if (!user) throw new NotFoundError('User not found!');
+      return await userRepository.setAdmin(user, setAdminByEmailRequest.status);
     });
   }
 }

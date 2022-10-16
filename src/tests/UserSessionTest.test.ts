@@ -26,7 +26,8 @@ beforeEach(async () => {
   expectedUser.givenName = 'Shungo';
   expectedUser.familyName = 'Najima';
   expectedUser.username = 'snajima';
-  expectedUser.netid = 'sn685';
+  expectedUser.netid = 'sn999';
+  expectedUser.admin = false;
   expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
   expectedUser.email = expectedUser.netid + '@cornell.edu';
   expectedUser.googleId = 'shungoGoogleID';
@@ -46,12 +47,12 @@ describe('user session tests', () => {
 
     const createUserRequest = {
       username: "mateow",
-      netid: "maw346",
+      netid: "maw999",
       givenName: "Mateo",
       familyName: "Weiner",
       photoUrl: "https://melmagazine.com/wp-content/uploads/2021/01/66f-1.jpg",
       venmoHandle: "@Mateo-Weiner",
-      email: "maw346@cornell.edu",
+      email: "maw999@cornell.edu",
       googleId: "mateoGoogleId",
       bio: "Personally, I would not stand for this.",
     }
@@ -87,7 +88,7 @@ describe('user session tests', () => {
       .createUsers(user)
       .createUserSessions(session1, session2)
       .write();
-    
+
     uuidParam.id = user.id;
 
     const getSessionsResponse = await authController.getSessionsByUserId(uuidParam);

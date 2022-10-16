@@ -160,6 +160,29 @@ describe('post tests', () => {
     expect(getPostsResponse.posts).toHaveLength(0);
   });
 
+  test('delete post by id - by admin', async () => {
+    const postController = ControllerFactory.post(conn);
+    const post = PostFactory.fakeTemplate();
+    const user = UserFactory.fakeTemplate();
+    post.user = UserFactory.fake();
+    user.admin = true;
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(user)
+      .write();
+
+    let getPostsResponse = await postController.getPosts();
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    expect(getPostsResponse.posts).toHaveLength(1);
+
+    const getPostResponse = await postController.deletePostById(user, uuidParam);
+    expect(getPostResponse.post.title).toEqual("Mateo's Kombucha");
+
+    getPostsResponse = await postController.getPosts();
+    expect(getPostsResponse.posts).toHaveLength(0);
+  });
+
   test('search posts - direct string match', async () => {
     const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();

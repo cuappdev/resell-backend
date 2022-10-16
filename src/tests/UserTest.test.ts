@@ -25,7 +25,8 @@ beforeEach(async () => {
   expectedUser.givenName = 'Shungo';
   expectedUser.familyName = 'Najima';
   expectedUser.username = 'snajima';
-  expectedUser.netid = 'sn685';
+  expectedUser.netid = 'sn999';
+  expectedUser.admin = false;
   expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
   expectedUser.email = expectedUser.netid + '@cornell.edu';
   expectedUser.googleId = 'shungoGoogleID';
@@ -95,7 +96,7 @@ describe('user tests', () => {
       .createUsers(user)
       .write();
 
-    const getUserResponse = await userController.getUserByEmail({email: 'sn685@cornell.edu'});
+    const getUserResponse = await userController.getUserByEmail({ email: 'sn999@cornell.edu' });
 
     expect(getUserResponse.user).toEqual(expectedUser);
   });
@@ -134,5 +135,42 @@ describe('user tests', () => {
     const getUserResponse = await userController.getUserByGoogleId('shungoGoogleID');
 
     expect(getUserResponse.user).toEqual(expectedUser);
+  });
+
+  test('set super admin status', async () => {
+    const authController = ControllerFactory.auth(conn);
+
+    const createUserRequest = {
+      username: "admin",
+      netid: "adm999",
+      givenName: "administrator",
+      familyName: "Weiner",
+      photoUrl: "https://melmagazine.com/wp-content/uploads/2021/01/66f-1.jpg",
+      venmoHandle: "@admin-Weiner",
+      email: "appdevresell@gmail.com",
+      googleId: "mateoGoogleId",
+      bio: "Personally, I would not stand for this.",
+    }
+
+    const createUserRequestResponse = await authController.createUser(createUserRequest);
+
+    expect(createUserRequestResponse.user?.admin).toEqual(true);
+  });
+
+  test('set admin status from super user', async () => {
+    const userController = ControllerFactory.user(conn);
+    const admin = UserFactory.fakeTemplate();
+    admin.email = 'appdevresell@gmail.com';
+    let user = UserFactory.fake();
+
+    await new DataFactory()
+      .createUsers(admin, user)
+      .write();
+
+    expectedUser.admin = true;
+
+    const getUserResponse = await userController.setAdmin({ email: user.email, status: true }, admin);
+
+    expect(getUserResponse.user?.admin).toBe(true);
   });
 });

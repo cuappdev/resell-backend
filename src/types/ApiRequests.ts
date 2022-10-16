@@ -43,6 +43,11 @@ export interface GetUserByEmailRequest {
     email: string;
 }
 
+export interface SetAdminByEmailRequest {
+    email: string;
+    status: boolean;
+}
+
 // POST
 
 export interface CreatePostRequest {
@@ -63,7 +68,7 @@ export interface GetSearchedPostsRequest {
 export interface CreateFeedbackRequest {
     description: string;
     images: string[];
-    userId:Uuid
+    userId: Uuid
 }
 
 export interface GetSearchedFeedbackRequest {
