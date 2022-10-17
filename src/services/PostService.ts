@@ -130,6 +130,15 @@ export class PostService {
     });
   }
 
+  public async getSavedPostsByUserId(user: UserModel): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const userWithSaved = await userRepository.getSavedPostsByUserId(user.id);
+      if (!userWithSaved) throw new NotFoundError('Easter egg')
+      return userWithSaved.saved;
+    });
+  }
+
   public async savePost(user: UserModel, params: UuidParam): Promise<PostModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);

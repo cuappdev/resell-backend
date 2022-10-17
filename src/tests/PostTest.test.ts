@@ -311,30 +311,29 @@ describe('post tests', () => {
 
   test('save/unsave posts', async () => {
     const postController = ControllerFactory.post(conn);
-    const userController = ControllerFactory.user(conn);
     const post = PostFactory.fakeTemplate();
-    post.user = UserFactory.fakeTemplate();
-    post.user.saved = [];
+    const user = UserFactory.fakeTemplate();
+    user.saved = []
+    post.user = user;
 
     await new DataFactory()
       .createPosts(post)
       .createUsers(post.user)
       .write();
 
-    let userResponse = (await userController.getUserByGoogleId('shungoGoogleID')).user;
-    expect(userResponse).not.toBeUndefined();
-    expect(userResponse?.saved).toEqual([]);
+    let postsResponse = await postController.getSavedPostsByUserId(user);
+    expect(postsResponse).not.toBeUndefined();
+    expect(postsResponse.posts).toEqual([]);
 
-    await postController.savePost(post.user, uuidParam);
-    userResponse = (await userController.getUserByGoogleId('shungoGoogleID')).user;
-    if (userResponse) {
-      userResponse.saved[0].price = Number(userResponse.saved[0].price);
-    }
-    expect(userResponse?.saved).toEqual([expectedPost]);
+    await postController.savePost(user, uuidParam);
+    postsResponse = await postController.getSavedPostsByUserId(user);
+    expect(postsResponse).not.toBeUndefined();
+    postsResponse.posts[0].price = Number(postsResponse.posts[0].price);
+    expect(postsResponse.posts).toEqual([expectedPost]);
 
-    await postController.unsavePost(post.user, uuidParam);
-    userResponse = (await userController.getUserByGoogleId('shungoGoogleID')).user;
-    expect(userResponse?.saved).toEqual([]);
+    await postController.unsavePost(user, uuidParam);
+    postsResponse = await postController.getSavedPostsByUserId(user);
+    expect(postsResponse.posts).toEqual([]);
   });
 
   test('get all archived posts - no posts', async () => {

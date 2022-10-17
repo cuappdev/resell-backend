@@ -14,8 +14,6 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getUserById(id: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .leftJoin("user.saved", "post")
-      .leftJoinAndSelect("user.saved", "postSelect")
       .where("user.id = :id", { id })
       .getOne();
   }
@@ -23,8 +21,6 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getUserByGoogleId(googleId: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .leftJoin("user.saved", "post")
-      .leftJoinAndSelect("user.saved", "postSelect")
       .where("user.googleId = :googleId", { googleId })
       .getOne();
   }
@@ -50,11 +46,17 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return false;
   }
 
+  public async getSavedPostsByUserId(id: Uuid): Promise<UserModel | undefined> {
+    return await this.repository
+      .createQueryBuilder("user")
+      .where("user.id = :id", { id })
+      .leftJoinAndSelect("user.saved", "post")
+      .getOne();
+  }
+
   public async getUserByEmail(email: string): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .leftJoin("user.saved", "post")
-      .leftJoinAndSelect("user.saved", "postSelect")
       .where("user.email = :email", { email })
       .getOne();
   }

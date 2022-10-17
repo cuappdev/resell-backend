@@ -31,7 +31,6 @@ beforeEach(async () => {
   expectedUser.email = expectedUser.netid + '@cornell.edu';
   expectedUser.googleId = 'shungoGoogleID';
   expectedUser.bio = "";
-  expectedUser.saved = [];
   expectedUser.venmoHandle = "@Shungo-Najima";
 });
 
