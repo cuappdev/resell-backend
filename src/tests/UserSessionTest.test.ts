@@ -5,6 +5,7 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, UserFactory, UserSessionFactory } from './data';
+import { FactoryUtils, TimeUnits } from './data/FactoryUtils';
 
 let uuidParam: UuidParam;
 let expectedUser: UserModel;
@@ -25,7 +26,8 @@ beforeEach(async () => {
   expectedUser.givenName = 'Shungo';
   expectedUser.familyName = 'Najima';
   expectedUser.username = 'snajima';
-  expectedUser.netid = 'sn685';
+  expectedUser.netid = 'sn999';
+  expectedUser.admin = false;
   expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
   expectedUser.email = expectedUser.netid + '@cornell.edu';
   expectedUser.googleId = 'shungoGoogleID';
@@ -44,12 +46,12 @@ describe('user session tests', () => {
 
     const createUserRequest = {
       username: "mateow",
-      netid: "maw346",
+      netid: "maw999",
       givenName: "Mateo",
       familyName: "Weiner",
       photoUrl: "https://melmagazine.com/wp-content/uploads/2021/01/66f-1.jpg",
       venmoHandle: "@Mateo-Weiner",
-      email: "maw346@cornell.edu",
+      email: "maw999@cornell.edu",
       googleId: "mateoGoogleId",
       bio: "Personally, I would not stand for this.",
     }
@@ -112,7 +114,8 @@ describe('user session tests', () => {
 
     expect(getSessionResponse.session.accessToken).not.toEqual(accessToken);
     expect(getSessionResponse.session.refreshToken).not.toEqual(refreshToken);
-    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30, -3);
+    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) +
+      FactoryUtils.getTimeInMilliseconds(1, TimeUnits.Months), -3);
   });
 
   test('refresh expired session', async () => {
@@ -135,6 +138,7 @@ describe('user session tests', () => {
 
     expect(getSessionResponse.session.accessToken).not.toEqual(accessToken);
     expect(getSessionResponse.session.refreshToken).not.toEqual(refreshToken);
-    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) + 1000 * 60 * 60 * 24 * 30, -3);
+    expect(getSessionResponse.session.expiresAt).toBeCloseTo(Math.floor(new Date().getTime()) +
+      FactoryUtils.getTimeInMilliseconds(1, TimeUnits.Months), -3);
   });
 });

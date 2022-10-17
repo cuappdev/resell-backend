@@ -66,11 +66,10 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
-      if (user.id != post.user.id) throw new ForbiddenError('User is not poster!');
+      if (user.id != post.user?.id && !user.admin) throw new ForbiddenError('User is not poster!');
       return postRepository.deletePost(post);
     });
   }
-
 
   public async searchPosts(getSearchedPostsRequest: GetSearchedPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
@@ -126,7 +125,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
-      if (user.id != post.user.id) throw new ForbiddenError('User is not poster!');
+      if (user.id != post.user?.id) throw new ForbiddenError('User is not poster!');
       return await postRepository.archivePost(post);
     });
   }

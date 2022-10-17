@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 
 import { PostModel } from '../../models/PostModel';
-import FactoryUtils from './FactoryUtils';
+import { FactoryUtils } from './FactoryUtils';
 
 export class PostFactory {
     public static create(n: number): PostModel[] {

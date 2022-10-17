@@ -82,11 +82,15 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
     if (await existingUser) throw new ConflictError('UserModel with same google ID already exists!');
 
+    const adminEmails = process.env.ADMIN_EMAILS?.split(",");
+    const adminStatus = adminEmails?.includes(email);
+
     const user = new UserModel();
     user.username = username;
     user.netid = netid;
     user.givenName = givenName;
     user.familyName = familyName;
+    user.admin = adminStatus || false;
     user.photoUrl = photoUrl;
     user.email = email;
     user.googleId = googleId;
@@ -114,6 +118,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
     user.photoUrl = photoUrl ?? user.photoUrl;
     user.venmoHandle = venmoHandle ?? user.venmoHandle;
     user.bio = bio ?? user.bio;
+    return await this.repository.save(user);
+  }
+
+  public async setAdmin(user: UserModel, status: boolean): Promise<UserModel> {
+    user.admin = status;
     return await this.repository.save(user);
   }
 

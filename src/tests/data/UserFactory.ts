@@ -1,9 +1,9 @@
 import * as faker from 'faker';
 
 import { UserModel } from '../../models/UserModel';
-import FactoryUtils from './FactoryUtils';
+import { FactoryUtils } from './FactoryUtils';
 
-export class UserFactory {  
+export class UserFactory {
     public static create(n: number): UserModel[] {
         /**
          * Returns a list of n number of random UserModel objects
@@ -27,7 +27,8 @@ export class UserFactory {
         fakeUser.givenName = 'Shungo';
         fakeUser.familyName = 'Najima';
         fakeUser.username = 'snajima';
-        fakeUser.netid = 'sn685';
+        fakeUser.netid = 'sn999';
+        fakeUser.admin = false;
         fakeUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
         fakeUser.email = fakeUser.netid + '@cornell.edu';
         fakeUser.googleId = 'shungoGoogleID';
@@ -35,7 +36,7 @@ export class UserFactory {
 
         return fakeUser;
     }
-  
+
     public static fake(): UserModel {
         /**
          * Returns a UserModel with random values in its instance variables
@@ -49,6 +50,7 @@ export class UserFactory {
         fakeUser.givenName = firstName;
         fakeUser.familyName = lastName;
         fakeUser.username = faker.internet.userName(firstName, lastName);
+        fakeUser.admin = false;
         fakeUser.netid = FactoryUtils.getRandomLetter() + FactoryUtils.getRandomLetter() + FactoryUtils.getRandomNumber(0, 9999);
         fakeUser.photoUrl = faker.internet.url();
         fakeUser.email = fakeUser.netid + '@cornell.edu';
