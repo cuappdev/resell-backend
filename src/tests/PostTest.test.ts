@@ -288,7 +288,6 @@ describe('post tests', () => {
 
   test('save/unsave posts', async () => {
     const postController = ControllerFactory.post(conn);
-    const userController = ControllerFactory.user(conn);
     const post = PostFactory.fakeTemplate();
     const user = UserFactory.fakeTemplate();
     user.saved = []
@@ -299,18 +298,18 @@ describe('post tests', () => {
       .createUsers(post.user)
       .write();
 
-    let postsResponse = (await postController.getSavedPostsByUserId(user));
+    let postsResponse = await postController.getSavedPostsByUserId(user);
     expect(postsResponse).not.toBeUndefined();
     expect(postsResponse.posts).toEqual([]);
 
     await postController.savePost(user, uuidParam);
-    postsResponse = (await postController.getSavedPostsByUserId(user));
+    postsResponse = await postController.getSavedPostsByUserId(user);
     expect(postsResponse).not.toBeUndefined();
     postsResponse.posts[0].price = Number(postsResponse.posts[0].price);
     expect(postsResponse.posts).toEqual([expectedPost]);
 
     await postController.unsavePost(user, uuidParam);
-    postsResponse = (await postController.getSavedPostsByUserId(user));
+    postsResponse = await postController.getSavedPostsByUserId(user);
     expect(postsResponse.posts).toEqual([]);
   });
 
