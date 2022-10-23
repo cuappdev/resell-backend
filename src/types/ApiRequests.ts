@@ -84,3 +84,11 @@ export interface FilterPostsRequest {
 export interface UploadImageRequest {
     imageBase64: string;
 }
+
+// REQUEST
+
+export interface CreateRequestRequest {
+    title: string
+    description: string;
+    userId: Uuid
+}

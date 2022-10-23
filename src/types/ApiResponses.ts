@@ -115,3 +115,11 @@ export interface Request {
     user: PrivateProfile,
     matches: PostModel[],
 }
+
+export interface GetRequestsResponse {
+    request: Request[];
+}
+
+export interface GetRequestResponse {
+    request: Request;
+}
