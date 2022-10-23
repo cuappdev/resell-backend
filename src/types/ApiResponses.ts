@@ -54,6 +54,7 @@ export interface Post {
     archive: boolean,
     user: PrivateProfile,
     savers: PrivateProfile[],
+    matched: Request[],
 }
 
 export interface GetPostsResponse {
@@ -74,7 +75,7 @@ export interface Feedback {
     id: Uuid,
     description: string,
     images: string[],
-    user: PublicProfile,
+    user: PrivateProfile,
 }
 
 export interface GetFeedbacksResponse {
@@ -103,4 +104,14 @@ export interface LogoutResponse {
 
 export interface ImageUrlResponse {
     image: string;
+}
+
+// REQUESTS
+
+export interface Request {
+    id: Uuid,
+    title: string,
+    description: string,
+    user: PrivateProfile,
+    matches: PostModel[],
 }

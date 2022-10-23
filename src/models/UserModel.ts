@@ -3,6 +3,7 @@ import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 't
 import { PrivateProfile, Uuid } from '../types';
 import { FeedbackModel } from './FeedbackModel';
 import { PostModel } from './PostModel';
+import { RequestModel } from './RequestModel';
 import { UserSessionModel } from './UserSessionModel';
 
 @Entity('User')
@@ -52,6 +53,9 @@ export class UserModel {
 
   @OneToMany(() => FeedbackModel, feedback => feedback.user)
   feedback: FeedbackModel[];
+
+  @OneToMany(() => RequestModel, request => request.user)
+  request: RequestModel[];
 
   public getUserProfile(): PrivateProfile {
     return {
