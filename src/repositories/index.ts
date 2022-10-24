@@ -2,6 +2,7 @@ import { EntityManager } from 'typeorm';
 
 import { FeedbackRepository } from './FeedbackRepository';
 import { PostRepository } from './PostRepository';
+import { RequestRepository } from './RequestRepository';
 import { UserRepository } from './UserRepository';
 import { UserSessionRepository } from './UserSessionRepository';
 
@@ -16,26 +17,29 @@ export default class Repositories {
 
   public static feedback(transactionalEntityManager: EntityManager): FeedbackRepository {
     return transactionalEntityManager.getCustomRepository(FeedbackRepository);
-  } 
-  
+  }
+
+  public static request(transactionalEntityManager: EntityManager): RequestRepository {
+    return transactionalEntityManager.getCustomRepository(RequestRepository);
+  }
+
   public static session(transactionalEntityManager: EntityManager): UserSessionRepository {
     return transactionalEntityManager.getCustomRepository(UserSessionRepository);
   }
 }
 
 export class TransactionsManager {
-    private transactionalEntityManager: EntityManager;
+  private transactionalEntityManager: EntityManager;
 
-    constructor(transactionalEntityManager: EntityManager) {
-        this.transactionalEntityManager = transactionalEntityManager;
-    }
+  constructor(transactionalEntityManager: EntityManager) {
+    this.transactionalEntityManager = transactionalEntityManager;
+  }
 
-    public readOnly<T>(fn: (transactionalEntityManager: EntityManager) => Promise<T>): Promise<T> {
-        return this.transactionalEntityManager.transaction('REPEATABLE READ', fn);
-    }
+  public readOnly<T>(fn: (transactionalEntityManager: EntityManager) => Promise<T>): Promise<T> {
+    return this.transactionalEntityManager.transaction('REPEATABLE READ', fn);
+  }
 
-    public readWrite<T>(fn: (transactionalEntityManager: EntityManager) => Promise<T>): Promise<T> {
-        return this.transactionalEntityManager.transaction('SERIALIZABLE', fn);
-    }
+  public readWrite<T>(fn: (transactionalEntityManager: EntityManager) => Promise<T>): Promise<T> {
+    return this.transactionalEntityManager.transaction('SERIALIZABLE', fn);
+  }
 }
-  

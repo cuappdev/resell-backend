@@ -1,6 +1,7 @@
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Post, Uuid } from '../types';
+import { RequestModel } from './RequestModel';
 import { UserModel } from './UserModel';
 
 @Entity('Post')
@@ -47,6 +48,20 @@ export class PostModel {
   })
   savers: UserModel[];
 
+  @ManyToMany(() => RequestModel, request => request.matches)
+  @JoinTable({
+    name: "request_matches_posts",
+    joinColumn: {
+      name: "matches",
+      referencedColumnName: "id"
+    },
+    inverseJoinColumn: {
+      name: "matched",
+      referencedColumnName: "id"
+    }
+  })
+  matched: RequestModel[];
+
   public getPostInfo(): Post {
     return {
       id: this.id,
@@ -59,6 +74,7 @@ export class PostModel {
       archive: this.archive,
       user: this.user.getUserProfile(),
       savers: this.savers?.map(user => user.getUserProfile()),
+      matched: this.matched?.map(request => request.getRequestInfo()),
     };
   }
 }

@@ -38,7 +38,6 @@ export class FeedbackController {
     return { feedback: await this.feedbackService.deleteFeedbackById(params) };
   }
 
-  
   @Post('search/')
   async searchFeedback(@Body() GetSearchedFeedbackRequest: GetSearchedFeedbackRequest): Promise<GetFeedbacksResponse> {
     return { feedback: await this.feedbackService.searchFeedback(GetSearchedFeedbackRequest) };
