@@ -1,3 +1,5 @@
+import { request } from 'http';
+import { RequestController } from 'src/api/controllers/RequestController';
 import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
@@ -8,6 +10,7 @@ import { DatabaseConnection, DataFactory, RequestFactory, UserFactory } from './
 let uuidParam: UuidParam;
 let expectedRequest: RequestModel;
 let conn: Connection;
+let requestController: RequestController;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -16,6 +19,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   await DatabaseConnection.clear();
   conn = await DatabaseConnection.connect();
+  requestController = ControllerFactory.request(conn);
 
   uuidParam = new UuidParam();
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
@@ -33,15 +37,12 @@ afterAll(async () => {
 
 describe('request tests', () => {
   test('get all requests - no requests', async () => {
-    const requestController = ControllerFactory.request(conn);
-
     const getRequestsResponse = await requestController.getRequests();
 
     expect(getRequestsResponse.requests).toHaveLength(0);
   });
 
   test('get all requests - one request', async () => {
-    const requestController = ControllerFactory.request(conn);
     const request = RequestFactory.fake();
 
     await new DataFactory()
@@ -54,7 +55,6 @@ describe('request tests', () => {
   });
 
   test('get all requests - multiple requests', async () => {
-    const requestController = ControllerFactory.request(conn);
     const [request1, request2] = RequestFactory.create(2);
 
     await new DataFactory()
@@ -67,7 +67,6 @@ describe('request tests', () => {
   });
 
   test('get request by id', async () => {
-    const requestController = ControllerFactory.request(conn);
     const request = RequestFactory.fakeTemplate();
 
     await new DataFactory()
@@ -80,7 +79,6 @@ describe('request tests', () => {
   });
 
   test('get request by user id', async () => {
-    const requestController = ControllerFactory.request(conn);
     const request = RequestFactory.fakeTemplate();
     request.user = UserFactory.fakeTemplate();
 
@@ -97,7 +95,6 @@ describe('request tests', () => {
   });
 
   test('create request', async () => {
-    const requestController = ControllerFactory.request(conn);
     const user = UserFactory.fakeTemplate();
 
     await new DataFactory()
@@ -121,7 +118,6 @@ describe('request tests', () => {
   });
 
   test('delete request by id', async () => {
-    const requestController = ControllerFactory.request(conn);
     const request = RequestFactory.fakeTemplate();
     request.user = UserFactory.fakeTemplate();
 
