@@ -13,9 +13,9 @@ export class RequestController {
   }
 
   @Get()
-  async getAllRequest(): Promise<GetRequestsResponse> {
+  async getRequests(): Promise<GetRequestsResponse> {
     const request = await this.requestService.getAllRequest();
-    return { request: request.map((f) => f.getRequestInfo()) };
+    return { requests: request.map((f) => f.getRequestInfo()) };
   }
 
   @Get('id/:id/')
@@ -24,8 +24,8 @@ export class RequestController {
   }
 
   @Get('userId/:id/')
-  async getRequestByUserId(@Params() params: UuidParam): Promise<GetRequestsResponse> {
-    return { request: await this.requestService.getRequestByUserId(params) };
+  async getRequestsByUserId(@Params() params: UuidParam): Promise<GetRequestsResponse> {
+    return { requests: await this.requestService.getRequestByUserId(params) };
   }
 
   @Post()
@@ -34,7 +34,7 @@ export class RequestController {
   }
 
   @Delete('id/:id/')
-  async deletePostById(@Params() params: UuidParam): Promise<GetRequestResponse> {
+  async deleteRequestById(@Params() params: UuidParam): Promise<GetRequestResponse> {
     return { request: await this.requestService.deleteRequestById(params) };
   }
 }
