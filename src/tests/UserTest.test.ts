@@ -1,3 +1,4 @@
+import { UserController } from 'src/api/controllers/UserController';
 import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
@@ -8,6 +9,7 @@ import { DatabaseConnection, DataFactory, UserFactory } from './data';
 let uuidParam: UuidParam;
 let expectedUser: UserModel;
 let conn: Connection;
+let userController: UserController;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -16,6 +18,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   await DatabaseConnection.clear();
   conn = await DatabaseConnection.connect();
+  userController = ControllerFactory.user(conn);
 
   uuidParam = new UuidParam();
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
@@ -41,15 +44,12 @@ afterAll(async () => {
 
 describe('user tests', () => {
   test('get all users - no users', async () => {
-    const userController = ControllerFactory.user(conn);
-
     const getUsersResponse = await userController.getUsers();
 
     expect(getUsersResponse.users).toHaveLength(0);
   });
 
   test('get all users - one user', async () => {
-    const userController = ControllerFactory.user(conn);
     const user = UserFactory.fake();
 
     await new DataFactory()
@@ -62,7 +62,6 @@ describe('user tests', () => {
   });
 
   test('get all users - multiple users', async () => {
-    const userController = ControllerFactory.user(conn);
     const [user1, user2] = UserFactory.create(2);
 
     await new DataFactory()
@@ -75,7 +74,6 @@ describe('user tests', () => {
   });
 
   test('get user by id', async () => {
-    const userController = ControllerFactory.user(conn);
     const user = UserFactory.fakeTemplate();
 
     await new DataFactory()
@@ -88,7 +86,6 @@ describe('user tests', () => {
   });
 
   test('get user by email', async () => {
-    const userController = ControllerFactory.user(conn);
     const user = UserFactory.fakeTemplate();
 
     await new DataFactory()
@@ -101,7 +98,6 @@ describe('user tests', () => {
   });
 
   test('get user by google id', async () => {
-    const userController = ControllerFactory.user(conn);
     const user = UserFactory.fakeTemplate();
 
     await new DataFactory()
@@ -114,7 +110,6 @@ describe('user tests', () => {
   });
 
   test('edit profile', async () => {
-    const userController = ControllerFactory.user(conn);
     const user = UserFactory.fakeTemplate();
 
     await new DataFactory()
@@ -157,7 +152,6 @@ describe('user tests', () => {
   });
 
   test('set admin status from super user', async () => {
-    const userController = ControllerFactory.user(conn);
     const admin = UserFactory.fakeTemplate();
     admin.email = 'appdevresell@gmail.com';
     let user = UserFactory.fake();
