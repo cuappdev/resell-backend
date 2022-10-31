@@ -10,6 +10,7 @@ import { FactoryUtils, TimeUnits } from './data/FactoryUtils';
 let uuidParam: UuidParam;
 let expectedUser: UserModel;
 let conn: Connection;
+let authController: AuthController;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -18,6 +19,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   await DatabaseConnection.clear();
   conn = await DatabaseConnection.connect();
+  authController = ControllerFactory.auth(conn);
 
   uuidParam = new UuidParam();
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
@@ -42,8 +44,6 @@ afterAll(async () => {
 
 describe('user session tests', () => {
   test('create new user', async () => {
-    const authController = ControllerFactory.auth(conn);
-
     const createUserRequest = {
       username: "mateow",
       netid: "maw999",
@@ -62,7 +62,6 @@ describe('user session tests', () => {
   });
 
   test('delete user', async () => {
-    const authController = ControllerFactory.auth(conn);
     const user = UserFactory.fakeTemplate();
 
     await new DataFactory()
@@ -75,7 +74,6 @@ describe('user session tests', () => {
   });
 
   test('get sessions by user id', async () => {
-    const authController = ControllerFactory.auth(conn);
     const user = UserFactory.fake();
     const [session1, session2] = UserSessionFactory.create(2);
     session1.user = user;
@@ -96,7 +94,6 @@ describe('user session tests', () => {
   });
 
   test('refresh unexpired session', async () => {
-    const authController = ControllerFactory.auth(conn);
     const user = UserFactory.fake();
     const session = UserSessionFactory.fake();
     session.user = user;
@@ -119,7 +116,6 @@ describe('user session tests', () => {
   });
 
   test('refresh expired session', async () => {
-    const authController = ControllerFactory.auth(conn);
     const user = UserFactory.fake();
     const session = UserSessionFactory.fake();
     session.expiresAt = new Date();

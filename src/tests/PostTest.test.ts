@@ -1,3 +1,4 @@
+import { PostController } from 'src/api/controllers/PostController';
 import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
@@ -8,6 +9,7 @@ import { DatabaseConnection, DataFactory, PostFactory, UserFactory } from './dat
 let uuidParam: UuidParam;
 let expectedPost: PostModel;
 let conn: Connection;
+let postController: PostController;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -16,6 +18,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   await DatabaseConnection.clear();
   conn = await DatabaseConnection.connect();
+  postController = ControllerFactory.post(conn);
 
   uuidParam = new UuidParam();
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
@@ -38,15 +41,12 @@ afterAll(async () => {
 
 describe('post tests', () => {
   test('get all posts - no posts', async () => {
-    const postController = ControllerFactory.post(conn);
-
     const getPostsResponse = await postController.getPosts();
 
     expect(getPostsResponse.posts).toHaveLength(0);
   });
 
   test('get all posts - one post', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fake();
     post.user = UserFactory.fake();
 
@@ -61,7 +61,6 @@ describe('post tests', () => {
   });
 
   test('get all posts - multiple posts', async () => {
-    const postController = ControllerFactory.post(conn);
     const [post1, post2] = PostFactory.create(2);
     const [user1, user2] = UserFactory.create(2);
     post1.user = user1;
@@ -78,7 +77,6 @@ describe('post tests', () => {
   });
 
   test('get post by id', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -96,7 +94,6 @@ describe('post tests', () => {
   });
 
   test('get post by user id', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -114,7 +111,6 @@ describe('post tests', () => {
   });
 
   test('create post', async () => {
-    const postController = ControllerFactory.post(conn);
     const user = UserFactory.fakeTemplate();
 
     await new DataFactory()
@@ -138,7 +134,6 @@ describe('post tests', () => {
   });
 
   test('delete post by id', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -161,7 +156,6 @@ describe('post tests', () => {
   });
 
   test('delete post by id - by admin', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     const user = UserFactory.fakeTemplate();
     post.user = UserFactory.fake();
@@ -184,7 +178,6 @@ describe('post tests', () => {
   });
 
   test('search posts - direct string match', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -206,7 +199,6 @@ describe('post tests', () => {
   });
 
   test('search posts - substring', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -228,7 +220,6 @@ describe('post tests', () => {
   });
 
   test('search posts - case mismatch', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -250,7 +241,6 @@ describe('post tests', () => {
   });
 
   test('search posts - no matches', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -271,7 +261,6 @@ describe('post tests', () => {
   });
 
   test('filter posts', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -310,7 +299,6 @@ describe('post tests', () => {
   });
 
   test('save/unsave posts', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     const user = UserFactory.fakeTemplate();
     user.saved = []
@@ -345,7 +333,6 @@ describe('post tests', () => {
   });
 
   test('get all archived posts - one post', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fake();
     post.user = UserFactory.fake();
     post.archive = true;
@@ -361,7 +348,6 @@ describe('post tests', () => {
   });
 
   test('get all archived posts - multiple posts', async () => {
-    const postController = ControllerFactory.post(conn);
     const [post1, post2] = PostFactory.create(2);
     const [user1, user2] = UserFactory.create(2);
     post1.user = user1;
@@ -380,7 +366,6 @@ describe('post tests', () => {
   });
 
   test('get archived posts by user id - one post', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
     post.archive = true;
@@ -400,7 +385,6 @@ describe('post tests', () => {
   });
 
   test('get archived posts by user id - multiple posts', async () => {
-    const postController = ControllerFactory.post(conn);
     const [post1, post2] = PostFactory.create(2);
     const user = UserFactory.fakeTemplate();
     post1.user = user
@@ -419,7 +403,6 @@ describe('post tests', () => {
   });
 
   test('archive post', async () => {
-    const postController = ControllerFactory.post(conn);
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
