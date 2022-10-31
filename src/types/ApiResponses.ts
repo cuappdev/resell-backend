@@ -117,7 +117,7 @@ export interface Request {
 }
 
 export interface GetRequestsResponse {
-    request: Request[];
+    requests: Request[];
 }
 
 export interface GetRequestResponse {

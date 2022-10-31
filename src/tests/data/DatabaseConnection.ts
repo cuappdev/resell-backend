@@ -29,9 +29,10 @@ export class DatabaseConnection {
       // if a table (A) exists with an fkey to another table (B), make sure B is listed higher than A.
       const tableNames = [
         'Feedback',
+        'Request',
         'Post',
         'UserSession',
-        'User',
+        'User'
       ];
       await Promise.all(tableNames.map((t) => txn.query(`DELETE FROM "${t}"`)));
     });
