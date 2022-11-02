@@ -1,7 +1,7 @@
 import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 
 import { RequestService } from '../../services/RequestService';
-import { CreateRequestRequest, GetRequestResponse, GetRequestsResponse } from '../../types';
+import { CreateRequestRequest, GetMatchesRequest, GetPostsResponse, GetRequestResponse, GetRequestsResponse, Uuid } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('request/')
@@ -36,5 +36,10 @@ export class RequestController {
   @Delete('id/:id/')
   async deleteRequestById(@Params() params: UuidParam): Promise<GetRequestResponse> {
     return { request: await this.requestService.deleteRequestById(params) };
+  }
+
+  @Post('matches/id/:id/')
+  async getMatchesByRequestId(@Body() getMatchesRequest: GetMatchesRequest, @Params() params: UuidParam): Promise<GetPostsResponse> {
+    return { posts: await this.requestService.getMatchesByRequestId(params, getMatchesRequest) };
   }
 }

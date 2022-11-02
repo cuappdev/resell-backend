@@ -25,6 +25,9 @@ export class PostModel {
   @Column("text", { array: true })
   images: string[];
 
+  @Column("numeric")
+  created: number;
+
   @Column(({ nullable: true }))
   location: string;
 
@@ -70,6 +73,7 @@ export class PostModel {
       categories: this.categories,
       price: this.price,
       images: this.images,
+      created: this.created,
       location: this.location,
       archive: this.archive,
       user: this.user.getUserProfile(),

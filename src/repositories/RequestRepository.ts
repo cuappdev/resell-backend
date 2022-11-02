@@ -44,4 +44,21 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
   public async deleteRequest(request: RequestModel): Promise<RequestModel> {
     return this.repository.remove(request);
   }
+
+  public async getAllMatchesByRequestId(id: Uuid): Promise<RequestModel | undefined> {
+    return await this.repository
+      .createQueryBuilder("request")
+      .where("request.id = :id", { id })
+      .leftJoinAndSelect("request.matches", "posts")
+      .getOne();
+  }
+
+  public async getTimedMatchesByRequestId(id: Uuid, time: number): Promise<RequestModel | undefined> {
+    return await this.repository
+      .createQueryBuilder("request")
+      .where("request.id = :id", { id })
+      .leftJoinAndSelect("request.matches", "posts")
+      .where("posts.created >= :time", { time })
+      .getOne();
+  }
 }

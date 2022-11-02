@@ -56,6 +56,7 @@ export interface CreatePostRequest {
     categories: string[];
     price: number;
     imagesBase64: string[];
+    created: number;
     userId: Uuid;
 }
 
@@ -68,7 +69,7 @@ export interface GetSearchedPostsRequest {
 export interface CreateFeedbackRequest {
     description: string;
     images: string[];
-    userId: Uuid
+    userId: Uuid;
 }
 
 export interface GetSearchedFeedbackRequest {
@@ -88,7 +89,11 @@ export interface UploadImageRequest {
 // REQUEST
 
 export interface CreateRequestRequest {
-    title: string
+    title: string;
     description: string;
-    userId: Uuid
+    userId: Uuid;
+}
+
+export interface GetMatchesRequest {
+    time: number;
 }

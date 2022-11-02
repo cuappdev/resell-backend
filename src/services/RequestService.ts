@@ -4,9 +4,10 @@ import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { UuidParam } from '../api/validators/GenericRequests';
+import { PostModel } from 'src/models/PostModel';
 import { RequestModel } from '../models/RequestModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreateRequestRequest } from '../types';
+import { CreateRequestRequest, GetMatchesRequest } from '../types';
 
 @Service()
 export class RequestService {
@@ -57,6 +58,21 @@ export class RequestService {
       const request = await requestRepository.getRequestById(params.id);
       if (!request) throw new NotFoundError('Request not found!');
       return await requestRepository.deleteRequest(request);
+    });
+  }
+
+  public async getMatchesByRequestId(params: UuidParam, getMatchesRequest: GetMatchesRequest): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const requestRepository = Repositories.request(transactionalEntityManager);
+      let request;
+      if (getMatchesRequest.time == 0) {
+        request = await requestRepository.getAllMatchesByRequestId(params.id);
+      }
+      else {
+        request = await requestRepository.getTimedMatchesByRequestId(params.id, getMatchesRequest.time);
+      }
+      if (!request) throw new NotFoundError('Request not found!');
+      return request.matches;
     });
   }
 }

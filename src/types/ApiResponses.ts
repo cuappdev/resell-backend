@@ -50,6 +50,7 @@ export interface Post {
     categories: string[],
     price: number,
     images: string[],
+    created: number,
     location: string,
     archive: boolean,
     user: PrivateProfile,

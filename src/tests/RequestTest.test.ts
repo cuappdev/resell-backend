@@ -1,11 +1,12 @@
-import { request } from 'http';
+import { doesNotMatch } from 'assert';
+import { PostController } from 'src/api/controllers/PostController';
 import { RequestController } from 'src/api/controllers/RequestController';
 import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
 import { RequestModel } from '../models/RequestModel';
 import { ControllerFactory } from './controllers';
-import { DatabaseConnection, DataFactory, RequestFactory, UserFactory } from './data';
+import { DatabaseConnection, DataFactory, PostFactory, RequestFactory, UserFactory } from './data';
 
 let uuidParam: UuidParam;
 let expectedRequest: RequestModel;
@@ -14,6 +15,7 @@ let requestController: RequestController;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
+  jest.setTimeout(5000);
 });
 
 beforeEach(async () => {
@@ -134,5 +136,30 @@ describe('request tests', () => {
 
     getRequestsResponse = await requestController.getRequests();
     expect(getRequestsResponse.requests).toHaveLength(0);
+  });
+
+  test('get matches by request id', async () => {
+    const request = RequestFactory.fakeTemplate();
+    const user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createRequests(request)
+      .createUsers(user)
+      .write();
+
+    const newPost = {
+      title: 'Textbook',
+      description: 'Textbook for 3110',
+      categories: ['HANDMADE', 'OTHER'],
+      price: 500.15,
+      imagesBase64: [],
+      created: 1667192023,
+      userId: user.id,
+    };
+
+    await ControllerFactory.post(conn).createPost(newPost);
+
+    const getPostsResponse = await requestController.getMatchesByRequestId({ time: 0 }, uuidParam);
+    expect(getPostsResponse.posts).toHaveLength(0);
   });
 });
