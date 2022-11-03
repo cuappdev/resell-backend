@@ -37,15 +37,6 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return post;
   }
 
-  public async isSavedPost(user: UserModel, post: PostModel): Promise<boolean> {
-    for (const savedPost of user.saved) {
-      if (savedPost.id === post.id) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   public async getSavedPostsByUserId(id: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")

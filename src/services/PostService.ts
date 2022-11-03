@@ -165,7 +165,13 @@ export class PostService {
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
       const userRepository = Repositories.user(transactionalEntityManager);
-      return await userRepository.isSavedPost(user, post);
+      const new_user = await userRepository.getSavedPostsByUserId(user.id);
+      if (!new_user) throw new NotFoundError('User not found!');
+      for (var i of new_user.saved) {
+        if (i.id = post.id)
+          return true
+      }
+      return false
     });
   }
 }
