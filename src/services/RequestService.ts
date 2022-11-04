@@ -3,11 +3,11 @@ import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
-import { UuidParam } from '../api/validators/GenericRequests';
+import { TimeParam, UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from 'src/models/PostModel';
 import { RequestModel } from '../models/RequestModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreateRequestRequest, GetMatchesRequest } from '../types';
+import { CreateRequestRequest } from '../types';
 
 @Service()
 export class RequestService {
@@ -61,15 +61,15 @@ export class RequestService {
     });
   }
 
-  public async getMatchesByRequestId(params: UuidParam, getMatchesRequest: GetMatchesRequest): Promise<PostModel[]> {
+  public async getMatchesByRequestId(params: TimeParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const requestRepository = Repositories.request(transactionalEntityManager);
       let request;
-      if (getMatchesRequest.time == 0) {
+      if (params.time === undefined) {
         request = await requestRepository.getAllMatchesByRequestId(params.id);
       }
       else {
-        request = await requestRepository.getTimedMatchesByRequestId(params.id, getMatchesRequest.time);
+        request = await requestRepository.getTimedMatchesByRequestId(params.id, params.time);
       }
       if (!request) throw new NotFoundError('Request not found!');
       return request.matches;

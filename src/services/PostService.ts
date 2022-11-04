@@ -57,7 +57,7 @@ export class PostService {
         const imageUrl = image.data;
         images.push(imageUrl);
       }
-      return postRepository.createPost(post.title, post.description, post.categories, post.price, images, post.created, user);
+      return postRepository.createPost(post.title, post.description, post.categories, post.price, images, user);
     });
   }
 

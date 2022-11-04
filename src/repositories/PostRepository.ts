@@ -1,4 +1,3 @@
-import { userInfo } from 'os';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
 import { PostModel } from '../models/PostModel';
@@ -47,7 +46,6 @@ export class PostRepository extends AbstractRepository<PostModel> {
     categories: string[],
     price: number,
     images: string[],
-    created: number,
     user: UserModel,
   ): Promise<PostModel> {
     const post = new PostModel();
@@ -56,7 +54,6 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.categories = categories;
     post.price = price;
     post.images = images;
-    post.created = created;
     post.archive = false;
     post.user = user;
     return await this.repository.save(post);

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Post, Uuid } from '../types';
 import { RequestModel } from './RequestModel';
@@ -25,8 +25,8 @@ export class PostModel {
   @Column("text", { array: true })
   images: string[];
 
-  @Column("numeric")
-  created: number;
+  @CreateDateColumn({ type: 'timestamptz' })
+  created: Date;
 
   @Column(({ nullable: true }))
   location: string;

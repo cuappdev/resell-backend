@@ -56,7 +56,6 @@ export interface CreatePostRequest {
     categories: string[];
     price: number;
     imagesBase64: string[];
-    created: number;
     userId: Uuid;
 }
 
@@ -92,8 +91,4 @@ export interface CreateRequestRequest {
     title: string;
     description: string;
     userId: Uuid;
-}
-
-export interface GetMatchesRequest {
-    time: number;
 }

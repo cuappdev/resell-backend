@@ -1,12 +1,10 @@
-import { doesNotMatch } from 'assert';
-import { PostController } from 'src/api/controllers/PostController';
 import { RequestController } from 'src/api/controllers/RequestController';
 import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
 import { RequestModel } from '../models/RequestModel';
 import { ControllerFactory } from './controllers';
-import { DatabaseConnection, DataFactory, PostFactory, RequestFactory, UserFactory } from './data';
+import { DatabaseConnection, DataFactory, RequestFactory, UserFactory } from './data';
 
 let uuidParam: UuidParam;
 let expectedRequest: RequestModel;
@@ -15,7 +13,6 @@ let requestController: RequestController;
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
-  jest.setTimeout(5000);
 });
 
 beforeEach(async () => {
@@ -159,7 +156,7 @@ describe('request tests', () => {
 
     await ControllerFactory.post(conn).createPost(newPost);
 
-    const getPostsResponse = await requestController.getMatchesByRequestId({ time: 0 }, uuidParam);
+    const getPostsResponse = await requestController.getMatchesByRequestId({ id: uuidParam.id, time: undefined });
     expect(getPostsResponse.posts).toHaveLength(0);
   });
 });

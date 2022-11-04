@@ -1,8 +1,8 @@
 import { Body, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 
 import { RequestService } from '../../services/RequestService';
-import { CreateRequestRequest, GetMatchesRequest, GetPostsResponse, GetRequestResponse, GetRequestsResponse, Uuid } from '../../types';
-import { UuidParam } from '../validators/GenericRequests';
+import { CreateRequestRequest, GetPostsResponse, GetRequestResponse, GetRequestsResponse } from '../../types';
+import { TimeParam, UuidParam } from '../validators/GenericRequests';
 
 @JsonController('request/')
 export class RequestController {
@@ -38,8 +38,8 @@ export class RequestController {
     return { request: await this.requestService.deleteRequestById(params) };
   }
 
-  @Post('matches/id/:id/')
-  async getMatchesByRequestId(@Body() getMatchesRequest: GetMatchesRequest, @Params() params: UuidParam): Promise<GetPostsResponse> {
-    return { posts: await this.requestService.getMatchesByRequestId(params, getMatchesRequest) };
+  @Get('matches/id/:id/:time?/')
+  async getMatchesByRequestId(@Params() params: TimeParam): Promise<GetPostsResponse> {
+    return { posts: await this.requestService.getMatchesByRequestId(params) };
   }
 }

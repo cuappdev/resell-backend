@@ -53,7 +53,7 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .getOne();
   }
 
-  public async getTimedMatchesByRequestId(id: Uuid, time: number): Promise<RequestModel | undefined> {
+  public async getTimedMatchesByRequestId(id: Uuid, time: Date): Promise<RequestModel | undefined> {
     return await this.repository
       .createQueryBuilder("request")
       .where("request.id = :id", { id })

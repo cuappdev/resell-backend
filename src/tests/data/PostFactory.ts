@@ -30,7 +30,6 @@ export class PostFactory {
         fakePost.categories = ['HANDMADE', 'OTHER'];
         fakePost.price = 500.15;
         fakePost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
-        fakePost.created = 1667191193;
         fakePost.location = 'The Dorm Hotel';
 
         return fakePost;
@@ -49,7 +48,6 @@ export class PostFactory {
         fakePost.categories = ['SPORTS & OUTDOORS'];
         fakePost.price = Number(faker.commerce.price(100, 400));
         fakePost.images = [faker.internet.url()];
-        fakePost.created = Number(faker.time.recent('unix'));
         fakePost.location = faker.address.city();
 
         return fakePost;
