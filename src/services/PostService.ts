@@ -7,7 +7,7 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, FilterPostsRequest, GetSearchedPostsRequest } from '../types';
+import { CreatePostRequest, FilterPostsRequest, GetSearchedPostsRequest, Post } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -165,7 +165,10 @@ export class PostService {
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
       const userRepository = Repositories.user(transactionalEntityManager);
-      return await userRepository.isSavedPost(user, post);
+      const newUser = await userRepository.getSavedPostsByUserId(user.id);
+      if (!newUser) throw new NotFoundError('User not found!');
+      const isSaved = (p: PostModel) => p.id == post.id;
+      return newUser.saved.some(isSaved);
     });
   }
 }
