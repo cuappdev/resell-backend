@@ -1,4 +1,3 @@
-import { request } from 'http';
 import { RequestController } from 'src/api/controllers/RequestController';
 import { Connection } from 'typeorm';
 
@@ -134,5 +133,30 @@ describe('request tests', () => {
 
     getRequestsResponse = await requestController.getRequests();
     expect(getRequestsResponse.requests).toHaveLength(0);
+  });
+
+  test('get matches by request id', async () => {
+    const request = RequestFactory.fakeTemplate();
+    const user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createRequests(request)
+      .createUsers(user)
+      .write();
+
+    const newPost = {
+      title: 'Textbook',
+      description: 'Textbook for 3110',
+      categories: ['HANDMADE', 'OTHER'],
+      price: 500.15,
+      imagesBase64: [],
+      created: 1667192023,
+      userId: user.id,
+    };
+
+    await ControllerFactory.post(conn).createPost(newPost);
+
+    const getPostsResponse = await requestController.getMatchesByRequestId({ id: uuidParam.id, time: undefined });
+    expect(getPostsResponse.posts).toHaveLength(0);
   });
 });

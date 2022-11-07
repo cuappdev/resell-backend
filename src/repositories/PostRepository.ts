@@ -1,4 +1,3 @@
-import { userInfo } from 'os';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
 import { PostModel } from '../models/PostModel';

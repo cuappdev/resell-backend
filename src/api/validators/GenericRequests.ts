@@ -11,3 +11,9 @@ export class UuidParam {
   @IsUUID()
   id: Uuid;
 }
+
+export class TimeParam {
+  @IsUUID()
+  id: Uuid;
+  time: Date | undefined
+}

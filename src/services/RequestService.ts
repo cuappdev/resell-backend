@@ -3,7 +3,8 @@ import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
-import { UuidParam } from '../api/validators/GenericRequests';
+import { TimeParam, UuidParam } from '../api/validators/GenericRequests';
+import { PostModel } from 'src/models/PostModel';
 import { RequestModel } from '../models/RequestModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { CreateRequestRequest } from '../types';
@@ -57,6 +58,21 @@ export class RequestService {
       const request = await requestRepository.getRequestById(params.id);
       if (!request) throw new NotFoundError('Request not found!');
       return await requestRepository.deleteRequest(request);
+    });
+  }
+
+  public async getMatchesByRequestId(params: TimeParam): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const requestRepository = Repositories.request(transactionalEntityManager);
+      let request;
+      if (params.time === undefined) {
+        request = await requestRepository.getAllMatchesByRequestId(params.id);
+      }
+      else {
+        request = await requestRepository.getTimedMatchesByRequestId(params.id, params.time);
+      }
+      if (!request) throw new NotFoundError('Request not found!');
+      return request.matches;
     });
   }
 }

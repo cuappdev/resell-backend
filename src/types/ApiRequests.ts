@@ -68,7 +68,7 @@ export interface GetSearchedPostsRequest {
 export interface CreateFeedbackRequest {
     description: string;
     images: string[];
-    userId: Uuid
+    userId: Uuid;
 }
 
 export interface GetSearchedFeedbackRequest {
@@ -88,7 +88,7 @@ export interface UploadImageRequest {
 // REQUEST
 
 export interface CreateRequestRequest {
-    title: string
+    title: string;
     description: string;
-    userId: Uuid
+    userId: Uuid;
 }
