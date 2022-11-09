@@ -315,14 +315,10 @@ describe('post tests', () => {
       .write();
 
     let postsResponse = await postController.getSavedPostsByUserId(user);
-    let isSavedResponse = await postController.isSavedPost(user, { id: post.id })
-    expect(isSavedResponse.isSaved).toBe(false)
     expect(postsResponse).not.toBeUndefined();
     expect(postsResponse.posts).toEqual([]);
 
     await postController.savePost(user, uuidParam);
-    isSavedResponse = await postController.isSavedPost(user, { id: post.id })
-    expect(isSavedResponse.isSaved).toBe(true)
     postsResponse = await postController.getSavedPostsByUserId(user);
     expect(postsResponse).not.toBeUndefined();
     postsResponse.posts[0].price = Number(postsResponse.posts[0].price);
@@ -330,8 +326,6 @@ describe('post tests', () => {
     expect(postsResponse.posts).toEqual([expectedPost]);
 
     await postController.unsavePost(user, uuidParam);
-    isSavedResponse = await postController.isSavedPost(user, { id: post.id })
-    expect(isSavedResponse.isSaved).toBe(false)
     postsResponse = await postController.getSavedPostsByUserId(user);
     expect(postsResponse.posts).toEqual([]);
   });

@@ -84,9 +84,4 @@ export class PostController {
   async unsavePost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
     return { post: await this.postService.unsavePost(user, params) };
   }
-
-  @Get('isSaved/postId/:id/')
-  async isSavedPost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<IsSavedPostResponse> {
-    return { isSaved: await this.postService.isSavedPost(user, params) };
-  }
 }
