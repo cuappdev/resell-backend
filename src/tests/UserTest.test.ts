@@ -44,31 +44,35 @@ afterAll(async () => {
 
 describe('user tests', () => {
   test('get all users - no users', async () => {
-    const getUsersResponse = await userController.getUsers();
+    const user = UserFactory.fake();
+    user.admin = true;
+    const getUsersResponse = await userController.getUsers(user);
 
     expect(getUsersResponse.users).toHaveLength(0);
   });
 
   test('get all users - one user', async () => {
     const user = UserFactory.fake();
+    user.admin = true
 
     await new DataFactory()
       .createUsers(user)
       .write();
 
-    const getUsersResponse = await userController.getUsers();
+    const getUsersResponse = await userController.getUsers(user);
 
     expect(getUsersResponse.users).toHaveLength(1);
   });
 
   test('get all users - multiple users', async () => {
     const [user1, user2] = UserFactory.create(2);
+    user1.admin = true
 
     await new DataFactory()
       .createUsers(user1, user2)
       .write();
 
-    const getUsersResponse = await userController.getUsers();
+    const getUsersResponse = await userController.getUsers(user1);
 
     expect(getUsersResponse.users).toHaveLength(2);
   });
