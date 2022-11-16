@@ -29,8 +29,8 @@ export class DatabaseConnection {
       // if a table (A) exists with an fkey to another table (B), make sure B is listed higher than A.
       const tableNames = [
         'Feedback',
-        'Request',
         'Post',
+        'Request',
         'UserSession',
         'User'
       ];

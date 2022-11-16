@@ -65,7 +65,7 @@ export class PostService {
       for (const r of requests) {
         let similarity = stringSimilarity.compareTwoStrings(post.title, r.title);
         console.log(similarity);
-        if (similarity >= 0.5) {
+        if (similarity >= 0.4) {
           await requestRepository.addMatchToRequest(r, freshPost)
         }
       }

@@ -157,6 +157,6 @@ describe('request tests', () => {
     await ControllerFactory.post(conn).createPost(newPost);
 
     const getPostsResponse = await requestController.getMatchesByRequestId({ id: uuidParam.id, time: undefined });
-    expect(getPostsResponse.posts).toHaveLength(0);
+    expect(getPostsResponse.posts).toHaveLength(1);
   });
 });

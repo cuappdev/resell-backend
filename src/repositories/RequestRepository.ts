@@ -64,8 +64,8 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
   }
 
   public async addMatchToRequest(request: RequestModel, post: PostModel): Promise<RequestModel> {
-    if (request.matches) request.matches.push(post);
-    else request.matches = [post];
+    if (request.matches === undefined) { request.matches = [post]; }
+    else { request.matches.push(post); }
     return this.repository.save(request);
   }
 }
