@@ -7,7 +7,7 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, FilterPostsRequest, GetSearchedPostsRequest } from '../types';
+import { CreatePostRequest, FilterPostsRequest, GetSearchedPostsRequest, Post, PostWithIsSaved } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -25,12 +25,15 @@ export class PostService {
     });
   }
 
-  public async getPostById(params: UuidParam): Promise<PostModel> {
+  public async getPostById(user: UserModel, params: UuidParam): Promise<PostWithIsSaved> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const post = await postRepository.getPostById(params.id);
+      let post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
-      return post;
+      const userRepository = Repositories.user(transactionalEntityManager);
+      let postWithIsSaved = post as unknown as PostWithIsSaved;
+      postWithIsSaved.isSaved = await userRepository.isSavedPost(user.id, params.id);
+      return postWithIsSaved;
     });
   }
 
@@ -156,16 +159,6 @@ export class PostService {
       if (!post) throw new NotFoundError('Post not found!');
       const userRepository = Repositories.user(transactionalEntityManager);
       return await userRepository.unsavePost(user, post);
-    });
-  }
-
-  public async isSavedPost(user: UserModel, params: UuidParam): Promise<boolean> {
-    return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const postRepository = Repositories.post(transactionalEntityManager);
-      const post = await postRepository.getPostById(params.id);
-      if (!post) throw new NotFoundError('Post not found!');
-      const userRepository = Repositories.user(transactionalEntityManager);
-      return await userRepository.isSavedPost(user, post);
     });
   }
 }

@@ -37,13 +37,13 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return post;
   }
 
-  public async isSavedPost(user: UserModel, post: PostModel): Promise<boolean> {
-    for (const savedPost of user.saved) {
-      if (savedPost.id === post.id) {
-        return true;
-      }
-    }
-    return false;
+  public async isSavedPost(userId: Uuid, id: Uuid): Promise<boolean> {
+    const postIsSaved = await this.repository
+      .createQueryBuilder("user")
+      .where("user.id = :userId", { userId })
+      .innerJoinAndSelect("user.saved", "post", "post.id = :id", { id })
+      .getOne();
+    return postIsSaved != undefined;
   }
 
   public async getSavedPostsByUserId(id: Uuid): Promise<UserModel | undefined> {

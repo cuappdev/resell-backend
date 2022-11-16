@@ -1,4 +1,5 @@
 import { PostController } from 'src/api/controllers/PostController';
+import { Post, PostWithIsSaved } from 'src/types';
 import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
@@ -86,11 +87,13 @@ describe('post tests', () => {
       .write();
 
     expectedPost.user = post.user;
+    let newlyExpectedPost = expectedPost as unknown as PostWithIsSaved
+    newlyExpectedPost.isSaved = false
 
-    const getPostResponse = await postController.getPostById(uuidParam);
+    const getPostResponse = await postController.getPostById(post.user, uuidParam);
     getPostResponse.post.price = Number(getPostResponse.post.price);
     expectedPost.created = getPostResponse.post.created;
-    expect(getPostResponse.post).toEqual(expectedPost);
+    expect(getPostResponse.post).toEqual(newlyExpectedPost);
   });
 
   test('get post by user id', async () => {

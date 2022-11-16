@@ -58,16 +58,16 @@ export interface Post {
     matched: Request[],
 }
 
+export interface PostWithIsSaved extends Post {
+    isSaved: boolean;
+}
+
 export interface GetPostsResponse {
     posts: Post[];
 }
 
 export interface GetPostResponse {
-    post: Post;
-}
-
-export interface IsSavedPostResponse {
-    isSaved: boolean;
+    post: Post | PostWithIsSaved;
 }
 
 // FEEDBACK

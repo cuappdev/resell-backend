@@ -8,7 +8,6 @@ import {
   GetPostResponse,
   GetPostsResponse,
   GetSearchedPostsRequest,
-  IsSavedPostResponse,
 } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
@@ -26,8 +25,8 @@ export class PostController {
   }
 
   @Get('id/:id/')
-  async getPostById(@Params() params: UuidParam): Promise<GetPostResponse> {
-    return { post: await this.postService.getPostById(params) };
+  async getPostById(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
+    return { post: await this.postService.getPostById(user, params) };
   }
 
   @Get('userId/:id/')
@@ -83,10 +82,5 @@ export class PostController {
   @Get('unsave/postId/:id/')
   async unsavePost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
     return { post: await this.postService.unsavePost(user, params) };
-  }
-
-  @Get('isSaved/postId/:id/')
-  async isSavedPost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<IsSavedPostResponse> {
-    return { isSaved: await this.postService.isSavedPost(user, params) };
   }
 }
