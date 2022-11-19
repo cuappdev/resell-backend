@@ -14,8 +14,8 @@ export class UserController {
   }
 
   @Get()
-  async getUsers(): Promise<GetUsersResponse> {
-    const users = await this.userService.getAllUsers();
+  async getUsers(@CurrentUser() user: UserModel): Promise<GetUsersResponse> {
+    const users = await this.userService.getAllUsers(user);
     return { users: users.map((user) => user.getUserProfile()) };
   }
 
