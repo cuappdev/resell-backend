@@ -77,7 +77,7 @@ describe('post tests', () => {
     expect(getPostsResponse.posts).toHaveLength(2);
   });
 
-  test('get post by id', async () => {
+  test('get post by id - post is not saved', async () => {
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -92,7 +92,29 @@ describe('post tests', () => {
 
     const getPostResponse = await postController.getPostById(post.user, uuidParam);
     getPostResponse.post.price = Number(getPostResponse.post.price);
-    expectedPost.created = getPostResponse.post.created;
+    newlyExpectedPost.created = getPostResponse.post.created;
+    expect(getPostResponse.post).toEqual(newlyExpectedPost);
+  });
+
+  test('get post by id - post is saved', async () => {
+    const post = PostFactory.fakeTemplate();
+    const user = UserFactory.fakeTemplate();
+    post.user = UserFactory.fake()
+    user.saved = [];
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(user, post.user)
+      .write();
+
+    expectedPost.user = post.user;
+    let newlyExpectedPost = expectedPost as unknown as PostWithIsSaved
+    newlyExpectedPost.isSaved = true
+
+    await postController.savePost(user, uuidParam);
+    const getPostResponse = await postController.getPostById(user, uuidParam);
+    getPostResponse.post.price = Number(getPostResponse.post.price);
+    newlyExpectedPost.created = getPostResponse.post.created;
     expect(getPostResponse.post).toEqual(newlyExpectedPost);
   });
 
