@@ -79,7 +79,7 @@ export interface Feedback {
 }
 
 export interface GetFeedbacksResponse {
-    feedback: Feedback[];
+    feedbacks: Feedback[];
 }
 
 export interface GetFeedbackResponse {
