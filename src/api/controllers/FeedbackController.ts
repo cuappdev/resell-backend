@@ -15,7 +15,7 @@ export class FeedbackController {
   @Get()
   async getAllFeedback(): Promise<GetFeedbacksResponse> {
     const feedback = await this.feedbackService.getAllFeedback();
-    return { feedback: feedback.map((f) => f.getFeedbackInfo()) };
+    return { feedbacks: feedback.map((f) => f.getFeedbackInfo()) };
   }
 
   @Get('id/:id/')
@@ -25,7 +25,7 @@ export class FeedbackController {
 
   @Get('userId/:id/')
   async getFeedbackByUserId(@Params() params: UuidParam): Promise<GetFeedbacksResponse> {
-    return { feedback: await this.feedbackService.getFeedbackByUserId(params) };
+    return { feedbacks: await this.feedbackService.getFeedbackByUserId(params) };
   }
 
   @Post()
@@ -40,6 +40,6 @@ export class FeedbackController {
 
   @Post('search/')
   async searchFeedback(@Body() GetSearchedFeedbackRequest: GetSearchedFeedbackRequest): Promise<GetFeedbacksResponse> {
-    return { feedback: await this.feedbackService.searchFeedback(GetSearchedFeedbackRequest) };
+    return { feedbacks: await this.feedbackService.searchFeedback(GetSearchedFeedbackRequest) };
   }
 }

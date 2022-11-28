@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { APIUserSession, Uuid } from '../types';
 import { UserModel } from './UserModel';
@@ -20,6 +20,7 @@ export class UserSessionModel {
   refreshToken: string;
 
   @ManyToOne(() => UserModel, user => user.sessions, { onDelete: "CASCADE" })
+  @JoinColumn({ name: 'user' })
   user: UserModel;
 
   @Column()

@@ -158,13 +158,14 @@ describe('post tests', () => {
 
   test('delete post by id - by admin', async () => {
     const post = PostFactory.fakeTemplate();
-    const user = UserFactory.fakeTemplate();
-    post.user = UserFactory.fake();
-    user.admin = true;
+    const user = UserFactory.fake();
+    const adminUser = UserFactory.fakeTemplate();
+    post.user = user;
+    adminUser.admin = true;
 
     await new DataFactory()
+      .createUsers(user, adminUser)
       .createPosts(post)
-      .createUsers(user)
       .write();
 
     let getPostsResponse = await postController.getPosts();

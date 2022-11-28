@@ -36,7 +36,9 @@ async function main() {
       // check if the session token has expired
       if (session && session.expiresAt.getTime() > Date.now()) {
         const userId = session.userId;
-        return await manager.findOne(UserModel, { id: userId });
+        // find a user with id `userId` and join with posts, saved,
+        // sessions, feedbacks, and requests
+        return await manager.findOne(UserModel, { id: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
       }
       throw new ForbiddenError("User unauthorized");
     },

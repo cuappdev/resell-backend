@@ -29,8 +29,7 @@ export interface PrivateProfile extends PublicProfile {
     admin: boolean,
     email: string,
     googleId: string,
-    saved: PostModel[],
-    feedback: FeedbackModel[],
+    feedbacks: FeedbackModel[],
 }
 
 export interface GetUsersResponse {
@@ -80,7 +79,7 @@ export interface Feedback {
 }
 
 export interface GetFeedbacksResponse {
-    feedback: Feedback[];
+    feedbacks: Feedback[];
 }
 
 export interface GetFeedbackResponse {

@@ -38,6 +38,7 @@ export class UserSessionFactory {
          * @returns The UserSessionModel object with random values in its instance variables
          */
         const fakeUserSession = new UserSessionModel();
+        fakeUserSession.id = faker.datatype.uuid();
         fakeUserSession.update();
 
         return fakeUserSession;

@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { Post, Uuid } from '../types';
 import { RequestModel } from './RequestModel';
@@ -35,6 +44,7 @@ export class PostModel {
   archive: boolean;
 
   @ManyToOne(() => UserModel, user => user.posts)
+  @JoinColumn({ name: 'user' })
   user: UserModel;
 
   @ManyToMany(() => UserModel, user => user.saved)
