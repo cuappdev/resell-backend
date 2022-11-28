@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { PrivateProfile, Request, Uuid } from '../types';
 import { FeedbackModel } from './FeedbackModel';
@@ -17,7 +17,8 @@ export class RequestModel {
   @Column()
   description: string;
 
-  @ManyToOne(() => UserModel, user => user.request, { cascade: true })
+  @ManyToOne(() => UserModel, user => user.requests)
+  @JoinColumn({ name: 'user' })
   user: UserModel
 
   @ManyToMany(() => PostModel, post => post.matched)

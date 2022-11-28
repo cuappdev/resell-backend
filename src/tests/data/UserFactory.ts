@@ -47,6 +47,7 @@ export class UserFactory {
         const lastName = faker.name.lastName();
 
         const fakeUser = new UserModel();
+        fakeUser.id = faker.datatype.uuid();
         fakeUser.givenName = firstName;
         fakeUser.familyName = lastName;
         fakeUser.username = faker.internet.userName(firstName, lastName);

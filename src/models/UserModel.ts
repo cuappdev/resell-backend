@@ -52,10 +52,10 @@ export class UserModel {
   sessions: UserSessionModel[];
 
   @OneToMany(() => FeedbackModel, feedback => feedback.user)
-  feedback: FeedbackModel[];
+  feedbacks: FeedbackModel[];
 
   @OneToMany(() => RequestModel, request => request.user)
-  request: RequestModel[];
+  requests: RequestModel[];
 
   public getUserProfile(): PrivateProfile {
     return {
@@ -71,8 +71,7 @@ export class UserModel {
       googleId: this.googleId,
       bio: this.bio,
       posts: this.posts,
-      saved: this.saved,
-      feedback: this.feedback,
+      feedbacks: this.feedbacks,
     };
   }
 }

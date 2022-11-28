@@ -42,6 +42,7 @@ export class PostFactory {
          * @returns The PostModel object with random values in its instance variables
          */
         const fakePost = new PostModel();
+        fakePost.id = faker.datatype.uuid();
         fakePost.title = faker.vehicle.bicycle();
         fakePost.description = faker.vehicle.color();
         fakePost.archive = false;

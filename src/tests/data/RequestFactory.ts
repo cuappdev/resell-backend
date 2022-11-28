@@ -36,10 +36,11 @@ export class RequestFactory {
          * 
          * @returns The RequestModel object with random values in its instance variables
          */
-        const fakePost = new RequestModel();
-        fakePost.title = faker.vehicle.bicycle();
-        fakePost.description = faker.vehicle.color();
+        const fakeRequest = new RequestModel();
+        fakeRequest.id = faker.datatype.uuid();
+        fakeRequest.title = faker.vehicle.bicycle();
+        fakeRequest.description = faker.vehicle.color();
 
-        return fakePost;
+        return fakeRequest;
     }
 }

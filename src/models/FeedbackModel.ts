@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Feedback, Uuid } from '../types';
 import { UserModel } from './UserModel';
@@ -15,7 +15,8 @@ export class FeedbackModel {
   @Column("text", { array: true })
   images: string[];
 
-  @ManyToOne(() => UserModel, user => user.feedback, {cascade: true})
+  @ManyToOne(() => UserModel, user => user.feedbacks)
+  @JoinColumn({ name: 'user' })
   user: UserModel
   
   public getFeedbackInfo(): Feedback {

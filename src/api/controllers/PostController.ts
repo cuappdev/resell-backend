@@ -65,7 +65,7 @@ export class PostController {
     return { posts: await this.postService.getArchivedPostsByUserId(params) };
   }
 
-  @Get('archive/postId/:id/')
+  @Post('archive/postId/:id/')
   async archivePost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
     return { post: await this.postService.archivePost(user, params) };
   }
@@ -75,12 +75,12 @@ export class PostController {
     return { posts: await this.postService.getSavedPostsByUserId(user) };
   }
 
-  @Get('save/postId/:id/')
+  @Post('save/postId/:id/')
   async savePost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
     return { post: await this.postService.savePost(user, params) };
   }
 
-  @Get('unsave/postId/:id/')
+  @Post('unsave/postId/:id/')
   async unsavePost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
     return { post: await this.postService.unsavePost(user, params) };
   }
