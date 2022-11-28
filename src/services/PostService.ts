@@ -1,3 +1,4 @@
+import { request } from 'http';
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
@@ -57,7 +58,18 @@ export class PostService {
         const imageUrl = image.data;
         images.push(imageUrl);
       }
-      return postRepository.createPost(post.title, post.description, post.categories, post.price, images, user);
+      const freshPost = await postRepository.createPost(post.title, post.description, post.categories, post.price, images, user);
+      var stringSimilarity = require("string-similarity");
+      const requestRepository = Repositories.request(transactionalEntityManager);
+      const requests = await requestRepository.getAllRequest();
+      for (const r of requests) {
+        let similarity = stringSimilarity.compareTwoStrings(post.title, r.title);
+        console.log(similarity);
+        if (similarity >= 0.4) {
+          await requestRepository.addMatchToRequest(r, freshPost)
+        }
+      }
+      return freshPost
     });
   }
 

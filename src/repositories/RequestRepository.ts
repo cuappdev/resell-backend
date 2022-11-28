@@ -1,3 +1,4 @@
+import { PostModel } from 'src/models/PostModel';
 import { UserModel } from 'src/models/UserModel';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
@@ -60,5 +61,11 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .leftJoinAndSelect("request.matches", "posts")
       .where("posts.created >= :time", { time })
       .getOne();
+  }
+
+  public async addMatchToRequest(request: RequestModel, post: PostModel): Promise<RequestModel> {
+    if (request.matches === undefined) { request.matches = [post]; }
+    else { request.matches.push(post); }
+    return this.repository.save(request);
   }
 }
