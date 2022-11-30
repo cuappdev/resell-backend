@@ -1,7 +1,6 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { PrivateProfile, Request, Uuid } from '../types';
-import { FeedbackModel } from './FeedbackModel';
+import { Request, Uuid } from '../types';
 import { PostModel } from './PostModel';
 import { UserModel } from './UserModel';
 
