@@ -1,4 +1,3 @@
-import { request } from 'http';
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
@@ -64,7 +63,6 @@ export class PostService {
       const requests = await requestRepository.getAllRequest();
       for (const r of requests) {
         let similarity = stringSimilarity.compareTwoStrings(post.title, r.title);
-        console.log(similarity);
         if (similarity >= 0.4) {
           await requestRepository.addMatchToRequest(r, freshPost)
         }
