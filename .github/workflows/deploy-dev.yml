@@ -3,6 +3,7 @@ name: Docker Build & Push and Deploy to resell-dev
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   path-context:
