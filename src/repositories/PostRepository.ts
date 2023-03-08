@@ -1,3 +1,4 @@
+import internal from 'stream';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
 import { PostModel } from '../models/PostModel';
@@ -86,6 +87,16 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where(":category = ANY (post.categories)", { category: category })
+      .andWhere("post.archive = false")
+      .getMany();
+  }
+
+  public async filterPostsByPrice(lowerBound: number, upperBound: number): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.price >= :lowerBound", {lowerBound: lowerBound})
+      .andWhere("post.price <= :upperBound", {upperBound: upperBound})
       .andWhere("post.archive = false")
       .getMany();
   }

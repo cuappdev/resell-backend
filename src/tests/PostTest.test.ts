@@ -1,3 +1,4 @@
+import { Controller } from 'routing-controllers';
 import { PostController } from 'src/api/controllers/PostController';
 import { Connection } from 'typeorm';
 
@@ -264,7 +265,7 @@ describe('post tests', () => {
     expect(getPostsResponse.posts).toEqual([]);
   });
 
-  test('filter posts', async () => {
+  test('filter posts by category', async () => {
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -302,6 +303,60 @@ describe('post tests', () => {
     getPostsResponse = await postController.filterPosts(filter);
 
     expect(getPostsResponse.posts).toEqual([]);
+  });
+
+  test('filter posts by price', async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user)
+      .write();
+
+    expectedPost.user = post.user;
+
+    let filter = {
+      lowerBound: 1.0,
+      upperBound: 1000.0,
+    };
+
+    let getPostsResponse = await postController.filterPostsByPrice(filter);
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    expectedPost.created = getPostsResponse.posts[0].created;
+
+    expect(getPostsResponse.posts).toEqual([expectedPost]);
+
+    filter = {
+      lowerBound: 500.15,
+      upperBound: 1000.0,
+    };
+
+    getPostsResponse = await postController.filterPostsByPrice(filter);
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    expectedPost.created = getPostsResponse.posts[0].created;
+
+    expect(getPostsResponse.posts).toEqual([expectedPost]);
+
+    filter = {
+      lowerBound: 1.0,
+      upperBound: 500.15,
+    };
+
+    getPostsResponse = await postController.filterPostsByPrice(filter);
+    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    expectedPost.created = getPostsResponse.posts[0].created;
+
+    expect(getPostsResponse.posts).toEqual([expectedPost]);
+
+    filter = {
+      lowerBound: 1.0,
+      upperBound: 2.0,
+    };
+
+    getPostsResponse = await postController.filterPostsByPrice(filter);
+
+    expect(getPostsResponse.posts).toEqual([])
   });
 
   test('save/unsave posts', async () => {

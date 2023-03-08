@@ -7,7 +7,7 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, FilterPostsRequest, GetSearchedPostsRequest } from '../types';
+import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, GetSearchedPostsRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -110,6 +110,14 @@ export class PostService {
       const posts = await postRepository.filterPosts(filterPostsRequest.category);
       return posts;
     });
+  }
+
+  public async filterPostsByPrice(filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const posts = await postRepository.filterPostsByPrice(filterPostsByPriceRequest.lowerBound, filterPostsByPriceRequest.upperBound)
+      return posts;
+    })
   }
 
   public async getArchivedPosts(): Promise<PostModel[]> {
