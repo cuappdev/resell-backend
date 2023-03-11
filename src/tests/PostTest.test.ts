@@ -1,4 +1,3 @@
-import { Controller } from 'routing-controllers';
 import { PostController } from 'src/api/controllers/PostController';
 import { Connection } from 'typeorm';
 
@@ -305,9 +304,9 @@ describe('post tests', () => {
     expect(getPostsResponse.posts).toEqual([]);
   });
 
-  test('filter posts by price', async () => {
+  test('filter posts by price, where price is strictly within price range', async () => {
     const post = PostFactory.fakeTemplate();
-    post.user = UserFactory.fakeTemplate();
+    post.user = UserFactory.fake();
 
     await new DataFactory()
       .createPosts(post)
@@ -322,39 +321,75 @@ describe('post tests', () => {
     };
 
     let getPostsResponse = await postController.filterPostsByPrice(filter);
+    console.log(getPostsResponse)
     getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
+  });
 
-    filter = {
+  test('filter posts by price, where price is lower bound', async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fake();
+    const user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user)
+      .write();
+
+    expectedPost.user = post.user;
+    let filter = {
       lowerBound: 500.15,
       upperBound: 1000.0,
     };
 
-    getPostsResponse = await postController.filterPostsByPrice(filter);
+    let getPostsResponse = await postController.filterPostsByPrice(filter);
+    console.log(getPostsResponse)
     getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
+  });
 
-    filter = {
+  test('filter posts by price, where price is upper bound', async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fake();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user)
+      .write();
+
+    expectedPost.user = post.user;
+    let filter = {
       lowerBound: 1.0,
       upperBound: 500.15,
     };
 
-    getPostsResponse = await postController.filterPostsByPrice(filter);
+    let getPostsResponse = await postController.filterPostsByPrice(filter);
+    console.log(getPostsResponse)
     getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
+  });
 
-    filter = {
+  test('filter posts by price, where price is not in price range', async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user)
+      .write();
+
+    let filter = {
       lowerBound: 1.0,
       upperBound: 2.0,
     };
 
-    getPostsResponse = await postController.filterPostsByPrice(filter);
+    let getPostsResponse = await postController.filterPostsByPrice(filter);
 
     expect(getPostsResponse.posts).toEqual([])
   });

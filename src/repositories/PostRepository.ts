@@ -1,4 +1,3 @@
-import internal from 'stream';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
 import { PostModel } from '../models/PostModel';
