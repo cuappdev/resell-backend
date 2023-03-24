@@ -29,7 +29,7 @@ beforeEach(async () => {
   expectedPost.description = 'Fermented since o-week';
   expectedPost.archive = false;
   expectedPost.categories = ['HANDMADE', 'OTHER'];
-  expectedPost.price = 500.15;
+  expectedPost.original_price = 500.15;
   expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
   expectedPost.location = 'The Dorm Hotel';
 });
@@ -88,7 +88,7 @@ describe('post tests', () => {
     expectedPost.user = post.user;
 
     const getPostResponse = await postController.getPostById(uuidParam);
-    getPostResponse.post.price = Number(getPostResponse.post.price);
+    getPostResponse.post.original_price = Number(getPostResponse.post.original_price);
     expectedPost.created = getPostResponse.post.created;
     expect(getPostResponse.post).toEqual(expectedPost);
   });
@@ -105,7 +105,7 @@ describe('post tests', () => {
     expectedPost.user = post.user;
 
     const getPostsResponse = await postController.getPostsByUserId(uuidParam);
-    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
@@ -122,7 +122,7 @@ describe('post tests', () => {
       title: 'Mateo\'s Kombucha',
       description: 'Fermented since o-week',
       categories: ['HANDMADE', 'OTHER'],
-      price: 500.15,
+      original_price: 500.15,
       imagesBase64: [],
       created: 1667192023,
       userId: user.id,
@@ -194,7 +194,7 @@ describe('post tests', () => {
     }
 
     const getPostsResponse = await postController.searchPosts(search);
-    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
@@ -216,7 +216,7 @@ describe('post tests', () => {
     }
 
     const getPostsResponse = await postController.searchPosts(search);
-    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
@@ -238,7 +238,7 @@ describe('post tests', () => {
     }
 
     const getPostsResponse = await postController.searchPosts(search);
-    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
@@ -280,7 +280,7 @@ describe('post tests', () => {
     }
 
     let getPostsResponse = await postController.filterPosts(filter);
-    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
@@ -290,7 +290,7 @@ describe('post tests', () => {
     }
 
     getPostsResponse = await postController.filterPosts(filter);
-    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
@@ -322,7 +322,7 @@ describe('post tests', () => {
     await postController.savePost(user, uuidParam);
     postsResponse = await postController.getSavedPostsByUserId(user);
     expect(postsResponse).not.toBeUndefined();
-    postsResponse.posts[0].price = Number(postsResponse.posts[0].price);
+    postsResponse.posts[0].original_price = Number(postsResponse.posts[0].original_price);
     expectedPost.created = postsResponse.posts[0].created;
     expect(postsResponse.posts).toEqual([expectedPost]);
 
@@ -386,7 +386,7 @@ describe('post tests', () => {
     expectedPost.archive = true;
 
     const getPostsResponse = await postController.getArchivedPostsByUserId(uuidParam);
-    getPostsResponse.posts[0].price = Number(getPostsResponse.posts[0].price);
+    getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
@@ -423,7 +423,7 @@ describe('post tests', () => {
     expectedPost.archive = true;
 
     const getPostResponse = await postController.archivePost(post.user, uuidParam);
-    getPostResponse.post.price = Number(getPostResponse.post.price);
+    getPostResponse.post.original_price = Number(getPostResponse.post.original_price);
     expectedPost.created = getPostResponse.post.created;
 
     expect(getPostResponse.post).toEqual(expectedPost);

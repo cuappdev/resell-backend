@@ -7,7 +7,7 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, FilterPostsRequest, GetSearchedPostsRequest } from '../types';
+import { CreatePostRequest, EditPostPriceRequest, FilterPostsRequest, GetSearchedPostsRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -57,7 +57,7 @@ export class PostService {
         const imageUrl = image.data;
         images.push(imageUrl);
       }
-      const freshPost = await postRepository.createPost(post.title, post.description, post.categories, post.price, images, user);
+      const freshPost = await postRepository.createPost(post.title, post.description, post.categories, post.original_price, images, user);
       var stringSimilarity = require("string-similarity");
       const requestRepository = Repositories.request(transactionalEntityManager);
       const requests = await requestRepository.getAllRequest();
@@ -177,5 +177,14 @@ export class PostService {
       const userRepository = Repositories.user(transactionalEntityManager);
       return await userRepository.isSavedPost(user, post);
     });
+  }
+
+  public async editPostPrice(user: UserModel, params: UuidParam, editPostRequest: EditPostPriceRequest): Promise<PostModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.id);
+      if (!post) throw new NotFoundError('Post not found!');
+      return await postRepository.editPostPrice(post, editPostRequest.new_price);
+    })
   }
 }

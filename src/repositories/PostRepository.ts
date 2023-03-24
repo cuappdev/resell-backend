@@ -52,7 +52,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.title = title;
     post.description = description;
     post.categories = categories;
-    post.price = price;
+    post.original_price = price;
+    post.altered_price = price;
     post.images = images;
     post.archive = false;
     post.user = user;
@@ -109,6 +110,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
 
   public async archivePost(post: PostModel): Promise<PostModel> {
     post.archive = true;
+    return await this.repository.save(post)
+  }
+
+  public async editPostPrice(post: PostModel, new_price: number) : Promise<PostModel> {
+    post.altered_price = new_price
     return await this.repository.save(post)
   }
 }
