@@ -7,6 +7,7 @@ import {
   EditPostPriceRequest,
   EditPriceResponse,
   FilterPostsRequest,
+  FilterPostsByPriceRequest,
   GetPostResponse,
   GetPostsResponse,
   GetSearchedPostsRequest,
@@ -55,6 +56,11 @@ export class PostController {
   @Post('filter/')
   async filterPosts(@Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
     return { posts: await this.postService.filterPosts(filterPostsRequest) };
+  }
+
+  @Post('filterByPrice/')
+  async filterPostsByPrice(@Body() filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPostsByPrice(filterPostsByPriceRequest) };
   }
 
   @Get('archive/')
