@@ -111,7 +111,3 @@ export interface ExpoPushMessage {
     data: JSON;
 }
 
-// export interface SaveTokenRequest {
-//     token : string, 
-//     email : string
-// }

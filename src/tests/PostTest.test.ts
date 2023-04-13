@@ -518,4 +518,24 @@ describe('post tests', () => {
 
     expect(getPostResponse.post).toEqual(expectedPost);
   });
+
+  test('edit post price', async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fake();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user)
+      .write();
+
+    expectedPost.user = post.user;
+
+    let edit = {
+      new_price: 20
+    };
+
+    let getPostsResponse = await postController.editPrice(edit, post.user, uuidParam);
+    console.log(getPostsResponse)
+    expect(post.altered_price).toEqual(Number(getPostsResponse.new_price));
+  })
 });

@@ -132,23 +132,23 @@ export interface GetRequestResponse {
 // NOTIFICATIONS
 
 export interface PushTicketData {
-    status : "error" | "ok",
-    id : string,
-    message : string
-    details : JSON
+    status: string,
+    id: string,
+    message: string
+    details: JSON
 }
 
 export interface PushTicketErrorData {
-    code : string,
-    message : string
+    code: string,
+    message: string
 }
 
 export interface PushTicket {
-    data : PushTicketData[],
-    errors : PushTicketErrorData[]
+    data: PushTicketData[],
+    errors: PushTicketErrorData[]
 }
 
 export interface SaveTokenRequest {
-    token : string, 
-    email : string
+    token: string, 
+    email: string
 }
