@@ -39,6 +39,9 @@ export class UserModel {
   @Column({ unique: true })
   googleId: string;
 
+  @Column({ unique: true})
+  deviceToken: string;
+
   @Column({ type: "text", default: "" })
   bio: string;
 

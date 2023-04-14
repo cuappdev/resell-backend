@@ -129,4 +129,9 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async deleteUser(user: UserModel): Promise<UserModel> {
     return await this.repository.remove(user);
   }
+
+  public async saveToken(user: UserModel, token: string): Promise<UserModel> {
+    user.deviceToken = token;
+    return await this.repository.save(user)
+  }
 }

@@ -46,4 +46,5 @@ public sendNotifs = (notif : ExpoPushMessage, json = {}) => {
     // Simply do nothing if the user has no tokens
     catch (err) { console.log(err) }
 }
+
 }

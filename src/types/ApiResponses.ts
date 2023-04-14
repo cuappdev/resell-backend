@@ -147,8 +147,3 @@ export interface PushTicket {
     data: PushTicketData[],
     errors: PushTicketErrorData[]
 }
-
-export interface SaveTokenRequest {
-    token: string, 
-    email: string
-}

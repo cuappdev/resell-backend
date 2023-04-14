@@ -6,7 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest, SetAdminByEmailRequest } from '../types';
+import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -86,4 +86,13 @@ export class UserService {
       return await userRepository.setAdmin(user, setAdminByEmailRequest.status);
     });
   }
+
+  public async saveToken(saveTokenRequest: SaveTokenRequest): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const user = await userRepository.getUserById(saveTokenRequest.userID);
+      if (!user) throw new NotFoundError('User not found!');
+      return await userRepository.saveToken(user, saveTokenRequest.token)
+    });
+  } 
 }

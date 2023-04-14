@@ -2,7 +2,7 @@ import { Body, CurrentUser, Get, JsonController, Param, Params, Post } from 'rou
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import { EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, SetAdminByEmailRequest } from '../../types';
+import { EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, SaveTokenRequest, SetAdminByEmailRequest } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
@@ -47,5 +47,10 @@ export class UserController {
   @Post('admin/')
   async setAdmin(@Body() setAdminByEmailRequest: SetAdminByEmailRequest, @CurrentUser() superAdmin: UserModel): Promise<GetUserResponse> {
     return { user: await this.userService.setAdmin(superAdmin, setAdminByEmailRequest) };
+  }
+
+  @Post('token/')
+  async saveToken(@Body() saveTokenRequest: SaveTokenRequest): Promise<GetUserResponse> {
+    return { user: await this.userService.saveToken(saveTokenRequest) };
   }
 }
