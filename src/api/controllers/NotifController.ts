@@ -1,4 +1,4 @@
-import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
+import { JsonController, Post } from 'routing-controllers';
 import { ExpoPushMessage, PushTicket } from 'src/types';
 import { NotifService } from '../../services/NotifService';
 
