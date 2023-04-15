@@ -105,7 +105,7 @@ export interface CreateRequestRequest {
 // NOTIFICATION
 export interface ExpoPushMessage {
     to: string[];
-    sound: 'default' | null;
+    sound: 'default';
     title: string;
     body: string;
     data: JSON;

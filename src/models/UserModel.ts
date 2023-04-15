@@ -40,7 +40,7 @@ export class UserModel {
   googleId: string;
 
   @Column({ unique: true})
-  deviceToken: string;
+  deviceTokens: string[];
 
   @Column({ type: "text", default: "" })
   bio: string;

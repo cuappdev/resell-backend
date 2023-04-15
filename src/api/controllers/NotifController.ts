@@ -15,3 +15,8 @@ export class NotifController {
         return this.notifService.sendNotifs(notifRequest, {});
     }
 }
+
+//TODO:
+//The frontend sends in an email... We retrive the user and all of their tokens
+//Create an ExpoPushMessage with all of those tokens 
+//Call SendNotifs on it
