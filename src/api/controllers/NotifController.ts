@@ -1,5 +1,5 @@
 import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
-import { ExpoPushMessage, PushTicket } from 'src/types';
+import { ExpoPushMessage, PushTicket, FindTokensRequest } from 'src/types';
 import { NotifService } from '../../services/NotifService';
 
 @JsonController('notif/')
@@ -11,8 +11,8 @@ export class NotifController {
     }
 
     @Post()
-    async sendPost( notifRequest : ExpoPushMessage ) {
-        return this.notifService.sendNotifs(notifRequest, {});
+    async sendPost( findTokensRequest : FindTokensRequest ) {
+        return this.notifService.sendNotifs(findTokensRequest, {});
     }
 }
 

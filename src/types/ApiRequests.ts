@@ -115,3 +115,10 @@ export interface SaveTokenRequest {
     token: string, 
     userID: Uuid;
 }
+
+export interface FindTokensRequest {
+    email: string
+    title: string;
+    body: string;
+    data: JSON;
+}
