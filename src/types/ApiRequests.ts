@@ -79,6 +79,11 @@ export interface FilterPostsRequest {
     category: string;
 }
 
+export interface FilterPostsByPriceRequest {
+    lowerBound: number;
+    upperBound: number;
+}
+
 // GENERAL IMAGES
 
 export interface UploadImageRequest {
