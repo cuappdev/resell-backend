@@ -1,3 +1,4 @@
+import { Tensor2D } from '@tensorflow/tfjs';
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
@@ -9,6 +10,8 @@ import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, GetSearchedPostsRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
+import { getLoadedModel } from '../utils/SentenceEncoder';
+require('@tensorflow-models/universal-sentence-encoder')
 
 @Service()
 export class PostService {
@@ -58,14 +61,23 @@ export class PostService {
         images.push(imageUrl);
       }
       const freshPost = await postRepository.createPost(post.title, post.description, post.categories, post.price, images, user);
-      var stringSimilarity = require("string-similarity");
       const requestRepository = Repositories.request(transactionalEntityManager);
       const requests = await requestRepository.getAllRequest();
-      for (const r of requests) {
-        let similarity = stringSimilarity.compareTwoStrings(post.title, r.title);
-        if (similarity >= 0.4) {
-          await requestRepository.addMatchToRequest(r, freshPost)
-        }
+      for (const request of requests) {
+        const model = await getLoadedModel();
+        const sentences = [
+          post.title,
+          request.title
+        ];
+        await model.embed(sentences).then(async (embeddings: any) => {
+          embeddings = embeddings.arraySync()
+          const a = embeddings[0];
+          const b = embeddings[1];
+
+          if (this.similarity(a, b) >= 0.5) {
+            await requestRepository.addMatchToRequest(request, freshPost);
+          }
+        });
       }
       return freshPost
     });
@@ -185,5 +197,21 @@ export class PostService {
       const userRepository = Repositories.user(transactionalEntityManager);
       return await userRepository.isSavedPost(user, post);
     });
+  }
+
+  public similarity(a: Array<number>, b: Array<number>): number {
+    var magnitudeA = Math.sqrt(this.dotProduct(a, a));
+    var magnitudeB = Math.sqrt(this.dotProduct(b, b));
+    if (magnitudeA && magnitudeB)
+      return this.dotProduct(a, b) / (magnitudeA * magnitudeB);
+    else return 0;
+  }
+
+  public dotProduct(a: Array<number>, b: Array<number>) {
+    const result = a.reduce((acc, cur, index)=>{
+      acc += (cur * b[index]);
+      return acc;
+    }, 0);
+    return result;
   }
 }
