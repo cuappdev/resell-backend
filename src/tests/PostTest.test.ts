@@ -110,7 +110,7 @@ describe('post tests', () => {
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
-
+ 
   test('create post', async () => {
     const user = UserFactory.fakeTemplate();
 

@@ -13,7 +13,7 @@ import { uploadImage } from '../utils/Requests';
 import { getLoadedModel } from '../utils/SentenceEncoder';
 require('@tensorflow-models/universal-sentence-encoder')
 
-@Service()
+@Service() 
 export class PostService {
   private transactions: TransactionsManager;
 
