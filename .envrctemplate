@@ -1,4 +1,4 @@
-export ALLOWED_EMAILS=
+export ADMIN_EMAILS=
 export DB_HOST=
 export DB_NAME=
 export DB_PASSWORD=
