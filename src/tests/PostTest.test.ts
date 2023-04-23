@@ -110,7 +110,7 @@ describe('post tests', () => {
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
-
+ 
   test('create post', async () => {
     const user = UserFactory.fakeTemplate();
 
@@ -321,7 +321,6 @@ describe('post tests', () => {
     };
 
     let getPostsResponse = await postController.filterPostsByPrice(filter);
-    console.log(getPostsResponse)
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
@@ -345,7 +344,6 @@ describe('post tests', () => {
     };
 
     let getPostsResponse = await postController.filterPostsByPrice(filter);
-    console.log(getPostsResponse)
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 
@@ -368,7 +366,6 @@ describe('post tests', () => {
     };
 
     let getPostsResponse = await postController.filterPostsByPrice(filter);
-    console.log(getPostsResponse)
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expectedPost.created = getPostsResponse.posts[0].created;
 

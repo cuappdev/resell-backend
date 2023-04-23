@@ -1,10 +1,10 @@
 import { NotFoundError} from 'routing-controllers';
 import { Service } from 'typedi';
-
 import { ExpoPushMessage, PushTicket, FindTokensRequest } from '../types';
 import { Expo } from 'expo-server-sdk';
 import { UserRepository } from 'src/repositories/UserRepository';
-const expoServer = new Expo({ accessToken: 'lohuh5OtdO1KS4I_kJGdE0PDtnxgV4GEpTiJAIoZ' });
+var accessToken = process.env['EXPO_ACCESS_TOKEN']
+const expoServer = new Expo({ accessToken: accessToken });
 
 
 @Service()
