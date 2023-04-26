@@ -102,4 +102,9 @@ export class PostController {
   async editPrice(@Body() editPriceRequest : EditPostPriceRequest, @CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<EditPriceResponse> {
     return { new_price: await (await this.postService.editPostPrice(user, params, editPriceRequest)).altered_price };
   }
+
+  @Get('similar/postID/:id/')
+  async similarPosts(@Params() params: UuidParam): Promise<GetPostsResponse> {
+    return { posts: await this.postService.similarPosts(params) };
+  }
 }
