@@ -1,12 +1,11 @@
 import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
-
-import { UserModel } from 'src/models/UserModel';
-import { UserReviewService } from '../../services/UserReviewService'
 import { 
     CreateUserReviewRequest,
     GetUserReviewResponse,
     GetUserReviewsResponse
 } from 'src/types';
+import { UserModel } from 'src/models/UserModel';
+import { UserReviewService } from '../../services/UserReviewService'
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('userRevier')

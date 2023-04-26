@@ -1,14 +1,14 @@
-import { ForbiddenError, NotFoundError } from 'routing-controllers';
-import { TransactionsManager } from 'src/repositories';
-import { Service } from 'typedi';
+import { CreateUserReviewRequest } from 'src/types';
 import { EntityManager } from 'typeorm';
+import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { InjectManager } from 'typeorm-typedi-extensions';
+import Repositories from '../repositories';
+import { Service } from 'typedi';
+import { TransactionsManager } from 'src/repositories';
 
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserReviewModel } from '../models/UserReviewModel';
 import { UserModel } from '../models/UserModel';
-import Repositories from '../repositories';
-import { CreateUserReviewRequest } from 'src/types';
 
 @Service()
 export class UserReviewService {
@@ -20,8 +20,8 @@ export class UserReviewService {
 
     public async getAllUserReviews(): Promise<UserReviewModel[]> {
         return this.transactions.readOnly(async (transactionalEntityManager) => {
-          const userReviewRepository = Repositories.userReview(transactionalEntityManager);
-          return await userReviewRepository.getAllUserReviews();
+            const userReviewRepository = Repositories.userReview(transactionalEntityManager);
+            return await userReviewRepository.getAllUserReviews();
         });
       }
 
