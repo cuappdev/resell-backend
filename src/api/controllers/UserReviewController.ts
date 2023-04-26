@@ -8,7 +8,7 @@ import { UserModel } from 'src/models/UserModel';
 import { UserReviewService } from '../../services/UserReviewService'
 import { UuidParam } from '../validators/GenericRequests';
 
-@JsonController('userRevier')
+@JsonController('userReview/')
 export class UserReviewController {
     private userReviewService: UserReviewService;
 
