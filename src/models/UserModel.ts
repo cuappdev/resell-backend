@@ -5,6 +5,7 @@ import { FeedbackModel } from './FeedbackModel';
 import { PostModel } from './PostModel';
 import { RequestModel } from './RequestModel';
 import { UserSessionModel } from './UserSessionModel';
+import { UserReviewModel } from './UserReviewModel'
 
 @Entity('User')
 export class UserModel {
@@ -26,6 +27,12 @@ export class UserModel {
 
   @Column()
   admin: boolean;
+
+  @Column()
+  stars: number;
+
+  @Column()
+  numReviews: number;
 
   @Column({ nullable: true })
   photoUrl: string;
@@ -56,6 +63,12 @@ export class UserModel {
 
   @OneToMany(() => RequestModel, request => request.user)
   requests: RequestModel[];
+
+  @OneToMany(() => UserReviewModel, review => review.buyer)
+  reviewsWritten: UserReviewModel[];
+
+  @OneToMany(() => UserReviewModel, review => review.seller)
+  reviewsReceived: UserReviewModel[];
 
   public getUserProfile(): PrivateProfile {
     return {

@@ -97,3 +97,13 @@ export interface CreateRequestRequest {
     description: string;
     userId: Uuid;
 }
+
+// USER REVIEW
+
+export interface CreateUserReviewRequest {
+    fulfilled: boolean,
+    stars: number,
+    comments: string,
+    buyerId: Uuid
+    sellerId: Uuid
+}

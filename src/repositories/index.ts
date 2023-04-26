@@ -4,6 +4,7 @@ import { FeedbackRepository } from './FeedbackRepository';
 import { PostRepository } from './PostRepository';
 import { RequestRepository } from './RequestRepository';
 import { UserRepository } from './UserRepository';
+import { UserReviewRepository } from './UserReviewRepository'
 import { UserSessionRepository } from './UserSessionRepository';
 
 export default class Repositories {
@@ -21,6 +22,10 @@ export default class Repositories {
 
   public static request(transactionalEntityManager: EntityManager): RequestRepository {
     return transactionalEntityManager.getCustomRepository(RequestRepository);
+  }
+
+  public static userReview(transactionalEntityManager: EntityManager): UserReviewRepository {
+    return transactionalEntityManager.getCustomRepository(UserReviewRepository)
   }
 
   public static session(transactionalEntityManager: EntityManager): UserSessionRepository {
