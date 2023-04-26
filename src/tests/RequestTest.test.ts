@@ -148,7 +148,7 @@ describe('request tests', () => {
       title: 'Textbook',
       description: 'Textbook for 3110',
       categories: ['HANDMADE', 'OTHER'],
-      price: 500.15,
+      original_price: 500.15,
       imagesBase64: [],
       created: 1667192023,
       userId: user.id,

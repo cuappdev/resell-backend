@@ -4,6 +4,8 @@ import { UserModel } from '../../models/UserModel';
 import { PostService } from '../../services/PostService';
 import {
   CreatePostRequest,
+  EditPostPriceRequest,
+  EditPriceResponse,
   FilterPostsRequest,
   FilterPostsByPriceRequest,
   GetPostResponse,
@@ -94,5 +96,10 @@ export class PostController {
   @Get('isSaved/postId/:id/')
   async isSavedPost(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<IsSavedPostResponse> {
     return { isSaved: await this.postService.isSavedPost(user, params) };
+  }
+
+  @Post('edit/postID/:id/')
+  async editPrice(@Body() editPriceRequest : EditPostPriceRequest, @CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<EditPriceResponse> {
+    return { new_price: await (await this.postService.editPostPrice(user, params, editPriceRequest)).altered_price };
   }
 }

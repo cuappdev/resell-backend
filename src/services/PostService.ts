@@ -8,12 +8,12 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, GetSearchedPostsRequest } from '../types';
+import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, GetSearchedPostsRequest, EditPostPriceRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 import { getLoadedModel } from '../utils/SentenceEncoder';
 require('@tensorflow-models/universal-sentence-encoder')
 
-@Service()
+@Service() 
 export class PostService {
   private transactions: TransactionsManager;
 
@@ -60,7 +60,7 @@ export class PostService {
         const imageUrl = image.data;
         images.push(imageUrl);
       }
-      const freshPost = await postRepository.createPost(post.title, post.description, post.categories, post.price, images, user);
+      const freshPost = await postRepository.createPost(post.title, post.description, post.categories, post.original_price, images, user);
       const requestRepository = Repositories.request(transactionalEntityManager);
       const requests = await requestRepository.getAllRequest();
       for (const request of requests) {
@@ -199,6 +199,15 @@ export class PostService {
     });
   }
 
+  public async editPostPrice(user: UserModel, params: UuidParam, editPostRequest: EditPostPriceRequest): Promise<PostModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.id);
+      if (!post) throw new NotFoundError('Post not found!');
+      return await postRepository.editPostPrice(post, editPostRequest.new_price);
+    })
+  }
+
   public similarity(a: Array<number>, b: Array<number>): number {
     var magnitudeA = Math.sqrt(this.dotProduct(a, a));
     var magnitudeB = Math.sqrt(this.dotProduct(b, b));
@@ -215,3 +224,4 @@ export class PostService {
     return result;
   }
 }
+

@@ -28,10 +28,10 @@ export class UserModel {
   @Column()
   admin: boolean;
 
-  @Column()
+  @Column({ type: "numeric" })
   stars: number;
 
-  @Column()
+  @Column({ type: "integer" })
   numReviews: number;
 
   @Column({ nullable: true })

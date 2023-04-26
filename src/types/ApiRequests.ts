@@ -54,13 +54,17 @@ export interface CreatePostRequest {
     title: string;
     description: string;
     categories: string[];
-    price: number;
+    original_price: number;
     imagesBase64: string[];
     userId: Uuid;
 }
 
 export interface GetSearchedPostsRequest {
     keywords: string;
+}
+
+export interface EditPostPriceRequest {
+    new_price: number;
 }
 
 // FEEDBACK
@@ -107,3 +111,12 @@ export interface CreateUserReviewRequest {
     buyerId: Uuid
     sellerId: Uuid
 }
+// NOTIFICATION
+export interface ExpoPushMessage {
+    to: string[];
+    sound: 'default' | null;
+    title: string;
+    body: string;
+    data: JSON;
+}
+

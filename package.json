@@ -48,6 +48,7 @@
     "class-validator": "^0.14.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
+    "expo-server-sdk": "^3.7.0",
     "express": "^4.17.2",
     "faker": "^5.5.3",
     "google-auth-library": "^7.14.0",
@@ -56,12 +57,13 @@
     "node-fetch": "^2.6.1",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
-    "routing-controllers": "^0.8.1",
+    "routing-controllers": "0.10.2",
     "string-similarity": "^4.0.4",
     "ts-node": "^10.5.0",
     "typedi": "^0.10.0",
     "typeorm": "^0.2.45",
     "typeorm-naming-strategies": "^4.1.0",
-    "typeorm-typedi-extensions": "^0.4.1"
+    "typeorm-typedi-extensions": "^0.4.1",
+    "xml2js": "^0.5.0"
   }
 }
