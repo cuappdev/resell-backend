@@ -4,6 +4,7 @@ import { ImageController } from './ImageController';
 import { PostController } from './PostController';
 import { RequestController } from './RequestController';
 import { UserController } from './UserController';
+import { NotifController } from './NotifController'
 
 export const controllers = [
   AuthController,
@@ -12,4 +13,5 @@ export const controllers = [
   PostController,
   RequestController,
   UserController,
+  NotifController
 ];

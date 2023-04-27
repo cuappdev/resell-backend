@@ -102,7 +102,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
     username: string | undefined,
     photoUrl: string | undefined,
     venmoHandle: string | undefined,
-    bio: string | undefined
+    bio: string | undefined,
   ): Promise<UserModel> {
     const existingUser = this.repository
       .createQueryBuilder("user")
@@ -119,6 +119,24 @@ export class UserRepository extends AbstractRepository<UserModel> {
     user.venmoHandle = venmoHandle ?? user.venmoHandle;
     user.bio = bio ?? user.bio;
     return await this.repository.save(user);
+  }
+
+  public async addDeviceToken(
+    user: UserModel,
+    deviceTokens: string[] | undefined
+  ): Promise<UserModel> {
+    if (deviceTokens) {
+      user.deviceTokens = user.deviceTokens.concat(deviceTokens)
+    }
+    return await this.repository.save(user);
+  }
+
+  public async removeDeviceToken(
+    user: UserModel,
+    deviceToken: string 
+  ): Promise<UserModel> {
+    user.deviceTokens = user.deviceTokens.filter((e, i) => e !== deviceToken)
+    return await this.repository.save(user)
   }
 
   public async setAdmin(user: UserModel, status: boolean): Promise<UserModel> {

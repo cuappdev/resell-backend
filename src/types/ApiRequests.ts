@@ -16,6 +16,7 @@ export interface GoogleLoginUser {
 export interface AuthRequest {
     idToken: string;
     user: GoogleLoginUser;
+    deviceToken: string
 }
 
 export interface EditProfileRequest {
@@ -112,12 +113,12 @@ export interface ExpoPushMessage {
 }
 
 export interface SaveTokenRequest {
-    token: string, 
+    token: string;
     userID: Uuid;
 }
 
 export interface FindTokensRequest {
-    email: string
+    email: string;
     title: string;
     body: string;
     data: JSON;

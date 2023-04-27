@@ -39,7 +39,7 @@ export class UserModel {
   @Column({ unique: true })
   googleId: string;
 
-  @Column({ unique: true})
+  @Column("text", { array: true, default: [], nullable: false, })
   deviceTokens: string[];
 
   @Column({ type: "text", default: "" })
@@ -75,6 +75,7 @@ export class UserModel {
       bio: this.bio,
       posts: this.posts,
       feedbacks: this.feedbacks,
+      deviceTokens: this.deviceTokens,
     };
   }
 }

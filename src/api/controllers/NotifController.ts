@@ -11,8 +11,8 @@ export class NotifController {
     }
 
     @Post()
-    async sendPost( findTokensRequest : FindTokensRequest ) {
-        return this.notifService.sendNotifs(findTokensRequest, {});
+    async sendPost(@Body() findTokensRequest: FindTokensRequest) {
+      return this.notifService.sendNotifs(findTokensRequest);
     }
 }
 

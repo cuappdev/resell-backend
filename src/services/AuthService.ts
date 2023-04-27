@@ -68,6 +68,10 @@ export class AuthService {
             user = await userRepository.createUser(netid, netid, newUser.givenName, newUser.familyName,
               newUser.photoUrl, newUser.email, userId);
           }
+          //add device token
+          if (!user.deviceTokens.includes(authRequest.deviceToken)) {
+            userRepository.addDeviceToken(user, [authRequest.deviceToken]) 
+          }
           // since they're logging in, create a new session for them
           const session = sessionsRepository.createSession(user);
           return session;
@@ -102,8 +106,17 @@ export class AuthService {
   }
 
   public async deleteSessionByAccessToken(accessToken: string): Promise<boolean> {
+    console.log(accessToken)
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const sessionRepository = Repositories.session(transactionalEntityManager);
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const userID = await sessionRepository.getUserIdFromToken(accessToken);
+      if (!userID) throw new NotFoundError('UserID not found')
+      const user = await userRepository.getUserById(userID)
+      if (!user) throw new NotFoundError('User not found!')
+      const session = await sessionRepository.getSessionByToken(accessToken);
+      if (!session) throw new NotFoundError('Session not found!')
+      userRepository.removeDeviceToken(user, session.deviceToken);
       const success = await sessionRepository.deleteSessionByAccessToken(accessToken);
       return success;
     });
