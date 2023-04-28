@@ -11,12 +11,8 @@ export class NotifController {
     }
 
     @Post()
-    async sendPost(@Body() findTokensRequest: FindTokensRequest) {
+    async sendNotif(@Body() findTokensRequest: FindTokensRequest) {
       return this.notifService.sendNotifs(findTokensRequest);
     }
 }
 
-//TODO:
-//The frontend sends in an email... We retrive the user and all of their tokens
-//Create an ExpoPushMessage with all of those tokens 
-//Call SendNotifs on it

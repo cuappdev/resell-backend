@@ -16,7 +16,7 @@ export interface GoogleLoginUser {
 export interface AuthRequest {
     idToken: string;
     user: GoogleLoginUser;
-    deviceToken: string
+    deviceToken: string;
 }
 
 export interface EditProfileRequest {

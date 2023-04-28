@@ -30,7 +30,7 @@ export interface PrivateProfile extends PublicProfile {
     email: string,
     googleId: string,
     feedbacks: FeedbackModel[],
-    deviceTokens: string[]
+    deviceTokens: string[],
 }
 
 export interface GetUsersResponse {

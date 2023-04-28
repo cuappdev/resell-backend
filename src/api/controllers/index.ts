@@ -10,8 +10,8 @@ export const controllers = [
   AuthController,
   FeedbackController,
   ImageController,
+  NotifController,
   PostController,
   RequestController,
   UserController,
-  NotifController
 ];

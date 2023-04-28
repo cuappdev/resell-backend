@@ -50,12 +50,9 @@ export class NotifService {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
             const userRepository = Repositories.user(transactionalEntityManager);
             let user = await userRepository.getUserByEmail(request.email);
-            console.log("1")
             if (!user) {
-                console.log("2")
                 throw new NotFoundError("User not found!");
             }
-            console.log("3")
             let notif: ExpoPushMessage= 
                 {
                     to: user.deviceTokens,
@@ -64,10 +61,8 @@ export class NotifService {
                     body: request.body,
                     data: request.data
                 }
-            // console.log(notif)
             try {
                 let notifs : ExpoPushMessage[] = [];
-                console.log("5")
                 notif.to.forEach(token => {
                     notifs.push({
                         to: [token],
@@ -77,12 +72,10 @@ export class NotifService {
                         data: notif.data
                     })
                 })
-                console.log(notifs)
                 this.sendNotifChunks(notifs, expoServer)
             }
             // Simply do nothing if the user has no tokens
             catch (err) { 
-                console.log("hai");
                 console.log(err) }
         })
     }
