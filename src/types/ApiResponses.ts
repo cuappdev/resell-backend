@@ -2,6 +2,7 @@ import { FeedbackModel } from 'src/models/FeedbackModel';
 
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
+import { UserModel } from '../models/UserModel';
 import { APIUserSession } from '../types';
 
 // RESPONSE TYPES
@@ -129,6 +130,25 @@ export interface GetRequestResponse {
     request: Request;
 }
 
+// USER REVIEWS
+
+export interface UserReview {
+    id: Uuid,
+    fulfilled: boolean,
+    stars: number,
+    comments: string,
+    date: Date,
+    buyer: PrivateProfile,
+    seller: PrivateProfile
+}
+
+export interface GetUserReviewResponse {
+    userReview: UserReview;
+}
+
+export interface GetUserReviewsResponse {
+    userReviews: UserReview[];
+}
 // NOTIFICATIONS
 
 export interface PushTicketData {

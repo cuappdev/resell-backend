@@ -223,5 +223,33 @@ export class PostService {
     }, 0);
     return result;
   }
+
+  public async similarPosts(params: UuidParam): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.id);
+      if (!post) throw new NotFoundError('Post not found!');
+      const allPosts = await postRepository.getAllPosts();
+      let posts: PostModel[] = []
+      const model = await getLoadedModel();
+      for (const p of allPosts) {
+        if (post.id != p.id) {
+          const sentences = [
+            post.title,
+            p.title
+          ];
+          await model.embed(sentences).then(async (embeddings: any) => {
+            embeddings = embeddings.arraySync()
+            const a = embeddings[0];
+            const b = embeddings[1];
+            if (this.similarity(a, b) >= 0.5) {
+              posts.push(p)
+            }
+          });
+        }
+      }
+      return posts
+    });
+  }
 }
 

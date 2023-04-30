@@ -102,6 +102,15 @@ export interface CreateRequestRequest {
     userId: Uuid;
 }
 
+// USER REVIEW
+
+export interface CreateUserReviewRequest {
+    fulfilled: boolean,
+    stars: number,
+    comments: string,
+    buyerId: Uuid
+    sellerId: Uuid
+}
 // NOTIFICATION
 export interface ExpoPushMessage {
     to: string[];
