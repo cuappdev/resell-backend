@@ -231,9 +231,9 @@ export class PostService {
       if (!post) throw new NotFoundError('Post not found!');
       const allPosts = await postRepository.getAllPosts();
       let posts: PostModel[] = []
+      const model = await getLoadedModel();
       for (const p of allPosts) {
         if (post.id != p.id) {
-          const model = await getLoadedModel();
           const sentences = [
             post.title,
             p.title
