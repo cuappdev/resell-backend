@@ -26,17 +26,12 @@ export class NotifService {
 
     public sendNotifChunks = async (notifs : ExpoPushMessage[], expoServer : Expo) => {
         let chunks = expoServer.chunkPushNotifications(notifs);
-        console.log("7")
         let tickets = [];
-        // console.log(chunks)
 
         for (let chunk of chunks) {
-            console.log("here")
             try {
-                console.log("9")
                 let ticketChunk = await expoServer.sendPushNotificationsAsync(chunk);
                 // store tickets to check for notif status later
-                console.log("10")
                 tickets.push(...ticketChunk);
             } catch (err) {
                 console.log("Error while sending notif chunk");
@@ -46,7 +41,6 @@ export class NotifService {
     }
 
     public async sendNotifs(request: FindTokensRequest) {
-        // console.log(request)
         return this.transactions.readWrite(async (transactionalEntityManager) => {
             const userRepository = Repositories.user(transactionalEntityManager);
             let user = await userRepository.getUserByEmail(request.email);
