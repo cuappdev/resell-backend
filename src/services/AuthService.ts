@@ -106,7 +106,6 @@ export class AuthService {
   }
 
   public async deleteSessionByAccessToken(accessToken: string): Promise<boolean> {
-    console.log(accessToken)
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const sessionRepository = Repositories.session(transactionalEntityManager);
       const userRepository = Repositories.user(transactionalEntityManager);
