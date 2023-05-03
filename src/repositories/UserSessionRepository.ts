@@ -11,7 +11,7 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
     const session = new UserSessionModel();
     session.user = user;
     session.userId = user.id;
-    session.deviceToken = user.deviceTokens[user.deviceTokens.length - 1]
+    session.deviceToken = '';
     session.update();
     await this.repository.save(session);
     return session;
@@ -99,6 +99,11 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
       await this.repository.save(session);
     }
     return session;
+  }
+
+  public async updateSessionDeviceToken(session: UserSessionModel, deviceToken: string): Promise<UserSessionModel> {
+    session.deviceToken = deviceToken;
+    return await this.repository.save(session);
   }
 
   public async verifySession(accessToken: string): Promise<boolean> {

@@ -87,12 +87,12 @@ export class UserService {
     });
   }
 
-  public async saveToken(saveTokenRequest: SaveTokenRequest): Promise<UserModel> {
-    return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserById(saveTokenRequest.userID);
-      if (!user) throw new NotFoundError('User not found!');
-      return await userRepository.saveToken(user, saveTokenRequest.token)
-    });
-  } 
+  // public async saveToken(saveTokenRequest: SaveTokenRequest): Promise<UserModel> {
+  //   return this.transactions.readWrite(async (transactionalEntityManager) => {
+  //     const userRepository = Repositories.user(transactionalEntityManager);
+  //     const user = await userRepository.getUserById(saveTokenRequest.userID);
+  //     if (!user) throw new NotFoundError('User not found!');
+  //     return await userRepository.saveToken(user, saveTokenRequest.token)
+  //   });
+  // } 
 }

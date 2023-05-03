@@ -43,13 +43,20 @@ export class NotifService {
     public async sendNotifs(request: FindTokensRequest) {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
             const userRepository = Repositories.user(transactionalEntityManager);
+            const userSessionRepository = Repositories.session(transactionalEntityManager);
             let user = await userRepository.getUserByEmail(request.email);
             if (!user) {
                 throw new NotFoundError("User not found!");
             }
+            const allDeviceTokens = [];
+            const allsessions = await userSessionRepository.getSessionsByUserId(user.id);
+            for (var sess of allsessions) {
+                if (sess.deviceToken) {
+                allDeviceTokens.push(sess.deviceToken); }
+            }
             let notif: ExpoPushMessage= 
                 {
-                    to: user.deviceTokens,
+                    to: allDeviceTokens,
                     sound: 'default',
                     title: request.title,
                     body: request.body,
@@ -68,6 +75,7 @@ export class NotifService {
                 })
                 this.sendNotifChunks(notifs, expoServer)
             }
+            
             // Simply do nothing if the user has no tokens
             catch (err) { 
                 console.log(err) }

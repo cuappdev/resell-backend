@@ -69,11 +69,12 @@ export class AuthService {
               newUser.photoUrl, newUser.email, userId);
           }
           //add device token
-          if (!user.deviceTokens.includes(authRequest.deviceToken)) {
-            userRepository.addDeviceToken(user, [authRequest.deviceToken]) 
-          }
+          // if (!user.deviceTokens.includes(authRequest.deviceToken)) {
+          //   userRepository.addDeviceToken(user, [authRequest.deviceToken]) 
+          // }
           // since they're logging in, create a new session for them
-          const session = sessionsRepository.createSession(user);
+          const session = await sessionsRepository.createSession(user);  
+          sessionsRepository.updateSessionDeviceToken(session, authRequest.deviceToken)        
           return session;
         });
       }

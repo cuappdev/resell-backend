@@ -49,8 +49,8 @@ export class UserController {
     return { user: await this.userService.setAdmin(superAdmin, setAdminByEmailRequest) };
   }
 
-  @Post('token/')
-  async saveToken(@Body() saveTokenRequest: SaveTokenRequest): Promise<GetUserResponse> {
-    return { user: await this.userService.saveToken(saveTokenRequest) };
-  }
+  // @Post('token/')
+  // async saveToken(@Body() saveTokenRequest: SaveTokenRequest): Promise<GetUserResponse> {
+  //   return { user: await this.userService.saveToken(saveTokenRequest) };
+  // }
 }
