@@ -37,7 +37,7 @@ export class UserReviewModel{
             comments: this.comments,
             date: this.date,
             buyer: this.buyer.getUserProfile(),
-            seller: this.seller.getUserProfile()
+            seller: this.seller.getUserProfile(),
         };
     }
 }

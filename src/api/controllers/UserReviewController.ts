@@ -23,16 +23,16 @@ export class UserReviewController {
 
     @Get('id/:id/')
     async getUserReviewsById(@Params() params: UuidParam): Promise<GetUserReviewResponse> {
-        return { userReview: await this.userReviewService.getUserReviewById(params)}
+        return { userReview: await this.userReviewService.getUserReviewById(params) };
     }
 
     @Post()
     async createUserReview(@Body() createUserReviewRequest: CreateUserReviewRequest): Promise<GetUserReviewResponse> {
-        return { userReview: await this.userReviewService.createUserReview(createUserReviewRequest)}
+        return { userReview: await this.userReviewService.createUserReview(createUserReviewRequest) };
     }
 
     @Delete('id/:id/')
     async deleteUserReview(@CurrentUser() buyer: UserModel, @Params() params: UuidParam): Promise<GetUserReviewResponse> {
-        return { userReview: await this.userReviewService.deleteUserReviewById(buyer, params)};
+        return { userReview: await this.userReviewService.deleteUserReviewById(buyer, params) };
     }
 }

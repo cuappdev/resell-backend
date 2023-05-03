@@ -139,7 +139,7 @@ export interface UserReview {
     comments: string,
     date: Date,
     buyer: PrivateProfile,
-    seller: PrivateProfile
+    seller: PrivateProfile,
 }
 
 export interface GetUserReviewResponse {
