@@ -1,14 +1,13 @@
-import { CreateUserReviewRequest } from 'src/types';
-import { EntityManager } from 'typeorm';
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
-import { InjectManager } from 'typeorm-typedi-extensions';
-import Repositories from '../repositories';
 import { Service } from 'typedi';
-import { TransactionsManager } from 'src/repositories';
+import { EntityManager } from 'typeorm';
+import { InjectManager } from 'typeorm-typedi-extensions';
 
+import { CreateUserReviewRequest } from '../types';
+import Repositories, { TransactionsManager } from '../repositories';
 import { UuidParam } from '../api/validators/GenericRequests';
-import { UserReviewModel } from '../models/UserReviewModel';
 import { UserModel } from '../models/UserModel';
+import { UserReviewModel } from '../models/UserReviewModel';
 
 @Service()
 export class UserReviewService {
@@ -36,11 +35,10 @@ export class UserReviewService {
 
     public async createUserReview(userReview: CreateUserReviewRequest): Promise<UserReviewModel> {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const buyerRepository = Repositories.user(transactionalEntityManager);
-            const buyer = await buyerRepository.getUserById(userReview.buyerId);
+            const userRepository = Repositories.user(transactionalEntityManager);
+            const buyer = await userRepository.getUserById(userReview.buyerId);
             if (!buyer) throw new NotFoundError('Buyer (reviewer) not found!');
-            const sellerRespository = Repositories.user(transactionalEntityManager);
-            const seller = await sellerRespository.getUserById(userReview.sellerId);
+            const seller = await userRepository.getUserById(userReview.sellerId);
             if (!seller) throw new NotFoundError('Seller (reviewee) not found!');
             const userReviewRepository = Repositories.userReview(transactionalEntityManager);
             const freshUserReview = await userReviewRepository.createUserReview(userReview.fulfilled, userReview.stars, userReview.comments, buyer, seller);

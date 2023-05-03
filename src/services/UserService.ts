@@ -18,7 +18,7 @@ export class UserService {
   }
 
   public async getAllUsers(user: UserModel): Promise<UserModel[]> {
-    if (!user.admin) throw new UnauthorizedError('User does not have permission to get all users')
+    // if (!user.admin) throw new UnauthorizedError('User does not have permission to get all users')
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
       return userRepository.getAllUsers();
