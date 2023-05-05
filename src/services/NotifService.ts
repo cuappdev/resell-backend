@@ -1,6 +1,6 @@
 import { NotFoundError} from 'routing-controllers';
 import { Service } from 'typedi';
-import { ExpoPushMessage, PushTicket, FindTokensRequest } from '../types';
+import { ExpoPushMessage, PushTicket, FindTokensRequest, NotifSent } from '../types';
 import { Expo } from 'expo-server-sdk';
 import { UserRepository } from 'src/repositories/UserRepository';
 import Repositories, { TransactionsManager } from '../repositories';

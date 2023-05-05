@@ -121,24 +121,6 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return await this.repository.save(user);
   }
 
-  public async addDeviceToken(
-    user: UserModel,
-    deviceTokens: string[] | undefined
-  ): Promise<UserModel> {
-    if (deviceTokens) {
-      user.deviceTokens = user.deviceTokens.concat(deviceTokens)
-    }
-    return await this.repository.save(user);
-  }
-
-  public async removeDeviceToken(
-    user: UserModel,
-    deviceToken: string 
-  ): Promise<UserModel> {
-    user.deviceTokens = user.deviceTokens.filter((e, i) => e !== deviceToken)
-    return await this.repository.save(user)
-  }
-
   public async setAdmin(user: UserModel, status: boolean): Promise<UserModel> {
     user.admin = status;
     return await this.repository.save(user);
