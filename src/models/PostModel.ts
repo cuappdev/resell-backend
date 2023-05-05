@@ -31,7 +31,7 @@ export class PostModel {
   @Column("numeric", { scale: 2 })
   original_price: number;
 
-  @Column("numeric", { scale: 2})
+  @Column("numeric", { scale: 2, default: -1 })
   altered_price: number;
 
   @Column("text", { array: true })

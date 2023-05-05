@@ -30,6 +30,7 @@ beforeEach(async () => {
   expectedPost.archive = false;
   expectedPost.categories = ['HANDMADE', 'OTHER'];
   expectedPost.original_price = 500.15;
+  expectedPost.altered_price = -1;
   expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
   expectedPost.location = 'The Dorm Hotel';
 });
@@ -532,7 +533,9 @@ describe('post tests', () => {
     };
 
     let getPostsResponse = await postController.editPrice(edit, post.user, uuidParam);
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     console.log(getPostsResponse)
-    expect(post.altered_price).toEqual(Number(getPostsResponse.new_price));
+    console.log(post.altered_price)
+    expect(Number(post.altered_price)).toEqual(Number(getPostsResponse.new_price));
   })
 });

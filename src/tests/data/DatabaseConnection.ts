@@ -32,6 +32,7 @@ export class DatabaseConnection {
         'Post',
         'Request',
         'UserSession',
+        'UserReview',
         'User'
       ];
       await Promise.all(tableNames.map((t) => txn.query(`DELETE FROM "${t}"`)));

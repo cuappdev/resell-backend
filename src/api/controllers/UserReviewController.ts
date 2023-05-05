@@ -3,8 +3,8 @@ import {
     CreateUserReviewRequest,
     GetUserReviewResponse,
     GetUserReviewsResponse
-} from 'src/types';
-import { UserModel } from 'src/models/UserModel';
+} from '../../types';
+import { UserModel } from '../../models/UserModel';
 import { UserReviewService } from '../../services/UserReviewService'
 import { UuidParam } from '../validators/GenericRequests';
 

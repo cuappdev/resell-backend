@@ -20,6 +20,8 @@ export interface PublicProfile {
     netid: string,
     givenName: string,
     familyName: string,
+    stars: number,
+    numReviews: number,
     photoUrl: string,
     venmoHandle: string,
     bio: string,

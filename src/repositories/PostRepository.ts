@@ -95,8 +95,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where("post.price >= :lowerBound", {lowerBound: lowerBound})
-      .andWhere("post.price <= :upperBound", {upperBound: upperBound})
+      .where("post.original_price >= :lowerBound", {lowerBound: lowerBound})
+      .andWhere("post.original_price <= :upperBound", {upperBound: upperBound})
       .andWhere("post.archive = false")
       .getMany();
   }
