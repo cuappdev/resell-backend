@@ -11,7 +11,6 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
     const session = new UserSessionModel();
     session.user = user;
     session.userId = user.id;
-    session.deviceToken = '';
     session.update();
     await this.repository.save(session);
     return session;
