@@ -154,21 +154,20 @@ export interface GetUserReviewsResponse {
 export interface PushTicketData {
     status: string,
     id: string,
-    message: string
-    details: JSON
+    message: string,
+    details: JSON,
 }
 
 export interface PushTicketErrorData {
     code: string,
-    message: string
+    message: string,
 }
 
 export interface PushTicket {
     data: PushTicketData[],
-    errors: PushTicketErrorData[]
+    errors: PushTicketErrorData[],
 }
 
-export interface SaveTokenRequest {
-    token: string, 
-    email: string
+export interface NotifSent {
+    status: string,
 }

@@ -19,6 +19,9 @@ export class UserSessionModel {
   @Column()
   refreshToken: string;
 
+  @Column("text", { default: "", nullable: false, })
+  deviceToken: string;
+
   @ManyToOne(() => UserModel, user => user.sessions, { onDelete: "CASCADE" })
   @JoinColumn({ name: 'user' })
   user: UserModel;
@@ -43,6 +46,7 @@ export class UserSessionModel {
       active: this.expiresAt.getTime() > Date.now(),
       expiresAt: this.expiresAt.getTime(),
       refreshToken: this.refreshToken,
+      deviceToken: this.deviceToken
     };
   }
 

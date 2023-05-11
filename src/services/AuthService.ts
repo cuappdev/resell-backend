@@ -68,8 +68,9 @@ export class AuthService {
             user = await userRepository.createUser(netid, netid, newUser.givenName, newUser.familyName,
               newUser.photoUrl, newUser.email, userId);
           }
-          // since they're logging in, create a new session for them
-          const session = sessionsRepository.createSession(user);
+          //add device token
+          const session = await sessionsRepository.createSession(user);  
+          sessionsRepository.updateSessionDeviceToken(session, authRequest.deviceToken)        
           return session;
         });
       }

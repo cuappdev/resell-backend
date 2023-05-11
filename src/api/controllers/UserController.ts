@@ -2,7 +2,7 @@ import { Body, CurrentUser, Get, JsonController, Param, Params, Post } from 'rou
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import { EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, SetAdminByEmailRequest } from '../../types';
+import { EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, SaveTokenRequest, SetAdminByEmailRequest } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')

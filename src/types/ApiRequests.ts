@@ -16,6 +16,7 @@ export interface GoogleLoginUser {
 export interface AuthRequest {
     idToken: string;
     user: GoogleLoginUser;
+    deviceToken: string;
 }
 
 export interface EditProfileRequest {
@@ -114,9 +115,21 @@ export interface CreateUserReviewRequest {
 // NOTIFICATION
 export interface ExpoPushMessage {
     to: string[];
-    sound: 'default' | null;
+    //special type for ExpoPushMessage
+    sound: 'default';
     title: string;
     body: string;
     data: JSON;
 }
 
+export interface SaveTokenRequest {
+    token: string;
+    userId: Uuid;
+}
+
+export interface FindTokensRequest {
+    email: string;
+    title: string;
+    body: string;
+    data: JSON;
+}
