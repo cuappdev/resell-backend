@@ -115,7 +115,7 @@ export interface ExpoPushMessage {
 
 export interface SaveTokenRequest {
     token: string;
-    userID: Uuid;
+    userId: Uuid;
 }
 
 export interface FindTokensRequest {

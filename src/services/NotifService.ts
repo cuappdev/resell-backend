@@ -12,17 +12,17 @@ const expoServer = new Expo({ accessToken: accessToken });
 
 @Service()
 export class NotifService {
-// /**
-//  * Takes an array of notifications and sends them to users in batches (called chunks)
-//  * @param {NotifObject[]} notifs an array of notification objects
-//  * @param {Object} expoServer the server object to connect with
-//  */
-
     private transactions: TransactionsManager;
 
     constructor(@InjectManager() entityManager: EntityManager) {
         this.transactions = new TransactionsManager(entityManager);
     }
+
+    // /**
+//  * Takes an array of notifications and sends them to users in batches (called chunks)
+//  * @param {NotifObject[]} notifs an array of notification objects
+//  * @param {Object} expoServer the server object to connect with
+//  */
 
     public sendNotifChunks = async (notifs : ExpoPushMessage[], expoServer : Expo) => {
         let chunks = expoServer.chunkPushNotifications(notifs);
