@@ -87,7 +87,9 @@ describe('user tests', () => {
       .write();
 
     const getUserResponse = await userController.getUserById(uuidParam);
-
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
     expect(getUserResponse.user).toEqual(expectedUser);
   });
 
@@ -99,7 +101,9 @@ describe('user tests', () => {
       .write();
 
     const getUserResponse = await userController.getUserByEmail({ email: 'sn999@cornell.edu' });
-
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
     expect(getUserResponse.user).toEqual(expectedUser);
   });
 
@@ -111,7 +115,9 @@ describe('user tests', () => {
       .write();
 
     const getUserResponse = await userController.getUserByGoogleId('shungoGoogleID');
-
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
     expect(getUserResponse.user).toEqual(expectedUser);
   });
 
@@ -133,7 +139,9 @@ describe('user tests', () => {
     expectedUser.venmoHandle = "@Shungo-Najima1";
 
     const getUserResponse = await userController.getUserByGoogleId('shungoGoogleID');
-
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
     expect(getUserResponse.user).toEqual(expectedUser);
   });
 

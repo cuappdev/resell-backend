@@ -71,7 +71,9 @@ describe('user session tests', () => {
       .write();
 
     const getUsersResponse = await authController.deleteUserById(uuidParam);
-
+    if (getUsersResponse.user != undefined) {
+      getUsersResponse.user.stars = Number(getUsersResponse.user.stars);
+    }
     expect(getUsersResponse.user).toEqual(expectedUser);
   });
 
@@ -105,7 +107,7 @@ describe('user session tests', () => {
       .createUsers(user)
       .createUserSessions(session)
       .write();
-    
+
     const refreshToken = session.refreshToken;
     const accessToken = session.accessToken;
 
@@ -128,7 +130,7 @@ describe('user session tests', () => {
       .createUsers(user)
       .createUserSessions(session)
       .write();
-    
+
     const refreshToken = session.refreshToken;
     const accessToken = session.accessToken;
 

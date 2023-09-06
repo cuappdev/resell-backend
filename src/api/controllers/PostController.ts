@@ -99,7 +99,7 @@ export class PostController {
   }
 
   @Post('edit/postID/:id/')
-  async editPrice(@Body() editPriceRequest : EditPostPriceRequest, @CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<EditPriceResponse> {
+  async editPrice(@Body() editPriceRequest: EditPostPriceRequest, @CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<EditPriceResponse> {
     return { new_price: await (await this.postService.editPostPrice(user, params, editPriceRequest)).altered_price };
   }
 }

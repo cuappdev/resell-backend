@@ -12,7 +12,7 @@ let expectedUserReview: UserReviewModel;
 let conn: Connection;
 let userReviewController: UserReviewController;
 
-beforeAll(async() => {
+beforeAll(async () => {
     await DatabaseConnection.connect();
 });
 
@@ -48,9 +48,9 @@ describe('user review tests', () => {
         userReview.buyer = UserFactory.fake();
         userReview.seller = UserFactory.fake();
         await new DataFactory()
-        .createUserReviews(userReview)
-        .createUsers(userReview.buyer, userReview.seller)
-        .write();
+            .createUserReviews(userReview)
+            .createUsers(userReview.buyer, userReview.seller)
+            .write();
 
         const getUserReviewsResponse = await userReviewController.getUserReviews();
 
@@ -63,9 +63,9 @@ describe('user review tests', () => {
         userReview.seller = UserFactory.fakeTemplate2();
 
         await new DataFactory()
-        .createUserReviews(userReview)
-        .createUsers(userReview.buyer, userReview.seller)
-        .write();
+            .createUserReviews(userReview)
+            .createUsers(userReview.buyer, userReview.seller)
+            .write();
 
         expectedUserReview.buyer = userReview.buyer;
         expectedUserReview.seller = userReview.seller;
@@ -81,8 +81,8 @@ describe('user review tests', () => {
         const seller = UserFactory.fakeTemplate2();
 
         await new DataFactory()
-        .createUsers(buyer, seller)
-        .write();
+            .createUsers(buyer, seller)
+            .write();
 
         const newUserReview = {
             fulfilled: false,

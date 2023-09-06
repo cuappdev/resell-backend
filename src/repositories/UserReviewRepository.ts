@@ -17,10 +17,11 @@ export class UserReviewRepository extends AbstractRepository<UserReviewModel> {
     return await this.repository
       .createQueryBuilder("review")
       .leftJoinAndSelect("review.buyer", "user")
+      .leftJoinAndSelect("review.seller", "user2")
       .where("review.id = :id", { id })
       .getOne();
   }
-    
+
   public async createUserReview(
     fulfilled: boolean,
     stars: number,
