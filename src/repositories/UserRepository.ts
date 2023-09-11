@@ -102,7 +102,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
     username: string | undefined,
     photoUrl: string | undefined,
     venmoHandle: string | undefined,
-    bio: string | undefined
+    bio: string | undefined,
   ): Promise<UserModel> {
     const existingUser = this.repository
       .createQueryBuilder("user")

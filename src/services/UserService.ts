@@ -6,7 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest, SetAdminByEmailRequest } from '../types';
+import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
