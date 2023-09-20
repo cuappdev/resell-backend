@@ -95,8 +95,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where("post.original_price >= :lowerBound", {lowerBound: lowerBound})
-      .andWhere("post.original_price <= :upperBound", {upperBound: upperBound})
+      .where("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END >= :lowerBound", { lowerBound: lowerBound })
+      .andWhere("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END <= :upperBound", { upperBound: upperBound })
       .andWhere("post.archive = false")
       .getMany();
   }
@@ -123,7 +123,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository.save(post)
   }
 
-  public async editPostPrice(post: PostModel, new_price: number) : Promise<PostModel> {
+  public async editPostPrice(post: PostModel, new_price: number): Promise<PostModel> {
     post.altered_price = new_price
     return await this.repository.save(post)
   }
