@@ -100,6 +100,11 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
     return session;
   }
 
+  public async updateSessionDeviceToken(session: UserSessionModel, deviceToken: string): Promise<UserSessionModel> {
+    session.deviceToken = deviceToken;
+    return await this.repository.save(session);
+  }
+
   public async verifySession(accessToken: string): Promise<boolean> {
     const session = await this.repository
       .createQueryBuilder("UserSessionModel")

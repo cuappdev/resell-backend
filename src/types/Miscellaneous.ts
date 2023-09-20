@@ -4,6 +4,7 @@ export type APIUserSession = {
     refreshToken: string,
     active: boolean,
     expiresAt: number,
+    deviceToken: string
   }
 
   export enum Category {

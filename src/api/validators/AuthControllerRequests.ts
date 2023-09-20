@@ -8,4 +8,7 @@ export class LoginRequest implements AuthRequest {
 
     @IsDefined()
     user: GoogleLoginUser;
+
+    @IsDefined()
+    deviceToken: string;
 }
