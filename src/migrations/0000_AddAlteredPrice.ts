@@ -14,7 +14,8 @@ export class AddAlteredPrice1681680434289 implements MigrationInterface {
         name: "altered_price",
         type: "numeric",
         scale: 2,
-        default: 0,
+        // originally was 0
+        default: -1,
       })
     );
   }

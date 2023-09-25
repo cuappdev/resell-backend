@@ -109,8 +109,8 @@ export interface CreateUserReviewRequest {
     fulfilled: boolean,
     stars: number,
     comments: string,
-    buyerId: Uuid
-    sellerId: Uuid
+    buyerId: Uuid,
+    sellerId: Uuid,
 }
 // NOTIFICATION
 export interface ExpoPushMessage {

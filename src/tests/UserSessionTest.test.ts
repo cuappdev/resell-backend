@@ -30,6 +30,8 @@ beforeEach(async () => {
   expectedUser.username = 'snajima';
   expectedUser.netid = 'sn999';
   expectedUser.admin = false;
+  expectedUser.numReviews = 0;
+  expectedUser.stars = 0;
   expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
   expectedUser.email = expectedUser.netid + '@cornell.edu';
   expectedUser.googleId = 'shungoGoogleID';
@@ -69,7 +71,9 @@ describe('user session tests', () => {
       .write();
 
     const getUsersResponse = await authController.deleteUserById(uuidParam);
-
+    if (getUsersResponse.user != undefined) {
+      getUsersResponse.user.stars = Number(getUsersResponse.user.stars);
+    }
     expect(getUsersResponse.user).toEqual(expectedUser);
   });
 
@@ -103,7 +107,7 @@ describe('user session tests', () => {
       .createUsers(user)
       .createUserSessions(session)
       .write();
-    
+
     const refreshToken = session.refreshToken;
     const accessToken = session.accessToken;
 
@@ -126,7 +130,7 @@ describe('user session tests', () => {
       .createUsers(user)
       .createUserSessions(session)
       .write();
-    
+
     const refreshToken = session.refreshToken;
     const accessToken = session.accessToken;
 

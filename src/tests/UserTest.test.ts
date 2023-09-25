@@ -30,6 +30,8 @@ beforeEach(async () => {
   expectedUser.username = 'snajima';
   expectedUser.netid = 'sn999';
   expectedUser.admin = false;
+  expectedUser.stars = 0;
+  expectedUser.numReviews = 0;
   expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
   expectedUser.email = expectedUser.netid + '@cornell.edu';
   expectedUser.googleId = 'shungoGoogleID';
@@ -85,7 +87,9 @@ describe('user tests', () => {
       .write();
 
     const getUserResponse = await userController.getUserById(uuidParam);
-
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
     expect(getUserResponse.user).toEqual(expectedUser);
   });
 
@@ -97,7 +101,9 @@ describe('user tests', () => {
       .write();
 
     const getUserResponse = await userController.getUserByEmail({ email: 'sn999@cornell.edu' });
-
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
     expect(getUserResponse.user).toEqual(expectedUser);
   });
 
@@ -109,7 +115,9 @@ describe('user tests', () => {
       .write();
 
     const getUserResponse = await userController.getUserByGoogleId('shungoGoogleID');
-
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
     expect(getUserResponse.user).toEqual(expectedUser);
   });
 
@@ -131,7 +139,9 @@ describe('user tests', () => {
     expectedUser.venmoHandle = "@Shungo-Najima1";
 
     const getUserResponse = await userController.getUserByGoogleId('shungoGoogleID');
-
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
     expect(getUserResponse.user).toEqual(expectedUser);
   });
 

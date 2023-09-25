@@ -28,10 +28,10 @@ export class UserModel {
   @Column()
   admin: boolean;
 
-  @Column({ type: "numeric" })
+  @Column({ type: "numeric", default: 0 })
   stars: number;
 
-  @Column({ type: "integer" })
+  @Column({ type: "integer", default: 0 })
   numReviews: number;
 
   @Column({ nullable: true })
@@ -78,6 +78,8 @@ export class UserModel {
       givenName: this.givenName,
       familyName: this.familyName,
       admin: this.admin,
+      stars: this.stars,
+      numReviews: this.numReviews,
       photoUrl: this.photoUrl,
       venmoHandle: this.venmoHandle,
       email: this.email,

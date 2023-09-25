@@ -37,6 +37,29 @@ export class UserFactory {
         return fakeUser;
     }
 
+    public static fakeTemplate2(): UserModel {
+        /**
+         * Returns another predefined UserModel object. Useful for testing
+         * specific instance variables since we already know the value of them
+         * 
+         * @returns The predefined UserModel object, look at UserFactory.ts
+         * for exact details
+         */
+        const fakeUser = new UserModel();
+        fakeUser.id = 'c6f0a14a-48ae-4b1c-bd6f-5f3b7e8c2b99';
+        fakeUser.givenName = 'Tony';
+        fakeUser.familyName = 'Matchev';
+        fakeUser.username = 'tmatchev';
+        fakeUser.netid = 'tkm21';
+        fakeUser.admin = false;
+        fakeUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
+        fakeUser.email = fakeUser.netid + '@cornell.edu';
+        fakeUser.googleId = 'tonyGoogleID';
+        fakeUser.venmoHandle = "@Tony-Matchev";
+
+        return fakeUser;
+    }
+
     public static fake(): UserModel {
         /**
          * Returns a UserModel with random values in its instance variables

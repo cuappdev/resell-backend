@@ -20,6 +20,8 @@ export interface PublicProfile {
     netid: string,
     givenName: string,
     familyName: string,
+    stars: number,
+    numReviews: number,
     photoUrl: string,
     venmoHandle: string,
     bio: string,
@@ -139,7 +141,7 @@ export interface UserReview {
     comments: string,
     date: Date,
     buyer: PrivateProfile,
-    seller: PrivateProfile
+    seller: PrivateProfile,
 }
 
 export interface GetUserReviewResponse {

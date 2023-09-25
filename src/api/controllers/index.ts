@@ -4,6 +4,7 @@ import { ImageController } from './ImageController';
 import { PostController } from './PostController';
 import { RequestController } from './RequestController';
 import { UserController } from './UserController';
+import { UserReviewController } from './UserReviewController';
 import { NotifController } from './NotifController'
 
 export const controllers = [
@@ -14,4 +15,5 @@ export const controllers = [
   PostController,
   RequestController,
   UserController,
+  UserReviewController,
 ];
