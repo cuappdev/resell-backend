@@ -49,6 +49,11 @@ export interface SetAdminByEmailRequest {
     status: boolean;
 }
 
+export interface BlockUserRequest {
+    blocker: Uuid;
+    blocked: Uuid;
+}
+
 // POST
 
 export interface CreatePostRequest {

@@ -6,6 +6,7 @@ import { RequestRepository } from './RequestRepository';
 import { UserRepository } from './UserRepository';
 import { UserReviewRepository } from './UserReviewRepository'
 import { UserSessionRepository } from './UserSessionRepository';
+import { UserBlockingRepository } from './UserBlockingRepository';
 
 export default class Repositories {
   public static user(transactionalEntityManager: EntityManager): UserRepository {
@@ -30,6 +31,10 @@ export default class Repositories {
 
   public static session(transactionalEntityManager: EntityManager): UserSessionRepository {
     return transactionalEntityManager.getCustomRepository(UserSessionRepository);
+  }
+
+  public static userBlocking(transactionalEntityManager: EntityManager): UserBlockingRepository {
+    return transactionalEntityManager.getCustomRepository(UserBlockingRepository);
   }
 }
 

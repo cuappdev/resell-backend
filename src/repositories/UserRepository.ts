@@ -4,6 +4,7 @@ import { AbstractRepository, EntityRepository } from 'typeorm';
 import { ConflictError } from '../errors';
 import { UserModel } from '../models/UserModel';
 import { Uuid } from '../types';
+import { NotFoundError } from 'routing-controllers';
 
 @EntityRepository(UserModel)
 export class UserRepository extends AbstractRepository<UserModel> {
@@ -120,6 +121,40 @@ export class UserRepository extends AbstractRepository<UserModel> {
     user.bio = bio ?? user.bio;
     return await this.repository.save(user);
   }
+
+  // public async blockUser(
+  //   blocker: Uuid,
+  //   blocked: Uuid,
+  // ): Promise<UserModel> {
+  //   const userBlocking = await this.repository
+  //     .createQueryBuilder("user")
+  //     .where("user.id = :blocker", { blocker })
+  //     .getOne();
+  //   if (!userBlocking) {
+  //     throw new NotFoundError("User who is blocking is not found!")
+  //   }
+  //   const userBeingBlocked = await this.repository
+  //     .createQueryBuilder("user")
+  //     .where("user.id = :blocked", { blocked })
+  //     .getOne();
+  //   if (!userBeingBlocked) {
+  //     throw new NotFoundError("User who is being blocked is not found!")
+  //   }
+  //   if (userBlocking == userBeingBlocked) {
+  //     throw new ConflictError("User cannot block themselves!")
+  //   }
+  //   const userBlockingList = await (userBlocking.blocking);
+  //   const userBeingBlockedList = await (userBeingBlocked.blockers)
+  //   if (userBlockingList.includes(userBeingBlocked) || userBeingBlockedList.includes(userBlocking)) {
+  //     throw new ConflictError("User has already been blocked!")
+  //   }
+  //   userBlockingList.push(userBeingBlocked);
+  //   userBeingBlockedList.push(userBlocking);
+  //   this.repository.save(userBeingBlocked);
+  //   return await (
+  //     this.repository.save(userBlocking)
+  //   );
+  // }
 
   public async setAdmin(user: UserModel, status: boolean): Promise<UserModel> {
     user.admin = status;

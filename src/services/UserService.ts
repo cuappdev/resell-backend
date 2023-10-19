@@ -1,12 +1,12 @@
 import { NotFoundError, UnauthorizedError } from 'routing-controllers';
 import { Service } from 'typedi';
-import { EntityManager } from 'typeorm';
+import { EntityManager, TransactionAlreadyStartedError } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest } from '../types';
+import { BlockUserRequest, EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -73,6 +73,13 @@ export class UserService {
         editProfileRequest.venmoHandle, editProfileRequest.bio);
     });
   }
+
+  // public async blockUser(blockUserRequest: BlockUserRequest): Promise<UserModel> {
+  //   return this.transactions.readWrite(async (transactionalEntityManager) => {
+  //     const userRepository = Repositories.user(transactionalEntityManager);
+  //     return userRepository.blockUser(blockUserRequest.blocker, blockUserRequest.blocked);
+  //   });
+  // }
 
   public async setAdmin(superAdmin: UserModel, setAdminByEmailRequest: SetAdminByEmailRequest): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
