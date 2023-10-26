@@ -60,9 +60,10 @@ export class DataFactory {
         return this;
     }
 
-    public createUserBlockings(...userBlockings: UserBlocking[]) {
+    public createUserBlockings(...userBlockings: UserBlocking[]): DataFactory {
         for (let i = 0; i < userBlockings.length; i += 1) {
             this.userBlockings.push(userBlockings[i])
         }
+        return this;
     }
 }

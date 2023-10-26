@@ -3,6 +3,7 @@ import { Connection } from 'typeorm';
 import { AuthController } from '../../api/controllers/AuthController';
 import { PostController } from '../../api/controllers/PostController';
 import { RequestController } from '../../api/controllers/RequestController';
+import { UserBlockingController } from '../../api/controllers/UserBlockingController';
 import { UserController } from '../../api/controllers/UserController';
 import { UserReviewController } from '../../api/controllers/UserReviewController';
 import { AuthService } from '../../services/AuthService';
@@ -10,30 +11,36 @@ import { PostService } from '../../services/PostService';
 import { RequestService } from '../../services/RequestService';
 import { UserService } from '../../services/UserService';
 import { UserReviewService } from '../../services/UserReviewService';
+import { UserBlockingService } from '../../services/UserBlockingService';
 
 export class ControllerFactory {
-    public static user(conn: Connection): UserController {
-      const userService = new UserService(conn.manager);
-      return new UserController(userService);
-    }
+  public static user(conn: Connection): UserController {
+    const userService = new UserService(conn.manager);
+    return new UserController(userService);
+  }
 
-    public static post(conn: Connection): PostController {
-      const postService = new PostService(conn.manager);
-      return new PostController(postService);
-    }
+  public static post(conn: Connection): PostController {
+    const postService = new PostService(conn.manager);
+    return new PostController(postService);
+  }
 
-    public static auth(conn: Connection): AuthController {
-      const authService = new AuthService(conn.manager);
-      return new AuthController(authService);
-    }
+  public static auth(conn: Connection): AuthController {
+    const authService = new AuthService(conn.manager);
+    return new AuthController(authService);
+  }
 
-    public static request(conn: Connection): RequestController {
-      const requestService = new RequestService(conn.manager);
-      return new RequestController(requestService);
-    }
+  public static request(conn: Connection): RequestController {
+    const requestService = new RequestService(conn.manager);
+    return new RequestController(requestService);
+  }
 
-    public static userReview(conn: Connection): UserReviewController {
-      const userReviewService = new UserReviewService(conn.manager);
-      return new UserReviewController(userReviewService);
-    }
+  public static userBlocking(conn: Connection): UserBlockingController {
+    const userBlockingService = new UserBlockingService(conn.manager);
+    return new UserBlockingController(userBlockingService);
+  }
+
+  public static userReview(conn: Connection): UserReviewController {
+    const userReviewService = new UserReviewService(conn.manager);
+    return new UserReviewController(userReviewService);
+  }
 }
