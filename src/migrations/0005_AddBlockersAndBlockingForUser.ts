@@ -1,11 +1,12 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
 
-export class AddBlockersAndBlockingForUser1697151876181 implements MigrationInterface {
+const TABLE_NAME = 'user_blocking';
 
+export class AddBlockersAndBlockingForUser1697151876181 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(
             new Table({
-                name: 'user_blocking',
+                name: TABLE_NAME,
                 columns: [
                     {
                         name: 'id',
@@ -27,7 +28,7 @@ export class AddBlockersAndBlockingForUser1697151876181 implements MigrationInte
         );
 
         await queryRunner.createForeignKey(
-            'user_blocking',
+            TABLE_NAME,
             new TableForeignKey({
                 columnNames: ['blockingUserId'],
                 referencedTableName: 'User',
@@ -37,7 +38,7 @@ export class AddBlockersAndBlockingForUser1697151876181 implements MigrationInte
         )
 
         await queryRunner.createForeignKey(
-            'user_blocking',
+            TABLE_NAME,
             new TableForeignKey({
                 columnNames: ['blockedUserId'],
                 referencedTableName: 'User',
@@ -48,9 +49,9 @@ export class AddBlockersAndBlockingForUser1697151876181 implements MigrationInte
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropForeignKey('user_blocking', 'blockingUserId');
-        await queryRunner.dropForeignKey('user_blocking', 'blockedUserId');
-        await queryRunner.dropTable('user_blocking');
+        await queryRunner.dropForeignKey(TABLE_NAME, 'blockingUserId');
+        await queryRunner.dropForeignKey(TABLE_NAME, 'blockedUserId');
+        await queryRunner.dropTable(TABLE_NAME);
     }
 
 }

@@ -33,8 +33,8 @@ export class DatabaseConnection {
         'Request',
         'UserSession',
         'UserReview',
-        'UserBlocking',
-        'User'
+        'User',
+        'UserBlocking'
       ];
       await Promise.all(tableNames.map((t) => txn.query(`DELETE FROM "${t}"`)));
     });

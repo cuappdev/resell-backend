@@ -50,11 +50,11 @@ export class UserModel {
   bio: string;
 
   @ManyToMany(() => UserModel, user => user.blockers)
-  @JoinTable({ name: 'user_blocking' })
+  @JoinTable({ name: 'UserBlocking' })
   blocking: UserModel[];
 
   @ManyToMany(() => UserModel, user => user.blocking)
-  @JoinTable({ name: 'user_blocking' })
+  @JoinTable({ name: 'UserBlocking' })
   blockers: UserModel[];
 
   @OneToMany(() => PostModel, post => post.user, { cascade: true })

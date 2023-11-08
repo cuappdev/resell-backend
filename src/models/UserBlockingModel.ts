@@ -3,10 +3,10 @@ import { Uuid } from 'src/types';
 import { UserModel } from './UserModel';
 import { Blocking } from 'src/types';
 
-@Entity()
+@Entity('UserBlocking')
 export class UserBlocking {
   @PrimaryGeneratedColumn('uuid')
-  id: Uuid;
+  id_wow: Uuid;
 
   @ManyToOne(() => UserModel, (user) => user.blocking)
   blockingUser: UserModel;
@@ -16,7 +16,7 @@ export class UserBlocking {
 
   public getBlockingInfo(): Blocking {
     return {
-      id: this.id,
+      id: this.id_wow,
       blockingUser: this.blockingUser.getUserProfile(),
       blockedUser: this.blockedUser.getUserProfile(),
     }
