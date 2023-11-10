@@ -1,7 +1,7 @@
 import { PostModel } from '../../models/PostModel';
 import { RequestModel } from '../../models/RequestModel';
 import { UserModel } from '../../models/UserModel';
-import { UserBlocking } from 'src/models/UserBlockingModel';
+import { UserBlockingModel } from 'src/models/UserBlockingModel';
 import { UserReviewModel } from '../../models/UserReviewModel';
 import { UserSessionModel } from '../../models/UserSessionModel';
 import { DatabaseConnection } from './DatabaseConnection';
@@ -12,7 +12,7 @@ export class DataFactory {
     private userSessions: UserSessionModel[] = [];
     private requests: RequestModel[] = [];
     private userReviews: UserReviewModel[] = [];
-    private userBlockings: UserBlocking[] = [];
+    private userBlockings: UserBlockingModel[] = [];
 
     public async write(): Promise<void> {
         const conn = await DatabaseConnection.connect();
@@ -60,7 +60,7 @@ export class DataFactory {
         return this;
     }
 
-    public createUserBlockings(...userBlockings: UserBlocking[]): DataFactory {
+    public createUserBlockings(...userBlockings: UserBlockingModel[]): DataFactory {
         for (let i = 0; i < userBlockings.length; i += 1) {
             this.userBlockings.push(userBlockings[i])
         }

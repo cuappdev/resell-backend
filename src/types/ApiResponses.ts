@@ -3,7 +3,7 @@ import { FeedbackModel } from 'src/models/FeedbackModel';
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
-import { UserBlocking } from 'src/models/UserBlockingModel';
+import { UserBlockingModel } from 'src/models/UserBlockingModel';
 import { APIUserSession } from '../types';
 
 // RESPONSE TYPES
@@ -178,11 +178,11 @@ export interface NotifSent {
 // USERBLOCKING 
 
 export interface GetUserBlockingsResponse {
-    blockings: UserBlocking[],
+    blockings: UserBlockingModel[],
 }
 
 export interface GetUserBlockingResponse {
-    blocking: UserBlocking | undefined
+    blocking: UserBlockingModel | undefined
 }
 
 export interface Blocking {

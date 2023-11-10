@@ -1,12 +1,12 @@
-import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, ManyToOne, PrimaryGeneratedColumn, PrimaryColumn } from 'typeorm';
 import { Uuid } from 'src/types';
 import { UserModel } from './UserModel';
 import { Blocking } from 'src/types';
 
-@Entity('UserBlocking')
-export class UserBlocking {
+@Entity('UserBlockingTest')
+export class UserBlockingModel {
   @PrimaryGeneratedColumn('uuid')
-  id_wow: Uuid;
+  id: Uuid;
 
   @ManyToOne(() => UserModel, (user) => user.blocking)
   blockingUser: UserModel;
@@ -16,7 +16,7 @@ export class UserBlocking {
 
   public getBlockingInfo(): Blocking {
     return {
-      id: this.id_wow,
+      id: this.id,
       blockingUser: this.blockingUser.getUserProfile(),
       blockedUser: this.blockedUser.getUserProfile(),
     }

@@ -2,13 +2,13 @@ import { UserBlockingController } from 'src/api/controllers/UserBlockingControll
 import { Connection } from 'typeorm';
 
 import { UuidParam, UuidParams } from '../api/validators/GenericRequests';
-import { UserBlocking } from '../models/UserBlockingModel';
+import { UserBlockingModel } from '../models/UserBlockingModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, UserBlockingFactory, UserFactory } from './data';
 import { UserModel } from '../models/UserModel';
 
 let uuidParam: UuidParam;
-let expectedBlocking: UserBlocking;
+let expectedBlocking: UserBlockingModel;
 let expectedBlockingUser: UserModel;
 let expectedBlockedUser: UserModel;
 let conn: Connection;
@@ -53,7 +53,7 @@ beforeEach(async () => {
   // expectedBlockedUser.googleId = 'tonyGoogleID';
   // expectedBlockedUser.venmoHandle = "@Tony-Matchev";
 
-  expectedBlocking = new UserBlocking();
+  expectedBlocking = new UserBlockingModel();
   expectedBlocking.blockedUser = expectedBlockedUser;
   expectedBlocking.blockingUser = expectedBlockingUser;
 

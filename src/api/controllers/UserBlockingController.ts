@@ -1,7 +1,7 @@
 import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete } from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel'
-import { UserBlocking } from '../../models/UserBlockingModel';
+import { UserBlockingModel } from '../../models/UserBlockingModel';
 import { UserBlockingService } from '../../services/UserBlockingService';
 import { UuidParam, UuidParams } from '../validators/GenericRequests'
 import { GetUserBlockingResponse, GetUserBlockingsResponse } from 'src/types';
@@ -19,10 +19,10 @@ export class UserBlockingController {
     return { blockings: await this.userBlockingService.getAllUserBlockings(user) };
   }
 
-  @Get('id/:id')
-  async getUserBlockingById(@Params() params: UuidParam): Promise<GetUserBlockingResponse> {
-    return { blocking: await this.userBlockingService.getUserBlockingById(params) }
-  }
+  // @Get('id/:id')
+  // async getUserBlockingById(@Params() params: UuidParam): Promise<GetUserBlockingResponse> {
+  //   return { blocking: await this.userBlockingService.getUserBlockingById(params) }
+  // }
 
   @Get('userBlockingId/:id')
   async getUserBlockingsByBlockingId(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetUserBlockingsResponse> {
