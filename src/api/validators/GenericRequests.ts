@@ -12,6 +12,12 @@ export class UuidParam {
   id: Uuid;
 }
 
+export class UuidParams {
+  @IsUUID()
+  id1: Uuid;
+  id2: Uuid;
+}
+
 export class TimeParam {
   @IsUUID()
   id: Uuid;

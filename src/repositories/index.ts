@@ -1,3 +1,4 @@
+import { BlockingRepository } from './BlockingRepository';
 import { EntityManager } from 'typeorm';
 
 import { FeedbackRepository } from './FeedbackRepository';
@@ -30,6 +31,10 @@ export default class Repositories {
 
   public static session(transactionalEntityManager: EntityManager): UserSessionRepository {
     return transactionalEntityManager.getCustomRepository(UserSessionRepository);
+  }
+
+  public static blocking(transactionalEntityManager: EntityManager): BlockingRepository {
+    return transactionalEntityManager.getCustomRepository(BlockingRepository);
   }
 }
 

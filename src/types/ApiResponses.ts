@@ -3,6 +3,7 @@ import { FeedbackModel } from 'src/models/FeedbackModel';
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
+import { BlockingModel } from '../models/BlockingModel';
 import { APIUserSession } from '../types';
 
 // RESPONSE TYPES
@@ -172,4 +173,20 @@ export interface PushTicket {
 
 export interface NotifSent {
     status: string,
+}
+
+// BLOCKING
+
+export interface GetBlockingsResponse {
+    blockings: BlockingModel[];
+}
+
+export interface GetBlockingResponse {
+    blocking: BlockingModel | undefined;
+}
+
+export interface Blocking {
+    id: Uuid,
+    blocker: PrivateProfile,
+    blocked: PrivateProfile,
 }
