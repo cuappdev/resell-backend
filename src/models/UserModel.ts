@@ -6,14 +6,21 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
-import { PrivateProfile, Uuid } from "../types";
-import { FeedbackModel } from "./FeedbackModel";
-import { PostModel } from "./PostModel";
-import { RequestModel } from "./RequestModel";
-import { UserSessionModel } from "./UserSessionModel";
-import { UserReviewModel } from "./UserReviewModel";
-import { BlockingModel } from "./BlockingModel";
+import { PrivateProfile, Uuid } from '../types';
+import { FeedbackModel } from './FeedbackModel';
+import { PostModel } from './PostModel';
+import { RequestModel } from './RequestModel';
+import { UserSessionModel } from './UserSessionModel';
+import { UserReviewModel } from './UserReviewModel'
 
 @Entity("User")
 export class UserModel {
@@ -56,11 +63,13 @@ export class UserModel {
   @Column({ type: "text", default: "" })
   bio: string;
 
-  @OneToMany(() => BlockingModel, (block) => block.blocker)
-  blocking: BlockingModel[];
+  @ManyToMany(() => UserModel, user => user.blockers)
+  @JoinTable({ name: 'Blocking' })
+  blocking: UserModel[];
 
-  @OneToMany(() => BlockingModel, (block) => block.blocked)
-  blockers: BlockingModel[];
+  @ManyToMany(() => UserModel, user => user.blocking)
+  @JoinTable({ name: 'Blocking' })
+  blockers: UserModel[];
 
   @OneToMany(() => PostModel, (post) => post.user, { cascade: true })
   posts: PostModel[];
