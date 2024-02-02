@@ -1,16 +1,22 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
-import { PrivateProfile, Uuid } from '../types';
-import { FeedbackModel } from './FeedbackModel';
-import { PostModel } from './PostModel';
-import { RequestModel } from './RequestModel';
-import { UserSessionModel } from './UserSessionModel';
-import { UserReviewModel } from './UserReviewModel'
+import { PrivateProfile, Uuid } from "../types";
+import { FeedbackModel } from "./FeedbackModel";
+import { PostModel } from "./PostModel";
+import { RequestModel } from "./RequestModel";
+import { UserSessionModel } from "./UserSessionModel";
+import { UserReviewModel } from "./UserReviewModel";
 
-@Entity('User')
+@Entity("User")
 export class UserModel {
-
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: Uuid;
 
   @Column({ unique: true })
@@ -49,33 +55,35 @@ export class UserModel {
   @Column({ type: "text", default: "" })
   bio: string;
 
-  @ManyToMany(() => UserModel, user => user.blockers)
-  @JoinTable({ name: 'Blocking' })
+  @OneToMany(() => UserModel, (user) => user.blockers)
+  @JoinTable({ name: "Blocking" })
   blocking: UserModel[];
 
-  @ManyToMany(() => UserModel, user => user.blocking)
-  @JoinTable({ name: 'Blocking' })
+  @OneToMany(() => UserModel, (user) => user.blocking)
+  @JoinTable({ name: "Blocking" })
   blockers: UserModel[];
 
-  @OneToMany(() => PostModel, post => post.user, { cascade: true })
+  @OneToMany(() => PostModel, (post) => post.user, { cascade: true })
   posts: PostModel[];
 
-  @ManyToMany(() => PostModel, post => post.savers)
+  @ManyToMany(() => PostModel, (post) => post.savers)
   saved: PostModel[];
 
-  @OneToMany(() => UserSessionModel, session => session.user, { cascade: true })
+  @OneToMany(() => UserSessionModel, (session) => session.user, {
+    cascade: true,
+  })
   sessions: UserSessionModel[];
 
-  @OneToMany(() => FeedbackModel, feedback => feedback.user)
+  @OneToMany(() => FeedbackModel, (feedback) => feedback.user)
   feedbacks: FeedbackModel[];
 
-  @OneToMany(() => RequestModel, request => request.user)
+  @OneToMany(() => RequestModel, (request) => request.user)
   requests: RequestModel[];
 
-  @OneToMany(() => UserReviewModel, review => review.buyer)
+  @OneToMany(() => UserReviewModel, (review) => review.buyer)
   reviewsWritten: UserReviewModel[];
 
-  @OneToMany(() => UserReviewModel, review => review.seller)
+  @OneToMany(() => UserReviewModel, (review) => review.seller)
   reviewsReceived: UserReviewModel[];
 
   public getUserProfile(): PrivateProfile {
