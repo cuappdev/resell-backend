@@ -2,6 +2,7 @@ import { PostModel } from 'src/models/PostModel';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
 import { ConflictError } from '../errors';
+import { NotFoundError } from 'routing-controllers';
 import { UserModel } from '../models/UserModel';
 import { Uuid } from '../types';
 
@@ -128,5 +129,39 @@ export class UserRepository extends AbstractRepository<UserModel> {
 
   public async deleteUser(user: UserModel): Promise<UserModel> {
     return await this.repository.remove(user);
+  }
+
+  public async blockUser(
+    blocker: UserModel,
+    blocked: UserModel,
+  ): Promise<UserModel> {
+    const blockerList = blocker.blocking;
+    const blockedList = blocked.blockers
+    if (blockerList.includes(blocked) || blockedList.includes(blocker)) {
+      throw new ConflictError("User has already been blocked!")
+    }
+    blockerList.push(blocked);
+    blockedList.push(blocker);
+    this.repository.save(blocked);
+    return await (
+      this.repository.save(blocker)
+    );
+  }
+
+  public async unblockUser(
+    blocker: UserModel,
+    blocked: UserModel,
+  ): Promise<UserModel> {
+    const blockerList = blocker.blocking;
+    const blockedList = blocked.blockers
+    if (!blockerList.includes(blocked) || !blockedList.includes(blocker)) {
+      throw new NotFoundError("User has not been blocked!")
+    }
+    blockerList.splice(blockerList.indexOf(blocked), 1);
+    blockedList.splice(blockedList.indexOf(blocker), 1);
+    this.repository.save(blocked);
+    return await (
+      this.repository.save(blocker)
+    );
   }
 }

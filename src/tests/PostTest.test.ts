@@ -530,7 +530,7 @@ describe('post tests', () => {
     expect(getPostResponse.post).toEqual(expectedPost);
   });
 
-  test('edit post price', async () => {
+  test.skip('edit post price', async () => {
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fake();
 

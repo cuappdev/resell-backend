@@ -6,7 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest } from '../types';
+import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -84,6 +84,27 @@ export class UserService {
       const user = await userRepository.getUserByEmail(setAdminByEmailRequest.email)
       if (!user) throw new NotFoundError('User not found!');
       return await userRepository.setAdmin(user, setAdminByEmailRequest.status);
+    });
+  }
+
+  public async blockUser(user: UserModel, blockUserRequest: BlockUserRequest): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      if (user.id === blockUserRequest.blocked) {
+        throw new UnauthorizedError('User cannot block themselves!');
+      }
+      const blocked = await userRepository.getUserById(blockUserRequest.blocked);
+      if (!blocked) throw new NotFoundError('Blocked user not found!');
+      return userRepository.blockUser(user, blocked);
+    });
+  }
+
+  public async unblockUser(user: UserModel, blockUserRequest: BlockUserRequest): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const blocked = await userRepository.getUserById(blockUserRequest.blocked);
+      if (!blocked) throw new NotFoundError('Blocked user not found!');
+      return userRepository.unblockUser(user, blocked);
     });
   }
 }
