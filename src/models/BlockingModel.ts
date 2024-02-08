@@ -1,17 +1,23 @@
-import { Entity, ManyToOne, PrimaryGeneratedColumn, PrimaryColumn, Column } from 'typeorm';
-import { Uuid } from '../types';
-import { UserModel } from './UserModel';
-import { Blocking } from 'src/types';
+import {
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  Column,
+} from "typeorm";
+import { Uuid } from "../types";
+import { UserModel } from "./UserModel";
+import { Blocking } from "src/types";
 
-@Entity('Blocking')
+@Entity("Blocking")
 export class BlockingModel {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: Uuid;
 
-  @ManyToOne(() => UserModel, user => user.blocking)
+  @ManyToOne(() => UserModel, (user) => user.blocking)
   blocker: UserModel;
 
-  @ManyToOne(() => UserModel, user => user.blockers)
+  @ManyToOne(() => UserModel, (user) => user.blockers)
   blocked: UserModel;
 
   public getBlockingInfo(): Blocking {

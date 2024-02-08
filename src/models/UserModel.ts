@@ -13,6 +13,7 @@ import { PostModel } from "./PostModel";
 import { RequestModel } from "./RequestModel";
 import { UserSessionModel } from "./UserSessionModel";
 import { UserReviewModel } from "./UserReviewModel";
+import { BlockingModel } from "./BlockingModel";
 
 @Entity("User")
 export class UserModel {
@@ -55,13 +56,11 @@ export class UserModel {
   @Column({ type: "text", default: "" })
   bio: string;
 
-  @OneToMany(() => UserModel, (user) => user.blockers)
-  @JoinTable({ name: "Blocking" })
-  blocking: UserModel[];
+  @OneToMany(() => BlockingModel, (block) => block.blocker)
+  blocking: BlockingModel[];
 
-  @OneToMany(() => UserModel, (user) => user.blocking)
-  @JoinTable({ name: "Blocking" })
-  blockers: UserModel[];
+  @OneToMany(() => BlockingModel, (block) => block.blocked)
+  blockers: BlockingModel[];
 
   @OneToMany(() => PostModel, (post) => post.user, { cascade: true })
   posts: PostModel[];
