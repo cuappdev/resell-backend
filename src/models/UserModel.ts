@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany, JoinTable, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 import { PrivateProfile, Uuid } from '../types';
 import { FeedbackModel } from './FeedbackModel';
@@ -48,6 +48,23 @@ export class UserModel {
 
   @Column({ type: "text", default: "" })
   bio: string;
+
+  @ManyToMany(() => UserModel, (user) => user.blockers)
+  @JoinTable({
+    name: "user_blocking_users",
+    joinColumn: {
+      name: "blockers",
+      referencedColumnName: "id"
+    },
+    inverseJoinColumn: {
+      name: "blocking",
+      referencedColumnName: "id"
+    }
+  })
+  blocking: UserModel[];
+
+  @ManyToMany(() => UserModel, (user) => user.blocking)
+  blockers: UserModel[];
 
   @OneToMany(() => PostModel, post => post.user, { cascade: true })
   posts: PostModel[];
