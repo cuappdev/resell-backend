@@ -4,6 +4,7 @@ import { UserModel } from '../../models/UserModel';
 import { UserReviewModel } from '../../models/UserReviewModel';
 import { UserSessionModel } from '../../models/UserSessionModel';
 import { DatabaseConnection } from './DatabaseConnection';
+import { BlockingModel } from '../../models/BlockingModel';
 
 export class DataFactory {
     private users: UserModel[] = [];
@@ -11,6 +12,7 @@ export class DataFactory {
     private userSessions: UserSessionModel[] = [];
     private requests: RequestModel[] = [];
     private userReviews: UserReviewModel[] = [];
+    private blockings: BlockingModel[] = [];
 
     public async write(): Promise<void> {
         const conn = await DatabaseConnection.connect();
@@ -20,6 +22,7 @@ export class DataFactory {
             this.userSessions = await txn.save(this.userSessions);
             this.requests = await txn.save(this.requests);
             this.userReviews = await txn.save(this.userReviews);
+            this.blockings = await txn.save(this.blockings);
         });
     }
 
@@ -54,6 +57,13 @@ export class DataFactory {
     public createUserReviews(...userReviews: UserReviewModel[]) {
         for (let i = 0; i < userReviews.length; i += 1) {
             this.userReviews.push(userReviews[i]);
+        }
+        return this;
+    }
+
+    public createBlockings(...blockings: BlockingModel[]) {
+        for (let i = 0; i < blockings.length; i += 1) {
+            this.blockings.push(blockings[i]);
         }
         return this;
     }

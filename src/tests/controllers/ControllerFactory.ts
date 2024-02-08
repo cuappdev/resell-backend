@@ -1,11 +1,13 @@
 import { Connection } from 'typeorm';
 
 import { AuthController } from '../../api/controllers/AuthController';
+import { BlockingController } from '../../api/controllers/BlockingController';
 import { PostController } from '../../api/controllers/PostController';
 import { RequestController } from '../../api/controllers/RequestController';
 import { UserController } from '../../api/controllers/UserController';
 import { UserReviewController } from '../../api/controllers/UserReviewController';
 import { AuthService } from '../../services/AuthService';
+import { BlockingService } from '../../services/BlockingService';
 import { PostService } from '../../services/PostService';
 import { RequestService } from '../../services/RequestService';
 import { UserService } from '../../services/UserService';
@@ -35,5 +37,10 @@ export class ControllerFactory {
     public static userReview(conn: Connection): UserReviewController {
       const userReviewService = new UserReviewService(conn.manager);
       return new UserReviewController(userReviewService);
+    }
+
+    public static blocking(conn: Connection): BlockingController {
+      const blockingService = new BlockingService(conn.manager);
+      return new BlockingController(blockingService);
     }
 }

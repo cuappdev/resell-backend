@@ -9,7 +9,7 @@ import { GetBlockingResponse, GetBlockingsResponse } from 'src/types';
 export class BlockingController {
   private blockingService: BlockingService;
 
-  constructorr(blockingService: BlockingService) {
+  constructor(blockingService: BlockingService) {
     this.blockingService = blockingService;
   }
 

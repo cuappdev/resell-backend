@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, PrimaryGeneratedColumn, PrimaryColumn } from 'typeorm';
+import { Entity, ManyToOne, PrimaryGeneratedColumn, PrimaryColumn, Column } from 'typeorm';
 import { Uuid } from '../types';
 import { UserModel } from './UserModel';
 import { Blocking } from 'src/types';
