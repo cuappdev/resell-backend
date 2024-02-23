@@ -61,10 +61,10 @@ export class UserModel {
       referencedColumnName: "id"
     }
   })
-  blocking: UserModel[];
+  blocking: UserModel[] | undefined;
 
   @ManyToMany(() => UserModel, (user) => user.blocking)
-  blockers: UserModel[];
+  blockers: UserModel[] | undefined;
 
   @OneToMany(() => PostModel, post => post.user, { cascade: true })
   posts: PostModel[];
@@ -102,6 +102,8 @@ export class UserModel {
       email: this.email,
       googleId: this.googleId,
       bio: this.bio,
+      blocking: this.blocking,
+      blockers: this.blockers,
       posts: this.posts,
       feedbacks: this.feedbacks,
     };

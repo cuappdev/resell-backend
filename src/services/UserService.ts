@@ -93,6 +93,9 @@ export class UserService {
       if (user.id === blockUserRequest.blocked) {
         throw new UnauthorizedError('User cannot block themselves!');
       }
+      if (user.blocking?.find((blockedUser) => blockedUser.id === blockUserRequest.blocked)) {
+        throw new UnauthorizedError('User is already blocked!');
+      }
       const blocked = await userRepository.getUserById(blockUserRequest.blocked);
       if (!blocked) throw new NotFoundError('Blocked user not found!');
       return userRepository.blockUser(user, blocked);
@@ -104,6 +107,9 @@ export class UserService {
       const userRepository = Repositories.user(transactionalEntityManager);
       const blocked = await userRepository.getUserById(blockUserRequest.blocked);
       if (!blocked) throw new NotFoundError('Blocked user not found!');
+      if (!user.blocking?.find((blockedUser) => blockedUser.id === blockUserRequest.blocked)) {
+        throw new UnauthorizedError('User is not blocked!');
+      }
       return userRepository.unblockUser(user, blocked);
     });
   }

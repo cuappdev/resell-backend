@@ -33,6 +33,8 @@ export interface PrivateProfile extends PublicProfile {
     email: string,
     googleId: string,
     feedbacks: FeedbackModel[],
+    blockers: UserModel[] | undefined,
+    blocking: UserModel[] | undefined,
 }
 
 export interface GetUsersResponse {

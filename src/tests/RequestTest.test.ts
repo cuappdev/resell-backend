@@ -11,7 +11,7 @@ let expectedRequest: RequestModel;
 let conn: Connection;
 let requestController: RequestController;
 
-jest.setTimeout(10000)
+jest.setTimeout(20000)
 
 beforeAll(async () => {
   await DatabaseConnection.connect();

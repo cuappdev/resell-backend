@@ -135,33 +135,25 @@ export class UserRepository extends AbstractRepository<UserModel> {
     blocker: UserModel,
     blocked: UserModel,
   ): Promise<UserModel> {
-    const blockerList = blocker.blocking;
-    const blockedList = blocked.blockers
-    if (blockerList.includes(blocked) || blockedList.includes(blocker)) {
-      throw new ConflictError("User has already been blocked!")
-    }
-    blockerList.push(blocked);
-    blockedList.push(blocker);
-    this.repository.save(blocked);
-    return await (
-      this.repository.save(blocker)
-    );
+    if (blocker.blocking === undefined) { blocker.blocking = [blocked]; }
+    else { blocker.blocking.push(blocked); }
+    return this.repository.save(blocker);
   }
 
   public async unblockUser(
     blocker: UserModel,
     blocked: UserModel,
   ): Promise<UserModel> {
-    const blockerList = blocker.blocking;
-    const blockedList = blocked.blockers
-    if (!blockerList.includes(blocked) || !blockedList.includes(blocker)) {
+    if (blocker.blocking === undefined) {
       throw new NotFoundError("User has not been blocked!")
     }
-    blockerList.splice(blockerList.indexOf(blocked), 1);
-    blockedList.splice(blockedList.indexOf(blocker), 1);
-    this.repository.save(blocked);
-    return await (
-      this.repository.save(blocker)
-    );
+    else {
+      if (!blocker.blocking.find((user) => user.id === blocked.id)) {
+        throw new NotFoundError("User has not been blocked!")
+      }
+      blocker.blocking.splice(blocker.blocking.indexOf(blocked), 1);
+      if (blocker.blocking.length === 0) { blocker.blocking = undefined; }
+    }
+    return this.repository.save(blocker);
   }
 }
