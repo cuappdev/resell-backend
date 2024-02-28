@@ -1,7 +1,7 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class init1707427884517 implements MigrationInterface {
-    name = 'init1707427884517'
+export class init1709163288115 implements MigrationInterface {
+    name = 'init1709163288115'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "Request" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "title" character varying NOT NULL, "description" character varying NOT NULL, "user" uuid, CONSTRAINT "PK_23de24dc477765bcc099feae8e5" PRIMARY KEY ("id"))`);
@@ -16,6 +16,9 @@ export class init1707427884517 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "request_matches_posts" ("matches" uuid NOT NULL, "matched" uuid NOT NULL, CONSTRAINT "PK_7f4c04956dd4e84a3437b2a8018" PRIMARY KEY ("matches", "matched"))`);
         await queryRunner.query(`CREATE INDEX "IDX_bfa8c41d1cbae1a3faf7916693" ON "request_matches_posts" ("matches") `);
         await queryRunner.query(`CREATE INDEX "IDX_dcf9a982f720a85b68bc354b9f" ON "request_matches_posts" ("matched") `);
+        await queryRunner.query(`CREATE TABLE "user_blocking_users" ("blockers" uuid NOT NULL, "blocking" uuid NOT NULL, CONSTRAINT "PK_8db623e58cc4bce5fbcc252c66b" PRIMARY KEY ("blockers", "blocking"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_fab66ba7c0e58e67b0d67f1c23" ON "user_blocking_users" ("blockers") `);
+        await queryRunner.query(`CREATE INDEX "IDX_b5c7223aa162c5ccd1867056f7" ON "user_blocking_users" ("blocking") `);
         await queryRunner.query(`ALTER TABLE "Request" ADD CONSTRAINT "FK_db281bd2822e1938f5072960173" FOREIGN KEY ("user") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Post" ADD CONSTRAINT "FK_2067452f95b084577dae22e17e2" FOREIGN KEY ("user") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "UserSession" ADD CONSTRAINT "FK_a93dfba9168e8addd8a53b9a6c4" FOREIGN KEY ("user") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
@@ -26,9 +29,13 @@ export class init1707427884517 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "user_saved_posts" ADD CONSTRAINT "FK_1da3c41687f5a8934c7808ef24d" FOREIGN KEY ("savers") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "request_matches_posts" ADD CONSTRAINT "FK_bfa8c41d1cbae1a3faf79166936" FOREIGN KEY ("matches") REFERENCES "Post"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
         await queryRunner.query(`ALTER TABLE "request_matches_posts" ADD CONSTRAINT "FK_dcf9a982f720a85b68bc354b9f8" FOREIGN KEY ("matched") REFERENCES "Request"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "user_blocking_users" ADD CONSTRAINT "FK_fab66ba7c0e58e67b0d67f1c232" FOREIGN KEY ("blockers") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE "user_blocking_users" ADD CONSTRAINT "FK_b5c7223aa162c5ccd1867056f73" FOREIGN KEY ("blocking") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "user_blocking_users" DROP CONSTRAINT "FK_b5c7223aa162c5ccd1867056f73"`);
+        await queryRunner.query(`ALTER TABLE "user_blocking_users" DROP CONSTRAINT "FK_fab66ba7c0e58e67b0d67f1c232"`);
         await queryRunner.query(`ALTER TABLE "request_matches_posts" DROP CONSTRAINT "FK_dcf9a982f720a85b68bc354b9f8"`);
         await queryRunner.query(`ALTER TABLE "request_matches_posts" DROP CONSTRAINT "FK_bfa8c41d1cbae1a3faf79166936"`);
         await queryRunner.query(`ALTER TABLE "user_saved_posts" DROP CONSTRAINT "FK_1da3c41687f5a8934c7808ef24d"`);
@@ -39,6 +46,9 @@ export class init1707427884517 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "UserSession" DROP CONSTRAINT "FK_a93dfba9168e8addd8a53b9a6c4"`);
         await queryRunner.query(`ALTER TABLE "Post" DROP CONSTRAINT "FK_2067452f95b084577dae22e17e2"`);
         await queryRunner.query(`ALTER TABLE "Request" DROP CONSTRAINT "FK_db281bd2822e1938f5072960173"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_b5c7223aa162c5ccd1867056f7"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_fab66ba7c0e58e67b0d67f1c23"`);
+        await queryRunner.query(`DROP TABLE "user_blocking_users"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_dcf9a982f720a85b68bc354b9f"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_bfa8c41d1cbae1a3faf7916693"`);
         await queryRunner.query(`DROP TABLE "request_matches_posts"`);
