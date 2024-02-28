@@ -10,7 +10,7 @@ module.exports = {
    entities: [
       'src/models/*.ts',
    ],
-   synchronize: true,
+   synchronize: false,
    namingStrategy: new SnakeNamingStrategy(),
    migrations: [
       'src/migrations/*.ts',
