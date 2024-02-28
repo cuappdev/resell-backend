@@ -269,4 +269,64 @@ describe('user tests', () => {
       expect(error.message).toBe('User is not blocked!');
     }
   });
+
+  test('delete users - user deletes themselves', async () => {
+    const admin = UserFactory.fake();
+    const user = UserFactory.fakeTemplate();
+    admin.admin = true;
+
+    await new DataFactory()
+      .createUsers(user)
+      .write();
+
+    const preDeleteUserResponse = await userController.getUsers(admin);
+    expect(preDeleteUserResponse.users).toHaveLength(1);
+
+    const getUserResponse = await userController.getUserById(uuidParam);
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
+    expect(getUserResponse.user).toEqual(expectedUser);
+
+    const deleteUserResponse = await userController.deleteUser(uuidParam, user);
+    if (deleteUserResponse.user != undefined) {
+      deleteUserResponse.user.stars = Number(deleteUserResponse.user.stars);
+    }
+    const getUsersResponse = await userController.getUsers(admin);
+    expect(getUsersResponse.users).toHaveLength(0);
+  });
+
+  test('delete users - user deletes another user', async () => {
+    const admin = UserFactory.fake();
+    const user = UserFactory.fakeTemplate();
+    admin.admin = true;
+
+    await new DataFactory()
+      .createUsers(admin, user)
+      .write();
+
+    const preDeleteUserResponse = await userController.getUsers(admin);
+    expect(preDeleteUserResponse.users).toHaveLength(2);
+
+    const deleteUserResponse = await userController.deleteUser(uuidParam, admin);
+    if (deleteUserResponse.user != undefined) {
+      deleteUserResponse.user.stars = Number(deleteUserResponse.user.stars);
+    }
+    const getUsersResponse = await userController.getUsers(admin);
+    expect(getUsersResponse.users).toHaveLength(1);
+  });
+
+  test('delete users - user that is not an admin tries to delete another user', async () => {
+    const [user1, user2] = UserFactory.create(2);
+
+    await new DataFactory()
+      .createUsers(user1, user2)
+      .write();
+
+    try {
+      await userController.deleteUser({id: user2.id}, user1);
+    } catch (error) {
+      expect(error.message).toBe('User does not have permission to delete other users');
+    }
+  });
 });

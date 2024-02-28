@@ -1,4 +1,4 @@
-import { Body, CurrentUser, Get, JsonController, Param, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete} from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
@@ -57,5 +57,10 @@ export class UserController {
   @Post('unblock/')
   async unblockUser(@Body() blockUserRequest: BlockUserRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
     return { user: await this.userService.unblockUser(user, blockUserRequest) }
+  }
+
+  @Delete('id/:id/')
+  async deleteUser(@Params() params: UuidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+    return { user: await this.userService.deleteUser(user, params) };
   }
 }

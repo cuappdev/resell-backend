@@ -113,4 +113,16 @@ export class UserService {
       return userRepository.unblockUser(user, blocked);
     });
   }
+
+  public async deleteUser(user: UserModel, params: UuidParam): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const userToDelete = await userRepository.getUserById(params.id);
+      if (!userToDelete) throw new NotFoundError('User not found!');
+      if (user.id !== userToDelete.id && !user.admin) {
+        throw new UnauthorizedError('User does not have permission to delete other users');
+      }
+      return userRepository.deleteUser(userToDelete);
+    });
+  }
 }
