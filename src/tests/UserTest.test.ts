@@ -5,6 +5,8 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, UserFactory } from './data';
+import e from 'express';
+import exp from 'constants';
 
 let uuidParam: UuidParam;
 let expectedUser: UserModel;
@@ -179,5 +181,92 @@ describe('user tests', () => {
     const getUserResponse = await userController.setAdmin({ email: user.email, status: true }, admin);
 
     expect(getUserResponse.user?.admin).toBe(true);
+  });
+
+  test('block users', async () => {
+    const [user1, user2] = UserFactory.create(2);
+
+    await new DataFactory()
+      .createUsers(user1, user2)
+      .write();
+
+    const blockUserResponse = await userController.blockUser({blocked: user2.id}, user1);
+    if (blockUserResponse.user != undefined) {
+      if (blockUserResponse.user.blocking != undefined) {
+        blockUserResponse.user.blocking.forEach((user: UserModel) => {
+          expect(user.id).toBe(user2.id);
+        });
+      }
+    }
+    expect(blockUserResponse.user?.blocking).toHaveLength(1);
+    expect(blockUserResponse.user?.blockers).toBeUndefined();
+    expect(user1.blocking).toHaveLength(1);
+  });
+
+  test('block users - user cannot block themselves', async () => {
+    const user = UserFactory.fake();
+
+    await new DataFactory()
+      .createUsers(user)
+      .write();
+
+    try {
+      await userController.blockUser({blocked: user.id}, user);
+    } catch (error) {
+      expect(error.message).toBe('User cannot block themselves!');
+    }
+  });
+
+  test('block users - user is already blocked', async () => {
+    const [user1, user2] = UserFactory.create(2);
+
+    await new DataFactory()
+      .createUsers(user1, user2)
+      .write();
+
+    await userController.blockUser({blocked: user2.id}, user1);
+    try {
+      await userController.blockUser({blocked: user2.id}, user1);
+    } catch (error) {
+      expect(error.message).toBe('User is already blocked!');
+    }
+  });
+
+  test('unblock users', async () => {
+    const [user1, user2] = UserFactory.create(2);
+
+    await new DataFactory()
+      .createUsers(user1, user2)
+      .write();
+
+    const blockUserResponse = await userController.blockUser({blocked: user2.id}, user1);
+    if (blockUserResponse.user != undefined) {
+      if (blockUserResponse.user.blocking != undefined) {
+        blockUserResponse.user.blocking.forEach((user: UserModel) => {
+          expect(user.id).toBe(user2.id);
+        });
+      }
+    }
+    expect(blockUserResponse.user?.blocking).toHaveLength(1);
+    expect(blockUserResponse.user?.blockers).toBeUndefined();
+    expect(user1.blocking).toHaveLength(1);
+
+    const unblockUserResponse = await userController.unblockUser({blocked: user2.id}, user1);
+    expect(unblockUserResponse.user?.blocking).toBeUndefined();
+    expect(unblockUserResponse.user?.blockers).toBeUndefined();
+  });
+
+  test('unblock users - user is not blocked', async () => {
+    const [user1, user2] = UserFactory.create(2);
+
+    await new DataFactory()
+      .createUsers(user1, user2)
+      .write();
+
+    try {
+      await userController.unblockUser({blocked: user2.id}, user1);
+    } catch (error) {
+      expect(error.message).toBe('User is not blocked!');
+    }
   });
 });

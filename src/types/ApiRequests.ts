@@ -1,3 +1,4 @@
+import { UserModel } from 'src/models/UserModel';
 import { Uuid } from '.';
 
 // REQUEST TYPES
@@ -47,6 +48,10 @@ export interface GetUserByEmailRequest {
 export interface SetAdminByEmailRequest {
     email: string;
     status: boolean;
+}
+
+export interface BlockUserRequest {
+    blocked: Uuid;
 }
 
 // POST

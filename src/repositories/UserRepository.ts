@@ -2,6 +2,7 @@ import { PostModel } from 'src/models/PostModel';
 import { AbstractRepository, EntityRepository } from 'typeorm';
 
 import { ConflictError } from '../errors';
+import { NotFoundError } from 'routing-controllers';
 import { UserModel } from '../models/UserModel';
 import { Uuid } from '../types';
 
@@ -128,5 +129,31 @@ export class UserRepository extends AbstractRepository<UserModel> {
 
   public async deleteUser(user: UserModel): Promise<UserModel> {
     return await this.repository.remove(user);
+  }
+
+  public async blockUser(
+    blocker: UserModel,
+    blocked: UserModel,
+  ): Promise<UserModel> {
+    if (blocker.blocking === undefined) { blocker.blocking = [blocked]; }
+    else { blocker.blocking.push(blocked); }
+    return this.repository.save(blocker);
+  }
+
+  public async unblockUser(
+    blocker: UserModel,
+    blocked: UserModel,
+  ): Promise<UserModel> {
+    if (blocker.blocking === undefined) {
+      throw new NotFoundError("User has not been blocked!")
+    }
+    else {
+      if (!blocker.blocking.find((user) => user.id === blocked.id)) {
+        throw new NotFoundError("User has not been blocked!")
+      }
+      blocker.blocking.splice(blocker.blocking.indexOf(blocked), 1);
+      if (blocker.blocking.length === 0) { blocker.blocking = undefined; }
+    }
+    return this.repository.save(blocker);
   }
 }

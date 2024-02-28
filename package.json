@@ -8,6 +8,7 @@
     "start": "ts-node src/app.ts",
     "test": "jest",
     "db:migrate:create": "ts-node ./node_modules/typeorm/cli.js migration:create -n",
+    "db:migrate:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate -n",
     "db:migrate": "ts-node ./node_modules/typeorm/cli.js migration:run",
     "db:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert"
   },
