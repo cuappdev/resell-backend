@@ -6,7 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest } from '../types';
+import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -102,12 +102,12 @@ export class UserService {
     });
   }
 
-  public async unblockUser(user: UserModel, blockUserRequest: BlockUserRequest): Promise<UserModel> {
+  public async unblockUser(user: UserModel, blockUserRequest: UnblockUserRequest): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const blocked = await userRepository.getUserById(blockUserRequest.blocked);
+      const blocked = await userRepository.getUserById(blockUserRequest.unblocked);
       if (!blocked) throw new NotFoundError('Blocked user not found!');
-      if (!user.blocking?.find((blockedUser) => blockedUser.id === blockUserRequest.blocked)) {
+      if (!user.blocking?.find((blockedUser) => blockedUser.id === blockUserRequest.unblocked)) {
         throw new UnauthorizedError('User is not blocked!');
       }
       return userRepository.unblockUser(user, blocked);
