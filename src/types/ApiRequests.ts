@@ -54,6 +54,10 @@ export interface BlockUserRequest {
     blocked: Uuid;
 }
 
+export interface UnblockUserRequest {
+    unblocked: Uuid;
+}
+
 // POST
 
 export interface CreatePostRequest {

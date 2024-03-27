@@ -251,7 +251,7 @@ describe('user tests', () => {
     expect(blockUserResponse.user?.blockers).toBeUndefined();
     expect(user1.blocking).toHaveLength(1);
 
-    const unblockUserResponse = await userController.unblockUser({blocked: user2.id}, user1);
+    const unblockUserResponse = await userController.unblockUser({unblocked: user2.id}, user1);
     expect(unblockUserResponse.user?.blocking).toBeUndefined();
     expect(unblockUserResponse.user?.blockers).toBeUndefined();
   });
@@ -264,7 +264,7 @@ describe('user tests', () => {
       .write();
 
     try {
-      await userController.unblockUser({blocked: user2.id}, user1);
+      await userController.unblockUser({unblocked: user2.id}, user1);
     } catch (error) {
       expect(error.message).toBe('User is not blocked!');
     }
