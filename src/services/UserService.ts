@@ -117,7 +117,7 @@ export class UserService {
   public async getBlockedUsersById(params: UuidParam): Promise<UserModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserBlocked(params.id);
+      const user = await userRepository.getBlockedUsersById(params.id);
       if (!user) throw new NotFoundError('User not found!');
       return user.blocking ?? [];
     });
