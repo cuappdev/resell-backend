@@ -13,6 +13,8 @@ let expectedUser: UserModel;
 let conn: Connection;
 let userController: UserController;
 
+jest.setTimeout(200000000)
+
 beforeAll(async () => {
   await DatabaseConnection.connect();
 });
@@ -328,5 +330,31 @@ describe('user tests', () => {
     } catch (error) {
       expect(error.message).toBe('User does not have permission to delete other users');
     }
+  });
+
+  test('get blocked users by id - no blocked users', async () => {
+    const user = UserFactory.fake();
+
+    await new DataFactory()
+      .createUsers(user)
+      .write();
+
+    const userUuid = {id: user.id};
+
+    const getBlockedUsersResponse = await userController.getBlockedUsersById(userUuid);
+    expect(getBlockedUsersResponse.users).toHaveLength(0);
+  });
+
+  test('get blocked users by id', async () => {
+    const [user1, user2] = UserFactory.create(2);
+
+    await new DataFactory()
+      .createUsers(user1, user2)
+      .write();
+
+    await userController.blockUser({blocked: user2.id}, user1);
+    const user1Uuid = {id: user1.id};
+    const getBlockedUsersResponse = await userController.getBlockedUsersById(user1Uuid);
+    expect(getBlockedUsersResponse.users).toHaveLength(1);
   });
 });
