@@ -19,7 +19,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
-  public async getUserBlocked(id: Uuid): Promise<UserModel | undefined> {
+  public async getBlockedUsersById(id: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
