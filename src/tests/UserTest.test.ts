@@ -13,8 +13,6 @@ let expectedUser: UserModel;
 let conn: Connection;
 let userController: UserController;
 
-jest.setTimeout(200000000)
-
 beforeAll(async () => {
   await DatabaseConnection.connect();
 });
