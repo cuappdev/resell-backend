@@ -19,6 +19,14 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
+  public async getBlockedUsersById(id: Uuid): Promise<UserModel | undefined> {
+    return await this.repository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
+      .where("user.id = :id", { id })
+      .getOne();
+  }
+
   public async getUserByGoogleId(googleId: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")

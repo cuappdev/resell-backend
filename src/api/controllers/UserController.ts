@@ -59,6 +59,11 @@ export class UserController {
     return { user: await this.userService.unblockUser(user, unblockUserRequest) }
   }
 
+  @Post('id/:id/blocked/')
+  async getBlockedUsersById(@Params() params: UuidParam): Promise<GetUsersResponse> {
+    return { users: await this.userService.getBlockedUsersById(params) };
+  }
+
   @Delete('id/:id/')
   async deleteUser(@Params() params: UuidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
     return { user: await this.userService.deleteUser(user, params) };
