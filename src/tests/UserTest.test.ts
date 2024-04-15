@@ -365,4 +365,53 @@ describe('user tests', () => {
     const deleteUserResponse = await userController.softDeleteUser(uuidParam);
     expect(deleteUserResponse.user?.isActive === false);
   });
+
+  test('soft delete user, try to get the profile of a soft deleted user', async () => {
+    const user = UserFactory.fakeTemplate();
+    user.admin = true;
+
+    await new DataFactory()
+      .createUsers(user)
+      .write();
+
+    const deleteUserResponse = await userController.softDeleteUser(uuidParam);
+    expect(deleteUserResponse.user?.isActive === false);
+
+    try {
+      await userController.getUserById(uuidParam);
+    } catch (error) {
+      expect(error.message).toBe('User is not active!');
+    }
+
+    try {
+      await userController.getUsers(user);
+    } catch (error) {
+      expect(error.message).toBe('User is not active!');
+    }
+
+    try {
+      await userController.getUserByEmail({ email: user.email });
+    } catch (error) {
+      expect(error.message).toBe('User is not active!');
+    }
+
+    try {
+      await userController.getUserByGoogleId(user.googleId);
+    } catch (error) {
+      expect(error.message).toBe('User is not active!');
+    }
+  });
+
+  test('soft delete, get all users with some users active, some inactive', async () => {
+    const [user1, user2, user3] = UserFactory.create(3);
+    user3.admin = true;
+    user1.isActive = false;
+
+    await new DataFactory()
+      .createUsers(user1, user2, user3)
+      .write();
+
+    const getUsersResponse = await userController.getUsers(user3);
+    expect(getUsersResponse.users).toHaveLength(2);
+  });
 });
