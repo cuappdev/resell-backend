@@ -59,7 +59,7 @@ export class UserController {
     return { user: await this.userService.unblockUser(user, unblockUserRequest) }
   }
 
-  @Post('id/:id/blocked/')
+  @Get('id/:id/blocked/')
   async getBlockedUsersById(@Params() params: UuidParam): Promise<GetUsersResponse> {
     return { users: await this.userService.getBlockedUsersById(params) };
   }
@@ -67,5 +67,10 @@ export class UserController {
   @Delete('id/:id/')
   async deleteUser(@Params() params: UuidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
     return { user: await this.userService.deleteUser(user, params) };
+  }
+
+  @Post('softDelete/id/:id/')
+  async softDeleteUser(@Params() params: UuidParam): Promise<GetUserResponse> {
+    return { user: await this.userService.softDeleteUser(params) };
   }
 }

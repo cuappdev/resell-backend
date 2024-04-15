@@ -39,13 +39,11 @@ export class AuthService {
     if (emailIndex === -1 && !adminEmails?.includes(authRequest.user.email)) {
       throw new UnauthorizedError('Non-Cornell email used!');
     }
-
     if (process.env.OAUTH_ANDROID_CLIENT && process.env.OAUTH_IOS_ID) {
       // verifies info using id token
       const ticket = await client.verifyIdToken({
         idToken: authRequest.idToken,
       });
-
       const payload = ticket.getPayload();
 
       if (payload) {
@@ -67,6 +65,10 @@ export class AuthService {
             const netid = authRequest.user.email.substring(0, emailIndex);
             user = await userRepository.createUser(netid, netid, newUser.givenName, newUser.familyName,
               newUser.photoUrl, newUser.email, userId);
+          }
+          //check if the user is inactive/soft deleted
+          if (!user.is_active) {
+            throw new ForbiddenError("User is soft deleted");
           }
           //add device token
           const session = await sessionsRepository.createSession(user);  

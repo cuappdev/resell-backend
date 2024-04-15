@@ -93,31 +93,35 @@ export class UserService {
       if (user.id === blockUserRequest.blocked) {
         throw new UnauthorizedError('User cannot block themselves!');
       }
-      if (user.blocking?.find((blockedUser) => blockedUser.id === blockUserRequest.blocked)) {
+      const joinedUser = await userRepository.getUserWithBlockedInfo(user.id);
+      if (joinedUser?.blocking?.find((blockedUser) => blockedUser.id === blockUserRequest.blocked)) {
         throw new UnauthorizedError('User is already blocked!');
       }
       const blocked = await userRepository.getUserById(blockUserRequest.blocked);
       if (!blocked) throw new NotFoundError('Blocked user not found!');
-      return userRepository.blockUser(user, blocked);
+      if (!joinedUser) throw new NotFoundError('Joined user not found!');
+      return userRepository.blockUser(joinedUser, blocked);
     });
   }
 
-  public async unblockUser(user: UserModel, blockUserRequest: UnblockUserRequest): Promise<UserModel> {
+  public async unblockUser(user: UserModel, unblockUserRequest: UnblockUserRequest): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const blocked = await userRepository.getUserById(blockUserRequest.unblocked);
+      const blocked = await userRepository.getUserById(unblockUserRequest.unblocked);
       if (!blocked) throw new NotFoundError('Blocked user not found!');
-      if (!user.blocking?.find((blockedUser) => blockedUser.id === blockUserRequest.unblocked)) {
+      const joinedUser = await userRepository.getUserWithBlockedInfo(user.id);
+      if (!joinedUser) throw new NotFoundError('Joined user not found!');
+      if (!joinedUser.blocking?.find((blockedUser) => blockedUser.id === unblockUserRequest.unblocked)) {
         throw new UnauthorizedError('User is not blocked!');
       }
-      return userRepository.unblockUser(user, blocked);
+      return userRepository.unblockUser(joinedUser, blocked);
     });
   }
 
   public async getBlockedUsersById(params: UuidParam): Promise<UserModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getBlockedUsersById(params.id);
+      const user = await userRepository.getUserWithBlockedInfo(params.id);
       if (!user) throw new NotFoundError('User not found!');
       return user.blocking ?? [];
     });
@@ -132,6 +136,15 @@ export class UserService {
         throw new UnauthorizedError('User does not have permission to delete other users');
       }
       return userRepository.deleteUser(userToDelete);
+    });
+  }
+
+  public async softDeleteUser(params: UuidParam): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const user = await userRepository.getUserById(params.id);
+      if (!user) throw new NotFoundError('User not found!');
+      return userRepository.softDeleteUser(user);
     });
   }
 }
