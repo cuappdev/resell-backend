@@ -32,7 +32,7 @@ beforeEach(async () => {
   expectedUser.username = 'snajima';
   expectedUser.netid = 'sn999';
   expectedUser.admin = false;
-  expectedUser.is_active = true;
+  expectedUser.isActive = true;
   expectedUser.stars = 0;
   expectedUser.numReviews = 0;
   expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
@@ -363,6 +363,6 @@ describe('user tests', () => {
       .write();
 
     const deleteUserResponse = await userController.softDeleteUser(uuidParam);
-    expect(deleteUserResponse.user?.is_active === false);
+    expect(deleteUserResponse.user?.isActive === false);
   });
 });

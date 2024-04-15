@@ -59,7 +59,7 @@ export class UserController {
     return { user: await this.userService.unblockUser(user, unblockUserRequest) }
   }
 
-  @Get('id/:id/blocked/')
+  @Get('blocked/id/:id/')
   async getBlockedUsersById(@Params() params: UuidParam): Promise<GetUsersResponse> {
     return { users: await this.userService.getBlockedUsersById(params) };
   }

@@ -20,7 +20,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async getUserWithBlockedInfo(id: Uuid): Promise<UserModel | undefined> {
-    return await this.repository
+    return this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
       .leftJoinAndSelect("user.blockers", "user_blocking_users.blockers")
@@ -80,28 +80,28 @@ export class UserRepository extends AbstractRepository<UserModel> {
     email: string,
     googleId: string,
   ): Promise<UserModel> {
-    let existingUser = this.repository
-      .createQueryBuilder("user")
-      .where("user.username = :username", { username })
-      .getOne();
-    if (await existingUser) throw new ConflictError('UserModel with same username already exists!');
-    existingUser = this.repository
-      .createQueryBuilder("user")
-      .where("user.netid = :netid", { netid })
-      .getOne();
-    if (await existingUser) throw new ConflictError('UserModel with same netid already exists!');
-    existingUser = this.repository
-      .createQueryBuilder("user")
-      .where("user.email = :email", { email })
-      .getOne();
-    if (await existingUser) throw new ConflictError('UserModel with same email already exists!');
-
-    existingUser = this.repository
-      .createQueryBuilder("user")
-      .where("user.googleId = :googleId", { googleId })
-      .getOne();
-    if (await existingUser) throw new ConflictError('UserModel with same google ID already exists!');
-
+    let existingUser = await this.repository
+    .createQueryBuilder("user")
+    .where("user.username = :username", { username })
+    .orWhere("user.netid = :netid", { netid })
+    .orWhere("user.email = :email", { email })
+    .orWhere("user.googleId = :googleId", { googleId })
+    .getOne();
+    if (existingUser) {
+      if (existingUser.username === username) {
+        throw new ConflictError('UserModel with same username already exists!');
+      }
+      else if (existingUser.netid === netid) 
+      {
+        throw new ConflictError('UserModel with same netid already exists!');
+      } 
+      else if (existingUser.email === email) {
+        throw new ConflictError('UserModel with same email already exists!');
+      }
+      else {
+        throw new ConflictError('UserModel with same google ID already exists!');
+      }
+    }
     const adminEmails = process.env.ADMIN_EMAILS?.split(",");
     const adminStatus = adminEmails?.includes(email);
 
@@ -177,7 +177,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async softDeleteUser(user: UserModel): Promise<UserModel> {
-    user.is_active = false;
+    user.isActive = false;
     return this.repository.save(user);
   }
 }

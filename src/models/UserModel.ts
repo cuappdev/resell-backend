@@ -29,7 +29,7 @@ export class UserModel {
   admin: boolean;
 
   @Column({ default: true })
-  is_active: boolean;
+  isActive: boolean;
 
   @Column({ type: "numeric", default: 0 })
   stars: number;
@@ -105,7 +105,7 @@ export class UserModel {
       email: this.email,
       googleId: this.googleId,
       bio: this.bio,
-      is_active: this.is_active,
+      isActive: this.isActive,
       blocking: this.blocking,
       blockers: this.blockers,
       posts: this.posts,

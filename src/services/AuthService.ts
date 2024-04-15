@@ -67,7 +67,7 @@ export class AuthService {
               newUser.photoUrl, newUser.email, userId);
           }
           //check if the user is inactive/soft deleted
-          if (!user.is_active) {
+          if (!user.isActive) {
             throw new ForbiddenError("User is soft deleted");
           }
           //add device token
