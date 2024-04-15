@@ -104,6 +104,9 @@ export class UserRepository extends AbstractRepository<UserModel> {
     }
     const adminEmails = process.env.ADMIN_EMAILS?.split(",");
     const adminStatus = adminEmails?.includes(email);
+    // Generate a random uuid referral code
+    const referralCode = require('uuid').v4();
+    console.log(referralCode);
 
     const user = new UserModel();
     user.username = username;

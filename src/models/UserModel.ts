@@ -52,6 +52,12 @@ export class UserModel {
   @Column({ type: "text", default: "" })
   bio: string;
 
+  @Column({ unique: true })
+  referralCode: string;
+
+  @Column({ nullable: true })
+  referredBy: Uuid;
+
   @ManyToMany(() => UserModel, (user) => user.blockers)
   @JoinTable({
     name: "user_blocking_users",
