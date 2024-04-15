@@ -19,10 +19,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
-  public async getBlockedUsersById(id: Uuid): Promise<UserModel | undefined> {
+  public async getUserWithBlockedInfo(id: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
+      .leftJoinAndSelect("user.blockers", "user_blocking_users.blockers")
       .where("user.id = :id", { id })
       .getOne();
   }
@@ -80,6 +81,16 @@ export class UserRepository extends AbstractRepository<UserModel> {
     googleId: string,
   ): Promise<UserModel> {
     let existingUser = this.repository
+      .createQueryBuilder("user")
+      .where("user.username = :username", { username })
+      .getOne();
+    if (await existingUser) throw new ConflictError('UserModel with same username already exists!');
+    existingUser = this.repository
+      .createQueryBuilder("user")
+      .where("user.netid = :netid", { netid })
+      .getOne();
+    if (await existingUser) throw new ConflictError('UserModel with same netid already exists!');
+    existingUser = this.repository
       .createQueryBuilder("user")
       .where("user.email = :email", { email })
       .getOne();
@@ -159,9 +170,14 @@ export class UserRepository extends AbstractRepository<UserModel> {
       if (!blocker.blocking.find((user) => user.id === blocked.id)) {
         throw new NotFoundError("User has not been blocked!")
       }
-      blocker.blocking.splice(blocker.blocking.indexOf(blocked), 1);
-      if (blocker.blocking.length === 0) { blocker.blocking = undefined; }
+      // remove blocked user from blocking list
+      blocker.blocking = blocker.blocking.filter((user) => user.id !== blocked.id);
     }
     return this.repository.save(blocker);
+  }
+
+  public async softDeleteUser(user: UserModel): Promise<UserModel> {
+    user.is_active = false;
+    return this.repository.save(user);
   }
 }
