@@ -1,5 +1,5 @@
 import { PostController } from 'src/api/controllers/PostController';
-import { Connection } from 'typeorm';
+import { Connection, Not } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
@@ -551,4 +551,28 @@ describe('post tests', () => {
     console.log(post.altered_price)
     expect(Number(post.altered_price)).toEqual(Number(getPostsResponse.new_price));
   })
+
+  test('get all posts/post by id with a user who is soft deleted', async () => {
+    const post = PostFactory.fakeTemplate();
+    const user = UserFactory.fakeTemplate();
+    user.isActive = false;
+    post.user = user;
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(user)
+      .write();
+
+    const getPostsResponse = await postController.getPosts();
+
+    expect(getPostsResponse.posts).toHaveLength(0);
+
+    try {
+      await postController.getPostById(uuidParam);
+    } catch (error) {
+      expect(error.message).toEqual('User is not active!');
+    }
+
+    
+  });
 });

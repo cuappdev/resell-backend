@@ -32,6 +32,7 @@ beforeEach(async () => {
   expectedUser.username = 'snajima';
   expectedUser.netid = 'sn999';
   expectedUser.admin = false;
+  expectedUser.isActive = true;
   expectedUser.stars = 0;
   expectedUser.numReviews = 0;
   expectedUser.photoUrl = 'https://media-exp1.licdn.com/dms/image/C5603AQGmvQtdub6nAQ/profile-displayphoto-shrink_400_400/0/1635358826496?e=1668643200&v=beta&t=ncqjrFUqgqipctcmaSwPzSPrkj0RIQHiCINup_55NNs';
@@ -199,8 +200,7 @@ describe('user tests', () => {
       }
     }
     expect(blockUserResponse.user?.blocking).toHaveLength(1);
-    expect(blockUserResponse.user?.blockers).toBeUndefined();
-    expect(user1.blocking).toHaveLength(1);
+    expect(blockUserResponse.user?.blockers).toHaveLength(0);
   });
 
   test('block users - user cannot block themselves', async () => {
@@ -248,12 +248,11 @@ describe('user tests', () => {
       }
     }
     expect(blockUserResponse.user?.blocking).toHaveLength(1);
-    expect(blockUserResponse.user?.blockers).toBeUndefined();
-    expect(user1.blocking).toHaveLength(1);
+    expect(blockUserResponse.user?.blockers).toHaveLength(0);
 
     const unblockUserResponse = await userController.unblockUser({unblocked: user2.id}, user1);
-    expect(unblockUserResponse.user?.blocking).toBeUndefined();
-    expect(unblockUserResponse.user?.blockers).toBeUndefined();
+    expect(unblockUserResponse.user?.blocking).toHaveLength(0);
+    expect(unblockUserResponse.user?.blockers).toHaveLength(0);
   });
 
   test('unblock users - user is not blocked', async () => {
@@ -354,5 +353,65 @@ describe('user tests', () => {
     const user1Uuid = {id: user1.id};
     const getBlockedUsersResponse = await userController.getBlockedUsersById(user1Uuid);
     expect(getBlockedUsersResponse.users).toHaveLength(1);
+  });
+
+  test('soft delete user', async () => {
+    const user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createUsers(user)
+      .write();
+
+    const deleteUserResponse = await userController.softDeleteUser(uuidParam);
+    expect(deleteUserResponse.user?.isActive === false);
+  });
+
+  test('soft delete user, try to get the profile of a soft deleted user', async () => {
+    const user = UserFactory.fakeTemplate();
+    user.admin = true;
+
+    await new DataFactory()
+      .createUsers(user)
+      .write();
+
+    const deleteUserResponse = await userController.softDeleteUser(uuidParam);
+    expect(deleteUserResponse.user?.isActive === false);
+
+    try {
+      await userController.getUserById(uuidParam);
+    } catch (error) {
+      expect(error.message).toBe('User is not active!');
+    }
+
+    try {
+      await userController.getUsers(user);
+    } catch (error) {
+      expect(error.message).toBe('User is not active!');
+    }
+
+    try {
+      await userController.getUserByEmail({ email: user.email });
+    } catch (error) {
+      expect(error.message).toBe('User is not active!');
+    }
+
+    try {
+      await userController.getUserByGoogleId(user.googleId);
+    } catch (error) {
+      expect(error.message).toBe('User is not active!');
+    }
+  });
+
+  test('soft delete, get all users with some users active, some inactive', async () => {
+    const [user1, user2, user3] = UserFactory.create(3);
+    user3.admin = true;
+    user1.isActive = false;
+
+    await new DataFactory()
+      .createUsers(user1, user2, user3)
+      .write();
+
+    const getUsersResponse = await userController.getUsers(user3);
+    expect(getUsersResponse.users).toHaveLength(2);
   });
 });

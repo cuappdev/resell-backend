@@ -32,6 +32,7 @@ export interface PrivateProfile extends PublicProfile {
     admin: boolean,
     email: string,
     googleId: string,
+    isActive: boolean,
     feedbacks: FeedbackModel[],
     blockers: UserModel[] | undefined,
     blocking: UserModel[] | undefined,

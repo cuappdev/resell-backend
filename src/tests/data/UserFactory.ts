@@ -33,6 +33,7 @@ export class UserFactory {
         fakeUser.email = fakeUser.netid + '@cornell.edu';
         fakeUser.googleId = 'shungoGoogleID';
         fakeUser.venmoHandle = "@Shungo-Najima";
+        fakeUser.isActive = true;
 
         return fakeUser;
     }
@@ -56,6 +57,7 @@ export class UserFactory {
         fakeUser.email = fakeUser.netid + '@cornell.edu';
         fakeUser.googleId = 'tonyGoogleID';
         fakeUser.venmoHandle = "@Tony-Matchev";
+        fakeUser.isActive = true;
 
         return fakeUser;
     }
@@ -79,6 +81,7 @@ export class UserFactory {
         fakeUser.photoUrl = faker.internet.url();
         fakeUser.email = fakeUser.netid + '@cornell.edu';
         fakeUser.googleId = faker.datatype.uuid();
+        fakeUser.isActive = true;
 
         return fakeUser;
     }
