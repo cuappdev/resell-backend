@@ -3,6 +3,7 @@ import { FeedbackModel } from 'src/models/FeedbackModel';
 import { Uuid } from '.';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
+import { ReportModel } from '../models/ReportModel';
 import { APIUserSession } from '../types';
 
 // RESPONSE TYPES
@@ -35,6 +36,8 @@ export interface PrivateProfile extends PublicProfile {
     feedbacks: FeedbackModel[],
     blockers: UserModel[] | undefined,
     blocking: UserModel[] | undefined,
+    reports: ReportModel[] | undefined,
+    reportedby: ReportModel[] | undefined,
 }
 
 export interface GetUsersResponse {
@@ -175,3 +178,15 @@ export interface PushTicket {
 export interface NotifSent {
     status: string,
 }
+
+// REPORTS
+
+export interface Report {
+    id: Uuid,
+    reporter: PrivateProfile,
+    reported: PrivateProfile,
+    message: string,
+    categories: string[],
+    created: Date
+}
+

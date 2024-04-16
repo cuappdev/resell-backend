@@ -6,6 +6,7 @@ import { PostModel } from './PostModel';
 import { RequestModel } from './RequestModel';
 import { UserSessionModel } from './UserSessionModel';
 import { UserReviewModel } from './UserReviewModel'
+import { ReportModel } from './ReportModel';
 
 @Entity('User')
 export class UserModel {
@@ -66,6 +67,12 @@ export class UserModel {
   @ManyToMany(() => UserModel, (user) => user.blocking)
   blockers: UserModel[] | undefined;
 
+  @OneToMany(() => ReportModel, (report) => report.reporter)
+  public reports: ReportModel[];
+
+  @OneToMany(() => ReportModel, (report) => report.reported)
+  public reportedby: ReportModel[];
+
   @OneToMany(() => PostModel, post => post.user, { cascade: true })
   posts: PostModel[];
 
@@ -104,6 +111,8 @@ export class UserModel {
       bio: this.bio,
       blocking: this.blocking,
       blockers: this.blockers,
+      reports: this.reports,
+      reportedby: this.reportedby,
       posts: this.posts,
       feedbacks: this.feedbacks,
     };
