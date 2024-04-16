@@ -6,6 +6,7 @@ import { RequestController } from './RequestController';
 import { UserController } from './UserController';
 import { UserReviewController } from './UserReviewController';
 import { NotifController } from './NotifController'
+import { ReportController } from './ReportController';
 
 export const controllers = [
   AuthController,
@@ -14,6 +15,7 @@ export const controllers = [
   NotifController,
   PostController,
   RequestController,
+  ReportController,
   UserController,
   UserReviewController,
 ];

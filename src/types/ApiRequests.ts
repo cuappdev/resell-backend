@@ -1,5 +1,5 @@
-import { UserModel } from 'src/models/UserModel';
 import { Uuid } from '.';
+import { MessageModel } from '../models/MessageModel';
 
 // REQUEST TYPES
 
@@ -141,4 +141,22 @@ export interface FindTokensRequest {
     title: string;
     body: string;
     data: JSON;
+}
+
+// REPORTS
+export interface ReportPostRequest {
+    reported: Uuid;
+    post: Uuid;
+    reason: string;
+}
+  
+export interface ReportProfileRequest {
+    reported: Uuid;
+    reason: string;
+}
+  
+export interface ReportMessageRequest {
+    reported: Uuid;
+    message: MessageModel;
+    reason: string;
 }

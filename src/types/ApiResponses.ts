@@ -34,6 +34,7 @@ export interface PrivateProfile extends PublicProfile {
   admin: boolean;
   email: string;
   googleId: string;
+  isActive: boolean;
   feedbacks: FeedbackModel[];
   blockers: UserModel[] | undefined;
   blocking: UserModel[] | undefined;
@@ -194,11 +195,10 @@ export interface NotifSent {
 
 // REPORTS
 
-export interface Report {
-  id: Uuid;
-  reporter: PrivateProfile;
-  reported: PrivateProfile;
-  message: string;
-  categories: string[];
-  created: Date;
+export interface GetReportResponse {
+  report: ReportModel;
+}
+
+export interface GetReportsResponse {
+  reports: ReportModel[];
 }

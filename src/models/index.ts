@@ -5,6 +5,7 @@ import { UserModel } from './UserModel';
 import { UserReviewModel } from './UserReviewModel'
 import { UserSessionModel } from './UserSessionModel';
 import { ReportModel } from './ReportModel';
+import { MessageModel } from './MessageModel';
 
 
 export const models = [
@@ -14,5 +15,6 @@ export const models = [
   UserModel,
   UserReviewModel,
   UserSessionModel,
-  ReportModel
+  ReportModel,
+  MessageModel
 ];

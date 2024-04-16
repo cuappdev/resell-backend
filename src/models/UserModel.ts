@@ -79,10 +79,10 @@ export class UserModel {
   blockers: UserModel[] | undefined;
 
   @OneToMany(() => ReportModel, (report) => report.reporter)
-  public reports: ReportModel[];
+  reports: ReportModel[];
 
   @OneToMany(() => ReportModel, (report) => report.reported)
-  public reportedBy: ReportModel[];
+  reportedBy: ReportModel[];
 
   @OneToMany(() => PostModel, (post) => post.user, { cascade: true })
   posts: PostModel[];
@@ -108,10 +108,10 @@ export class UserModel {
   reviewsReceived: UserReviewModel[];
 
   @OneToMany(() => MessageModel, (message) => message.sender)
-  public sentMessages: MessageModel[];
+  sentMessages: MessageModel[];
 
   @OneToMany(() => MessageModel, (message) => message.receiver)
-  public receivedMessages: MessageModel[];
+  receivedMessages: MessageModel[];
 
   public getUserProfile(): PrivateProfile {
     return {

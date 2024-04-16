@@ -46,6 +46,7 @@ export default class Repositories {
       UserSessionRepository
     );
   }
+
   public static report(
     transactionalEntityManager: EntityManager
   ): ReportRepository {

@@ -17,24 +17,27 @@ export class ReportModel {
   id: Uuid;
 
   @ManyToOne(() => UserModel, (user) => user.reports)
-  public reporter: UserModel;
+  reporter: UserModel;
 
   @ManyToOne(() => UserModel, (user) => user.reportedBy)
-  public reported: UserModel;
+  reported: UserModel;
 
   @ManyToOne(() => PostModel, (post) => post.reports, { nullable: true })
-  public post?: PostModel;
+  post?: PostModel;
 
   @ManyToOne(() => MessageModel, (message) => message.reports, {
     nullable: true,
   })
-  public message?: MessageModel;
+  message?: MessageModel;
 
-  @Column()
+  @Column({nullable: false})
   reason: string;
 
-  @Column()
+  @Column({nullable: false})
   type: "post" | "profile" | "message";
+
+  @Column()
+  resolved: boolean;
 
   @CreateDateColumn({ type: "timestamptz" })
   created: Date;
@@ -48,6 +51,7 @@ export class ReportModel {
       message: this.message,
       reason: this.reason,
       type: this.type,
+      resolved: this.resolved,
       created: this.created,
     };
   }
