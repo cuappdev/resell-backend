@@ -3,45 +3,51 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
-} from 'typeorm';
+} from "typeorm";
+import { Uuid } from "../types";
+import { UserModel } from "./UserModel";
+import { PostModel } from "./PostModel";
+import { MessageModel } from "./MessageModel";
 
-import { Report, Uuid } from '../types';
-import { UserModel } from './UserModel';
-
-@Entity('Report')
+@Entity("Report")
 export class ReportModel {
-
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: Uuid;
 
   @ManyToOne(() => UserModel, (user) => user.reports)
   public reporter: UserModel;
 
-  @ManyToOne(() => UserModel, (user) => user.reportedby)
+  @ManyToOne(() => UserModel, (user) => user.reportedBy)
   public reported: UserModel;
 
+  @ManyToOne(() => PostModel, (post) => post.reports, { nullable: true })
+  public post?: PostModel;
+
+  @ManyToOne(() => MessageModel, (message) => message.reports, {
+    nullable: true,
+  })
+  public message?: MessageModel;
+
   @Column()
-  message: string;
+  reason: string;
 
-  @Column("text", { array: true })
-  categories: string[];
+  @Column()
+  type: "post" | "profile" | "message";
 
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ type: "timestamptz" })
   created: Date;
 
-
-
-  public getReportInfo(): Report {
+  public getReportInfo(): any {
     return {
       id: this.id,
       reporter: this.reporter,
       reported: this.reported,
+      post: this.post,
       message: this.message,
-      categories: this.categories,
+      reason: this.reason,
+      type: this.type,
       created: this.created,
     };
   }

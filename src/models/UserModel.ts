@@ -1,17 +1,25 @@
-import { Column, Entity, ManyToMany, OneToMany, JoinTable, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  JoinTable,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
-import { PrivateProfile, Uuid } from '../types';
-import { FeedbackModel } from './FeedbackModel';
-import { PostModel } from './PostModel';
-import { RequestModel } from './RequestModel';
-import { UserSessionModel } from './UserSessionModel';
-import { UserReviewModel } from './UserReviewModel'
-import { ReportModel } from './ReportModel';
+import { PrivateProfile, Uuid } from "../types";
+import { FeedbackModel } from "./FeedbackModel";
+import { PostModel } from "./PostModel";
+import { RequestModel } from "./RequestModel";
+import { UserSessionModel } from "./UserSessionModel";
+import { UserReviewModel } from "./UserReviewModel";
+import { ReportModel } from "./ReportModel";
+import { MessageModel } from "./MessageModel";
 
-@Entity('User')
+@Entity("User")
 export class UserModel {
-
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: Uuid;
 
   @Column({ unique: true })
@@ -55,12 +63,12 @@ export class UserModel {
     name: "user_blocking_users",
     joinColumn: {
       name: "blockers",
-      referencedColumnName: "id"
+      referencedColumnName: "id",
     },
     inverseJoinColumn: {
       name: "blocking",
-      referencedColumnName: "id"
-    }
+      referencedColumnName: "id",
+    },
   })
   blocking: UserModel[] | undefined;
 
@@ -71,28 +79,36 @@ export class UserModel {
   public reports: ReportModel[];
 
   @OneToMany(() => ReportModel, (report) => report.reported)
-  public reportedby: ReportModel[];
+  public reportedBy: ReportModel[];
 
-  @OneToMany(() => PostModel, post => post.user, { cascade: true })
+  @OneToMany(() => PostModel, (post) => post.user, { cascade: true })
   posts: PostModel[];
 
-  @ManyToMany(() => PostModel, post => post.savers)
+  @ManyToMany(() => PostModel, (post) => post.savers)
   saved: PostModel[];
 
-  @OneToMany(() => UserSessionModel, session => session.user, { cascade: true })
+  @OneToMany(() => UserSessionModel, (session) => session.user, {
+    cascade: true,
+  })
   sessions: UserSessionModel[];
 
-  @OneToMany(() => FeedbackModel, feedback => feedback.user)
+  @OneToMany(() => FeedbackModel, (feedback) => feedback.user)
   feedbacks: FeedbackModel[];
 
-  @OneToMany(() => RequestModel, request => request.user)
+  @OneToMany(() => RequestModel, (request) => request.user)
   requests: RequestModel[];
 
-  @OneToMany(() => UserReviewModel, review => review.buyer)
+  @OneToMany(() => UserReviewModel, (review) => review.buyer)
   reviewsWritten: UserReviewModel[];
 
-  @OneToMany(() => UserReviewModel, review => review.seller)
+  @OneToMany(() => UserReviewModel, (review) => review.seller)
   reviewsReceived: UserReviewModel[];
+
+  @OneToMany(() => MessageModel, (message) => message.sender)
+  public sentMessages: MessageModel[];
+
+  @OneToMany(() => MessageModel, (message) => message.receiver)
+  public receivedMessages: MessageModel[];
 
   public getUserProfile(): PrivateProfile {
     return {
@@ -112,9 +128,11 @@ export class UserModel {
       blocking: this.blocking,
       blockers: this.blockers,
       reports: this.reports,
-      reportedby: this.reportedby,
+      reportedBy: this.reportedBy,
       posts: this.posts,
       feedbacks: this.feedbacks,
+      sentMessages: this.sentMessages,
+      receivedMessages: this.receivedMessages,
     };
   }
 }
