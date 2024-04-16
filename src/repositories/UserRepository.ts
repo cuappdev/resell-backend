@@ -19,10 +19,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
-  public async getBlockedUsersById(id: Uuid): Promise<UserModel | undefined> {
-    return await this.repository
+  public async getUserWithBlockedInfo(id: Uuid): Promise<UserModel | undefined> {
+    return this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
+      .leftJoinAndSelect("user.blockers", "user_blocking_users.blockers")
       .where("user.id = :id", { id })
       .getOne();
   }
@@ -79,18 +80,28 @@ export class UserRepository extends AbstractRepository<UserModel> {
     email: string,
     googleId: string,
   ): Promise<UserModel> {
-    let existingUser = this.repository
-      .createQueryBuilder("user")
-      .where("user.email = :email", { email })
-      .getOne();
-    if (await existingUser) throw new ConflictError('UserModel with same email already exists!');
-
-    existingUser = this.repository
-      .createQueryBuilder("user")
-      .where("user.googleId = :googleId", { googleId })
-      .getOne();
-    if (await existingUser) throw new ConflictError('UserModel with same google ID already exists!');
-
+    let existingUser = await this.repository
+    .createQueryBuilder("user")
+    .where("user.username = :username", { username })
+    .orWhere("user.netid = :netid", { netid })
+    .orWhere("user.email = :email", { email })
+    .orWhere("user.googleId = :googleId", { googleId })
+    .getOne();
+    if (existingUser) {
+      if (existingUser.username === username) {
+        throw new ConflictError('UserModel with same username already exists!');
+      }
+      else if (existingUser.netid === netid) 
+      {
+        throw new ConflictError('UserModel with same netid already exists!');
+      } 
+      else if (existingUser.email === email) {
+        throw new ConflictError('UserModel with same email already exists!');
+      }
+      else {
+        throw new ConflictError('UserModel with same google ID already exists!');
+      }
+    }
     const adminEmails = process.env.ADMIN_EMAILS?.split(",");
     const adminStatus = adminEmails?.includes(email);
 
@@ -159,9 +170,14 @@ export class UserRepository extends AbstractRepository<UserModel> {
       if (!blocker.blocking.find((user) => user.id === blocked.id)) {
         throw new NotFoundError("User has not been blocked!")
       }
-      blocker.blocking.splice(blocker.blocking.indexOf(blocked), 1);
-      if (blocker.blocking.length === 0) { blocker.blocking = undefined; }
+      // remove blocked user from blocking list
+      blocker.blocking = blocker.blocking.filter((user) => user.id !== blocked.id);
     }
     return this.repository.save(blocker);
+  }
+
+  public async softDeleteUser(user: UserModel): Promise<UserModel> {
+    user.isActive = false;
+    return this.repository.save(user);
   }
 }

@@ -24,7 +24,8 @@ export class PostService {
   public async getAllPosts(): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      return await postRepository.getAllPosts();
+      // filter out posts from inactive users
+      return (await postRepository.getAllPosts()).filter((post) => post.user?.isActive);
     });
   }
 
@@ -33,6 +34,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
+      if (!post.user?.isActive) throw new NotFoundError('User is not active!');
       return post;
     });
   }
@@ -42,6 +44,7 @@ export class PostService {
       const userRepository = Repositories.user(transactionalEntityManager);
       const user = await userRepository.getUserById(params.id)
       if (!user) throw new NotFoundError('User not found!');
+      if (!user.isActive) throw new NotFoundError('User is not active!');
       const postRepository = Repositories.post(transactionalEntityManager);
       const posts = await postRepository.getPostsByUserId(params.id);
       return posts;
@@ -53,6 +56,7 @@ export class PostService {
       const userRepository = Repositories.user(transactionalEntityManager);
       const user = await userRepository.getUserById(post.userId);
       if (!user) throw new NotFoundError('User not found!');
+      if (!user.isActive) throw new NotFoundError('User is not active!');
       const postRepository = Repositories.post(transactionalEntityManager);
       const images: string[] = [];
       for (const imageBase64 of post.imagesBase64) {
@@ -112,7 +116,7 @@ export class PostService {
           posts.push(pd);
         }
       });
-      return posts;
+      return posts.filter((post) => post.user?.isActive);
     });
   }
 
@@ -120,7 +124,7 @@ export class PostService {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const posts = await postRepository.filterPosts(filterPostsRequest.category);
-      return posts;
+      return posts.filter((post) => post.user?.isActive);
     });
   }
 
@@ -128,14 +132,14 @@ export class PostService {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const posts = await postRepository.filterPostsByPrice(filterPostsByPriceRequest.lowerBound, filterPostsByPriceRequest.upperBound)
-      return posts;
+      return posts.filter((post) => post.user?.isActive);
     })
   }
 
   public async getArchivedPosts(): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      return await postRepository.getArchivedPosts();
+      return (await postRepository.getArchivedPosts()).filter((post) => post.user?.isActive);
     });
   }
 
@@ -144,6 +148,7 @@ export class PostService {
       const userRepository = Repositories.user(transactionalEntityManager);
       const user = await userRepository.getUserById(params.id)
       if (!user) throw new NotFoundError('User not found!');
+      if (!user.isActive) throw new NotFoundError('User is not active!');
       const postRepository = Repositories.post(transactionalEntityManager);
       const posts = await postRepository.getArchivedPostsByUserId(params.id);
       return posts;
@@ -155,6 +160,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
+      if (post.user.isActive == false) throw new NotFoundError('User is not active!');
       if (user.id != post.user?.id) throw new ForbiddenError('User is not poster!');
       return await postRepository.archivePost(post);
     });
@@ -174,6 +180,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
+      if (post.user.isActive == false) throw new NotFoundError('User is not active!');
       const userRepository = Repositories.user(transactionalEntityManager);
       return await userRepository.savePost(user, post);
     });
@@ -184,6 +191,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
+      if (post.user.isActive == false) throw new NotFoundError('User is not active!');
       const userRepository = Repositories.user(transactionalEntityManager);
       return await userRepository.unsavePost(user, post);
     });
@@ -248,7 +256,7 @@ export class PostService {
           });
         }
       }
-      return posts
+      return posts.filter((post) => post.user?.isActive);
     });
   }
 }

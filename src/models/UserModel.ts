@@ -16,7 +16,7 @@ export class UserModel {
   @Column({ unique: true })
   username: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   netid: string;
 
   @Column()
@@ -27,6 +27,9 @@ export class UserModel {
 
   @Column()
   admin: boolean;
+
+  @Column({ default: true })
+  isActive: boolean;
 
   @Column({ type: "numeric", default: 0 })
   stars: number;
@@ -102,6 +105,7 @@ export class UserModel {
       email: this.email,
       googleId: this.googleId,
       bio: this.bio,
+      isActive: this.isActive,
       blocking: this.blocking,
       blockers: this.blockers,
       posts: this.posts,
