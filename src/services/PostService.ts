@@ -24,22 +24,19 @@ export class PostService {
   public async getAllPosts(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      // filter out posts from inactive users
       const activeUserPosts = (await postRepository.getAllPosts()).filter((post) => post.user?.isActive);
-      // get users who blocked by current user
       const userRepository = Repositories.user(transactionalEntityManager);
       const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id)
       const blockedUsers = userWithBlockedInfo?.blocking;
-      // filter out posts from blocked users
-      // const unblockedPosts = activeUserPosts.filter((post) => {
-      //   if (blockedUsers) {
-      //     for (const blockedUser of blockedUsers) {
-      //       if (post.user?.id == blockedUser.id) return false;
-      //     }
-      //   }
-      //   return true;
-      // });
-      return activeUserPosts; 
+      const unblockedPosts = activeUserPosts.filter((post) => {
+        if (blockedUsers) {
+          for (const blockedUser of blockedUsers) {
+            if (post.user?.id == blockedUser.id) return false;
+          }
+        }
+        return true;
+      });
+      return unblockedPosts; 
     });
   }
 
