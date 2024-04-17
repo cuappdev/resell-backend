@@ -3,31 +3,70 @@ import { ReportModel } from "../models/ReportModel";
 import { UserModel } from "../models/UserModel";
 import { PostModel } from "../models/PostModel";
 import { MessageModel } from "../models/MessageModel";
+import { QueryBuilder } from "typeorm";
 
 @EntityRepository(ReportModel)
 export class ReportRepository extends AbstractRepository<ReportModel> {
   public async getAllReports(): Promise<ReportModel[]> {
-    return this.repository.find();
+    return this.repository
+      .createQueryBuilder("report")
+      .leftJoinAndSelect("report.reporter", "reporter")
+      .leftJoinAndSelect("report.reported", "reported")
+      .leftJoinAndSelect("report.post", "post")
+      .leftJoinAndSelect("report.message", "message")
+      .getMany();
   }
 
   public async getAllPostReports(): Promise<ReportModel[]> {
-    return this.repository.find({ where: { type: "post" } });
+    return this.repository.createQueryBuilder("report")
+      .leftJoinAndSelect("report.reporter", "reporter")
+      .leftJoinAndSelect("report.reported", "reported")
+      .leftJoinAndSelect("report.post", "post")
+      .leftJoinAndSelect("report.message", "message")
+      .where("report.type = :type", { type: "post" })
+      .getMany();
   }
 
   public async getAllProfileReports(): Promise<ReportModel[]> {
-    return this.repository.find({ where: { type: "profile" } });
+    return this.repository.createQueryBuilder("report")
+      .leftJoinAndSelect("report.reporter", "reporter")
+      .leftJoinAndSelect("report.reported", "reported")
+      .leftJoinAndSelect("report.post", "post")
+      .leftJoinAndSelect("report.message", "message")
+      .where("report.type = :type", { type: "profile" })
+      .getMany();
   }
 
   public async getAllMessageReports(): Promise<ReportModel[]> {
-    return this.repository.find({ where: { type: "message" } });
+    return this.repository.createQueryBuilder("report")
+      .leftJoinAndSelect("report.reporter", "reporter")
+      .leftJoinAndSelect("report.reported", "reported")
+      .leftJoinAndSelect("report.post", "post")
+      .leftJoinAndSelect("report.message", "message")
+      .where("report.type = :type", { type: "message" })
+      .getMany();
   }
 
   public async getReportById(id: string): Promise<ReportModel | undefined> {
-    return this.repository.findOne(id);
+    return this.repository
+      .createQueryBuilder("report")
+      .leftJoinAndSelect("report.reporter", "reporter")
+      .leftJoinAndSelect("report.reported", "reported")
+      .leftJoinAndSelect("report.post", "post")
+      .leftJoinAndSelect("report.message", "message")
+      .where("report.id = :id", { id })
+      .getOne();
   }
 
   public async getReportsByReporter(reporter: UserModel): Promise<ReportModel[]> {
-    return this.repository.find({ where: { reporter } });
+    return this.repository
+      .createQueryBuilder("report")
+      .leftJoinAndSelect("report.reporter", "reporter")
+      .leftJoinAndSelect("report.reported", "reported")
+      .leftJoinAndSelect("report.post", "post")
+      .leftJoinAndSelect("report.message", "message")
+      .where("report.reporter = :reporter", { reporter })
+      .getMany();
   }
   
   public async createReport(
@@ -45,6 +84,7 @@ export class ReportRepository extends AbstractRepository<ReportModel> {
     report.message = message;
     report.reason = reason;
     report.type = type;
+    report.resolved = false;
     return this.repository.save(report);
   }
 

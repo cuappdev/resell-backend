@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  PrimaryColumn
 } from "typeorm";
 import { Uuid } from "../types";
 import { UserModel } from "./UserModel";
@@ -13,23 +14,23 @@ import { ReportModel } from "./ReportModel";
 
 @Entity("Message")
 export class MessageModel {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn("uuid")
   id: Uuid;
 
-  @ManyToOne(() => UserModel, (user) => user.sentMessages)
-  @JoinColumn({ name: "sender" })
-  sender: UserModel;
+  // @ManyToOne(() => UserModel, (user) => user.sentMessages)
+  // @JoinColumn({ name: "sender" })
+  // sender: UserModel;
 
-  @ManyToOne(() => UserModel, (user) => user.receivedMessages)
-  @JoinColumn({ name: "receiver" })
-  receiver: UserModel;
+  // @ManyToOne(() => UserModel, (user) => user.receivedMessages)
+  // @JoinColumn({ name: "receiver" })
+  // receiver: UserModel;
 
-  @Column()
-  content: string;
+  // @Column()
+  // content: string;
 
-  @CreateDateColumn({ type: "timestamptz" })
-  timestamp: Date;
+  // @CreateDateColumn({ type: "timestamptz" })
+  // timestamp: Date;
 
   @OneToMany(() => ReportModel, (report) => report.message)
-  public reports: ReportModel[];
+  reports: ReportModel[];
 }

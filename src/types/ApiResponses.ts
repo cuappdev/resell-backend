@@ -40,8 +40,8 @@ export interface PrivateProfile extends PublicProfile {
   blocking: UserModel[] | undefined;
   reports: ReportModel[] | undefined;
   reportedBy: ReportModel[] | undefined;
-  sentMessages: MessageModel[];
-  receivedMessages: MessageModel[];
+  // sentMessages: MessageModel[];
+  // receivedMessages: MessageModel[];
 }
 
 export interface GetUsersResponse {
@@ -194,11 +194,23 @@ export interface NotifSent {
 }
 
 // REPORTS
+export interface Report {
+  id: Uuid;
+  reporter: PrivateProfile;
+  reported: PrivateProfile;
+  post?: PostModel;
+  message?: MessageModel;
+  reason: string;
+  type: "post" | "profile" | "message";
+  resolved: boolean;
+  created: Date;
+
+}
 
 export interface GetReportResponse {
-  report: ReportModel;
+  report: Report;
 }
 
 export interface GetReportsResponse {
-  reports: ReportModel[];
+  reports: Report[];
 }

@@ -9,6 +9,7 @@ import { ReportPostRequest, ReportProfileRequest, ReportMessageRequest } from ".
 import Repositories, { TransactionsManager } from "../repositories";
 import { report } from "process";
 import { UuidParam } from "../api/validators/GenericRequests";
+import { NotFoundError } from "routing-controllers";
 
 @Service()
 export class ReportService {
@@ -48,9 +49,12 @@ export class ReportService {
     });
   }
 
-  public async getReportById(id: string): Promise<ReportModel | undefined> {
+  public async getReportById(params: UuidParam): Promise<ReportModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      return Repositories.report(transactionalEntityManager).getReportById(id);
+      const reportRepository = Repositories.report(transactionalEntityManager);
+      const report = await reportRepository.getReportById(params.id);
+      if (!report) throw new NotFoundError("Report not found");
+      return report;
     });
   }
 
@@ -122,12 +126,6 @@ export class ReportService {
         throw new Error("Reported user not found");
       }
       const message = reportMessageRequest.message
-      if (message.sender.id === reporter.id) {
-        throw new Error("You cannot report your own message");
-      }
-      if (message.sender.id != reportedUser.id) {
-        throw new Error("Reported user does not own the message");
-      }
       if (reportMessageRequest.reason === "") {
         throw new Error("You must have a reason for reporting a message!");
       }

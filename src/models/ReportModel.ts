@@ -1,15 +1,9 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Uuid } from "../types";
 import { UserModel } from "./UserModel";
 import { PostModel } from "./PostModel";
 import { MessageModel } from "./MessageModel";
+import { Report } from "../types";
 
 @Entity("Report")
 export class ReportModel {
@@ -42,7 +36,7 @@ export class ReportModel {
   @CreateDateColumn({ type: "timestamptz" })
   created: Date;
 
-  public getReportInfo(): any {
+  public getReportInfo(): Report {
     return {
       id: this.id,
       reporter: this.reporter,

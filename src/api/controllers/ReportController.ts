@@ -1,4 +1,4 @@
-import { Body, CurrentUser, JsonController, Get, Post, Delete } from "routing-controllers";
+import { Body, CurrentUser, JsonController, Get, Post, Delete, Params} from "routing-controllers";
 import { UserModel } from "../../models/UserModel";
 import { ReportService } from "../../services/ReportService";
 import { ReportPostRequest, ReportProfileRequest, ReportMessageRequest } from "../../types/ApiRequests";
@@ -35,6 +35,11 @@ export class ReportController {
     return { reports: await this.reportService.getAllMessageReports(user) };
   }
 
+  @Get("id/:id/")
+  async getReportById(@Params() params: UuidParam): Promise<GetReportResponse> {
+    return { report: await this.reportService.getReportById(params) };
+  }
+
   @Post("post/")
   async reportPost(@Body() reportPostRequest: ReportPostRequest, @CurrentUser() user: UserModel): Promise<ReportModel> {
     return this.reportService.reportPost(user, reportPostRequest);
@@ -50,13 +55,13 @@ export class ReportController {
     return this.reportService.reportMessage(user, reportMessageRequest);
   }
 
-  @Post("resolve/:id/")
-  async resolveReport(@CurrentUser() user: UserModel, params: UuidParam): Promise<ReportModel> {
+  @Post("resolve/reportId/:id/")
+  async resolveReport(@CurrentUser() user: UserModel,@Params() params: UuidParam): Promise<ReportModel> {
     return this.reportService.resolveReport(user, params);
   }
 
   @Delete("delete/:id/")
-  async deleteReport(@CurrentUser() user: UserModel, params: UuidParam): Promise<ReportModel> {
+  async deleteReport(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<ReportModel> {
     return this.reportService.deleteReport(user, params);
   }
 }
