@@ -17,6 +17,7 @@ import resellConnection from './utils/DB';
 import { ReportService } from './services/ReportService';
 import { ReportRepository } from './repositories/ReportRepository';
 import { reportToString } from './utils/Requests';
+import { CurrentUserChecker } from 'routing-controllers/types/CurrentUserChecker';
 
 dotenv.config();
 
@@ -68,8 +69,20 @@ async function main() {
 
   app.set('view engine', 'pug')
 
-  app.get('/reports/admin/', async (req: UserModel, res: any) => {
-    const user = req as UserModel;
+  app.get('/api/reports/admin/', async (req: any, res: any) => {
+    const userCheck = async (action: any) => {
+      const accessToken = action.headers["authorization"];
+      const manager = getManager();
+      const session = await manager.findOne(UserSessionModel, { accessToken: accessToken });
+      if (session && session.expiresAt.getTime() > Date.now()) {
+        const userId = session.userId;
+        const user = await manager.findOne(UserModel, { id: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
+        if (!user || !user.admin) throw new ForbiddenError("User unauthorized");
+        return user;
+      }
+      throw new ForbiddenError("User unauthorized");
+    }
+    const user = await userCheck(req);
     user.admin = true;
     const postReports = await reportController.getAllPostReports(user);
     const profileReports = await reportController.getAllProfileReports(user);

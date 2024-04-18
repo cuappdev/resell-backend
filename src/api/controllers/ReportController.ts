@@ -36,8 +36,13 @@ export class ReportController {
   }
 
   @Get("id/:id/")
-  async getReportById(@Params() params: UuidParam): Promise<GetReportResponse> {
-    return { report: await this.reportService.getReportById(params) };
+  async getReportById(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetReportResponse> {
+    return { report: await this.reportService.getReportById(user, params) };
+  }
+
+  @Get("reporter/id/:id/")
+  async getReportsByReporter(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetReportsResponse> {
+    return { reports: await this.reportService.getReportsByReporter(user, params) };
   }
 
   @Post("post/")

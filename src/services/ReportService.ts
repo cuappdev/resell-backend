@@ -39,27 +39,37 @@ export class ReportService {
 
   public async getAllProfileReports(user: UserModel): Promise<ReportModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
+      if (!user.admin) {
+        throw new Error("User does not have permission to get all profile reports");
+      }
       return Repositories.report(transactionalEntityManager).getAllProfileReports();
     });
   }
 
   public async getAllMessageReports(user: UserModel): Promise<ReportModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
+      if (!user.admin) {
+        throw new Error("User does not have permission to get all message reports");
+      }
       return Repositories.report(transactionalEntityManager).getAllMessageReports();
     });
   }
 
-  public async getReportById(params: UuidParam): Promise<ReportModel> {
+  public async getReportById(user: UserModel, params: UuidParam): Promise<ReportModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const reportRepository = Repositories.report(transactionalEntityManager);
       const report = await reportRepository.getReportById(params.id);
       if (!report) throw new NotFoundError("Report not found");
+      if (!user.admin) throw new UnauthorizedError("User does not have permission to get report by id");
       return report;
     });
   }
 
-  public async getReportsByReporter(reporter: UserModel): Promise<ReportModel[]> {
+  public async getReportsByReporter(user: UserModel, params: UuidParam): Promise<ReportModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
+      if (!user.admin) throw new UnauthorizedError("User does not have permission to get reports by reporter");
+      const reporter = await Repositories.user(transactionalEntityManager).getUserById(params.id);
+      if (!reporter) throw new NotFoundError("Reporter not found");
       return Repositories.report(transactionalEntityManager).getReportsByReporter(reporter);
     });
   }
