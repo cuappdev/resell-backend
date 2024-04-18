@@ -107,12 +107,6 @@ export class UserModel {
   @OneToMany(() => UserReviewModel, (review) => review.seller)
   reviewsReceived: UserReviewModel[];
 
-  // @OneToMany(() => MessageModel, (message) => message.sender)
-  // sentMessages: MessageModel[];
-
-  // @OneToMany(() => MessageModel, (message) => message.receiver)
-  // receivedMessages: MessageModel[];
-
   public getUserProfile(): PrivateProfile {
     return {
       id: this.id,
