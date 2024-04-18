@@ -24,19 +24,8 @@ export class PostService {
   public async getAllPosts(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const activeUserPosts = (await postRepository.getAllPosts()).filter((post) => post.user?.isActive);
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id)
-      const blockedUsers = userWithBlockedInfo?.blocking;
-      const unblockedPosts = activeUserPosts.filter((post) => {
-        if (blockedUsers) {
-          for (const blockedUser of blockedUsers) {
-            if (post.user?.id == blockedUser.id) return false;
-          }
-        }
-        return true;
-      });
-      return unblockedPosts; 
+      const activeUserPosts = this.filterInactiveUserPosts(await postRepository.getAllPosts());
+      return this.filterBlockedUserPosts(activeUserPosts, user);
     });
   }
 
@@ -46,14 +35,8 @@ export class PostService {
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
       if (!post.user?.isActive) throw new NotFoundError('User is not active!');
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id)
-      const blockedUsers = userWithBlockedInfo?.blocking;
-      if (blockedUsers) {
-        for (const blockedUser of blockedUsers) {
-          if (post.user?.id == blockedUser.id) throw new ForbiddenError('User is blocked!');
-        }
-      }
+      const postUnblocked = await this.filterBlockedUserPosts([post], user);
+      if (postUnblocked.length == 0) throw new ForbiddenError('User is blocked!');
       return post;
     });
   }
@@ -64,16 +47,7 @@ export class PostService {
       const user = await userRepository.getUserById(params.id)
       if (!user) throw new NotFoundError('User not found!');
       if (!user.isActive) throw new NotFoundError('User is not active!');
-      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(currentUser.id)
-      const blockedUsers = userWithBlockedInfo?.blocking;
-      if (blockedUsers) {
-        for (const blockedUser of blockedUsers) {
-          if (user.id == blockedUser.id) throw new ForbiddenError('User is blocked!');
-        }
-      }
-      const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.getPostsByUserId(params.id);
-      return posts;
+      return this.filterBlockedUserPosts(user.posts, currentUser);
     });
   }
 
@@ -142,19 +116,8 @@ export class PostService {
           posts.push(pd);
         }
       });
-      let filteredPosts = posts.filter((post) => post.user?.isActive);
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id)
-      const blockedUsers = userWithBlockedInfo?.blocking;
-      const unblockedPosts = filteredPosts.filter((post) => {
-        if (blockedUsers) {
-          for (const blockedUser of blockedUsers) {
-            if (post.user?.id == blockedUser.id) return false;
-          }
-        }
-        return true;
-      });
-      return unblockedPosts;
+      let activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
@@ -162,19 +125,8 @@ export class PostService {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const posts = await postRepository.filterPosts(filterPostsRequest.category);
-      let filteredPosts = posts.filter((post) => post.user?.isActive);
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id)
-      const blockedUsers = userWithBlockedInfo?.blocking;
-      const unblockedPosts = filteredPosts.filter((post) => {
-        if (blockedUsers) {
-          for (const blockedUser of blockedUsers) {
-            if (post.user?.id == blockedUser.id) return false;
-          }
-        }
-        return true;
-      });
-      return unblockedPosts;
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
@@ -182,38 +134,17 @@ export class PostService {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const posts = await postRepository.filterPostsByPrice(filterPostsByPriceRequest.lowerBound, filterPostsByPriceRequest.upperBound)
-      const filteredPosts = posts.filter((post) => post.user?.isActive);
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id)
-      const blockedUsers = userWithBlockedInfo?.blocking;
-      const unblockedPosts = filteredPosts.filter((post) => {
-        if (blockedUsers) {
-          for (const blockedUser of blockedUsers) {
-            if (post.user?.id == blockedUser.id) return false;
-          }
-        }
-        return true;
-      });
-      return unblockedPosts;
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
     })
   }
 
   public async getArchivedPosts(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      let filteredPosts = (await postRepository.getArchivedPosts()).filter((post) => post.user?.isActive);
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id)
-      const blockedUsers = userWithBlockedInfo?.blocking;
-      const unblockedPosts = filteredPosts.filter((post) => {
-        if (blockedUsers) {
-          for (const blockedUser of blockedUsers) {
-            if (post.user?.id == blockedUser.id) return false;
-          }
-        }
-        return true;
-      });
-      return unblockedPosts;
+      const posts = await postRepository.getArchivedPosts();
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
@@ -330,11 +261,21 @@ export class PostService {
           });
         }
       }
-      let filteredPosts = posts.filter((post) => post.user?.isActive);
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
+  }
+
+  public filterInactiveUserPosts(posts: PostModel[]): PostModel[] {
+    return posts.filter((post) => post.user?.isActive);
+  }
+
+  public async filterBlockedUserPosts(posts: PostModel[], user: UserModel): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id)
+      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id);
       const blockedUsers = userWithBlockedInfo?.blocking;
-      const unblockedPosts = filteredPosts.filter((post) => {
+      return posts.filter((post) => {
         if (blockedUsers) {
           for (const blockedUser of blockedUsers) {
             if (post.user?.id == blockedUser.id) return false;
@@ -342,7 +283,6 @@ export class PostService {
         }
         return true;
       });
-      return unblockedPosts;
     });
   }
 }
