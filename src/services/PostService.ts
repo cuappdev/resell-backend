@@ -21,33 +21,33 @@ export class PostService {
     this.transactions = new TransactionsManager(entityManager);
   }
 
-  public async getAllPosts(): Promise<PostModel[]> {
+  public async getAllPosts(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      // filter out posts from inactive users
-      return (await postRepository.getAllPosts()).filter((post) => post.user?.isActive);
+      const activeUserPosts = this.filterInactiveUserPosts(await postRepository.getAllPosts());
+      return this.filterBlockedUserPosts(activeUserPosts, user);
     });
   }
 
-  public async getPostById(params: UuidParam): Promise<PostModel> {
+  public async getPostById(user: UserModel, params: UuidParam): Promise<PostModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
       if (!post.user?.isActive) throw new NotFoundError('User is not active!');
+      const postUnblocked = await this.filterBlockedUserPosts([post], user);
+      if (postUnblocked.length == 0) throw new ForbiddenError('User is blocked!');
       return post;
     });
   }
 
-  public async getPostsByUserId(params: UuidParam): Promise<PostModel[]> {
+  public async getPostsByUserId(currentUser: UserModel, params: UuidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
       const user = await userRepository.getUserById(params.id)
       if (!user) throw new NotFoundError('User not found!');
       if (!user.isActive) throw new NotFoundError('User is not active!');
-      const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.getPostsByUserId(params.id);
-      return posts;
+      return this.filterBlockedUserPosts(user.posts, currentUser);
     });
   }
 
@@ -97,7 +97,7 @@ export class PostService {
     });
   }
 
-  public async searchPosts(getSearchedPostsRequest: GetSearchedPostsRequest): Promise<PostModel[]> {
+  public async searchPosts(user: UserModel, getSearchedPostsRequest: GetSearchedPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const postsByTitle = await postRepository.searchPostsByTitle(getSearchedPostsRequest.keywords);
@@ -116,30 +116,35 @@ export class PostService {
           posts.push(pd);
         }
       });
-      return posts.filter((post) => post.user?.isActive);
+      let activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
-  public async filterPosts(filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
+  public async filterPosts(user: UserModel, filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const posts = await postRepository.filterPosts(filterPostsRequest.category);
-      return posts.filter((post) => post.user?.isActive);
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
-  public async filterPostsByPrice(filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<PostModel[]> {
+  public async filterPostsByPrice(user: UserModel, filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const posts = await postRepository.filterPostsByPrice(filterPostsByPriceRequest.lowerBound, filterPostsByPriceRequest.upperBound)
-      return posts.filter((post) => post.user?.isActive);
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
     })
   }
 
-  public async getArchivedPosts(): Promise<PostModel[]> {
+  public async getArchivedPosts(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      return (await postRepository.getArchivedPosts()).filter((post) => post.user?.isActive);
+      const posts = await postRepository.getArchivedPosts();
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
@@ -232,7 +237,7 @@ export class PostService {
     return result;
   }
 
-  public async similarPosts(params: UuidParam): Promise<PostModel[]> {
+  public async similarPosts(user: UserModel, params: UuidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
@@ -256,7 +261,28 @@ export class PostService {
           });
         }
       }
-      return posts.filter((post) => post.user?.isActive);
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
+  }
+
+  public filterInactiveUserPosts(posts: PostModel[]): PostModel[] {
+    return posts.filter((post) => post.user?.isActive);
+  }
+
+  public async filterBlockedUserPosts(posts: PostModel[], user: UserModel): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id);
+      const blockedUsers = userWithBlockedInfo?.blocking;
+      return posts.filter((post) => {
+        if (blockedUsers) {
+          for (const blockedUser of blockedUsers) {
+            if (post.user?.id == blockedUser.id) return false;
+          }
+        }
+        return true;
+      });
     });
   }
 }

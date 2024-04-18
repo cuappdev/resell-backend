@@ -42,7 +42,7 @@ afterAll(async () => {
 
 describe('post tests', () => {
   test('get all posts - no posts', async () => {
-    const getPostsResponse = await postController.getPosts();
+    const getPostsResponse = await postController.getPosts(UserFactory.fake());
 
     expect(getPostsResponse.posts).toHaveLength(0);
   });
@@ -56,7 +56,7 @@ describe('post tests', () => {
       .createUsers(post.user)
       .write();
 
-    const getPostsResponse = await postController.getPosts();
+    const getPostsResponse = await postController.getPosts(post.user);
 
     expect(getPostsResponse.posts).toHaveLength(1);
   });
@@ -72,7 +72,7 @@ describe('post tests', () => {
       .createUsers(post1.user, post2.user)
       .write();
 
-    const getPostsResponse = await postController.getPosts();
+    const getPostsResponse = await postController.getPosts(user1);
 
     expect(getPostsResponse.posts).toHaveLength(2);
   });
@@ -88,7 +88,7 @@ describe('post tests', () => {
 
     expectedPost.user = post.user;
 
-    const getPostResponse = await postController.getPostById(uuidParam);
+    const getPostResponse = await postController.getPostById(post.user, uuidParam);
     getPostResponse.post.original_price = Number(getPostResponse.post.original_price);
     getPostResponse.post.altered_price = Number(getPostResponse.post.altered_price);
     expectedPost.created = getPostResponse.post.created;
@@ -106,7 +106,7 @@ describe('post tests', () => {
 
     expectedPost.user = post.user;
 
-    const getPostsResponse = await postController.getPostsByUserId(uuidParam);
+    const getPostsResponse = await postController.getPostsByUserId(post.user, uuidParam);
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
@@ -132,7 +132,7 @@ describe('post tests', () => {
     };
 
     const getPostResponse = await postController.createPost(newPost);
-    const getPostsResponse = await postController.getPosts();
+    const getPostsResponse = await postController.getPosts(user);
 
     expect(getPostResponse.post.title).toEqual('Mateo\'s Kombucha');
     expect(getPostsResponse.posts).toHaveLength(1);
@@ -149,13 +149,13 @@ describe('post tests', () => {
 
     expectedPost.user = post.user;
 
-    let getPostsResponse = await postController.getPosts();
+    let getPostsResponse = await postController.getPosts(post.user);
     expect(getPostsResponse.posts).toHaveLength(1);
 
     const getPostResponse = await postController.deletePostById(post.user, uuidParam);
     expect(getPostResponse.post.title).toEqual("Mateo's Kombucha");
 
-    getPostsResponse = await postController.getPosts();
+    getPostsResponse = await postController.getPosts(post.user);
     expect(getPostsResponse.posts).toHaveLength(0);
   });
 
@@ -171,13 +171,13 @@ describe('post tests', () => {
       .createPosts(post)
       .write();
 
-    let getPostsResponse = await postController.getPosts();
+    let getPostsResponse = await postController.getPosts(adminUser);
     expect(getPostsResponse.posts).toHaveLength(1);
 
     const getPostResponse = await postController.deletePostById(user, uuidParam);
     expect(getPostResponse.post.title).toEqual("Mateo's Kombucha");
 
-    getPostsResponse = await postController.getPosts();
+    getPostsResponse = await postController.getPosts(adminUser);
     expect(getPostsResponse.posts).toHaveLength(0);
   });
 
@@ -196,7 +196,7 @@ describe('post tests', () => {
       keywords: 'Kombucha',
     }
 
-    const getPostsResponse = await postController.searchPosts(search);
+    const getPostsResponse = await postController.searchPosts(post.user, search);
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
@@ -219,7 +219,7 @@ describe('post tests', () => {
       keywords: 'S KOM',
     }
 
-    const getPostsResponse = await postController.searchPosts(search);
+    const getPostsResponse = await postController.searchPosts(post.user, search);
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
@@ -242,7 +242,7 @@ describe('post tests', () => {
       keywords: 'FermenteD',
     }
 
-    const getPostsResponse = await postController.searchPosts(search);
+    const getPostsResponse = await postController.searchPosts(post.user, search);
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
@@ -265,7 +265,7 @@ describe('post tests', () => {
       keywords: 'Kobucha',
     }
 
-    const getPostsResponse = await postController.searchPosts(search);
+    const getPostsResponse = await postController.searchPosts(post.user, search);
 
     expect(getPostsResponse.posts).toEqual([]);
   });
@@ -285,7 +285,7 @@ describe('post tests', () => {
       category: 'HANDMADE',
     }
 
-    let getPostsResponse = await postController.filterPosts(filter);
+    let getPostsResponse = await postController.filterPosts(post.user, filter);
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
@@ -296,7 +296,7 @@ describe('post tests', () => {
       category: 'OTHER',
     }
 
-    getPostsResponse = await postController.filterPosts(filter);
+    getPostsResponse = await postController.filterPosts(post.user, filter);
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
@@ -307,7 +307,7 @@ describe('post tests', () => {
       category: 'SCHOOL',
     }
 
-    getPostsResponse = await postController.filterPosts(filter);
+    getPostsResponse = await postController.filterPosts(post.user, filter);
 
     expect(getPostsResponse.posts).toEqual([]);
   });
@@ -328,7 +328,7 @@ describe('post tests', () => {
       upperBound: 1000.0,
     };
 
-    let getPostsResponse = await postController.filterPostsByPrice(filter);
+    let getPostsResponse = await postController.filterPostsByPrice(post.user, filter);
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
@@ -352,7 +352,7 @@ describe('post tests', () => {
       upperBound: 1000.0,
     };
 
-    let getPostsResponse = await postController.filterPostsByPrice(filter);
+    let getPostsResponse = await postController.filterPostsByPrice(user, filter);
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
@@ -375,7 +375,7 @@ describe('post tests', () => {
       upperBound: 500.15,
     };
 
-    let getPostsResponse = await postController.filterPostsByPrice(filter);
+    let getPostsResponse = await postController.filterPostsByPrice(post.user, filter);
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
@@ -397,7 +397,7 @@ describe('post tests', () => {
       upperBound: 2.0,
     };
 
-    let getPostsResponse = await postController.filterPostsByPrice(filter);
+    let getPostsResponse = await postController.filterPostsByPrice(post.user, filter);
 
     expect(getPostsResponse.posts).toEqual([])
   });
@@ -432,8 +432,9 @@ describe('post tests', () => {
 
   test('get all archived posts - no posts', async () => {
     const postController = ControllerFactory.post(conn);
+    const user = UserFactory.fakeTemplate();
 
-    const getPostsResponse = await postController.getArchivedPosts();
+    const getPostsResponse = await postController.getArchivedPosts(user);
 
     expect(getPostsResponse.posts).toHaveLength(0);
   });
@@ -448,7 +449,7 @@ describe('post tests', () => {
       .createUsers(post.user)
       .write();
 
-    const getPostsResponse = await postController.getArchivedPosts();
+    const getPostsResponse = await postController.getArchivedPosts(post.user);
 
     expect(getPostsResponse.posts).toHaveLength(1);
   });
@@ -466,7 +467,7 @@ describe('post tests', () => {
       .createUsers(post1.user, post2.user)
       .write();
 
-    const getPostsResponse = await postController.getArchivedPosts();
+    const getPostsResponse = await postController.getArchivedPosts(user1);
 
     expect(getPostsResponse.posts).toHaveLength(2);
   });
@@ -563,12 +564,12 @@ describe('post tests', () => {
       .createUsers(user)
       .write();
 
-    const getPostsResponse = await postController.getPosts();
+    const getPostsResponse = await postController.getPosts(UserFactory.fake());
 
     expect(getPostsResponse.posts).toHaveLength(0);
 
     try {
-      await postController.getPostById(uuidParam);
+      await postController.getPostById(UserFactory.fake(), uuidParam);
     } catch (error) {
       expect(error.message).toEqual('User is not active!');
     }

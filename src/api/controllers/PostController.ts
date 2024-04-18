@@ -24,18 +24,18 @@ export class PostController {
   }
 
   @Get()
-  async getPosts(): Promise<GetPostsResponse> {
-    return { posts: await this.postService.getAllPosts() };
+  async getPosts(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getAllPosts(user) };
   }
 
   @Get('id/:id/')
-  async getPostById(@Params() params: UuidParam): Promise<GetPostResponse> {
-    return { post: await this.postService.getPostById(params) };
+  async getPostById(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostResponse> {
+    return { post: await this.postService.getPostById(user, params) };
   }
 
   @Get('userId/:id/')
-  async getPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse> {
-    return { posts: await this.postService.getPostsByUserId(params) };
+  async getPostsByUserId(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getPostsByUserId(user, params) };
   }
 
   @Post()
@@ -49,23 +49,23 @@ export class PostController {
   }
 
   @Post('search/')
-  async searchPosts(@Body() getSearchedPostsRequest: GetSearchedPostsRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.searchPosts(getSearchedPostsRequest) };
+  async searchPosts(@CurrentUser() user: UserModel, @Body() getSearchedPostsRequest: GetSearchedPostsRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.searchPosts(user, getSearchedPostsRequest) };
   }
 
   @Post('filter/')
-  async filterPosts(@Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPosts(filterPostsRequest) };
+  async filterPosts(@CurrentUser() user: UserModel, @Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPosts(user, filterPostsRequest) };
   }
 
   @Post('filterByPrice/')
-  async filterPostsByPrice(@Body() filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPostsByPrice(filterPostsByPriceRequest) };
+  async filterPostsByPrice(@CurrentUser() user: UserModel, @Body() filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPostsByPrice(user, filterPostsByPriceRequest) };
   }
 
   @Get('archive/')
-  async getArchivedPosts(): Promise<GetPostsResponse> {
-    return { posts: await this.postService.getArchivedPosts() };
+  async getArchivedPosts(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getArchivedPosts(user) };
   }
 
   @Get('archive/userId/:id/')
@@ -104,7 +104,7 @@ export class PostController {
   }
 
   @Get('similar/postId/:id/')
-  async similarPosts(@Params() params: UuidParam): Promise<GetPostsResponse> {
-    return { posts: await this.postService.similarPosts(params) };
+  async similarPosts(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostsResponse> {
+    return { posts: await this.postService.similarPosts(user, params) };
   }
 }
