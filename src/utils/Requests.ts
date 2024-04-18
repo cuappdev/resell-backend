@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { GetReportsResponse } from 'src/types/ApiResponses';
 
 export async function externalRequest(url: string, method: string, body={}): Promise<any> {
   const response = await fetch(url, {
@@ -20,4 +21,18 @@ export async function uploadImage(imageBase64: string): Promise<any> {
     throw new Error('IMAGE_UPLOAD_URL is not defined');
   }
   return await externalRequest(process.env.IMAGE_UPLOAD_URL, 'POST', requestBody);
+}
+
+export function reportToString(reports: GetReportsResponse): string {
+  let reportString = '';
+  reports.reports.forEach((report) => {
+    reportString += `Report ID: ${report.id}<br>`;
+    reportString += `Reporter: ${report.reporter.username}<br>`;
+    reportString += `Reported: ${report.reported.username}<br>`;
+    reportString += `Type: ${report.type}<br>`;
+    reportString += `Reason: ${report.reason}<br>`;
+    reportString += `Resolved: ${report.resolved}<br>`;
+    reportString += `Created At: ${report.created}<br><br>`;
+  });
+  return reportString;
 }

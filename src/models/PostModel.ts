@@ -6,17 +6,17 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
-} from 'typeorm';
+} from "typeorm";
+import { Post, Uuid } from "../types";
+import { RequestModel } from "./RequestModel";
+import { UserModel } from "./UserModel";
+import { ReportModel } from "./ReportModel";
 
-import { Post, Uuid } from '../types';
-import { RequestModel } from './RequestModel';
-import { UserModel } from './UserModel';
-
-@Entity('Post')
+@Entity("Post")
 export class PostModel {
-
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: Uuid;
 
   @Column()
@@ -37,46 +37,37 @@ export class PostModel {
   @Column("text", { array: true })
   images: string[];
 
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ type: "timestamptz" })
   created: Date;
 
-  @Column(({ nullable: true }))
+  @Column({ nullable: true })
   location: string;
 
   @Column({ default: false })
   archive: boolean;
 
-  @ManyToOne(() => UserModel, user => user.posts)
-  @JoinColumn({ name: 'user' })
+  @ManyToOne(() => UserModel, (user) => user.posts)
+  @JoinColumn({ name: "user" })
   user: UserModel;
 
-  @ManyToMany(() => UserModel, user => user.saved)
+  @ManyToMany(() => UserModel, (user) => user.saved)
   @JoinTable({
     name: "user_saved_posts",
-    joinColumn: {
-      name: "saved",
-      referencedColumnName: "id"
-    },
-    inverseJoinColumn: {
-      name: "savers",
-      referencedColumnName: "id"
-    }
+    joinColumn: { name: "saved", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "savers", referencedColumnName: "id" },
   })
   savers: UserModel[];
 
-  @ManyToMany(() => RequestModel, request => request.matches)
+  @ManyToMany(() => RequestModel, (request) => request.matches)
   @JoinTable({
     name: "request_matches_posts",
-    joinColumn: {
-      name: "matches",
-      referencedColumnName: "id"
-    },
-    inverseJoinColumn: {
-      name: "matched",
-      referencedColumnName: "id"
-    }
+    joinColumn: { name: "matches", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "matched", referencedColumnName: "id" },
   })
   matched: RequestModel[];
+
+  @OneToMany(() => ReportModel, (report) => report.post)
+  public reports: ReportModel[];
 
   public getPostInfo(): Post {
     return {
@@ -91,8 +82,8 @@ export class PostModel {
       location: this.location,
       archive: this.archive,
       user: this.user.getUserProfile(),
-      savers: this.savers?.map(user => user.getUserProfile()),
-      matched: this.matched?.map(request => request.getRequestInfo()),
+      savers: this.savers?.map((user) => user.getUserProfile()),
+      matched: this.matched?.map((request) => request.getRequestInfo()),
     };
   }
 }
