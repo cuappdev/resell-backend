@@ -53,7 +53,9 @@ export class UserRepository extends AbstractRepository<UserModel> {
       (savedPost) => savedPost.id === post.id
     );
     if (postIndex === -1) {
-      throw Error("Tried to unsave post that user has not saved.");
+      throw new NotFoundError(
+        "Tried to unsave post that was not found in user's saved posts."
+      );
     }
     user.saved.splice(postIndex, 1);
     await this.repository.save(user);
