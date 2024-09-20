@@ -1,10 +1,10 @@
-import { PostModel } from 'src/models/PostModel';
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { PostModel } from "src/models/PostModel";
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { ConflictError } from '../errors';
-import { NotFoundError } from 'routing-controllers';
-import { UserModel } from '../models/UserModel';
-import { Uuid } from '../types';
+import { NotFoundError } from "routing-controllers";
+import { ConflictError } from "../errors";
+import { UserModel } from "../models/UserModel";
+import { Uuid } from "../types";
 
 @EntityRepository(UserModel)
 export class UserRepository extends AbstractRepository<UserModel> {
@@ -19,7 +19,9 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
-  public async getUserWithBlockedInfo(id: Uuid): Promise<UserModel | undefined> {
+  public async getUserWithBlockedInfo(
+    id: Uuid
+  ): Promise<UserModel | undefined> {
     return this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
@@ -28,7 +30,9 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
-  public async getUserByGoogleId(googleId: Uuid): Promise<UserModel | undefined> {
+  public async getUserByGoogleId(
+    googleId: Uuid
+  ): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
       .where("user.googleId = :googleId", { googleId })
@@ -41,8 +45,17 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return post;
   }
 
-  public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel> {
-    user.saved.splice(user.saved.indexOf(post));
+  public async unsavePost(
+    user: UserModel,
+    post: PostModel
+  ): Promise<PostModel> {
+    const postIndex = user.saved.findIndex(
+      (savedPost) => savedPost.id === post.id
+    );
+    if (postIndex === -1) {
+      throw Error("Tried to unsave post that user has not saved.");
+    }
+    user.saved.splice(postIndex, 1);
     await this.repository.save(user);
     return post;
   }
@@ -78,28 +91,26 @@ export class UserRepository extends AbstractRepository<UserModel> {
     familyName: string,
     photoUrl: string,
     email: string,
-    googleId: string,
+    googleId: string
   ): Promise<UserModel> {
     let existingUser = await this.repository
-    .createQueryBuilder("user")
-    .where("user.username = :username", { username })
-    .orWhere("user.netid = :netid", { netid })
-    .orWhere("user.email = :email", { email })
-    .orWhere("user.googleId = :googleId", { googleId })
-    .getOne();
+      .createQueryBuilder("user")
+      .where("user.username = :username", { username })
+      .orWhere("user.netid = :netid", { netid })
+      .orWhere("user.email = :email", { email })
+      .orWhere("user.googleId = :googleId", { googleId })
+      .getOne();
     if (existingUser) {
       if (existingUser.username === username) {
-        throw new ConflictError('UserModel with same username already exists!');
-      }
-      else if (existingUser.netid === netid) 
-      {
-        throw new ConflictError('UserModel with same netid already exists!');
-      } 
-      else if (existingUser.email === email) {
-        throw new ConflictError('UserModel with same email already exists!');
-      }
-      else {
-        throw new ConflictError('UserModel with same google ID already exists!');
+        throw new ConflictError("UserModel with same username already exists!");
+      } else if (existingUser.netid === netid) {
+        throw new ConflictError("UserModel with same netid already exists!");
+      } else if (existingUser.email === email) {
+        throw new ConflictError("UserModel with same email already exists!");
+      } else {
+        throw new ConflictError(
+          "UserModel with same google ID already exists!"
+        );
       }
     }
     const adminEmails = process.env.ADMIN_EMAILS?.split(",");
@@ -122,7 +133,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
     username: string | undefined,
     photoUrl: string | undefined,
     venmoHandle: string | undefined,
-    bio: string | undefined,
+    bio: string | undefined
   ): Promise<UserModel> {
     const existingUser = this.repository
       .createQueryBuilder("user")
@@ -130,7 +141,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
     if (await existingUser) {
       if (username !== user.username) {
-        throw new ConflictError('UserModel with same username already exists!');
+        throw new ConflictError("UserModel with same username already exists!");
       }
     }
 
@@ -152,26 +163,30 @@ export class UserRepository extends AbstractRepository<UserModel> {
 
   public async blockUser(
     blocker: UserModel,
-    blocked: UserModel,
+    blocked: UserModel
   ): Promise<UserModel> {
-    if (blocker.blocking === undefined) { blocker.blocking = [blocked]; }
-    else { blocker.blocking.push(blocked); }
+    if (blocker.blocking === undefined) {
+      blocker.blocking = [blocked];
+    } else {
+      blocker.blocking.push(blocked);
+    }
     return this.repository.save(blocker);
   }
 
   public async unblockUser(
     blocker: UserModel,
-    blocked: UserModel,
+    blocked: UserModel
   ): Promise<UserModel> {
     if (blocker.blocking === undefined) {
-      throw new NotFoundError("User has not been blocked!")
-    }
-    else {
+      throw new NotFoundError("User has not been blocked!");
+    } else {
       if (!blocker.blocking.find((user) => user.id === blocked.id)) {
-        throw new NotFoundError("User has not been blocked!")
+        throw new NotFoundError("User has not been blocked!");
       }
       // remove blocked user from blocking list
-      blocker.blocking = blocker.blocking.filter((user) => user.id !== blocked.id);
+      blocker.blocking = blocker.blocking.filter(
+        (user) => user.id !== blocked.id
+      );
     }
     return this.repository.save(blocker);
   }
