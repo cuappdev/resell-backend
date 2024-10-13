@@ -1,4 +1,4 @@
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+//import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 module.exports = {
    type: 'postgres',
@@ -11,10 +11,12 @@ module.exports = {
       'src/models/*.ts',
    ],
    synchronize: false,
-   namingStrategy: new SnakeNamingStrategy(),
+   //namingStrategy: new SnakeNamingStrategy(),
    migrations: [
       'src/migrations/*.ts',
    ],
+   seeds: ['src/seeds/**/*.ts'],
+   factories: ['src/factories/**/*.ts'],
    extra: {
       ssl: (process.env.IS_PROD?.toLowerCase() === "true"),
    },
