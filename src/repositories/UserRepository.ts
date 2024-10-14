@@ -42,8 +42,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel> {
-    user.saved.splice(user.saved.indexOf(post));
-    await this.repository.save(user);
+    const index = user.saved.findIndex(savedPost => savedPost.id === post.id);
+    if (index !== -1) {
+        user.saved.splice(index, 1);
+        await this.repository.save(user);
+    }
     return post;
   }
 

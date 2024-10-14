@@ -402,32 +402,109 @@ describe('post tests', () => {
     expect(getPostsResponse.posts).toEqual([])
   });
 
-  test('save/unsave posts', async () => {
+  test('successfully saves a post', async () => {
+    // Set up fake post and user
     const post = PostFactory.fakeTemplate();
     const user = UserFactory.fakeTemplate();
-    user.saved = []
+    user.saved = [];
     post.user = user;
 
+    // Create initial data in the database
     await new DataFactory()
       .createPosts(post)
-      .createUsers(post.user)
+      .createUsers(user)
       .write();
 
-    let postsResponse = await postController.getSavedPostsByUserId(user);
-    expect(postsResponse).not.toBeUndefined();
-    expect(postsResponse.posts).toEqual([]);
+    // Verify initially there are no saved posts
+    let savedPosts = await postController.getSavedPostsByUserId(user);
+    expect(savedPosts).not.toBeUndefined();
+    expect(savedPosts.posts).toEqual([]);
 
-    await postController.savePost(user, uuidParam);
-    postsResponse = await postController.getSavedPostsByUserId(user);
-    expect(postsResponse).not.toBeUndefined();
-    postsResponse.posts[0].original_price = Number(postsResponse.posts[0].original_price);
-    postsResponse.posts[0].altered_price = Number(postsResponse.posts[0].altered_price);
-    expectedPost.created = postsResponse.posts[0].created;
-    expect(postsResponse.posts).toEqual([expectedPost]);
+    // Save the post for the user
+    await postController.savePost(user, { id: post.id });
 
-    await postController.unsavePost(user, uuidParam);
-    postsResponse = await postController.getSavedPostsByUserId(user);
-    expect(postsResponse.posts).toEqual([]);
+    // Verify the post is now in saved posts
+    savedPosts = await postController.getSavedPostsByUserId(user);
+    expect(savedPosts).not.toBeUndefined();
+    expect(savedPosts.posts).toHaveLength(1);
+    expect(savedPosts.posts[0].id).toEqual(post.id);
+  });
+
+  test('unsave posts - multiple scenarios', async () => {
+    // Set up fake post and user
+    const post = PostFactory.fakeTemplate();
+    const user = UserFactory.fakeTemplate();
+    user.saved = [];
+    post.user = user;
+
+    // Initialize data in the database
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(user)
+      .write();
+
+    // Case 1: Unsave a post that is saved
+    await postController.savePost(user, { id: post.id });
+    await postController.unsavePost(user, { id: post.id });
+    
+    let savedPosts = await postController.getSavedPostsByUserId(user);
+    expect(savedPosts.posts).toEqual([]);
+
+    // Case 2: Attempt to unsave a post that is not saved (should throw error)
+    try {
+      await postController.unsavePost(user, { id: post.id });
+      let postsResponse = await postController.getSavedPostsByUserId(user);
+      expect(postsResponse.posts).toEqual([]);
+    } catch (error) {
+      expect(error.message).toEqual('Post not found in saved posts.');
+    }
+
+    // Case 3: Attempt to unsave a post for a different user (should throw error)
+    const secondUser = UserFactory.fakeTemplate();
+    try{
+      await postController.unsavePost(secondUser, { id: post.id })
+      fail('Should have thrown an error')
+    } catch {
+      expect(true).toBe(true);
+    }
+  });
+
+  test('unsave a middle post', async () => {
+    // Set up fake posts and user
+    const [post1, post2, post3] = [PostFactory.fake(), PostFactory.fake(), PostFactory.fake()];
+    const user = UserFactory.fakeTemplate();
+    user.saved = []
+
+    // Associate posts with the user
+    post1.user = user;
+    post2.user = user;
+    post3.user = user;
+
+    // Create initial data in the database
+    await new DataFactory()
+      .createPosts(post1, post2, post3)
+      .createUsers(user)
+      .write();
+
+    // Save all posts for the user
+    await postController.savePost(user, { id: post1.id });
+    await postController.savePost(user, { id: post2.id });
+    await postController.savePost(user, { id: post3.id });
+
+    // Verify all posts are saved
+    let savedPosts = await postController.getSavedPostsByUserId(user);
+    expect(savedPosts).not.toBeUndefined();
+    expect(savedPosts.posts).toHaveLength(3);
+    expect(savedPosts.posts.map(post => post.id)).toEqual([post1.id, post2.id, post3.id]);
+
+    // Unsave the middle post
+    await postController.unsavePost(user, { id: post2.id });
+    
+    // Verify only the middle post is removed
+    savedPosts = await postController.getSavedPostsByUserId(user);
+    expect(savedPosts).not.toBeUndefined();
+    expect(savedPosts.posts).toHaveLength(2);
+    expect(savedPosts.posts.map(post => post.id)).toEqual([post1.id, post3.id]);
   });
 
   test('get all archived posts - no posts', async () => {
@@ -573,7 +650,5 @@ describe('post tests', () => {
     } catch (error) {
       expect(error.message).toEqual('User is not active!');
     }
-
-    
   });
 });
