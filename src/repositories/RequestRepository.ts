@@ -46,6 +46,20 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     return this.repository.remove(request);
   }
 
+  public async archiveRequest(request: RequestModel): Promise<RequestModel> {
+    request.archive = true;
+    return await this.repository.save(request);
+  }
+
+  public async archiveAllRequestsByUserId(userId: Uuid): Promise<void> {
+    await this.repository
+      .createQueryBuilder()
+      .update(RequestModel)
+      .set({ archive: true })
+      .where("userId = :userId", { userId })
+      .execute();
+  }
+
   public async getAllMatchesByRequestId(id: Uuid): Promise<RequestModel | undefined> {
     return await this.repository
       .createQueryBuilder("request")

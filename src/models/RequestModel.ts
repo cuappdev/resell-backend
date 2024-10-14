@@ -16,6 +16,9 @@ export class RequestModel {
   @Column()
   description: string;
 
+  @Column({ default: false })
+  archive: boolean;
+
   @ManyToOne(() => UserModel, user => user.requests)
   @JoinColumn({ name: 'user' })
   user: UserModel

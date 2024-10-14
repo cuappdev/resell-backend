@@ -152,8 +152,12 @@ export class UserService {
   public async softDeleteUser(params: UuidParam): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const requestRepository = Repositories.request(transactionalEntityManager);
       const user = await userRepository.getUserById(params.id);
       if (!user) throw new NotFoundError('User not found!');
+      await postRepository.archiveAllPostsByUserId(user.id);
+      await requestRepository.archiveAllRequestsByUserId(user.id);
       return userRepository.softDeleteUser(user);
     });
   }

@@ -78,6 +78,11 @@ export class PostController {
     return { post: await this.postService.archivePost(user, params) };
   }
 
+  @Post('archiveAll/userId/:id/')
+  async archiveAllPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse> {
+    return { posts: await this.postService.archiveAllPostsByUserId(params) };
+  }
+
   @Get('save/')
   async getSavedPostsByUserId(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
     return { posts: await this.postService.getSavedPostsByUserId(user) };

@@ -1,8 +1,9 @@
-import { NotFoundError } from 'routing-controllers';
+import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
+import { UserModel } from '../models/UserModel';
 import { TimeParam, UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from 'src/models/PostModel';
 import { RequestModel } from '../models/RequestModel';
@@ -60,6 +61,34 @@ export class RequestService {
       return await requestRepository.deleteRequest(request);
     });
   }
+
+  public async archiveRequest(user: UserModel, params: UuidParam): Promise<RequestModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const requestRepository = Repositories.request(transactionalEntityManager);
+      const request = await requestRepository.getRequestById(params.id);
+      if (!request) throw new NotFoundError('Request not found!');
+      if (request.user.isActive == false) throw new NotFoundError('User is not active!');
+      if (user.id != request.user?.id) throw new ForbiddenError('User is not poster!');
+      return await requestRepository.archiveRequest(request);
+    });
+  }
+
+  public async archiveAllRequestsByUserId(params: UuidParam): Promise<RequestModel[]> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const requestRepository = Repositories.request(transactionalEntityManager);
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const user = await userRepository.getUserById(params.id)
+      if (!user) throw new NotFoundError('User not found!');
+      if (!user.isActive) throw new NotFoundError('User is not active!');
+      const requests = await requestRepository.getRequestByUserId(user.id);
+      for (const request of requests) {
+        if (!request) throw new NotFoundError('Request not found!');
+        await requestRepository.archiveRequest(request);
+      }
+      return requests;
+    });
+  }
+
 
   public async getMatchesByRequestId(params: TimeParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
