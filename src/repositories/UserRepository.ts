@@ -59,6 +59,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getSavedPostsByUserId(id: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
+      .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
       .where("user.id = :id", { id })
       .leftJoinAndSelect("user.saved", "post")
       .getOne();
