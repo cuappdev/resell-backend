@@ -63,6 +63,11 @@ async function main() {
     defaultErrorHandler: false,
   });
 
+  const swaggerUi = require('swagger-ui-express');
+  const swaggerDocument = require('../swagger.json');
+
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
   const entityManager = getManager();
   const reportService = new ReportService(entityManager);
   const reportController = new ReportController(reportService);
@@ -98,6 +103,7 @@ async function main() {
 
   app.listen(port, () => {
     console.log(`Resell backend bartering on ${host}:${port}`);
+    console.log(`Swagger documentation available at http://${host}:${port}/api-docs`);
   });
 }
 
