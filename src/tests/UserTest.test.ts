@@ -1,10 +1,11 @@
 import { UserController } from 'src/api/controllers/UserController';
+import { PostController } from 'src/api/controllers/PostController';
 import { Connection } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import { ControllerFactory } from './controllers';
-import { DatabaseConnection, DataFactory, UserFactory } from './data';
+import { DatabaseConnection, DataFactory, PostFactory, UserFactory } from './data';
 import e from 'express';
 import exp from 'constants';
 
@@ -12,6 +13,8 @@ let uuidParam: UuidParam;
 let expectedUser: UserModel;
 let conn: Connection;
 let userController: UserController;
+let postController: PostController;
+
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -268,6 +271,156 @@ describe('user tests', () => {
       expect(error.message).toBe('User is not blocked!');
     }
   });
+
+  test('not returning posts when one user blocks another (having a neutral user)', async () => {
+    postController = ControllerFactory.post(conn);
+    const [blocker, blocked, neutral] = UserFactory.create(3);
+    const [blockerPost, blockedPost, neutralPost] = PostFactory.create(3);
+
+    // Associate each post with the respective user
+    blockerPost.user = blocker;
+    blockedPost.user = blocked;
+    neutralPost.user = neutral;
+    blocker.saved = [];
+    blocked.saved = [];
+    neutral.saved = [];
+
+    // Set up initial data in the database
+    await new DataFactory()
+    .createPosts(blockerPost, blockedPost, neutralPost)
+    .createUsers(blocker, blocked, neutral)
+    .write();
+
+    // Each user saves the other user's post
+    await postController.savePost(neutral, { id: blockedPost.id });
+    await postController.savePost(neutral, { id: blockerPost.id });
+
+    await postController.savePost(blocker, { id: blockedPost.id });
+    await postController.savePost(blocker, { id: neutralPost.id });
+
+    await postController.savePost(blocked, { id: blockerPost.id });
+    await postController.savePost(blocked, { id: neutralPost.id });
+    
+    // Verify blocker has saved posts
+    let blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
+    expect(blockerSavedPosts).not.toBeUndefined();
+    expect(blockerSavedPosts.posts).toHaveLength(2);
+    expect(new Set(blockerSavedPosts.posts.map(post => post.id)))
+    .toEqual(new Set([blockedPost.id, neutralPost.id]));
+
+    // Verify blocked has saved posts
+    let blockedSavedPosts = await postController.getSavedPostsByUserId(blocked);
+    expect(blockedSavedPosts).not.toBeUndefined();
+    expect(blockedSavedPosts.posts).toHaveLength(2);
+    expect(new Set(blockedSavedPosts.posts.map(post => post.id)))
+    .toEqual(new Set([blockerPost.id, neutralPost.id]));
+
+    // Verify neutral has saved posts
+    let neutralSavedPosts = await postController.getSavedPostsByUserId(neutral);
+    expect(neutralSavedPosts).not.toBeUndefined();
+    expect(neutralSavedPosts.posts).toHaveLength(2);
+    expect(new Set(neutralSavedPosts.posts.map(post => post.id)))
+    .toEqual(new Set([blockedPost.id, blockerPost.id]));
+
+    // Blocker blocks blocked
+    await userController.blockUser({ blocked: blocked.id }, blocker);
+
+    // Verify blocker’s saved posts no longer contain blockedPost
+    blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
+    expect(blockerSavedPosts).not.toBeUndefined();
+    expect(blockerSavedPosts.posts.map(post => post.id)).toEqual([neutralPost.id]);
+
+    // Verify blocked’s saved posts no longer contain blockerPost
+    blockedSavedPosts = await postController.getSavedPostsByUserId(blocked);
+    expect(blockedSavedPosts).not.toBeUndefined();
+    expect(blockedSavedPosts.posts.map(post => post.id)).toEqual([neutralPost.id]);
+
+    // Blocker unblocks blocked
+    await userController.unblockUser({ unblocked: blocked.id }, blocker);
+    // Verify blocker has saved posts
+    blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
+      expect(blockerSavedPosts).not.toBeUndefined();
+      expect(blockerSavedPosts.posts).toHaveLength(2);
+      expect(new Set(blockerSavedPosts.posts.map(post => post.id)))
+      .toEqual(new Set([blockedPost.id, neutralPost.id]));
+
+    // Verify blocked has saved posts
+    blockedSavedPosts = await postController.getSavedPostsByUserId(blocked);
+      expect(blockedSavedPosts).not.toBeUndefined();
+      expect(blockedSavedPosts.posts).toHaveLength(2);
+      expect(new Set(blockedSavedPosts.posts.map(post => post.id)))
+      .toEqual(new Set([blockerPost.id, neutralPost.id]));
+
+    // Verify neutral has saved posts
+    neutralSavedPosts = await postController.getSavedPostsByUserId(neutral);
+      expect(neutralSavedPosts).not.toBeUndefined();
+      expect(neutralSavedPosts.posts).toHaveLength(2);
+      expect(new Set(neutralSavedPosts.posts.map(post => post.id)))
+      .toEqual(new Set([blockedPost.id, blockerPost.id]));
+  });
+
+  test('not returning posts when one user blocks another', async () => {
+    postController = ControllerFactory.post(conn);
+    const [blocker, blocked] = UserFactory.create(2);
+    const [blockerPost, blockedPost] = PostFactory.create(2);
+
+    // Associate each post with the respective user
+    blockerPost.user = blocker;
+    blockedPost.user = blocked;
+    blocker.saved = [];
+    blocked.saved = [];
+
+    // Set up initial data in the database
+    await new DataFactory()
+        .createPosts(blockerPost, blockedPost)
+        .createUsers(blocker, blocked)
+        .write();
+
+    // Each user saves the other user's post
+    await postController.savePost(blocker, { id: blockedPost.id });
+    await postController.savePost(blocked, { id: blockerPost.id });
+
+    // Verify blocker has saved blockedPost
+    let blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
+    expect(blockerSavedPosts).not.toBeUndefined();
+    expect(blockerSavedPosts.posts).toHaveLength(1);
+    expect(blockerSavedPosts.posts[0].id).toEqual(blockedPost.id);
+
+    // Verify blocked has saved blockerPost
+    let blockedSavedPosts = await postController.getSavedPostsByUserId(blocked);
+    expect(blockedSavedPosts).not.toBeUndefined();
+    expect(blockedSavedPosts.posts).toHaveLength(1);
+    expect(blockedSavedPosts.posts[0].id).toEqual(blockerPost.id);
+
+    // Blocker blocks blocked
+    await userController.blockUser({ blocked: blocked.id }, blocker);
+
+    // Verify blocker’s saved posts no longer contain blockedPost
+    blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
+    expect(blockerSavedPosts).not.toBeUndefined();
+    expect(blockerSavedPosts.posts).toEqual([]);
+
+    // Verify blocked’s saved posts no longer contain blockerPost
+    blockedSavedPosts = await postController.getSavedPostsByUserId(blocked);
+    expect(blockedSavedPosts).not.toBeUndefined();
+    expect(blockedSavedPosts.posts).toEqual([]);
+
+    // Blocker unblocks blocked
+    await userController.unblockUser({ unblocked: blocked.id }, blocker);
+
+    // Verify blocker has saved blockedPost
+    blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
+    expect(blockerSavedPosts).not.toBeUndefined();
+    expect(blockerSavedPosts.posts).toHaveLength(1);
+    expect(blockerSavedPosts.posts[0].id).toEqual(blockedPost.id);
+    
+    // Verify blocked has saved blockerPost
+    blockedSavedPosts = await postController.getSavedPostsByUserId(blocked);
+    expect(blockedSavedPosts).not.toBeUndefined();
+    expect(blockedSavedPosts.posts).toHaveLength(1);
+    expect(blockedSavedPosts.posts[0].id).toEqual(blockerPost.id);
+  });
+
 
   test('delete users - user deletes themselves', async () => {
     const admin = UserFactory.fake();
