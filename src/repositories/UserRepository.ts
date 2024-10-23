@@ -42,8 +42,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel> {
-    user.saved.splice(user.saved.indexOf(post));
-    await this.repository.save(user);
+    const index = user.saved.findIndex(savedPost => savedPost.id === post.id);
+    if (index !== -1) {
+        user.saved.splice(index, 1);
+        await this.repository.save(user);
+    }
     return post;
   }
 
@@ -59,6 +62,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async getSavedPostsByUserId(id: Uuid): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
+      .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
       .where("user.id = :id", { id })
       .leftJoinAndSelect("user.saved", "post")
       .getOne();

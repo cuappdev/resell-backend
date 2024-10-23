@@ -11,6 +11,7 @@ import Repositories, { TransactionsManager } from '../repositories';
 import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, GetSearchedPostsRequest, EditPostPriceRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 import { getLoadedModel } from '../utils/SentenceEncoder';
+import { PostRepository } from 'src/repositories/PostRepository';
 require('@tensorflow-models/universal-sentence-encoder')
 
 @Service() 
@@ -175,10 +176,38 @@ export class PostService {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
       const userWithSaved = await userRepository.getSavedPostsByUserId(user.id);
-      if (!userWithSaved) throw new NotFoundError('Easter egg')
-      return userWithSaved.saved;
+      if (!userWithSaved) throw new NotFoundError('User not found');
+  
+      const filteredPosts: PostModel[] = [];
+      const postRepository = Repositories.post(transactionalEntityManager);
+  
+      for (const post of userWithSaved.saved) {
+        const postAuthor = await postRepository.getUserByPostId(post.id);
+        if (!postAuthor) throw new NotFoundError('Post author not found');
+  
+        // Check if the current user blocked the post author
+        const isBlockedByCurrentUser = userWithSaved.blocking?.some(
+          blockedUser => blockedUser.id === postAuthor.id
+        ) ?? false;
+  
+        if (isBlockedByCurrentUser) continue; // Skip this post immediately
+  
+        // Check if the post author blocked the current user
+        const postAuthorWithBlockedInfo = await userRepository.getUserWithBlockedInfo(postAuthor.id);
+        const isBlockedByPostAuthor = postAuthorWithBlockedInfo?.blocking?.some(
+          blockedUser => blockedUser.id === user.id
+        ) ?? false;
+  
+        // Include the post if there’s no blocking in either direction
+        if (!isBlockedByPostAuthor) {
+          filteredPosts.push(post);
+        }
+      }
+  
+      return filteredPosts;
     });
   }
+  
 
   public async savePost(user: UserModel, params: UuidParam): Promise<PostModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
