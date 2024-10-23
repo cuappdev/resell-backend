@@ -24,6 +24,8 @@ export class NotifService {
 //  * @param {Object} expoServer the server object to connect with
 //  */
 
+// Comment to push main
+
     public sendNotifChunks = async (notifs : ExpoPushMessage[], expoServer : Expo) => {
         let chunks = expoServer.chunkPushNotifications(notifs);
         let tickets = [];
