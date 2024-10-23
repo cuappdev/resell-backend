@@ -123,6 +123,15 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository.save(post)
   }
 
+  public async archiveAllPostsByUserId(userId: Uuid): Promise<void> {
+    await this.repository
+      .createQueryBuilder()
+      .update(PostModel)
+      .set({ archive: true })
+      .where("userId = :userId", { userId })
+      .execute();
+  }
+
   public async editPostPrice(post: PostModel, new_price: number): Promise<PostModel> {
     post.altered_price = new_price
     return await this.repository.save(post)

@@ -172,6 +172,22 @@ export class PostService {
     });
   }
 
+  public async archiveAllPostsByUserId(params: UuidParam): Promise<PostModel[]> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const user = await userRepository.getUserById(params.id)
+      if (!user) throw new NotFoundError('User not found!');
+      if (!user.isActive) throw new NotFoundError('User is not active!');
+      const posts = await postRepository.getPostsByUserId(user.id);
+      for (const post of posts) {
+        if (!post) throw new NotFoundError('Post not found!');
+        await postRepository.archivePost(post);
+      }
+      return posts;
+    });
+  }
+
   public async getSavedPostsByUserId(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
