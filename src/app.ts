@@ -6,6 +6,12 @@ import { createExpressServer, ForbiddenError, useContainer as routingUseContaine
 import { EntityManager, getManager, useContainer } from 'typeorm';
 import { Container } from 'typeorm-typedi-extensions';
 
+import express from 'express';
+import { getMetadataArgsStorage } from 'routing-controllers';
+import { routingControllersToSpec } from 'routing-controllers-openapi';
+import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
+import swaggerUi from 'swagger-ui-express';
+
 import { controllers } from './api/controllers';
 import { middlewares } from './api/middlewares';
 import { UserModel } from './models/UserModel';
@@ -63,9 +69,70 @@ async function main() {
     defaultErrorHandler: false,
   });
 
+  const routingControllersOptions = {
+    cors: true,
+    routePrefix: '/api/',
+    controllers: controllers,
+    middlewares: middlewares,
+    currentUserChecker: async (action: any) => {
+      const accessToken = action.request.headers["authorization"];
+      const manager = getManager();
+      const session = await manager.findOne(UserSessionModel, { accessToken: accessToken });
+      if (session && session.expiresAt.getTime() > Date.now()) {
+        const userId = session.userId;
+        return await manager.findOne(UserModel, { id: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
+      }
+      throw new ForbiddenError("User unauthorized");
+    },
+    defaults: {
+      paramOptions: {
+        required: true,
+      },
+    },
+    validation: {
+      whitelist: true,
+      skipMissingProperties: true,
+      forbidUnknownValues: true,
+    },
+    defaultErrorHandler: false,
+  };
+
   const entityManager = getManager();
   const reportService = new ReportService(entityManager);
   const reportController = new ReportController(reportService);
+  const routingApp = createExpressServer(routingControllersOptions);
+
+  const schemas = validationMetadatasToSchemas({
+    refPointerPrefix: '#/components/schemas/'
+  });
+
+  const storage = getMetadataArgsStorage();
+  const spec = routingControllersToSpec(
+    storage,
+    routingControllersOptions,
+    {
+      components: {
+        schemas: schemas as any,
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT'
+          }
+        }
+      },
+      info: {
+        title: 'Resell API',
+        version: '1.0.0',
+        description: 'API documentation for the Resell backend service'
+      },
+      security: [{ bearerAuth: [] }]
+    }
+  );
+
+  app.use(routingApp);
+
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(spec));
 
   app.set('view engine', 'pug')
 
@@ -98,6 +165,7 @@ async function main() {
 
   app.listen(port, () => {
     console.log(`Resell backend bartering on ${host}:${port}`);
+    console.log(`Swagger documentation available at http://${host}:${port}/docs`);
   });
 }
 
