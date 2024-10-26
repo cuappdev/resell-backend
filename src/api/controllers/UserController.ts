@@ -29,10 +29,10 @@ export class UserController {
 
   @Post()
   @OpenAPI({
-    summary: 'Create new user',
-    description: 'Creates a new user',
+    summary: 'Edit new user',
+    description: 'Edit a new user',
     responses: {
-      '200': { description: 'User created successfully' },
+      '200': { description: 'User edited successfully' },
     }
   })
   async editProfile(@Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) editProfileRequest: EditProfileRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {

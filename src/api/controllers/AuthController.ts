@@ -27,10 +27,130 @@ export class AuthController {
   @Get()
   @OpenAPI({
     summary: 'Get current user',
-    description: 'Retrieves the currently authenticated user\'s profile',
+    description: 'Returns the profile information of the currently authenticated user',
     responses: {
-      '200': { description: 'Current user profile returned successfully' },
-      '401': { description: 'User is not authenticated' }
+      '200': {
+        description: 'Current user profile retrieved successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                    },
+                    username: { 
+                      type: 'string',
+                      example: 'mweiner'
+                    },
+                    netid: { 
+                      type: 'string',
+                      example: 'maw346'
+                    },
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
+                    admin: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    stars: { 
+                      type: 'string',
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      nullable: true,
+                      example: '@mateoweiner'
+                    },
+                    email: { 
+                      type: 'string',
+                      format: 'email',
+                      example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '21438528358713851'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    blocking: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '401': {
+        description: 'Not authenticated'
+      }
     }
   })
   async currentUser(@CurrentUser() user: UserModel): Promise<GetUserResponse> {
@@ -41,9 +161,106 @@ export class AuthController {
   @OpenAPI({
     summary: 'Create new user',
     description: 'Creates a new user account with Google authentication',
+    requestBody: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['username', 'netid', 'givenName', 'familyName', 'email', 'googleId'],
+            properties: {
+              username: { 
+                type: 'string',
+                example: 'mweiner'
+              },
+              netid: { 
+                type: 'string',
+                example: 'maw346'
+              },
+              givenName: { 
+                type: 'string',
+                example: 'Mateo'
+              },
+              familyName: { 
+                type: 'string',
+                example: 'Weiner'
+              },
+              photoUrl: { 
+                type: 'string',
+                example: 'https://img1.png'
+              },
+              email: { 
+                type: 'string',
+                format: 'email',
+                example: 'maw346@cornell.edu'
+              },
+              googleId: { 
+                type: 'string',
+                example: '21438528358713851'
+              },
+              bio: { 
+                type: 'string',
+                example: 'hi im mateo'
+              }
+            }
+          }
+        }
+      }
+    },
     responses: {
-      '200': { description: 'User created successfully' },
-      '400': { description: 'Invalid request body' }
+      '200': {
+        description: 'User created successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      format: 'uuid'
+                    },
+                    username: { 
+                      type: 'string'
+                    },
+                    netid: { 
+                      type: 'string'
+                    },
+                    givenName: { 
+                      type: 'string'
+                    },
+                    familyName: { 
+                      type: 'string'
+                    },
+                    admin: { 
+                      type: 'boolean'
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true
+                    },
+                    email: { 
+                      type: 'string',
+                      format: 'email'
+                    },
+                    googleId: { 
+                      type: 'string'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '400': {
+        description: 'Invalid request body'
+      },
+      '409': {
+        description: 'User with same username/netid/email/googleId already exists'
+      }
     }
   })
   async createUser(@Body() createUserRequest: CreateUserRequest): Promise<GetUserResponse> {
