@@ -17,9 +17,64 @@ export class UserController {
   @Get()
   @OpenAPI({
     summary: 'Get all users',
-    description: 'Retrieves all users',
+    description: 'Gets all users.',
     responses: {
-      '200': { description: 'Users returned successfully' },
+      '200': {
+        description: 'Users returned successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                users: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { 
+                        type: 'string',
+                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                      },
+                      firstName: { 
+                        type: 'string',
+                        example: 'Raahi'
+                      },
+                      lastName: { 
+                        type: 'string',
+                        example: 'Melone'
+                      },
+                      admin: {
+                        type: 'boolean',
+                        example: false
+                      },
+                      profilePictureUrl: {
+                        type: 'string',
+                        example: 'pfp'
+                      },
+                      venmoHandle: {
+                        type: 'string',
+                        example: '@raahimenon'
+                      },
+                      email: {
+                        type: 'string',
+                        example: 'rm585@cornell.edu'
+                      },
+                      googleId: {
+                        type: 'string',
+                        example: '111628722491153685331'
+                      },
+                      bio: {
+                        type: 'string',
+                        example: 'I\'m a rah'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   })
   async getUsers(@CurrentUser() user: UserModel): Promise<GetUsersResponse> {
@@ -29,10 +84,98 @@ export class UserController {
 
   @Post()
   @OpenAPI({
-    summary: 'Edit new user',
-    description: 'Edit a new user',
+    summary: 'Edit user profile',
+    description: 'Updates user profile information.',
+    requestBody: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              photoUrlBase64: {
+                type: 'string',
+                description: 'Base64 encoded profile picture'
+              },
+              username: {
+                type: 'string',
+                example: 'haichen_wang'
+              },
+              venmoHandle: {
+                type: 'string',
+                example: '@Haichen'
+              },
+              bio: {
+                type: 'string',
+                example: 'I\'m Haichen'
+              }
+            }
+          }
+        }
+      }
+    },
     responses: {
-      '200': { description: 'User edited successfully' },
+      '200': {
+        description: 'User updated successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    username: { 
+                      type: 'string',
+                      example: 'haichen_wang'
+                    },
+                    netid: { 
+                      type: 'string',
+                      example: 'hw595'
+                    },
+                    givenName: { 
+                      type: 'string',
+                      example: 'Haichen'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Wang'
+                    },
+                    admin: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      example: 'https://lh3.googleusercontent.com/a-/AOh14GjADBhtoQsJArieGsAqiZwVTHJMA6AqqbqUzT0YRw=s96-c'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      nullable: true
+                    },
+                    email: { 
+                      type: 'string',
+                      example: 'hw595@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '111668722491153685331'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: ''
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '400': {
+        description: 'Invalid request body'
+      }
     }
   })
   async editProfile(@Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) editProfileRequest: EditProfileRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
@@ -42,10 +185,64 @@ export class UserController {
   @Get('id/:id/')
   @OpenAPI({
     summary: 'Get user by id',
-    description: 'Retrieves a user by its id',
+    description: 'Gets user with id of :id. These ids are specific to our own backend.',
     responses: {
-      '200': { description: 'User returned successfully' },
-      '404': { description: 'User not found' }
+      '200': {
+        description: 'User returned successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      example: '221093-249ej-hkfae3901-2q9ffi'
+                    },
+                    firstName: { 
+                      type: 'string',
+                      example: 'mateo'
+                    },
+                    lastName: { 
+                      type: 'string',
+                      example: 'weiner'
+                    },
+                    admin: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    profilePictureUrl: { 
+                      type: 'string',
+                      example: 'pfp1'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      example: '@mateow99'
+                    },
+                    email: { 
+                      type: 'string',
+                      example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '111627722491153685331'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'I\'m a mate'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '404': {
+        description: 'User not found'
+      }
     }
   })
   async getUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
@@ -54,11 +251,68 @@ export class UserController {
 
   @Get('googleId/:id/')
   @OpenAPI({
-    summary: 'Get user by google id',
-    description: 'Retrieves a user by its google id',
+    summary: 'Get user by Google id',
+    description: 'Gets user with google id of :id.',
     responses: {
-      '200': { description: 'User returned successfully' },
-      '404': { description: 'User not found' }
+      '200': {
+        description: 'User returned successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                users: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { 
+                        type: 'string',
+                        example: '221093-249ej-hkfae3901-2q9ffi'
+                      },
+                      firstName: { 
+                        type: 'string',
+                        example: 'mateo'
+                      },
+                      lastName: { 
+                        type: 'string',
+                        example: 'weiner'
+                      },
+                      admin: {
+                        type: 'boolean',
+                        example: false
+                      },
+                      profilePictureUrl: { 
+                        type: 'string',
+                        example: 'pfp1'
+                      },
+                      venmoHandle: { 
+                        type: 'string',
+                        example: '@mateow99'
+                      },
+                      email: { 
+                        type: 'string',
+                        example: 'maw346@cornell.edu'
+                      },
+                      googleId: { 
+                        type: 'string',
+                        example: '111627722491153685331'
+                      },
+                      bio: { 
+                        type: 'string',
+                        example: 'I\'m a mate'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '404': {
+        description: 'User not found'
+      }
     }
   })
   async getUserByGoogleId(@Param("id") id: string): Promise<GetUserResponse> {
@@ -68,10 +322,67 @@ export class UserController {
   @Get('postId/:id/')
   @OpenAPI({
     summary: 'Get user by post id',
-    description: 'Retrieves a user by its post id',
+    description: 'Gets user who created the post with id of :id.',
     responses: {
-      '200': { description: 'User returned successfully' },
-      '404': { description: 'User not found' }
+      '200': {
+        description: 'User returned successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                users: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { 
+                        type: 'string',
+                        example: '221093-249ej-hkfae3901-2q9ffi'
+                      },
+                      firstName: { 
+                        type: 'string',
+                        example: 'mateo'
+                      },
+                      lastName: { 
+                        type: 'string',
+                        example: 'weiner'
+                      },
+                      admin: {
+                        type: 'boolean',
+                        example: false
+                      },
+                      profilePictureUrl: { 
+                        type: 'string',
+                        example: 'pfp1'
+                      },
+                      venmoHandle: { 
+                        type: 'string',
+                        example: '@mateow99'
+                      },
+                      email: { 
+                        type: 'string',
+                        example: 'maw346@cornell.edu'
+                      },
+                      googleId: { 
+                        type: 'string',
+                        example: '111627722491153685331'
+                      },
+                      bio: { 
+                        type: 'string',
+                        example: 'I\'m a mate'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '404': {
+        description: 'User not found'
+      }
     }
   })
   async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse> {
@@ -81,10 +392,84 @@ export class UserController {
   @Post('email/')
   @OpenAPI({
     summary: 'Get user by email',
-    description: 'Retrieves a user by its email',
+    description: 'Gets user by email in request body.',
+    requestBody: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['email'],
+            properties: {
+              email: {
+                type: 'string',
+                example: 'maw346@cornell.edu'
+              }
+            }
+          }
+        }
+      }
+    },
     responses: {
-      '200': { description: 'User returned successfully' },
-      '404': { description: 'User not found' }
+      '200': {
+        description: 'User returned successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                users: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { 
+                        type: 'string',
+                        example: '221093-249ej-hkfae3901-2q9ffi'
+                      },
+                      firstName: { 
+                        type: 'string',
+                        example: 'mateo'
+                      },
+                      lastName: { 
+                        type: 'string',
+                        example: 'weiner'
+                      },
+                      admin: {
+                        type: 'boolean',
+                        example: false
+                      },
+                      profilePictureUrl: { 
+                        type: 'string',
+                        example: 'pfp1'
+                      },
+                      venmoHandle: { 
+                        type: 'string',
+                        example: '@mateow99'
+                      },
+                      email: { 
+                        type: 'string',
+                        example: 'maw346@cornell.edu'
+                      },
+                      googleId: { 
+                        type: 'string',
+                        example: '111627722491153685331'
+                      },
+                      bio: { 
+                        type: 'string',
+                        example: 'I\'m a mate'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '404': {
+        description: 'User not found'
+      }
     }
   })
   async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest): Promise<GetUserResponse> {
@@ -93,10 +478,63 @@ export class UserController {
 
   @Post('admin/')
   @OpenAPI({
-    summary: 'Set admin',
-    description: 'Sets a user as an admin',
+    summary: 'Set admin status',
+    description: 'Sets admin status for a user.',
+    requestBody: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['email', 'admin'],
+            properties: {
+              email: {
+                type: 'string',
+                format: 'email',
+                example: 'maw346@cornell.edu'
+              },
+              admin: {
+                type: 'boolean',
+                example: true
+              }
+            }
+          }
+        }
+      }
+    },
     responses: {
-      '200': { description: 'User set as admin successfully' },
+      '200': {
+        description: 'Admin status updated successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    admin: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    email: { 
+                      type: 'string',
+                      example: 'maw346@cornell.edu'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '401': {
+        description: 'Unauthorized - Requires super admin privileges'
+      },
+      '404': {
+        description: 'User not found'
+      }
     }
   })
   async setAdmin(@Body() setAdminByEmailRequest: SetAdminByEmailRequest, @CurrentUser() superAdmin: UserModel): Promise<GetUserResponse> {
@@ -106,9 +544,78 @@ export class UserController {
   @Post('block/')
   @OpenAPI({
     summary: 'Block user',
-    description: 'Blocks a user',
+    description: 'Block user by userId in request body.',
+    requestBody: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['blocked'],
+            properties: {
+              blocked: {
+                type: 'string',
+                example: '221093-249ej-hkfae3901-2q9ffi'
+              }
+            }
+          }
+        }
+      }
+    },
     responses: {
-      '200': { description: 'User blocked successfully' },
+      '200': {
+        description: 'User blocked successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      example: '221093-249ej-hkfae3901-2q9ffi'
+                    },
+                    firstName: { 
+                      type: 'string',
+                      example: 'mateo'
+                    },
+                    lastName: { 
+                      type: 'string',
+                      example: 'weiner'
+                    },
+                    admin: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    profilePictureUrl: { 
+                      type: 'string',
+                      example: 'pfp1'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      example: '@mateow99'
+                    },
+                    email: { 
+                      type: 'string',
+                      example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '111627722491153685331'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'I\'m a mate'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   })
   async blockUser(@Body() blockUserRequest: BlockUserRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
@@ -118,9 +625,78 @@ export class UserController {
   @Post('unblock/')
   @OpenAPI({
     summary: 'Unblock user',
-    description: 'Unblocks a user',
+    description: 'Unblock user by userId in request body.',
+    requestBody: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['unblocked'],
+            properties: {
+              unblocked: {
+                type: 'string',
+                example: '221093-249ej-hkfae3901-2q9ffi'
+              }
+            }
+          }
+        }
+      }
+    },
     responses: {
-      '200': { description: 'User unblocked successfully' },
+      '200': {
+        description: 'User unblocked successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      example: '221093-249ej-hkfae3901-2q9ffi'
+                    },
+                    firstName: { 
+                      type: 'string',
+                      example: 'mateo'
+                    },
+                    lastName: { 
+                      type: 'string',
+                      example: 'weiner'
+                    },
+                    admin: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    profilePictureUrl: { 
+                      type: 'string',
+                      example: 'pfp1'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      example: '@mateow99'
+                    },
+                    email: { 
+                      type: 'string',
+                      example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '111627722491153685331'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'I\'m a mate'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   })
   async unblockUser(@Body() unblockUserRequest: UnblockUserRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
@@ -129,11 +705,65 @@ export class UserController {
 
   @Get('blocked/id/:id/')
   @OpenAPI({
-    summary: 'Get blocked users by id',
-    description: 'Retrieves all blocked users by a user id',
+    summary: 'Get blocked users',
+    description: 'Gets all the users a user with id of :id is blocking. These ids are specific to our own backend.',
     responses: {
-      '200': { description: 'Users returned successfully' },
-      '404': { description: 'Users not found' }
+      '200': {
+        description: 'Blocked users returned successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      example: 'c6f0a14a-48ae-4b1c-bd6f-5f3b7e8c2b99'
+                    },
+                    firstName: { 
+                      type: 'string',
+                      example: 'Tony'
+                    },
+                    lastName: { 
+                      type: 'string',
+                      example: 'Matchev'
+                    },
+                    admin: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    profilePictureUrl: { 
+                      type: 'string',
+                      example: 'pfp1'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      example: '@akmatchev'
+                    },
+                    email: { 
+                      type: 'string',
+                      example: 'akm99@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '111627722491153685331'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'I like being blocked'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '404': {
+        description: 'User not found'
+      }
     }
   })
   async getBlockedUsersById(@Params() params: UuidParam): Promise<GetUsersResponse> {
@@ -143,10 +773,34 @@ export class UserController {
   @Delete('id/:id/')
   @OpenAPI({
     summary: 'Delete user',
-    description: 'Deletes a user by its id',
+    description: 'Permanently deletes a user by its id.',
     responses: {
-      '200': { description: 'User deleted successfully' },
-      '404': { description: 'User not found' }
+      '200': {
+        description: 'User deleted successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    email: { type: 'string' },
+                    deletedAt: { 
+                      type: 'string',
+                      format: 'date-time'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '404': {
+        description: 'User not found'
+      }
     }
   })
   async deleteUser(@Params() params: UuidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
@@ -156,10 +810,52 @@ export class UserController {
   @Post('softDelete/id/:id/')
   @OpenAPI({
     summary: 'Soft delete user',
-    description: 'Soft deletes a user by its id',
+    description: 'Soft deletes a user with id of :id.',
     responses: {
-      '200': { description: 'User soft deleted successfully' },
-      '404': { description: 'User not found' }
+      '200': {
+        description: 'User soft deleted successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      example: '221093-249ej-hkfae3901-2q9ffi'
+                    },
+                    firstName: { 
+                      type: 'string',
+                      example: 'mateo'
+                    },
+                    lastName: { 
+                      type: 'string',
+                      example: 'weiner'
+                    },
+                    admin: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    softDeleted: {
+                      type: 'boolean',
+                      example: true
+                    },
+                    softDeletedAt: {
+                      type: 'string',
+                      format: 'date-time'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '404': {
+        description: 'User not found'
+      }
     }
   })
   async softDeleteUser(@Params() params: UuidParam): Promise<GetUserResponse> {
