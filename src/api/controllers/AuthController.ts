@@ -363,6 +363,10 @@ export class AuthController {
                 refreshToken: { 
                   type: 'string',
                   description: 'Token for refreshing access'
+                },
+                deviceToken: { 
+                  type: 'string',
+                  description: 'Token for refreshing access'
                 }
               }
             }

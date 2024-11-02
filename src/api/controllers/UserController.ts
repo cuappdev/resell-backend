@@ -33,39 +33,105 @@ export class UserController {
                     properties: {
                       id: { 
                         type: 'string',
+                        format: 'uuid',
                         example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
                       },
-                      firstName: { 
+                      username: { 
                         type: 'string',
-                        example: 'Raahi'
+                        example: 'mweiner'
                       },
-                      lastName: { 
+                      netid: { 
                         type: 'string',
-                        example: 'Melone'
+                        example: 'maw346'
                       },
-                      admin: {
+                      givenName: { 
+                        type: 'string',
+                        example: 'Mateo'
+                      },
+                      familyName: { 
+                        type: 'string',
+                        example: 'Weiner'
+                      },
+                      admin: { 
                         type: 'boolean',
                         example: false
                       },
-                      profilePictureUrl: {
+                      stars: { 
                         type: 'string',
-                        example: 'pfp'
+                        example: '4.5'
                       },
-                      venmoHandle: {
-                        type: 'string',
-                        example: '@raahimenon'
+                      numReviews: { 
+                        type: 'integer',
+                        example: 10
                       },
-                      email: {
+                      photoUrl: { 
                         type: 'string',
-                        example: 'rm585@cornell.edu'
+                        nullable: true,
+                        example: 'https://img1.png'
                       },
-                      googleId: {
+                      venmoHandle: { 
                         type: 'string',
-                        example: '111628722491153685331'
+                        nullable: true,
+                        example: '@mateoweiner'
                       },
-                      bio: {
+                      email: { 
                         type: 'string',
-                        example: 'I\'m a rah'
+                        format: 'email',
+                        example: 'maw346@cornell.edu'
+                      },
+                      googleId: { 
+                        type: 'string',
+                        example: '21438528358713851'
+                      },
+                      bio: { 
+                        type: 'string',
+                        example: 'Freshman studying CS. He/Him'
+                      },
+                      isActive: { 
+                        type: 'boolean',
+                        example: true
+                      },
+                      blocking: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      blockers: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      reports: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      reportedBy: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      posts: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      feedbacks: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
                       }
                     }
                   }
@@ -93,21 +159,112 @@ export class UserController {
           schema: {
             type: 'object',
             properties: {
-              photoUrlBase64: {
-                type: 'string',
-                description: 'Base64 encoded profile picture'
-              },
-              username: {
-                type: 'string',
-                example: 'haichen_wang'
-              },
-              venmoHandle: {
-                type: 'string',
-                example: '@Haichen'
-              },
-              bio: {
-                type: 'string',
-                example: 'I\'m Haichen'
+              user: {
+                type: 'object',
+                properties: {
+                  id: { 
+                    type: 'string',
+                    format: 'uuid',
+                    example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                  },
+                  username: { 
+                    type: 'string',
+                    example: 'mweiner'
+                  },
+                  netid: { 
+                    type: 'string',
+                    example: 'maw346'
+                  },
+                  givenName: { 
+                    type: 'string',
+                    example: 'Mateo'
+                  },
+                  familyName: { 
+                    type: 'string',
+                    example: 'Weiner'
+                  },
+                  admin: { 
+                    type: 'boolean',
+                    example: false
+                  },
+                  stars: { 
+                    type: 'string',
+                    example: '4.5'
+                  },
+                  numReviews: { 
+                    type: 'integer',
+                    example: 10
+                  },
+                  photoUrl: { 
+                    type: 'string',
+                    nullable: true,
+                    example: 'https://img1.png'
+                  },
+                  venmoHandle: { 
+                    type: 'string',
+                    nullable: true,
+                    example: '@mateoweiner'
+                  },
+                  email: { 
+                    type: 'string',
+                    format: 'email',
+                    example: 'maw346@cornell.edu'
+                  },
+                  googleId: { 
+                    type: 'string',
+                    example: '21438528358713851'
+                  },
+                  bio: { 
+                    type: 'string',
+                    example: 'Freshman studying CS. He/Him'
+                  },
+                  isActive: { 
+                    type: 'boolean',
+                    example: true
+                  },
+                  blocking: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      format: 'uuid'
+                    }
+                  },
+                  blockers: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      format: 'uuid'
+                    }
+                  },
+                  reports: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      format: 'uuid'
+                    }
+                  },
+                  reportedBy: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      format: 'uuid'
+                    }
+                  },
+                  posts: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      format: 'uuid'
+                    }
+                  },
+                  feedbacks: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      format: 'uuid'
+                    }
+                  }
+                }
               }
             }
           }
@@ -199,39 +356,105 @@ export class UserController {
                   properties: {
                     id: { 
                       type: 'string',
-                      example: '221093-249ej-hkfae3901-2q9ffi'
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
                     },
-                    firstName: { 
+                    username: { 
                       type: 'string',
-                      example: 'mateo'
+                      example: 'mweiner'
                     },
-                    lastName: { 
+                    netid: { 
                       type: 'string',
-                      example: 'weiner'
+                      example: 'maw346'
                     },
-                    admin: {
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
+                    admin: { 
                       type: 'boolean',
                       example: false
                     },
-                    profilePictureUrl: { 
+                    stars: { 
                       type: 'string',
-                      example: 'pfp1'
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
                     },
                     venmoHandle: { 
                       type: 'string',
-                      example: '@mateow99'
+                      nullable: true,
+                      example: '@mateoweiner'
                     },
                     email: { 
                       type: 'string',
+                      format: 'email',
                       example: 'maw346@cornell.edu'
                     },
                     googleId: { 
                       type: 'string',
-                      example: '111627722491153685331'
+                      example: '21438528358713851'
                     },
                     bio: { 
                       type: 'string',
-                      example: 'I\'m a mate'
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    blocking: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
                     }
                   }
                 }
@@ -261,46 +484,109 @@ export class UserController {
             schema: {
               type: 'object',
               properties: {
-                users: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      id: { 
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                    },
+                    username: { 
+                      type: 'string',
+                      example: 'mweiner'
+                    },
+                    netid: { 
+                      type: 'string',
+                      example: 'maw346'
+                    },
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
+                    admin: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    stars: { 
+                      type: 'string',
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      nullable: true,
+                      example: '@mateoweiner'
+                    },
+                    email: { 
+                      type: 'string',
+                      format: 'email',
+                      example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '21438528358713851'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    blocking: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: '221093-249ej-hkfae3901-2q9ffi'
-                      },
-                      firstName: { 
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'mateo'
-                      },
-                      lastName: { 
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'weiner'
-                      },
-                      admin: {
-                        type: 'boolean',
-                        example: false
-                      },
-                      profilePictureUrl: { 
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'pfp1'
-                      },
-                      venmoHandle: { 
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: '@mateow99'
-                      },
-                      email: { 
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'maw346@cornell.edu'
-                      },
-                      googleId: { 
-                        type: 'string',
-                        example: '111627722491153685331'
-                      },
-                      bio: { 
-                        type: 'string',
-                        example: 'I\'m a mate'
+                        format: 'uuid'
                       }
                     }
                   }
@@ -331,46 +617,109 @@ export class UserController {
             schema: {
               type: 'object',
               properties: {
-                users: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      id: { 
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                    },
+                    username: { 
+                      type: 'string',
+                      example: 'mweiner'
+                    },
+                    netid: { 
+                      type: 'string',
+                      example: 'maw346'
+                    },
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
+                    admin: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    stars: { 
+                      type: 'string',
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      nullable: true,
+                      example: '@mateoweiner'
+                    },
+                    email: { 
+                      type: 'string',
+                      format: 'email',
+                      example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '21438528358713851'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    blocking: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: '221093-249ej-hkfae3901-2q9ffi'
-                      },
-                      firstName: { 
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'mateo'
-                      },
-                      lastName: { 
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'weiner'
-                      },
-                      admin: {
-                        type: 'boolean',
-                        example: false
-                      },
-                      profilePictureUrl: { 
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'pfp1'
-                      },
-                      venmoHandle: { 
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: '@mateow99'
-                      },
-                      email: { 
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'maw346@cornell.edu'
-                      },
-                      googleId: { 
-                        type: 'string',
-                        example: '111627722491153685331'
-                      },
-                      bio: { 
-                        type: 'string',
-                        example: 'I\'m a mate'
+                        format: 'uuid'
                       }
                     }
                   }
@@ -418,46 +767,109 @@ export class UserController {
             schema: {
               type: 'object',
               properties: {
-                users: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      id: { 
+                user: {
+                  type: 'object',
+                  properties: {
+                    id: { 
+                      type: 'string',
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                    },
+                    username: { 
+                      type: 'string',
+                      example: 'mweiner'
+                    },
+                    netid: { 
+                      type: 'string',
+                      example: 'maw346'
+                    },
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
+                    admin: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    stars: { 
+                      type: 'string',
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      nullable: true,
+                      example: '@mateoweiner'
+                    },
+                    email: { 
+                      type: 'string',
+                      format: 'email',
+                      example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '21438528358713851'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    blocking: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: '221093-249ej-hkfae3901-2q9ffi'
-                      },
-                      firstName: { 
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'mateo'
-                      },
-                      lastName: { 
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'weiner'
-                      },
-                      admin: {
-                        type: 'boolean',
-                        example: false
-                      },
-                      profilePictureUrl: { 
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'pfp1'
-                      },
-                      venmoHandle: { 
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: '@mateow99'
-                      },
-                      email: { 
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
                         type: 'string',
-                        example: 'maw346@cornell.edu'
-                      },
-                      googleId: { 
-                        type: 'string',
-                        example: '111627722491153685331'
-                      },
-                      bio: { 
-                        type: 'string',
-                        example: 'I\'m a mate'
+                        format: 'uuid'
                       }
                     }
                   }
@@ -513,14 +925,107 @@ export class UserController {
                 user: {
                   type: 'object',
                   properties: {
-                    id: { type: 'string' },
+                    id: { 
+                      type: 'string',
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                    },
+                    username: { 
+                      type: 'string',
+                      example: 'mweiner'
+                    },
+                    netid: { 
+                      type: 'string',
+                      example: 'maw346'
+                    },
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
                     admin: { 
                       type: 'boolean',
-                      example: true
+                      example: false
+                    },
+                    stars: { 
+                      type: 'string',
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      nullable: true,
+                      example: '@mateoweiner'
                     },
                     email: { 
                       type: 'string',
+                      format: 'email',
                       example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '21438528358713851'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    blocking: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
                     }
                   }
                 }
@@ -575,39 +1080,105 @@ export class UserController {
                   properties: {
                     id: { 
                       type: 'string',
-                      example: '221093-249ej-hkfae3901-2q9ffi'
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
                     },
-                    firstName: { 
+                    username: { 
                       type: 'string',
-                      example: 'mateo'
+                      example: 'mweiner'
                     },
-                    lastName: { 
+                    netid: { 
                       type: 'string',
-                      example: 'weiner'
+                      example: 'maw346'
                     },
-                    admin: {
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
+                    admin: { 
                       type: 'boolean',
                       example: false
                     },
-                    profilePictureUrl: { 
+                    stars: { 
                       type: 'string',
-                      example: 'pfp1'
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
                     },
                     venmoHandle: { 
                       type: 'string',
-                      example: '@mateow99'
+                      nullable: true,
+                      example: '@mateoweiner'
                     },
                     email: { 
                       type: 'string',
+                      format: 'email',
                       example: 'maw346@cornell.edu'
                     },
                     googleId: { 
                       type: 'string',
-                      example: '111627722491153685331'
+                      example: '21438528358713851'
                     },
                     bio: { 
                       type: 'string',
-                      example: 'I\'m a mate'
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    blocking: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
                     }
                   }
                 }
@@ -656,39 +1227,105 @@ export class UserController {
                   properties: {
                     id: { 
                       type: 'string',
-                      example: '221093-249ej-hkfae3901-2q9ffi'
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
                     },
-                    firstName: { 
+                    username: { 
                       type: 'string',
-                      example: 'mateo'
+                      example: 'mweiner'
                     },
-                    lastName: { 
+                    netid: { 
                       type: 'string',
-                      example: 'weiner'
+                      example: 'maw346'
                     },
-                    admin: {
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
+                    admin: { 
                       type: 'boolean',
                       example: false
                     },
-                    profilePictureUrl: { 
+                    stars: { 
                       type: 'string',
-                      example: 'pfp1'
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
                     },
                     venmoHandle: { 
                       type: 'string',
-                      example: '@mateow99'
+                      nullable: true,
+                      example: '@mateoweiner'
                     },
                     email: { 
                       type: 'string',
+                      format: 'email',
                       example: 'maw346@cornell.edu'
                     },
                     googleId: { 
                       type: 'string',
-                      example: '111627722491153685331'
+                      example: '21438528358713851'
                     },
                     bio: { 
                       type: 'string',
-                      example: 'I\'m a mate'
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    blocking: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
                     }
                   }
                 }
@@ -715,44 +1352,113 @@ export class UserController {
             schema: {
               type: 'object',
               properties: {
-                user: {
-                  type: 'object',
-                  properties: {
-                    id: { 
-                      type: 'string',
-                      example: 'c6f0a14a-48ae-4b1c-bd6f-5f3b7e8c2b99'
-                    },
-                    firstName: { 
-                      type: 'string',
-                      example: 'Tony'
-                    },
-                    lastName: { 
-                      type: 'string',
-                      example: 'Matchev'
-                    },
-                    admin: {
-                      type: 'boolean',
-                      example: false
-                    },
-                    profilePictureUrl: { 
-                      type: 'string',
-                      example: 'pfp1'
-                    },
-                    venmoHandle: { 
-                      type: 'string',
-                      example: '@akmatchev'
-                    },
-                    email: { 
-                      type: 'string',
-                      example: 'akm99@cornell.edu'
-                    },
-                    googleId: { 
-                      type: 'string',
-                      example: '111627722491153685331'
-                    },
-                    bio: { 
-                      type: 'string',
-                      example: 'I like being blocked'
+                users: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { 
+                        type: 'string',
+                        format: 'uuid',
+                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                      },
+                      username: { 
+                        type: 'string',
+                        example: 'mweiner'
+                      },
+                      netid: { 
+                        type: 'string',
+                        example: 'maw346'
+                      },
+                      givenName: { 
+                        type: 'string',
+                        example: 'Mateo'
+                      },
+                      familyName: { 
+                        type: 'string',
+                        example: 'Weiner'
+                      },
+                      admin: { 
+                        type: 'boolean',
+                        example: false
+                      },
+                      stars: { 
+                        type: 'string',
+                        example: '4.5'
+                      },
+                      numReviews: { 
+                        type: 'integer',
+                        example: 10
+                      },
+                      photoUrl: { 
+                        type: 'string',
+                        nullable: true,
+                        example: 'https://img1.png'
+                      },
+                      venmoHandle: { 
+                        type: 'string',
+                        nullable: true,
+                        example: '@mateoweiner'
+                      },
+                      email: { 
+                        type: 'string',
+                        format: 'email',
+                        example: 'maw346@cornell.edu'
+                      },
+                      googleId: { 
+                        type: 'string',
+                        example: '21438528358713851'
+                      },
+                      bio: { 
+                        type: 'string',
+                        example: 'Freshman studying CS. He/Him'
+                      },
+                      isActive: { 
+                        type: 'boolean',
+                        example: true
+                      },
+                      blocking: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      blockers: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      reports: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      reportedBy: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      posts: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      },
+                      feedbacks: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          format: 'uuid'
+                        }
+                      }
                     }
                   }
                 }
@@ -785,11 +1491,107 @@ export class UserController {
                 user: {
                   type: 'object',
                   properties: {
-                    id: { type: 'string' },
-                    email: { type: 'string' },
-                    deletedAt: { 
+                    id: { 
                       type: 'string',
-                      format: 'date-time'
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                    },
+                    username: { 
+                      type: 'string',
+                      example: 'mweiner'
+                    },
+                    netid: { 
+                      type: 'string',
+                      example: 'maw346'
+                    },
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
+                    admin: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    stars: { 
+                      type: 'string',
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      nullable: true,
+                      example: '@mateoweiner'
+                    },
+                    email: { 
+                      type: 'string',
+                      format: 'email',
+                      example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '21438528358713851'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
+                      type: 'boolean',
+                      example: true
+                    },
+                    blocking: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
                     }
                   }
                 }
@@ -824,27 +1626,105 @@ export class UserController {
                   properties: {
                     id: { 
                       type: 'string',
-                      example: '221093-249ej-hkfae3901-2q9ffi'
+                      format: 'uuid',
+                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
                     },
-                    firstName: { 
+                    username: { 
                       type: 'string',
-                      example: 'mateo'
+                      example: 'mweiner'
                     },
-                    lastName: { 
+                    netid: { 
                       type: 'string',
-                      example: 'weiner'
+                      example: 'maw346'
                     },
-                    admin: {
+                    givenName: { 
+                      type: 'string',
+                      example: 'Mateo'
+                    },
+                    familyName: { 
+                      type: 'string',
+                      example: 'Weiner'
+                    },
+                    admin: { 
                       type: 'boolean',
                       example: false
                     },
-                    softDeleted: {
+                    stars: { 
+                      type: 'string',
+                      example: '4.5'
+                    },
+                    numReviews: { 
+                      type: 'integer',
+                      example: 10
+                    },
+                    photoUrl: { 
+                      type: 'string',
+                      nullable: true,
+                      example: 'https://img1.png'
+                    },
+                    venmoHandle: { 
+                      type: 'string',
+                      nullable: true,
+                      example: '@mateoweiner'
+                    },
+                    email: { 
+                      type: 'string',
+                      format: 'email',
+                      example: 'maw346@cornell.edu'
+                    },
+                    googleId: { 
+                      type: 'string',
+                      example: '21438528358713851'
+                    },
+                    bio: { 
+                      type: 'string',
+                      example: 'Freshman studying CS. He/Him'
+                    },
+                    isActive: { 
                       type: 'boolean',
                       example: true
                     },
-                    softDeletedAt: {
-                      type: 'string',
-                      format: 'date-time'
+                    blocking: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    blockers: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reports: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    reportedBy: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    posts: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
+                    },
+                    feedbacks: {
+                      type: 'array',
+                      items: {
+                        type: 'string',
+                        format: 'uuid'
+                      }
                     }
                   }
                 }

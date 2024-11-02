@@ -182,7 +182,7 @@ export class FeedbackController {
 
   @Get('userId/:id/')
   @OpenAPI({
-    summary: 'Get feedback by id',
+    summary: 'Get feedback by user id',
     description: 'Gets feedback with userId of :id. These ids are specific to our own backend.',
     responses: {
       '200': {

@@ -57,15 +57,11 @@ export class PostController {
                         type: 'string',
                         example: 'ELECTRONICS, HOUSEHOLD'
                       },
-                      archive: { 
-                        type: 'boolean',
-                        example: false
-                      },
-                      created: { 
+                      original_price: { 
                         type: 'number',
-                        example: 1320538301
+                        example: 10.50
                       },
-                      price: { 
+                      altered_price: { 
                         type: 'number',
                         example: 10.50
                       },
@@ -76,22 +72,39 @@ export class PostController {
                           example: 'https://img2.png'
                         }
                       },
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
                       location: { 
                         type: 'string',
                         example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
                       },
                       user: {
                         type: 'object',
                         properties: {
                           id: { 
                             type: 'string',
-                            example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
                           },
-                          firstName: { 
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
                             type: 'string',
                             example: 'Mateo'
                           },
-                          lastName: { 
+                          familyName: { 
                             type: 'string',
                             example: 'Weiner'
                           },
@@ -99,17 +112,28 @@ export class PostController {
                             type: 'boolean',
                             example: false
                           },
-                          profilePicUrl: { 
+                          stars: { 
                             type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
                             example: 'https://img1.png'
                           },
                           venmoHandle: { 
                             type: 'string',
-                            example: 'mateoweiner'
+                            nullable: true,
+                            example: '@mateoweiner'
                           },
                           email: { 
                             type: 'string',
-                            example: 'mateow99@gmail.com'
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
                           },
                           googleId: { 
                             type: 'string',
@@ -118,6 +142,447 @@ export class PostController {
                           bio: { 
                             type: 'string',
                             example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
                           }
                         }
                       }
@@ -137,7 +602,7 @@ export class PostController {
 
   @Get('id/:id/')
   @OpenAPI({
-    summary: 'Get posts by id',
+    summary: 'Get post by id',
     description: 'Gets a post by id.',
     responses: {
       '200': {
@@ -147,9 +612,7 @@ export class PostController {
             schema: {
               type: 'object',
               properties: {
-                posts: {
-                  type: 'array',
-                  items: {
+                post: {
                     type: 'object',
                     properties: {
                       id: { 
@@ -168,15 +631,11 @@ export class PostController {
                         type: 'string',
                         example: 'ELECTRONICS, HOUSEHOLD'
                       },
-                      archive: { 
-                        type: 'boolean',
-                        example: false
-                      },
-                      created: { 
+                      original_price: { 
                         type: 'number',
-                        example: 1320538301
+                        example: 10.50
                       },
-                      price: { 
+                      altered_price: { 
                         type: 'number',
                         example: 10.50
                       },
@@ -187,22 +646,39 @@ export class PostController {
                           example: 'https://img2.png'
                         }
                       },
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
                       location: { 
                         type: 'string',
                         example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
                       },
                       user: {
                         type: 'object',
                         properties: {
                           id: { 
                             type: 'string',
-                            example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
                           },
-                          firstName: { 
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
                             type: 'string',
                             example: 'Mateo'
                           },
-                          lastName: { 
+                          familyName: { 
                             type: 'string',
                             example: 'Weiner'
                           },
@@ -210,17 +686,28 @@ export class PostController {
                             type: 'boolean',
                             example: false
                           },
-                          profilePicUrl: { 
+                          stars: { 
                             type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
                             example: 'https://img1.png'
                           },
                           venmoHandle: { 
                             type: 'string',
-                            example: 'mateoweiner'
+                            nullable: true,
+                            example: '@mateoweiner'
                           },
                           email: { 
                             type: 'string',
-                            example: 'mateow99@gmail.com'
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
                           },
                           googleId: { 
                             type: 'string',
@@ -229,8 +716,448 @@ export class PostController {
                           bio: { 
                             type: 'string',
                             example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
                           }
                         }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   }
@@ -279,15 +1206,11 @@ export class PostController {
                         type: 'string',
                         example: 'ELECTRONICS, HOUSEHOLD'
                       },
-                      archive: { 
-                        type: 'boolean',
-                        example: false
-                      },
-                      created: { 
+                      original_price: { 
                         type: 'number',
-                        example: 1320538301
+                        example: 10.50
                       },
-                      price: { 
+                      altered_price: { 
                         type: 'number',
                         example: 10.50
                       },
@@ -298,22 +1221,39 @@ export class PostController {
                           example: 'https://img2.png'
                         }
                       },
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
                       location: { 
                         type: 'string',
                         example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
                       },
                       user: {
                         type: 'object',
                         properties: {
                           id: { 
                             type: 'string',
-                            example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
                           },
-                          firstName: { 
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
                             type: 'string',
                             example: 'Mateo'
                           },
-                          lastName: { 
+                          familyName: { 
                             type: 'string',
                             example: 'Weiner'
                           },
@@ -321,17 +1261,28 @@ export class PostController {
                             type: 'boolean',
                             example: false
                           },
-                          profilePicUrl: { 
+                          stars: { 
                             type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
                             example: 'https://img1.png'
                           },
                           venmoHandle: { 
                             type: 'string',
-                            example: 'mateoweiner'
+                            nullable: true,
+                            example: '@mateoweiner'
                           },
                           email: { 
                             type: 'string',
-                            example: 'mateow99@gmail.com'
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
                           },
                           googleId: { 
                             type: 'string',
@@ -340,6 +1291,447 @@ export class PostController {
                           bio: { 
                             type: 'string',
                             example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
                           }
                         }
                       }
@@ -378,16 +1770,12 @@ export class PostController {
                 example: 'Barely used black bedside light with clip'
               },
               categories: {
-                type: 'string',
+                type: 'array',
                 example: 'ELECTRONICS, HOUSEHOLD'
               },
-              price: {
+              original_price: {
                 type: 'number',
                 example: 10.25
-              },
-              created: {
-                type: 'number',
-                example: 1320538301
               },
               images_base64: {
                 type: 'array',
@@ -416,33 +1804,553 @@ export class PostController {
                 post: {
                   type: 'object',
                   properties: {
-                    id: { type: 'string' },
-                    title: { type: 'string' },
-                    description: { type: 'string' },
-                    categories: { type: 'string' },
-                    archive: { type: 'boolean' },
-                    created: { type: 'number' },
-                    price: { type: 'string' },
+                    id: { 
+                      type: 'string',
+                      example: '134841-42b4-4fdd-b074-jkfale'
+                    },
+                    title: { 
+                      type: 'string',
+                      example: 'Bedside light'
+                    },
+                    description: { 
+                      type: 'string',
+                      example: 'Barely used black bedside light with clip'
+                    },
+                    categories: { 
+                      type: 'string',
+                      example: 'ELECTRONICS, HOUSEHOLD'
+                    },
+                    original_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
+                    altered_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
                     images: {
                       type: 'array',
-                      items: { type: 'string' }
+                      items: {
+                        type: 'string',
+                        example: 'https://img2.png'
+                      }
                     },
-                    location: { type: 'string' },
+                    created: { 
+                      type: 'number',
+                      example: 1320538301
+                    },
+                    location: { 
+                      type: 'string',
+                      example: ''
+                    },
+                    archive: { 
+                      type: 'boolean',
+                      example: false
+                    },
                     user: {
                       type: 'object',
                       properties: {
-                        id: { type: 'string' },
-                        firstName: { type: 'string' },
-                        lastName: { type: 'string' },
-                        profilePicUrl: { type: 'string' },
-                        venmoHandle: { type: 'string' },
-                        email: { type: 'string' },
-                        googleId: { type: 'string' },
-                        bio: { type: 'string' }
+                        id: { 
+                          type: 'string',
+                          format: 'uuid',
+                          example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                        },
+                        username: { 
+                          type: 'string',
+                          example: 'mweiner'
+                        },
+                        netid: { 
+                          type: 'string',
+                          example: 'maw346'
+                        },
+                        givenName: { 
+                          type: 'string',
+                          example: 'Mateo'
+                        },
+                        familyName: { 
+                          type: 'string',
+                          example: 'Weiner'
+                        },
+                        admin: { 
+                          type: 'boolean',
+                          example: false
+                        },
+                        stars: { 
+                          type: 'string',
+                          example: '4.5'
+                        },
+                        numReviews: { 
+                          type: 'integer',
+                          example: 10
+                        },
+                        photoUrl: { 
+                          type: 'string',
+                          nullable: true,
+                          example: 'https://img1.png'
+                        },
+                        venmoHandle: { 
+                          type: 'string',
+                          nullable: true,
+                          example: '@mateoweiner'
+                        },
+                        email: { 
+                          type: 'string',
+                          format: 'email',
+                          example: 'maw346@cornell.edu'
+                        },
+                        googleId: { 
+                          type: 'string',
+                          example: '21438528358713851'
+                        },
+                        bio: { 
+                          type: 'string',
+                          example: 'Freshman studying CS. He/Him'
+                        },
+                        isActive: { 
+                          type: 'boolean',
+                          example: true
+                        },
+                        blocking: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        blockers: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reports: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reportedBy: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        posts: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        feedbacks: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
                       }
+                    },
+                    savers: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      }
+                    },
+                    matched: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                          },
+                          title: { 
+                            type: 'string',
+                            example: 'Bedside light'
+                          },
+                          description: { 
+                            type: 'string',
+                            example: 'bedside light'
+                          },
+                          user: {
+                            type: 'object',
+                            properties: {
+                              id: { 
+                                type: 'string',
+                                format: 'uuid',
+                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                              },
+                              username: { 
+                                type: 'string',
+                                example: 'mweiner'
+                              },
+                              netid: { 
+                                type: 'string',
+                                example: 'maw346'
+                              },
+                              givenName: { 
+                                type: 'string',
+                                example: 'Mateo'
+                              },
+                              familyName: { 
+                                type: 'string',
+                                example: 'Weiner'
+                              },
+                              admin: { 
+                                type: 'boolean',
+                                example: false
+                              },
+                              stars: { 
+                                type: 'string',
+                                example: '4.5'
+                              },
+                              numReviews: { 
+                                type: 'integer',
+                                example: 10
+                              },
+                              photoUrl: { 
+                                type: 'string',
+                                nullable: true,
+                                example: 'https://img1.png'
+                              },
+                              venmoHandle: { 
+                                type: 'string',
+                                nullable: true,
+                                example: '@mateoweiner'
+                              },
+                              email: { 
+                                type: 'string',
+                                format: 'email',
+                                example: 'maw346@cornell.edu'
+                              },
+                              googleId: { 
+                                type: 'string',
+                                example: '21438528358713851'
+                              },
+                              bio: { 
+                                type: 'string',
+                                example: 'Freshman studying CS. He/Him'
+                              },
+                              isActive: { 
+                                type: 'boolean',
+                                example: true
+                              },
+                              blocking: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              blockers: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reports: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reportedBy: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              posts: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              feedbacks: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              }
+                            }
+                          },
+                          matches: { 
+                            type: 'array',
+                            items: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  example: '134841-42b4-4fdd-b074-jkfale'
+                                },
+                                title: { 
+                                  type: 'string',
+                                  example: 'Bedside light'
+                                },
+                                description: { 
+                                  type: 'string',
+                                  example: 'Barely used black bedside light with clip'
+                                },
+                                categories: { 
+                                  type: 'string',
+                                  example: 'ELECTRONICS, HOUSEHOLD'
+                                },
+                                original_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                altered_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                images: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    example: 'https://img2.png'
+                                  }
+                                },
+                                created: { 
+                                  type: 'number',
+                                  example: 1320538301
+                                },
+                                location: { 
+                                  type: 'string',
+                                  example: ''
+                                },
+                                archive: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                user: {
+                                  type: 'object',
+                                  properties: {
+                                    id: { 
+                                      type: 'string',
+                                      format: 'uuid',
+                                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                    },
+                                    username: { 
+                                      type: 'string',
+                                      example: 'mweiner'
+                                    },
+                                    netid: { 
+                                      type: 'string',
+                                      example: 'maw346'
+                                    },
+                                    givenName: { 
+                                      type: 'string',
+                                      example: 'Mateo'
+                                    },
+                                    familyName: { 
+                                      type: 'string',
+                                      example: 'Weiner'
+                                    },
+                                    admin: { 
+                                      type: 'boolean',
+                                      example: false
+                                    },
+                                    stars: { 
+                                      type: 'string',
+                                      example: '4.5'
+                                    },
+                                    numReviews: { 
+                                      type: 'integer',
+                                      example: 10
+                                    },
+                                    photoUrl: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: 'https://img1.png'
+                                    },
+                                    venmoHandle: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: '@mateoweiner'
+                                    },
+                                    email: { 
+                                      type: 'string',
+                                      format: 'email',
+                                      example: 'maw346@cornell.edu'
+                                    },
+                                    googleId: { 
+                                      type: 'string',
+                                      example: '21438528358713851'
+                                    },
+                                    bio: { 
+                                      type: 'string',
+                                      example: 'Freshman studying CS. He/Him'
+                                    },
+                                    isActive: { 
+                                      type: 'boolean',
+                                      example: true
+                                    },
+                                    blocking: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    blockers: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reports: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reportedBy: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    posts: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    feedbacks: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
                     }
                   }
                 }
+              }
               }
             }
           }
@@ -472,19 +2380,553 @@ export class PostController {
                 post: {
                   type: 'object',
                   properties: {
-                    id: { type: 'string', example: '134841-42b4-4fdd-b074-jkfale' },
-                    title: { type: 'string', example: 'Bedside light' },
-                    description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                    categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                    archive: { type: 'boolean', example: false },
-                    price: { type: 'number', example: 10.50 },
+                    id: { 
+                      type: 'string',
+                      example: '134841-42b4-4fdd-b074-jkfale'
+                    },
+                    title: { 
+                      type: 'string',
+                      example: 'Bedside light'
+                    },
+                    description: { 
+                      type: 'string',
+                      example: 'Barely used black bedside light with clip'
+                    },
+                    categories: { 
+                      type: 'string',
+                      example: 'ELECTRONICS, HOUSEHOLD'
+                    },
+                    original_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
+                    altered_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
                     images: {
                       type: 'array',
-                      items: { type: 'string', example: 'https://img2.png' }
+                      items: {
+                        type: 'string',
+                        example: 'https://img2.png'
+                      }
                     },
-                    location: { type: 'string', example: '' }
+                    created: { 
+                      type: 'number',
+                      example: 1320538301
+                    },
+                    location: { 
+                      type: 'string',
+                      example: ''
+                    },
+                    archive: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    user: {
+                      type: 'object',
+                      properties: {
+                        id: { 
+                          type: 'string',
+                          format: 'uuid',
+                          example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                        },
+                        username: { 
+                          type: 'string',
+                          example: 'mweiner'
+                        },
+                        netid: { 
+                          type: 'string',
+                          example: 'maw346'
+                        },
+                        givenName: { 
+                          type: 'string',
+                          example: 'Mateo'
+                        },
+                        familyName: { 
+                          type: 'string',
+                          example: 'Weiner'
+                        },
+                        admin: { 
+                          type: 'boolean',
+                          example: false
+                        },
+                        stars: { 
+                          type: 'string',
+                          example: '4.5'
+                        },
+                        numReviews: { 
+                          type: 'integer',
+                          example: 10
+                        },
+                        photoUrl: { 
+                          type: 'string',
+                          nullable: true,
+                          example: 'https://img1.png'
+                        },
+                        venmoHandle: { 
+                          type: 'string',
+                          nullable: true,
+                          example: '@mateoweiner'
+                        },
+                        email: { 
+                          type: 'string',
+                          format: 'email',
+                          example: 'maw346@cornell.edu'
+                        },
+                        googleId: { 
+                          type: 'string',
+                          example: '21438528358713851'
+                        },
+                        bio: { 
+                          type: 'string',
+                          example: 'Freshman studying CS. He/Him'
+                        },
+                        isActive: { 
+                          type: 'boolean',
+                          example: true
+                        },
+                        blocking: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        blockers: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reports: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reportedBy: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        posts: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        feedbacks: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                      }
+                    },
+                    savers: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      }
+                    },
+                    matched: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                          },
+                          title: { 
+                            type: 'string',
+                            example: 'Bedside light'
+                          },
+                          description: { 
+                            type: 'string',
+                            example: 'bedside light'
+                          },
+                          user: {
+                            type: 'object',
+                            properties: {
+                              id: { 
+                                type: 'string',
+                                format: 'uuid',
+                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                              },
+                              username: { 
+                                type: 'string',
+                                example: 'mweiner'
+                              },
+                              netid: { 
+                                type: 'string',
+                                example: 'maw346'
+                              },
+                              givenName: { 
+                                type: 'string',
+                                example: 'Mateo'
+                              },
+                              familyName: { 
+                                type: 'string',
+                                example: 'Weiner'
+                              },
+                              admin: { 
+                                type: 'boolean',
+                                example: false
+                              },
+                              stars: { 
+                                type: 'string',
+                                example: '4.5'
+                              },
+                              numReviews: { 
+                                type: 'integer',
+                                example: 10
+                              },
+                              photoUrl: { 
+                                type: 'string',
+                                nullable: true,
+                                example: 'https://img1.png'
+                              },
+                              venmoHandle: { 
+                                type: 'string',
+                                nullable: true,
+                                example: '@mateoweiner'
+                              },
+                              email: { 
+                                type: 'string',
+                                format: 'email',
+                                example: 'maw346@cornell.edu'
+                              },
+                              googleId: { 
+                                type: 'string',
+                                example: '21438528358713851'
+                              },
+                              bio: { 
+                                type: 'string',
+                                example: 'Freshman studying CS. He/Him'
+                              },
+                              isActive: { 
+                                type: 'boolean',
+                                example: true
+                              },
+                              blocking: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              blockers: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reports: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reportedBy: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              posts: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              feedbacks: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              }
+                            }
+                          },
+                          matches: { 
+                            type: 'array',
+                            items: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  example: '134841-42b4-4fdd-b074-jkfale'
+                                },
+                                title: { 
+                                  type: 'string',
+                                  example: 'Bedside light'
+                                },
+                                description: { 
+                                  type: 'string',
+                                  example: 'Barely used black bedside light with clip'
+                                },
+                                categories: { 
+                                  type: 'string',
+                                  example: 'ELECTRONICS, HOUSEHOLD'
+                                },
+                                original_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                altered_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                images: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    example: 'https://img2.png'
+                                  }
+                                },
+                                created: { 
+                                  type: 'number',
+                                  example: 1320538301
+                                },
+                                location: { 
+                                  type: 'string',
+                                  example: ''
+                                },
+                                archive: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                user: {
+                                  type: 'object',
+                                  properties: {
+                                    id: { 
+                                      type: 'string',
+                                      format: 'uuid',
+                                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                    },
+                                    username: { 
+                                      type: 'string',
+                                      example: 'mweiner'
+                                    },
+                                    netid: { 
+                                      type: 'string',
+                                      example: 'maw346'
+                                    },
+                                    givenName: { 
+                                      type: 'string',
+                                      example: 'Mateo'
+                                    },
+                                    familyName: { 
+                                      type: 'string',
+                                      example: 'Weiner'
+                                    },
+                                    admin: { 
+                                      type: 'boolean',
+                                      example: false
+                                    },
+                                    stars: { 
+                                      type: 'string',
+                                      example: '4.5'
+                                    },
+                                    numReviews: { 
+                                      type: 'integer',
+                                      example: 10
+                                    },
+                                    photoUrl: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: 'https://img1.png'
+                                    },
+                                    venmoHandle: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: '@mateoweiner'
+                                    },
+                                    email: { 
+                                      type: 'string',
+                                      format: 'email',
+                                      example: 'maw346@cornell.edu'
+                                    },
+                                    googleId: { 
+                                      type: 'string',
+                                      example: '21438528358713851'
+                                    },
+                                    bio: { 
+                                      type: 'string',
+                                      example: 'Freshman studying CS. He/Him'
+                                    },
+                                    isActive: { 
+                                      type: 'boolean',
+                                      example: true
+                                    },
+                                    blocking: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    blockers: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reports: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reportedBy: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    posts: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    feedbacks: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                    }
                   }
                 }
+              }
               }
             }
           }
@@ -533,17 +2975,551 @@ export class PostController {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'string', example: '134841-42b4-4fdd-b074-jkfale' },
-                      title: { type: 'string', example: 'Bedside light' },
-                      description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                      categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                      archive: { type: 'boolean', example: false },
-                      price: { type: 'string', example: '10.50' },
+                      id: { 
+                        type: 'string',
+                        example: '134841-42b4-4fdd-b074-jkfale'
+                      },
+                      title: { 
+                        type: 'string',
+                        example: 'Bedside light'
+                      },
+                      description: { 
+                        type: 'string',
+                        example: 'Barely used black bedside light with clip'
+                      },
+                      categories: { 
+                        type: 'string',
+                        example: 'ELECTRONICS, HOUSEHOLD'
+                      },
+                      original_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      altered_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
                       images: {
                         type: 'array',
-                        items: { type: 'string', example: 'https://img2.png' }
+                        items: {
+                          type: 'string',
+                          example: 'https://img2.png'
+                        }
                       },
-                      location: { type: 'string', example: '' }
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
+                      location: { 
+                        type: 'string',
+                        example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
+                      },
+                      user: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -592,20 +3568,551 @@ export class PostController {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'string', example: '134841-42b4-4fdd-b074-jkfale' },
-                      title: { type: 'string', example: 'Bedside light' },
-                      description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                      categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                      archive: { type: 'boolean', example: false },
-                      price: { type: 'string', example: '10.50' },
+                      id: { 
+                        type: 'string',
+                        example: '134841-42b4-4fdd-b074-jkfale'
+                      },
+                      title: { 
+                        type: 'string',
+                        example: 'Bedside light'
+                      },
+                      description: { 
+                        type: 'string',
+                        example: 'Barely used black bedside light with clip'
+                      },
+                      categories: { 
+                        type: 'string',
+                        example: 'ELECTRONICS, HOUSEHOLD'
+                      },
+                      original_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      altered_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
                       images: {
                         type: 'array',
-                        items: { 
+                        items: {
                           type: 'string',
                           example: 'https://img2.png'
                         }
                       },
-                      location: { type: 'string', example: '' }
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
+                      location: { 
+                        type: 'string',
+                        example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
+                      },
+                      user: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -632,11 +4139,11 @@ export class PostController {
             type: 'object',
             required: ['minPrice', 'maxPrice'],
             properties: {
-              minPrice: {
+              lowerbound: {
                 type: 'number',
                 example: 0
               },
-              maxPrice: {
+              upperbound: {
                 type: 'number',
                 example: 50
               }
@@ -658,17 +4165,551 @@ export class PostController {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'string', example: '134841-42b4-4fdd-b074-jkfale' },
-                      title: { type: 'string', example: 'Bedside light' },
-                      description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                      categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                      archive: { type: 'boolean', example: false },
-                      price: { type: 'number', example: 10.50 },
+                      id: { 
+                        type: 'string',
+                        example: '134841-42b4-4fdd-b074-jkfale'
+                      },
+                      title: { 
+                        type: 'string',
+                        example: 'Bedside light'
+                      },
+                      description: { 
+                        type: 'string',
+                        example: 'Barely used black bedside light with clip'
+                      },
+                      categories: { 
+                        type: 'string',
+                        example: 'ELECTRONICS, HOUSEHOLD'
+                      },
+                      original_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      altered_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
                       images: {
                         type: 'array',
-                        items: { type: 'string', example: 'https://img2.png' }
+                        items: {
+                          type: 'string',
+                          example: 'https://img2.png'
+                        }
                       },
-                      location: { type: 'string', example: '' }
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
+                      location: { 
+                        type: 'string',
+                        example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
+                      },
+                      user: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -700,20 +4741,551 @@ export class PostController {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'string', example: '31093u0138' },
-                      title: { type: 'string', example: 'Bedside light' },
-                      description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                      categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                      archive: { type: 'boolean', example: true },
-                      price: { type: 'number', example: 10.50 },
+                      id: { 
+                        type: 'string',
+                        example: '134841-42b4-4fdd-b074-jkfale'
+                      },
+                      title: { 
+                        type: 'string',
+                        example: 'Bedside light'
+                      },
+                      description: { 
+                        type: 'string',
+                        example: 'Barely used black bedside light with clip'
+                      },
+                      categories: { 
+                        type: 'string',
+                        example: 'ELECTRONICS, HOUSEHOLD'
+                      },
+                      original_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      altered_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
                       images: {
                         type: 'array',
-                        items: { 
+                        items: {
                           type: 'string',
                           example: 'https://img2.png'
                         }
                       },
-                      location: { type: 'string', example: '' }
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
+                      location: { 
+                        type: 'string',
+                        example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
+                      },
+                      user: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -745,17 +5317,551 @@ export class PostController {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'string', example: '31093u0138' },
-                      title: { type: 'string', example: 'Bedside light' },
-                      description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                      categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                      archive: { type: 'boolean', example: true },
-                      price: { type: 'number', example: 10.50 },
+                      id: { 
+                        type: 'string',
+                        example: '134841-42b4-4fdd-b074-jkfale'
+                      },
+                      title: { 
+                        type: 'string',
+                        example: 'Bedside light'
+                      },
+                      description: { 
+                        type: 'string',
+                        example: 'Barely used black bedside light with clip'
+                      },
+                      categories: { 
+                        type: 'string',
+                        example: 'ELECTRONICS, HOUSEHOLD'
+                      },
+                      original_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      altered_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
                       images: {
                         type: 'array',
-                        items: { type: 'string', example: 'https://img2.png' }
+                        items: {
+                          type: 'string',
+                          example: 'https://img2.png'
+                        }
                       },
-                      location: { type: 'string', example: '' }
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
+                      location: { 
+                        type: 'string',
+                        example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
+                      },
+                      user: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -785,19 +5891,553 @@ export class PostController {
                 post: {
                   type: 'object',
                   properties: {
-                    id: { type: 'string', example: '31093u0138' },
-                    title: { type: 'string', example: 'Bedside light' },
-                    description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                    categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                    archive: { type: 'boolean', example: false },
-                    price: { type: 'number', example: 10.50 },
+                    id: { 
+                      type: 'string',
+                      example: '134841-42b4-4fdd-b074-jkfale'
+                    },
+                    title: { 
+                      type: 'string',
+                      example: 'Bedside light'
+                    },
+                    description: { 
+                      type: 'string',
+                      example: 'Barely used black bedside light with clip'
+                    },
+                    categories: { 
+                      type: 'string',
+                      example: 'ELECTRONICS, HOUSEHOLD'
+                    },
+                    original_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
+                    altered_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
                     images: {
                       type: 'array',
-                      items: { type: 'string', example: 'https://img2.png' }
+                      items: {
+                        type: 'string',
+                        example: 'https://img2.png'
+                      }
                     },
-                    location: { type: 'string', example: '' }
+                    created: { 
+                      type: 'number',
+                      example: 1320538301
+                    },
+                    location: { 
+                      type: 'string',
+                      example: ''
+                    },
+                    archive: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    user: {
+                      type: 'object',
+                      properties: {
+                        id: { 
+                          type: 'string',
+                          format: 'uuid',
+                          example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                        },
+                        username: { 
+                          type: 'string',
+                          example: 'mweiner'
+                        },
+                        netid: { 
+                          type: 'string',
+                          example: 'maw346'
+                        },
+                        givenName: { 
+                          type: 'string',
+                          example: 'Mateo'
+                        },
+                        familyName: { 
+                          type: 'string',
+                          example: 'Weiner'
+                        },
+                        admin: { 
+                          type: 'boolean',
+                          example: false
+                        },
+                        stars: { 
+                          type: 'string',
+                          example: '4.5'
+                        },
+                        numReviews: { 
+                          type: 'integer',
+                          example: 10
+                        },
+                        photoUrl: { 
+                          type: 'string',
+                          nullable: true,
+                          example: 'https://img1.png'
+                        },
+                        venmoHandle: { 
+                          type: 'string',
+                          nullable: true,
+                          example: '@mateoweiner'
+                        },
+                        email: { 
+                          type: 'string',
+                          format: 'email',
+                          example: 'maw346@cornell.edu'
+                        },
+                        googleId: { 
+                          type: 'string',
+                          example: '21438528358713851'
+                        },
+                        bio: { 
+                          type: 'string',
+                          example: 'Freshman studying CS. He/Him'
+                        },
+                        isActive: { 
+                          type: 'boolean',
+                          example: true
+                        },
+                        blocking: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        blockers: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reports: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reportedBy: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        posts: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        feedbacks: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                      }
+                    },
+                    savers: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      }
+                    },
+                    matched: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                          },
+                          title: { 
+                            type: 'string',
+                            example: 'Bedside light'
+                          },
+                          description: { 
+                            type: 'string',
+                            example: 'bedside light'
+                          },
+                          user: {
+                            type: 'object',
+                            properties: {
+                              id: { 
+                                type: 'string',
+                                format: 'uuid',
+                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                              },
+                              username: { 
+                                type: 'string',
+                                example: 'mweiner'
+                              },
+                              netid: { 
+                                type: 'string',
+                                example: 'maw346'
+                              },
+                              givenName: { 
+                                type: 'string',
+                                example: 'Mateo'
+                              },
+                              familyName: { 
+                                type: 'string',
+                                example: 'Weiner'
+                              },
+                              admin: { 
+                                type: 'boolean',
+                                example: false
+                              },
+                              stars: { 
+                                type: 'string',
+                                example: '4.5'
+                              },
+                              numReviews: { 
+                                type: 'integer',
+                                example: 10
+                              },
+                              photoUrl: { 
+                                type: 'string',
+                                nullable: true,
+                                example: 'https://img1.png'
+                              },
+                              venmoHandle: { 
+                                type: 'string',
+                                nullable: true,
+                                example: '@mateoweiner'
+                              },
+                              email: { 
+                                type: 'string',
+                                format: 'email',
+                                example: 'maw346@cornell.edu'
+                              },
+                              googleId: { 
+                                type: 'string',
+                                example: '21438528358713851'
+                              },
+                              bio: { 
+                                type: 'string',
+                                example: 'Freshman studying CS. He/Him'
+                              },
+                              isActive: { 
+                                type: 'boolean',
+                                example: true
+                              },
+                              blocking: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              blockers: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reports: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reportedBy: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              posts: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              feedbacks: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              }
+                            }
+                          },
+                          matches: { 
+                            type: 'array',
+                            items: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  example: '134841-42b4-4fdd-b074-jkfale'
+                                },
+                                title: { 
+                                  type: 'string',
+                                  example: 'Bedside light'
+                                },
+                                description: { 
+                                  type: 'string',
+                                  example: 'Barely used black bedside light with clip'
+                                },
+                                categories: { 
+                                  type: 'string',
+                                  example: 'ELECTRONICS, HOUSEHOLD'
+                                },
+                                original_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                altered_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                images: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    example: 'https://img2.png'
+                                  }
+                                },
+                                created: { 
+                                  type: 'number',
+                                  example: 1320538301
+                                },
+                                location: { 
+                                  type: 'string',
+                                  example: ''
+                                },
+                                archive: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                user: {
+                                  type: 'object',
+                                  properties: {
+                                    id: { 
+                                      type: 'string',
+                                      format: 'uuid',
+                                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                    },
+                                    username: { 
+                                      type: 'string',
+                                      example: 'mweiner'
+                                    },
+                                    netid: { 
+                                      type: 'string',
+                                      example: 'maw346'
+                                    },
+                                    givenName: { 
+                                      type: 'string',
+                                      example: 'Mateo'
+                                    },
+                                    familyName: { 
+                                      type: 'string',
+                                      example: 'Weiner'
+                                    },
+                                    admin: { 
+                                      type: 'boolean',
+                                      example: false
+                                    },
+                                    stars: { 
+                                      type: 'string',
+                                      example: '4.5'
+                                    },
+                                    numReviews: { 
+                                      type: 'integer',
+                                      example: 10
+                                    },
+                                    photoUrl: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: 'https://img1.png'
+                                    },
+                                    venmoHandle: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: '@mateoweiner'
+                                    },
+                                    email: { 
+                                      type: 'string',
+                                      format: 'email',
+                                      example: 'maw346@cornell.edu'
+                                    },
+                                    googleId: { 
+                                      type: 'string',
+                                      example: '21438528358713851'
+                                    },
+                                    bio: { 
+                                      type: 'string',
+                                      example: 'Freshman studying CS. He/Him'
+                                    },
+                                    isActive: { 
+                                      type: 'boolean',
+                                      example: true
+                                    },
+                                    blocking: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    blockers: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reports: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reportedBy: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    posts: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    feedbacks: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                    }
                   }
                 }
+              }
               }
             }
           }
@@ -829,17 +6469,551 @@ export class PostController {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'string', example: '31093u0138' },
-                      title: { type: 'string', example: 'Bedside light' },
-                      description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                      categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                      archive: { type: 'boolean', example: true },
-                      price: { type: 'number', example: 10.50 },
+                      id: { 
+                        type: 'string',
+                        example: '134841-42b4-4fdd-b074-jkfale'
+                      },
+                      title: { 
+                        type: 'string',
+                        example: 'Bedside light'
+                      },
+                      description: { 
+                        type: 'string',
+                        example: 'Barely used black bedside light with clip'
+                      },
+                      categories: { 
+                        type: 'string',
+                        example: 'ELECTRONICS, HOUSEHOLD'
+                      },
+                      original_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      altered_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
                       images: {
                         type: 'array',
-                        items: { type: 'string', example: 'https://img2.png' }
+                        items: {
+                          type: 'string',
+                          example: 'https://img2.png'
+                        }
                       },
-                      location: { type: 'string', example: '' }
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
+                      location: { 
+                        type: 'string',
+                        example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
+                      },
+                      user: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -869,33 +7043,555 @@ export class PostController {
             schema: {
               type: 'object',
               properties: {
-                post: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'string', example: '134841-42b4-4fdd-b074-jkfale' },
-                    title: { type: 'string', example: 'Bedside light' },
-                    description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                    categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                    archive: { type: 'boolean', example: false },
-                    created: { type: 'number', example: 1320538301 },
-                    price: { type: 'number', example: 10.50 },
-                    images: {
-                      type: 'array',
-                      items: { type: 'string', example: 'https://img2.png' }
-                    },
-                    location: { type: 'string', example: '' },
-                    user: {
-                      type: 'object',
-                      properties: {
-                        id: { type: 'string', example: '381527oejf-42b4-4fdd-b074-dfwbejko229' },
-                        firstName: { type: 'string', example: 'Mateo' },
-                        lastName: { type: 'string', example: 'Weiner' },
-                        admin: { type: 'boolean', example: false },
-                        profilePicUrl: { type: 'string', example: 'https://img1.png' },
-                        venmoHandle: { type: 'string', example: 'mateoweiner' },
-                        email: { type: 'string', example: 'mateow99@gmail.com' },
-                        googleId: { type: 'string', example: '21438528358713851' },
-                        bio: { type: 'string', example: 'Freshman studying CS. He/Him' }
+                posts: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { 
+                        type: 'string',
+                        example: '134841-42b4-4fdd-b074-jkfale'
+                      },
+                      title: { 
+                        type: 'string',
+                        example: 'Bedside light'
+                      },
+                      description: { 
+                        type: 'string',
+                        example: 'Barely used black bedside light with clip'
+                      },
+                      categories: { 
+                        type: 'string',
+                        example: 'ELECTRONICS, HOUSEHOLD'
+                      },
+                      original_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      altered_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      images: {
+                        type: 'array',
+                        items: {
+                          type: 'string',
+                          example: 'https://img2.png'
+                        }
+                      },
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
+                      location: { 
+                        type: 'string',
+                        example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
+                      },
+                      user: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -929,19 +7625,553 @@ export class PostController {
                 post: {
                   type: 'object',
                   properties: {
-                    id: { type: 'string', example: '31093u0138' },
-                    title: { type: 'string', example: 'Bedside light' },
-                    description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                    categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                    archive: { type: 'boolean', example: false },
-                    price: { type: 'number', example: 10.50 },
+                    id: { 
+                      type: 'string',
+                      example: '134841-42b4-4fdd-b074-jkfale'
+                    },
+                    title: { 
+                      type: 'string',
+                      example: 'Bedside light'
+                    },
+                    description: { 
+                      type: 'string',
+                      example: 'Barely used black bedside light with clip'
+                    },
+                    categories: { 
+                      type: 'string',
+                      example: 'ELECTRONICS, HOUSEHOLD'
+                    },
+                    original_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
+                    altered_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
                     images: {
                       type: 'array',
-                      items: { type: 'string', example: 'https://img2.png' }
+                      items: {
+                        type: 'string',
+                        example: 'https://img2.png'
+                      }
                     },
-                    location: { type: 'string', example: '' }
+                    created: { 
+                      type: 'number',
+                      example: 1320538301
+                    },
+                    location: { 
+                      type: 'string',
+                      example: ''
+                    },
+                    archive: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    user: {
+                      type: 'object',
+                      properties: {
+                        id: { 
+                          type: 'string',
+                          format: 'uuid',
+                          example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                        },
+                        username: { 
+                          type: 'string',
+                          example: 'mweiner'
+                        },
+                        netid: { 
+                          type: 'string',
+                          example: 'maw346'
+                        },
+                        givenName: { 
+                          type: 'string',
+                          example: 'Mateo'
+                        },
+                        familyName: { 
+                          type: 'string',
+                          example: 'Weiner'
+                        },
+                        admin: { 
+                          type: 'boolean',
+                          example: false
+                        },
+                        stars: { 
+                          type: 'string',
+                          example: '4.5'
+                        },
+                        numReviews: { 
+                          type: 'integer',
+                          example: 10
+                        },
+                        photoUrl: { 
+                          type: 'string',
+                          nullable: true,
+                          example: 'https://img1.png'
+                        },
+                        venmoHandle: { 
+                          type: 'string',
+                          nullable: true,
+                          example: '@mateoweiner'
+                        },
+                        email: { 
+                          type: 'string',
+                          format: 'email',
+                          example: 'maw346@cornell.edu'
+                        },
+                        googleId: { 
+                          type: 'string',
+                          example: '21438528358713851'
+                        },
+                        bio: { 
+                          type: 'string',
+                          example: 'Freshman studying CS. He/Him'
+                        },
+                        isActive: { 
+                          type: 'boolean',
+                          example: true
+                        },
+                        blocking: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        blockers: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reports: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reportedBy: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        posts: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        feedbacks: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                      }
+                    },
+                    savers: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      }
+                    },
+                    matched: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                          },
+                          title: { 
+                            type: 'string',
+                            example: 'Bedside light'
+                          },
+                          description: { 
+                            type: 'string',
+                            example: 'bedside light'
+                          },
+                          user: {
+                            type: 'object',
+                            properties: {
+                              id: { 
+                                type: 'string',
+                                format: 'uuid',
+                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                              },
+                              username: { 
+                                type: 'string',
+                                example: 'mweiner'
+                              },
+                              netid: { 
+                                type: 'string',
+                                example: 'maw346'
+                              },
+                              givenName: { 
+                                type: 'string',
+                                example: 'Mateo'
+                              },
+                              familyName: { 
+                                type: 'string',
+                                example: 'Weiner'
+                              },
+                              admin: { 
+                                type: 'boolean',
+                                example: false
+                              },
+                              stars: { 
+                                type: 'string',
+                                example: '4.5'
+                              },
+                              numReviews: { 
+                                type: 'integer',
+                                example: 10
+                              },
+                              photoUrl: { 
+                                type: 'string',
+                                nullable: true,
+                                example: 'https://img1.png'
+                              },
+                              venmoHandle: { 
+                                type: 'string',
+                                nullable: true,
+                                example: '@mateoweiner'
+                              },
+                              email: { 
+                                type: 'string',
+                                format: 'email',
+                                example: 'maw346@cornell.edu'
+                              },
+                              googleId: { 
+                                type: 'string',
+                                example: '21438528358713851'
+                              },
+                              bio: { 
+                                type: 'string',
+                                example: 'Freshman studying CS. He/Him'
+                              },
+                              isActive: { 
+                                type: 'boolean',
+                                example: true
+                              },
+                              blocking: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              blockers: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reports: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reportedBy: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              posts: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              feedbacks: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              }
+                            }
+                          },
+                          matches: { 
+                            type: 'array',
+                            items: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  example: '134841-42b4-4fdd-b074-jkfale'
+                                },
+                                title: { 
+                                  type: 'string',
+                                  example: 'Bedside light'
+                                },
+                                description: { 
+                                  type: 'string',
+                                  example: 'Barely used black bedside light with clip'
+                                },
+                                categories: { 
+                                  type: 'string',
+                                  example: 'ELECTRONICS, HOUSEHOLD'
+                                },
+                                original_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                altered_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                images: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    example: 'https://img2.png'
+                                  }
+                                },
+                                created: { 
+                                  type: 'number',
+                                  example: 1320538301
+                                },
+                                location: { 
+                                  type: 'string',
+                                  example: ''
+                                },
+                                archive: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                user: {
+                                  type: 'object',
+                                  properties: {
+                                    id: { 
+                                      type: 'string',
+                                      format: 'uuid',
+                                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                    },
+                                    username: { 
+                                      type: 'string',
+                                      example: 'mweiner'
+                                    },
+                                    netid: { 
+                                      type: 'string',
+                                      example: 'maw346'
+                                    },
+                                    givenName: { 
+                                      type: 'string',
+                                      example: 'Mateo'
+                                    },
+                                    familyName: { 
+                                      type: 'string',
+                                      example: 'Weiner'
+                                    },
+                                    admin: { 
+                                      type: 'boolean',
+                                      example: false
+                                    },
+                                    stars: { 
+                                      type: 'string',
+                                      example: '4.5'
+                                    },
+                                    numReviews: { 
+                                      type: 'integer',
+                                      example: 10
+                                    },
+                                    photoUrl: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: 'https://img1.png'
+                                    },
+                                    venmoHandle: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: '@mateoweiner'
+                                    },
+                                    email: { 
+                                      type: 'string',
+                                      format: 'email',
+                                      example: 'maw346@cornell.edu'
+                                    },
+                                    googleId: { 
+                                      type: 'string',
+                                      example: '21438528358713851'
+                                    },
+                                    bio: { 
+                                      type: 'string',
+                                      example: 'Freshman studying CS. He/Him'
+                                    },
+                                    isActive: { 
+                                      type: 'boolean',
+                                      example: true
+                                    },
+                                    blocking: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    blockers: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reports: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reportedBy: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    posts: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    feedbacks: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                    }
                   }
                 }
+              }
               }
             }
           }
@@ -971,19 +8201,553 @@ export class PostController {
                 post: {
                   type: 'object',
                   properties: {
-                    id: { type: 'string', example: '31093u0138' },
-                    title: { type: 'string', example: 'Bedside light' },
-                    description: { type: 'string', example: 'Barely used black bedside light with clip' },
-                    categories: { type: 'string', example: 'ELECTRONICS, HOUSEHOLD' },
-                    archive: { type: 'boolean', example: false },
-                    price: { type: 'number', example: 10.50 },
+                    id: { 
+                      type: 'string',
+                      example: '134841-42b4-4fdd-b074-jkfale'
+                    },
+                    title: { 
+                      type: 'string',
+                      example: 'Bedside light'
+                    },
+                    description: { 
+                      type: 'string',
+                      example: 'Barely used black bedside light with clip'
+                    },
+                    categories: { 
+                      type: 'string',
+                      example: 'ELECTRONICS, HOUSEHOLD'
+                    },
+                    original_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
+                    altered_price: { 
+                      type: 'number',
+                      example: 10.50
+                    },
                     images: {
                       type: 'array',
-                      items: { type: 'string', example: 'https://img2.png' }
+                      items: {
+                        type: 'string',
+                        example: 'https://img2.png'
+                      }
                     },
-                    location: { type: 'string', example: '' }
+                    created: { 
+                      type: 'number',
+                      example: 1320538301
+                    },
+                    location: { 
+                      type: 'string',
+                      example: ''
+                    },
+                    archive: { 
+                      type: 'boolean',
+                      example: false
+                    },
+                    user: {
+                      type: 'object',
+                      properties: {
+                        id: { 
+                          type: 'string',
+                          format: 'uuid',
+                          example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                        },
+                        username: { 
+                          type: 'string',
+                          example: 'mweiner'
+                        },
+                        netid: { 
+                          type: 'string',
+                          example: 'maw346'
+                        },
+                        givenName: { 
+                          type: 'string',
+                          example: 'Mateo'
+                        },
+                        familyName: { 
+                          type: 'string',
+                          example: 'Weiner'
+                        },
+                        admin: { 
+                          type: 'boolean',
+                          example: false
+                        },
+                        stars: { 
+                          type: 'string',
+                          example: '4.5'
+                        },
+                        numReviews: { 
+                          type: 'integer',
+                          example: 10
+                        },
+                        photoUrl: { 
+                          type: 'string',
+                          nullable: true,
+                          example: 'https://img1.png'
+                        },
+                        venmoHandle: { 
+                          type: 'string',
+                          nullable: true,
+                          example: '@mateoweiner'
+                        },
+                        email: { 
+                          type: 'string',
+                          format: 'email',
+                          example: 'maw346@cornell.edu'
+                        },
+                        googleId: { 
+                          type: 'string',
+                          example: '21438528358713851'
+                        },
+                        bio: { 
+                          type: 'string',
+                          example: 'Freshman studying CS. He/Him'
+                        },
+                        isActive: { 
+                          type: 'boolean',
+                          example: true
+                        },
+                        blocking: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        blockers: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reports: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        reportedBy: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        posts: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        },
+                        feedbacks: {
+                          type: 'array',
+                          items: {
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                      }
+                    },
+                    savers: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      }
+                    },
+                    matched: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                          },
+                          title: { 
+                            type: 'string',
+                            example: 'Bedside light'
+                          },
+                          description: { 
+                            type: 'string',
+                            example: 'bedside light'
+                          },
+                          user: {
+                            type: 'object',
+                            properties: {
+                              id: { 
+                                type: 'string',
+                                format: 'uuid',
+                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                              },
+                              username: { 
+                                type: 'string',
+                                example: 'mweiner'
+                              },
+                              netid: { 
+                                type: 'string',
+                                example: 'maw346'
+                              },
+                              givenName: { 
+                                type: 'string',
+                                example: 'Mateo'
+                              },
+                              familyName: { 
+                                type: 'string',
+                                example: 'Weiner'
+                              },
+                              admin: { 
+                                type: 'boolean',
+                                example: false
+                              },
+                              stars: { 
+                                type: 'string',
+                                example: '4.5'
+                              },
+                              numReviews: { 
+                                type: 'integer',
+                                example: 10
+                              },
+                              photoUrl: { 
+                                type: 'string',
+                                nullable: true,
+                                example: 'https://img1.png'
+                              },
+                              venmoHandle: { 
+                                type: 'string',
+                                nullable: true,
+                                example: '@mateoweiner'
+                              },
+                              email: { 
+                                type: 'string',
+                                format: 'email',
+                                example: 'maw346@cornell.edu'
+                              },
+                              googleId: { 
+                                type: 'string',
+                                example: '21438528358713851'
+                              },
+                              bio: { 
+                                type: 'string',
+                                example: 'Freshman studying CS. He/Him'
+                              },
+                              isActive: { 
+                                type: 'boolean',
+                                example: true
+                              },
+                              blocking: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              blockers: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reports: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              reportedBy: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              posts: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              },
+                              feedbacks: {
+                                type: 'array',
+                                items: {
+                                  type: 'string',
+                                  format: 'uuid'
+                                }
+                              }
+                            }
+                          },
+                          matches: { 
+                            type: 'array',
+                            items: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  example: '134841-42b4-4fdd-b074-jkfale'
+                                },
+                                title: { 
+                                  type: 'string',
+                                  example: 'Bedside light'
+                                },
+                                description: { 
+                                  type: 'string',
+                                  example: 'Barely used black bedside light with clip'
+                                },
+                                categories: { 
+                                  type: 'string',
+                                  example: 'ELECTRONICS, HOUSEHOLD'
+                                },
+                                original_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                altered_price: { 
+                                  type: 'number',
+                                  example: 10.50
+                                },
+                                images: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    example: 'https://img2.png'
+                                  }
+                                },
+                                created: { 
+                                  type: 'number',
+                                  example: 1320538301
+                                },
+                                location: { 
+                                  type: 'string',
+                                  example: ''
+                                },
+                                archive: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                user: {
+                                  type: 'object',
+                                  properties: {
+                                    id: { 
+                                      type: 'string',
+                                      format: 'uuid',
+                                      example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                    },
+                                    username: { 
+                                      type: 'string',
+                                      example: 'mweiner'
+                                    },
+                                    netid: { 
+                                      type: 'string',
+                                      example: 'maw346'
+                                    },
+                                    givenName: { 
+                                      type: 'string',
+                                      example: 'Mateo'
+                                    },
+                                    familyName: { 
+                                      type: 'string',
+                                      example: 'Weiner'
+                                    },
+                                    admin: { 
+                                      type: 'boolean',
+                                      example: false
+                                    },
+                                    stars: { 
+                                      type: 'string',
+                                      example: '4.5'
+                                    },
+                                    numReviews: { 
+                                      type: 'integer',
+                                      example: 10
+                                    },
+                                    photoUrl: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: 'https://img1.png'
+                                    },
+                                    venmoHandle: { 
+                                      type: 'string',
+                                      nullable: true,
+                                      example: '@mateoweiner'
+                                    },
+                                    email: { 
+                                      type: 'string',
+                                      format: 'email',
+                                      example: 'maw346@cornell.edu'
+                                    },
+                                    googleId: { 
+                                      type: 'string',
+                                      example: '21438528358713851'
+                                    },
+                                    bio: { 
+                                      type: 'string',
+                                      example: 'Freshman studying CS. He/Him'
+                                    },
+                                    isActive: { 
+                                      type: 'boolean',
+                                      example: true
+                                    },
+                                    blocking: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    blockers: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reports: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    reportedBy: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    posts: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    },
+                                    feedbacks: {
+                                      type: 'array',
+                                      items: {
+                                        type: 'string',
+                                        format: 'uuid'
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                    }
                   }
                 }
+              }
               }
             }
           }
@@ -1094,38 +8858,549 @@ export class PostController {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'string', example: '7b9b331c-aebf-4600-96d4-809c47e4a728' },
-                      title: { type: 'string', example: 'bookbag' },
-                      description: { type: 'string', example: 'amazing' },
-                      categories: {
+                      id: { 
+                        type: 'string',
+                        example: '134841-42b4-4fdd-b074-jkfale'
+                      },
+                      title: { 
+                        type: 'string',
+                        example: 'Bedside light'
+                      },
+                      description: { 
+                        type: 'string',
+                        example: 'Barely used black bedside light with clip'
+                      },
+                      categories: { 
+                        type: 'string',
+                        example: 'ELECTRONICS, HOUSEHOLD'
+                      },
+                      original_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      altered_price: { 
+                        type: 'number',
+                        example: 10.50
+                      },
+                      images: {
                         type: 'array',
                         items: {
                           type: 'string',
-                          example: 'CLOTHING'
+                          example: 'https://img2.png'
                         }
                       },
-                      original_price: { type: 'string', example: '19.99' },
-                      altered_price: { type: 'string', example: '19.99' },
-                      images: { type: 'array', items: { type: 'string' } },
-                      created: { type: 'string', example: '2023-04-26T22:40:43.249Z' },
-                      location: { type: 'string', nullable: true },
-                      archive: { type: 'boolean', example: false },
+                      created: { 
+                        type: 'number',
+                        example: 1320538301
+                      },
+                      location: { 
+                        type: 'string',
+                        example: ''
+                      },
+                      archive: { 
+                        type: 'boolean',
+                        example: false
+                      },
                       user: {
                         type: 'object',
                         properties: {
-                          id: { type: 'string', example: 'aa9d68d1-8bef-43c5-b71b-ffa53698dfbd' },
-                          username: { type: 'string', example: 'sn685' },
-                          netid: { type: 'string', example: 'sn685' },
-                          givenName: { type: 'string', example: 'Shungo' },
-                          familyName: { type: 'string', example: 'Najima' },
-                          admin: { type: 'boolean', example: false },
-                          stars: { type: 'string', example: '0' },
-                          numReviews: { type: 'number', example: 0 },
-                          photoUrl: { type: 'string', nullable: true },
-                          venmoHandle: { type: 'string', nullable: true },
-                          email: { type: 'string', example: 'sn685@gmail.com' },
-                          googleId: { type: 'string', example: '41162233722324911536859331' },
-                          bio: { type: 'string', example: '' }
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                          },
+                          username: { 
+                            type: 'string',
+                            example: 'mweiner'
+                          },
+                          netid: { 
+                            type: 'string',
+                            example: 'maw346'
+                          },
+                          givenName: { 
+                            type: 'string',
+                            example: 'Mateo'
+                          },
+                          familyName: { 
+                            type: 'string',
+                            example: 'Weiner'
+                          },
+                          admin: { 
+                            type: 'boolean',
+                            example: false
+                          },
+                          stars: { 
+                            type: 'string',
+                            example: '4.5'
+                          },
+                          numReviews: { 
+                            type: 'integer',
+                            example: 10
+                          },
+                          photoUrl: { 
+                            type: 'string',
+                            nullable: true,
+                            example: 'https://img1.png'
+                          },
+                          venmoHandle: { 
+                            type: 'string',
+                            nullable: true,
+                            example: '@mateoweiner'
+                          },
+                          email: { 
+                            type: 'string',
+                            format: 'email',
+                            example: 'maw346@cornell.edu'
+                          },
+                          googleId: { 
+                            type: 'string',
+                            example: '21438528358713851'
+                          },
+                          bio: { 
+                            type: 'string',
+                            example: 'Freshman studying CS. He/Him'
+                          },
+                          isActive: { 
+                            type: 'boolean',
+                            example: true
+                          },
+                          blocking: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          blockers: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reports: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          reportedBy: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          posts: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          },
+                          feedbacks: {
+                            type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                          }
+                        }
+                      },
+                      savers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              format: 'uuid',
+                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                            },
+                            username: { 
+                              type: 'string',
+                              example: 'mweiner'
+                            },
+                            netid: { 
+                              type: 'string',
+                              example: 'maw346'
+                            },
+                            givenName: { 
+                              type: 'string',
+                              example: 'Mateo'
+                            },
+                            familyName: { 
+                              type: 'string',
+                              example: 'Weiner'
+                            },
+                            admin: { 
+                              type: 'boolean',
+                              example: false
+                            },
+                            stars: { 
+                              type: 'string',
+                              example: '4.5'
+                            },
+                            numReviews: { 
+                              type: 'integer',
+                              example: 10
+                            },
+                            photoUrl: { 
+                              type: 'string',
+                              nullable: true,
+                              example: 'https://img1.png'
+                            },
+                            venmoHandle: { 
+                              type: 'string',
+                              nullable: true,
+                              example: '@mateoweiner'
+                            },
+                            email: { 
+                              type: 'string',
+                              format: 'email',
+                              example: 'maw346@cornell.edu'
+                            },
+                            googleId: { 
+                              type: 'string',
+                              example: '21438528358713851'
+                            },
+                            bio: { 
+                              type: 'string',
+                              example: 'Freshman studying CS. He/Him'
+                            },
+                            isActive: { 
+                              type: 'boolean',
+                              example: true
+                            },
+                            blocking: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            blockers: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reports: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            reportedBy: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            posts: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            },
+                            feedbacks: {
+                              type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                            }
+                          }
+                        }
+                      },
+                      matched: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { 
+                              type: 'string',
+                              example: '381527oejf-42b4-4fdd-b074-dfwbejko229'
+                            },
+                            title: { 
+                              type: 'string',
+                              example: 'Bedside light'
+                            },
+                            description: { 
+                              type: 'string',
+                              example: 'bedside light'
+                            },
+                            user: {
+                              type: 'object',
+                              properties: {
+                                id: { 
+                                  type: 'string',
+                                  format: 'uuid',
+                                  example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                },
+                                username: { 
+                                  type: 'string',
+                                  example: 'mweiner'
+                                },
+                                netid: { 
+                                  type: 'string',
+                                  example: 'maw346'
+                                },
+                                givenName: { 
+                                  type: 'string',
+                                  example: 'Mateo'
+                                },
+                                familyName: { 
+                                  type: 'string',
+                                  example: 'Weiner'
+                                },
+                                admin: { 
+                                  type: 'boolean',
+                                  example: false
+                                },
+                                stars: { 
+                                  type: 'string',
+                                  example: '4.5'
+                                },
+                                numReviews: { 
+                                  type: 'integer',
+                                  example: 10
+                                },
+                                photoUrl: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: 'https://img1.png'
+                                },
+                                venmoHandle: { 
+                                  type: 'string',
+                                  nullable: true,
+                                  example: '@mateoweiner'
+                                },
+                                email: { 
+                                  type: 'string',
+                                  format: 'email',
+                                  example: 'maw346@cornell.edu'
+                                },
+                                googleId: { 
+                                  type: 'string',
+                                  example: '21438528358713851'
+                                },
+                                bio: { 
+                                  type: 'string',
+                                  example: 'Freshman studying CS. He/Him'
+                                },
+                                isActive: { 
+                                  type: 'boolean',
+                                  example: true
+                                },
+                                blocking: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                blockers: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reports: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                reportedBy: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                posts: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                },
+                                feedbacks: {
+                                  type: 'array',
+                                  items: {
+                                    type: 'string',
+                                    format: 'uuid'
+                                  }
+                                }
+                              }
+                            },
+                            matches: { 
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  id: { 
+                                    type: 'string',
+                                    example: '134841-42b4-4fdd-b074-jkfale'
+                                  },
+                                  title: { 
+                                    type: 'string',
+                                    example: 'Bedside light'
+                                  },
+                                  description: { 
+                                    type: 'string',
+                                    example: 'Barely used black bedside light with clip'
+                                  },
+                                  categories: { 
+                                    type: 'string',
+                                    example: 'ELECTRONICS, HOUSEHOLD'
+                                  },
+                                  original_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  altered_price: { 
+                                    type: 'number',
+                                    example: 10.50
+                                  },
+                                  images: {
+                                    type: 'array',
+                                    items: {
+                                      type: 'string',
+                                      example: 'https://img2.png'
+                                    }
+                                  },
+                                  created: { 
+                                    type: 'number',
+                                    example: 1320538301
+                                  },
+                                  location: { 
+                                    type: 'string',
+                                    example: ''
+                                  },
+                                  archive: { 
+                                    type: 'boolean',
+                                    example: false
+                                  },
+                                  user: {
+                                    type: 'object',
+                                    properties: {
+                                      id: { 
+                                        type: 'string',
+                                        format: 'uuid',
+                                        example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
+                                      },
+                                      username: { 
+                                        type: 'string',
+                                        example: 'mweiner'
+                                      },
+                                      netid: { 
+                                        type: 'string',
+                                        example: 'maw346'
+                                      },
+                                      givenName: { 
+                                        type: 'string',
+                                        example: 'Mateo'
+                                      },
+                                      familyName: { 
+                                        type: 'string',
+                                        example: 'Weiner'
+                                      },
+                                      admin: { 
+                                        type: 'boolean',
+                                        example: false
+                                      },
+                                      stars: { 
+                                        type: 'string',
+                                        example: '4.5'
+                                      },
+                                      numReviews: { 
+                                        type: 'integer',
+                                        example: 10
+                                      },
+                                      photoUrl: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: 'https://img1.png'
+                                      },
+                                      venmoHandle: { 
+                                        type: 'string',
+                                        nullable: true,
+                                        example: '@mateoweiner'
+                                      },
+                                      email: { 
+                                        type: 'string',
+                                        format: 'email',
+                                        example: 'maw346@cornell.edu'
+                                      },
+                                      googleId: { 
+                                        type: 'string',
+                                        example: '21438528358713851'
+                                      },
+                                      bio: { 
+                                        type: 'string',
+                                        example: 'Freshman studying CS. He/Him'
+                                      },
+                                      isActive: { 
+                                        type: 'boolean',
+                                        example: true
+                                      },
+                                      blocking: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      blockers: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reports: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      reportedBy: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      posts: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      },
+                                      feedbacks: {
+                                        type: 'array',
+                                        items: {
+                                          type: 'string',
+                                          format: 'uuid'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
                         }
                       }
                     }
