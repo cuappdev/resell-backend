@@ -5,6 +5,10 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, PostFactory, UserFactory } from './data';
+// // import { PostRepository } from 'src/repositories/PostRepository';
+// import { PostService } from '../services/PostService';
+// // import { getLoadedModel } from '../utils/SentenceEncoder';
+// import { UserModel } from '../models/UserModel'
 
 let uuidParam: UuidParam;
 let expectedPost: PostModel;
@@ -651,4 +655,38 @@ describe('post tests', () => {
       expect(error.message).toEqual('User is not active!');
     }
   });
+
+  test('similar posts - basic similarity test', async () => {
+    // Create user and posts with similar and non-similar titles
+    const user = UserFactory.fakeTemplate();
+    const targetPost = PostFactory.fakeTemplate();
+    const similarPost = PostFactory.fakeTemplate();
+    const unrelatedPost = PostFactory.fakeTemplate();
+  
+    targetPost.id = 'unique-id-1'; 
+    similarPost.id = 'unique-id-2';
+    unrelatedPost.id = 'unique-id-3';
+  
+    targetPost.user = user;
+    similarPost.user = user;
+    unrelatedPost.user = user;
+  
+    targetPost.title = 'Mateo\'s Kombucha';
+    similarPost.title = 'Kombucha for Everyone'; // similar title
+    unrelatedPost.title = 'Unrelated Title'; // unrelated title
+  
+  
+    await new DataFactory()
+      .createUsers(user)
+      .createPosts(targetPost, similarPost, unrelatedPost)
+      .write();
+  
+    // Calling similarPosts to find posts similar to targetPost
+    const getSimilarPostsResponse = await postController.similarPosts(user, { id: targetPost.id });
+  
+    // Only similar post should be returned
+    expect(getSimilarPostsResponse.posts).toHaveLength(1);
+    expect(getSimilarPostsResponse.posts[0].title).toEqual(similarPost.title);
+  });
+
 });
