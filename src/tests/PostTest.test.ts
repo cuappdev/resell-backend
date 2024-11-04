@@ -663,9 +663,9 @@ describe('post tests', () => {
     const similarPost = PostFactory.fakeTemplate();
     const unrelatedPost = PostFactory.fakeTemplate();
   
-    targetPost.id = 'unique-id-1'; 
-    similarPost.id = 'unique-id-2';
-    unrelatedPost.id = 'unique-id-3';
+    targetPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f'; 
+    similarPost.id = '81e6896c-a549-41bf-8852-604e7fbd4f1f';
+    unrelatedPost.id = '81e6896c-a549-41bf-8853-604e7fbd4f1f';
   
     targetPost.user = user;
     similarPost.user = user;
@@ -674,7 +674,6 @@ describe('post tests', () => {
     targetPost.title = 'Mateo\'s Kombucha';
     similarPost.title = 'Kombucha for Everyone'; // similar title
     unrelatedPost.title = 'Unrelated Title'; // unrelated title
-  
   
     await new DataFactory()
       .createUsers(user)
