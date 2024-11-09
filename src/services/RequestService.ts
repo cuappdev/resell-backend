@@ -49,7 +49,7 @@ export class RequestService {
       const user = await userRepository.getUserById(request.userId);
       if (!user) throw new NotFoundError('User not found!');
       const requestRepository = Repositories.request(transactionalEntityManager);
-      return await requestRepository.createRequest(request.title, request.description, user);
+      return await requestRepository.createRequest(request.title, request.description, request.archive, user);
     });
   }
 

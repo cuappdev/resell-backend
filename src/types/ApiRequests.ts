@@ -109,6 +109,7 @@ export interface UploadImageRequest {
 export interface CreateRequestRequest {
     title: string;
     description: string;
+    archive: boolean;
     userId: Uuid;
 }
 
