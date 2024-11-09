@@ -44,11 +44,9 @@ export class PostService {
 
   public async getPostsByUserId(currentUser: UserModel, params: UuidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserById(params.id)
-      if (!user) throw new NotFoundError('User not found!');
-      if (!user.isActive) throw new NotFoundError('User is not active!');
-      return this.filterBlockedUserPosts(user.posts, currentUser);
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const userPosts = await postRepository.getPostsByUserId(params.id);
+      return this.filterBlockedUserPosts(userPosts, currentUser);
     });
   }
 

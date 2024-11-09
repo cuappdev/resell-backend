@@ -104,14 +104,9 @@ describe('post tests', () => {
       .createUsers(post.user)
       .write();
 
-    expectedPost.user = post.user;
-
-    const getPostsResponse = await postController.getPostsByUserId(post.user, uuidParam);
+    const getPostsResponse = await postController.getPostsByUserId(post.user, {id: post.user.id});
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
-    getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
-    expectedPost.created = getPostsResponse.posts[0].created;
-
-    expect(getPostsResponse.posts).toEqual([expectedPost]);
+    expect(getPostsResponse.posts).toEqual([post]);
   });
 
   test('create post', async () => {
