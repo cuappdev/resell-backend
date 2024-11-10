@@ -139,6 +139,7 @@ export interface Request {
   id: Uuid;
   title: string;
   description: string;
+  archive: boolean;
   user: PrivateProfile;
   matches: PostModel[];
 }

@@ -26,6 +26,7 @@ export class RequestFactory {
         fakeRequest.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
         fakeRequest.title = 'Textbook';
         fakeRequest.description = 'Textbook for CS 1110';
+        fakeRequest.archive = false;
 
         return fakeRequest;
     }

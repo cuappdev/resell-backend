@@ -128,7 +128,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder()
       .update(PostModel)
       .set({ archive: true })
-      .where("userId = :userId", { userId })
+      .where("user.id = :userId", { userId })
       .execute();
   }
 

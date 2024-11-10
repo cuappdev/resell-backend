@@ -29,6 +29,7 @@ beforeEach(async () => {
   expectedRequest.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
   expectedRequest.title = 'Textbook';
   expectedRequest.description = 'Textbook for CS 1110';
+  expectedRequest.archive = false;
 });
 
 afterAll(async () => {
@@ -105,6 +106,7 @@ describe('request tests', () => {
     const newRequest = {
       title: 'Textbook',
       description: 'Textbook for CS 1110',
+      archive: false,
       userId: user.id,
     };
 

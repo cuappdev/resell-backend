@@ -31,6 +31,7 @@ export class RequestModel {
       id: this.id,
       title: this.title,
       description: this.description,
+      archive: this.archive,
       user: this.user,
       matches: this.matches,
     };

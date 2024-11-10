@@ -31,11 +31,13 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
   public async createRequest(
     title: string,
     description: string,
+    archive: boolean,
     user: UserModel
   ): Promise<RequestModel> {
     const request = this.repository.create({
       title,
       description,
+      archive,
       user,
     });
     await this.repository.save(request);
@@ -56,7 +58,7 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .createQueryBuilder()
       .update(RequestModel)
       .set({ archive: true })
-      .where("userId = :userId", { userId })
+      .where("user.id = :userId", { userId })
       .execute();
   }
 
