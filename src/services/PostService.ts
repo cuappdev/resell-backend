@@ -283,75 +283,32 @@ export class PostService {
   }
 
   public async similarPosts(user: UserModel, params: UuidParam): Promise<PostModel[]> {
-    try {
-      return this.transactions.readOnly(async (transactionalEntityManager) => {
-        try {
-          // 1. Get post repository and target post
-          const postRepository = Repositories.post(transactionalEntityManager);
-          const post = await postRepository.getPostById(params.id).catch(err => {
-            console.error('Post fetch error:', err);
-            throw err;
-          });
-          
-          if (!post) throw new NotFoundError('Post not found!');
-  
-          // 2. Get all posts
-          const allPosts = await postRepository.getAllPosts().catch(err => {
-            console.error('All posts fetch error:', err);
-            throw err;
-          });
-  
-          let posts: PostModel[] = []
-          
-          // 3. Load model
-          const model = await getLoadedModel().catch(err => {
-            console.error('Model loading error:', err);
-            throw err;
-          });
-  
-          // 4. Process each post
-          for (const p of allPosts) {
-            if (post.id !== p.id) {
-              try {
-                const sentences = [
-                  post.title,
-                  p.title
-                ];
-  
-                const embeddings = await model.embed(sentences)
-                  .then(async (embeddings: any) => {
-                    return embeddings.arraySync();
-                  })
-                  .catch((err: any) => {
-                    console.error('Embedding generation error for post:', p.id, err);
-                    return null;
-                  });
-  
-                if (embeddings) {
-                  const a = embeddings[0];
-                  const b = embeddings[1];
-                  if (this.similarity(a, b) >= 0.5) {
-                    posts.push(p);
-                  }
-                }
-              } catch (err) {
-                console.error('Post processing error for:', p.id, err);
-                // Continue processing other posts
-              }
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.id);
+      if (!post) throw new NotFoundError('Post not found!');
+      const allPosts = await postRepository.getAllPosts();
+      let posts: PostModel[] = []
+      const model = await getLoadedModel();
+      for (const p of allPosts) {
+        if (post.id != p.id) {
+          const sentences = [
+            post.title,
+            p.title
+          ];
+          await model.embed(sentences).then(async (embeddings: any) => {
+            embeddings = embeddings.arraySync()
+            const a = embeddings[0];
+            const b = embeddings[1];
+            if (this.similarity(a, b) >= 0.5) {
+              posts.push(p)
             }
-          }
-  
-          const activePosts = this.filterInactiveUserPosts(posts);
-          return this.filterBlockedUserPosts(activePosts, user);
-        } catch (err) {
-          console.error('Transaction error:', err);
-          throw err;
+          });
         }
-      });
-    } catch (err) {
-      console.error('Top level error:', err);
-      throw err;
-    }
+      }
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
   }
 
   public filterInactiveUserPosts(posts: PostModel[]): PostModel[] {
