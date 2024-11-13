@@ -1387,11 +1387,11 @@ export class ReportController {
             type: "object",
             required: ["profileId", "reason", "description"],
             properties: {
-              reportedId: {
+              reported: {
                 type: "string",
                 example: "381527oejf-42b4-4fdd-b074-dfwbejko229"
               },
-              postId: {
+              post: {
                 type: "string",
                 example: "94f8deaf-b67b-4046-b6bf-de89cd91cf83"
               },
@@ -1636,7 +1636,7 @@ export class ReportController {
             type: "object",
             required: ["profileId", "reason", "description"],
             properties: {
-              reportedId: {
+              reported: {
                 type: "string",
                 example: "381527oejf-42b4-4fdd-b074-dfwbejko229"
               },

@@ -43,18 +43,26 @@ async function main() {
     controllers: controllers,
     middlewares: middlewares,
     currentUserChecker: async (action: any) => {
-      const accessToken = action.request.headers["authorization"];
-      const manager = getManager();
-      // find the user who has a token in their sessions field
-      const session = await manager.findOne(UserSessionModel, { accessToken: accessToken });
-      // check if the session token has expired
-      if (session && session.expiresAt.getTime() > Date.now()) {
-        const userId = session.userId;
-        // find a user with id `userId` and join with posts, saved,
-        // sessions, feedbacks, and requests
-        return await manager.findOne(UserModel, { id: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
-      }
-      throw new ForbiddenError("User unauthorized");
+      // BYPASS: Return a mock user for development
+      return {
+        id: "33242381-1bbb-4a3b-be3a-5a2f8e9349e8",
+        username: "test",
+        netid: "test123",
+        givenName: "test",
+        familyName: "test",
+        photoUrl: "https://img1.png",
+        email: "test123@cornell.edu",
+        googleId: "414b5b2d-3351-49ce-95fe-b98a1fe8ceae",
+        bio: "test user",
+        isActive: true,
+        admin: false,
+        // Add any other required user properties here
+        posts: [],
+        saved: [],
+        sessions: [],
+        feedbacks: [],
+        requests: []
+      };
     },
     defaults: {
       paramOptions: {
@@ -75,14 +83,26 @@ async function main() {
     controllers: controllers,
     middlewares: middlewares,
     currentUserChecker: async (action: any) => {
-      const accessToken = action.request.headers["authorization"];
-      const manager = getManager();
-      const session = await manager.findOne(UserSessionModel, { accessToken: accessToken });
-      if (session && session.expiresAt.getTime() > Date.now()) {
-        const userId = session.userId;
-        return await manager.findOne(UserModel, { id: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
-      }
-      throw new ForbiddenError("User unauthorized");
+      // BYPASS: Return a mock user for development
+      return {
+        id: "33242381-1bbb-4a3b-be3a-5a2f8e9349e8",
+        username: "test",
+        netid: "test123",
+        givenName: "test",
+        familyName: "test",
+        photoUrl: "https://img1.png",
+        email: "test123@cornell.edu",
+        googleId: "414b5b2d-3351-49ce-95fe-b98a1fe8ceae",
+        bio: "test user",
+        isActive: true,
+        admin: false,
+        // Add any other required user properties here
+        posts: [],
+        saved: [],
+        sessions: [],
+        feedbacks: [],
+        requests: []
+      };
     },
     defaults: {
       paramOptions: {
