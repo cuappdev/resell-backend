@@ -5,6 +5,10 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, PostFactory, UserFactory } from './data';
+// // import { PostRepository } from 'src/repositories/PostRepository';
+// import { PostService } from '../services/PostService';
+// // import { getLoadedModel } from '../utils/SentenceEncoder';
+// import { UserModel } from '../models/UserModel'
 
 let uuidParam: UuidParam;
 let expectedPost: PostModel;
@@ -646,4 +650,151 @@ describe('post tests', () => {
       expect(error.message).toEqual('User is not active!');
     }
   });
+
+  test('similar posts - basic similarity test', async () => {
+    // Create user and posts with similar and non-similar titles
+    const user = UserFactory.fakeTemplate();
+    const targetPost = PostFactory.fakeTemplate();
+    const similarPost = PostFactory.fakeTemplate();
+    const unrelatedPost = PostFactory.fakeTemplate();
+  
+    targetPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f'; 
+    similarPost.id = '81e6896c-a549-41bf-8852-604e7fbd4f1f';
+    unrelatedPost.id = '81e6896c-a549-41bf-8853-604e7fbd4f1f';
+  
+    targetPost.user = user;
+    similarPost.user = user;
+    unrelatedPost.user = user;
+  
+    targetPost.title = 'Mateo\'s Kombucha';
+    similarPost.title = 'Kombucha for Everyone'; // similar title
+    unrelatedPost.title = 'Unrelated Title'; // unrelated title
+  
+    await new DataFactory()
+      .createUsers(user)
+      .createPosts(targetPost, similarPost, unrelatedPost)
+      .write();
+  
+    // Calling similarPosts to find posts similar to targetPost
+    const getSimilarPostsResponse = await postController.similarPosts(user, { id: targetPost.id });
+  
+    // Only similar post should be returned
+    expect(getSimilarPostsResponse.posts).toHaveLength(1);
+    expect(getSimilarPostsResponse.posts[0].title).toEqual(similarPost.title);
+  });
+
+    /* 
+    need to create three more in depth tests:
+    1. No similar post exists
+    2. Multiple similar posts (should retun all of these)
+    3. Mulitple unrelated posts (should return none of these)
+    4. Checking algorithm for similarity
+
+
+    Possible root causes:
+    - the getLoadedModel is not working
+    - the embed method is called within a loop
+    - passing incorrect input when hitting the route on frontend
+    - algorthim is not working 
+   */
+
+    test('similar posts - no similar posts exist', async () => {
+      const user = UserFactory.fakeTemplate();
+      const targetPost = PostFactory.fakeTemplate();
+      const unrelatedPost1 = PostFactory.fakeTemplate();
+      const unrelatedPost2 = PostFactory.fakeTemplate();
+  
+      targetPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+      unrelatedPost1.id = '81e6896c-a549-41bf-8852-604e7fbd4f1f';
+      unrelatedPost2.id = '81e6896c-a549-41bf-8853-604e7fbd4f1f';
+  
+      targetPost.user = user;
+      unrelatedPost1.user = user;
+      unrelatedPost2.user = user;
+  
+      targetPost.title = 'Post';
+      unrelatedPost1.title = 'Completely Different post';
+      unrelatedPost2.title = 'Another Unrelated Post';
+  
+      await new DataFactory()
+        .createUsers(user)
+        .createPosts(targetPost, unrelatedPost1, unrelatedPost2)
+        .write();
+  
+      const getSimilarPostsResponse = await postController.similarPosts(user, { id: targetPost.id });
+  
+      expect(getSimilarPostsResponse.posts).toHaveLength(0); 
+    });
+  
+    test('similar posts - multiple similar posts exist', async () => {
+      const user = UserFactory.fakeTemplate();
+      const targetPost = PostFactory.fakeTemplate();
+      const similarPost1 = PostFactory.fakeTemplate();
+      const similarPost2 = PostFactory.fakeTemplate();
+      const unrelatedPost = PostFactory.fakeTemplate();
+  
+      targetPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+      similarPost1.id = '81e6896c-a549-41bf-8852-604e7fbd4f1f';
+      similarPost2.id = '81e6896c-a549-41bf-8853-604e7fbd4f1f';
+      unrelatedPost.id = '81e6896c-a549-41bf-8854-604e7fbd4f1f';
+  
+      targetPost.user = user;
+      similarPost1.user = user;
+      similarPost2.user = user;
+      unrelatedPost.user = user;
+  
+      targetPost.title = 'Cookbook';
+      similarPost1.title = 'Cooking Pan';
+      similarPost2.title = 'Baking utensils';
+      unrelatedPost.title = 'Airpods';
+  
+      await new DataFactory()
+        .createUsers(user)
+        .createPosts(targetPost, similarPost1, similarPost2, unrelatedPost)
+        .write();
+  
+      const getSimilarPostsResponse = await postController.similarPosts(user, { id: targetPost.id });
+  
+      expect(getSimilarPostsResponse.posts).toHaveLength(2);
+      const similarTitles = getSimilarPostsResponse.posts.map(post => post.title);
+      expect(similarTitles).toContain(similarPost1.title);
+      expect(similarTitles).toContain(similarPost2.title);
+    });
+  
+    test('similar posts - multiple unrelated posts exist', async () => {
+      // ... (Similar structure to the previous test, 
+      //     but with multiple unrelated posts and only one similar post)
+
+      const user = UserFactory.fakeTemplate();
+      const targetPost = PostFactory.fakeTemplate();
+      const similarPost1 = PostFactory.fakeTemplate();
+      const unrelatedPost1 = PostFactory.fakeTemplate();
+      const unrelatedPost2 = PostFactory.fakeTemplate();
+  
+      targetPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+      similarPost1.id = '81e6896c-a549-41bf-8852-604e7fbd4f1f';
+      unrelatedPost1.id = '81e6896c-a549-41bf-8853-604e7fbd4f1f';
+      unrelatedPost2.id = '81e6896c-a549-41bf-8854-604e7fbd4f1f';
+  
+      targetPost.user = user;
+      similarPost1.user = user;
+      unrelatedPost1.user = user;
+      unrelatedPost2.user = user;
+  
+      targetPost.title = 'Airpods';
+      similarPost1.title = 'Headphones';
+      unrelatedPost1.title = 'Curling Iron';
+      unrelatedPost2.title = 'Shoes';
+  
+      await new DataFactory()
+        .createUsers(user)
+        .createPosts(targetPost, similarPost1, unrelatedPost1, unrelatedPost2)
+        .write();
+  
+      const getSimilarPostsResponse = await postController.similarPosts(user, { id: targetPost.id });
+  
+      expect(getSimilarPostsResponse.posts).toHaveLength(1);
+      const similarTitles = getSimilarPostsResponse.posts.map(post => post.title);
+      expect(similarTitles).toContain(similarPost1.title);
+    }); 
 });
