@@ -40,187 +40,115 @@ export class ReportController {
                           id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
                           firstName: { type: "string", example: "Mateo" },
                           lastName: { type: "string", example: "Weiner" },
-                          profilePicUrl: { type: "string", example: "https://img1.png" }
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
-                      reportedContent: {
+                      reported: {
                         type: "object",
                         properties: {
-                          id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                          type: { type: "string", example: "POST" },
-                          content: { type: "string", example: "Original content that was reported" }
+                          id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
+                          firstName: { type: "string", example: "Mateo" },
+                          lastName: { type: "string", example: "Weiner" },
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
                       post: {
                         type: 'object',
-                        properties: {
-                          id: { 
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          title: { 
-                            type: 'string',
-                            example: 'Bedside light'
-                          },
-                          description: { 
-                            type: 'string',
-                            example: 'Barely used black bedside light with clip'
-                          },
-                          categories: { 
-                            type: 'string',
-                            example: 'ELECTRONICS, HOUSEHOLD'
-                          },
-                          original_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          altered_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          images: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              example: 'https://img2.png'
-                            }
-                          },
-                          created: { 
-                            type: 'number',
-                            example: 1320538301
-                          },
-                          location: { 
-                            type: 'string',
-                            example: ''
-                          },
-                          archive: { 
-                            type: 'boolean',
-                            example: false
-                          },
-                          user: {
-                            type: 'object',
-                            properties: {
-                              id: { 
-                                type: 'string',
-                                format: 'uuid',
-                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                              },
-                              username: { 
-                                type: 'string',
-                                example: 'mweiner'
-                              },
-                              netid: { 
-                                type: 'string',
-                                example: 'maw346'
-                              },
-                              givenName: { 
-                                type: 'string',
-                                example: 'Mateo'
-                              },
-                              familyName: { 
-                                type: 'string',
-                                example: 'Weiner'
-                              },
-                              admin: { 
-                                type: 'boolean',
-                                example: false
-                              },
-                              stars: { 
-                                type: 'string',
-                                example: '4.5'
-                              },
-                              numReviews: { 
-                                type: 'integer',
-                                example: 10
-                              },
-                              photoUrl: { 
-                                type: 'string',
-                                nullable: true,
-                                example: 'https://img1.png'
-                              },
-                              venmoHandle: { 
-                                type: 'string',
-                                nullable: true,
-                                example: '@mateoweiner'
-                              },
-                              email: { 
-                                type: 'string',
-                                format: 'email',
-                                example: 'maw346@cornell.edu'
-                              },
-                              googleId: { 
-                                type: 'string',
-                                example: '21438528358713851'
-                              },
-                              bio: { 
-                                type: 'string',
-                                example: 'Freshman studying CS. He/Him'
-                              },
-                              isActive: { 
-                                type: 'boolean',
-                                example: true
-                              },
-                              blocking: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              blockers: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reports: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reportedBy: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              posts: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              feedbacks: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              }
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       message: {
                         type: 'object',
-                        properties: {
-                          id: {
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          reports: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              format: 'uuid'
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       reason: { type: "string", example: "Inappropriate content" },
                       type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -249,7 +177,7 @@ export class ReportController {
     description: "Gets all post reports.",
     responses: {
       "200": {
-        description: "Post reports returned successfully",
+        description: "Reports returned successfully",
         content: {
           "application/json": {
             schema: {
@@ -267,187 +195,115 @@ export class ReportController {
                           id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
                           firstName: { type: "string", example: "Mateo" },
                           lastName: { type: "string", example: "Weiner" },
-                          profilePicUrl: { type: "string", example: "https://img1.png" }
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
-                      reportedContent: {
+                      reported: {
                         type: "object",
                         properties: {
-                          id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                          type: { type: "string", example: "POST" },
-                          content: { type: "string", example: "Original content that was reported" }
+                          id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
+                          firstName: { type: "string", example: "Mateo" },
+                          lastName: { type: "string", example: "Weiner" },
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
                       post: {
                         type: 'object',
-                        properties: {
-                          id: { 
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          title: { 
-                            type: 'string',
-                            example: 'Bedside light'
-                          },
-                          description: { 
-                            type: 'string',
-                            example: 'Barely used black bedside light with clip'
-                          },
-                          categories: { 
-                            type: 'string',
-                            example: 'ELECTRONICS, HOUSEHOLD'
-                          },
-                          original_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          altered_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          images: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              example: 'https://img2.png'
-                            }
-                          },
-                          created: { 
-                            type: 'number',
-                            example: 1320538301
-                          },
-                          location: { 
-                            type: 'string',
-                            example: ''
-                          },
-                          archive: { 
-                            type: 'boolean',
-                            example: false
-                          },
-                          user: {
-                            type: 'object',
-                            properties: {
-                              id: { 
-                                type: 'string',
-                                format: 'uuid',
-                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                              },
-                              username: { 
-                                type: 'string',
-                                example: 'mweiner'
-                              },
-                              netid: { 
-                                type: 'string',
-                                example: 'maw346'
-                              },
-                              givenName: { 
-                                type: 'string',
-                                example: 'Mateo'
-                              },
-                              familyName: { 
-                                type: 'string',
-                                example: 'Weiner'
-                              },
-                              admin: { 
-                                type: 'boolean',
-                                example: false
-                              },
-                              stars: { 
-                                type: 'string',
-                                example: '4.5'
-                              },
-                              numReviews: { 
-                                type: 'integer',
-                                example: 10
-                              },
-                              photoUrl: { 
-                                type: 'string',
-                                nullable: true,
-                                example: 'https://img1.png'
-                              },
-                              venmoHandle: { 
-                                type: 'string',
-                                nullable: true,
-                                example: '@mateoweiner'
-                              },
-                              email: { 
-                                type: 'string',
-                                format: 'email',
-                                example: 'maw346@cornell.edu'
-                              },
-                              googleId: { 
-                                type: 'string',
-                                example: '21438528358713851'
-                              },
-                              bio: { 
-                                type: 'string',
-                                example: 'Freshman studying CS. He/Him'
-                              },
-                              isActive: { 
-                                type: 'boolean',
-                                example: true
-                              },
-                              blocking: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              blockers: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reports: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reportedBy: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              posts: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              feedbacks: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              }
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       message: {
                         type: 'object',
-                        properties: {
-                          id: {
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          reports: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              format: 'uuid'
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       reason: { type: "string", example: "Inappropriate content" },
                       type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -476,7 +332,7 @@ export class ReportController {
     description: "Gets all profile reports.",
     responses: {
       "200": {
-        description: "Profile reports returned successfully",
+        description: "Reports returned successfully",
         content: {
           "application/json": {
             schema: {
@@ -494,187 +350,115 @@ export class ReportController {
                           id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
                           firstName: { type: "string", example: "Mateo" },
                           lastName: { type: "string", example: "Weiner" },
-                          profilePicUrl: { type: "string", example: "https://img1.png" }
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
-                      reportedContent: {
+                      reported: {
                         type: "object",
                         properties: {
-                          id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                          type: { type: "string", example: "POST" },
-                          content: { type: "string", example: "Original content that was reported" }
+                          id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
+                          firstName: { type: "string", example: "Mateo" },
+                          lastName: { type: "string", example: "Weiner" },
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
                       post: {
                         type: 'object',
-                        properties: {
-                          id: { 
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          title: { 
-                            type: 'string',
-                            example: 'Bedside light'
-                          },
-                          description: { 
-                            type: 'string',
-                            example: 'Barely used black bedside light with clip'
-                          },
-                          categories: { 
-                            type: 'string',
-                            example: 'ELECTRONICS, HOUSEHOLD'
-                          },
-                          original_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          altered_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          images: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              example: 'https://img2.png'
-                            }
-                          },
-                          created: { 
-                            type: 'number',
-                            example: 1320538301
-                          },
-                          location: { 
-                            type: 'string',
-                            example: ''
-                          },
-                          archive: { 
-                            type: 'boolean',
-                            example: false
-                          },
-                          user: {
-                            type: 'object',
-                            properties: {
-                              id: { 
-                                type: 'string',
-                                format: 'uuid',
-                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                              },
-                              username: { 
-                                type: 'string',
-                                example: 'mweiner'
-                              },
-                              netid: { 
-                                type: 'string',
-                                example: 'maw346'
-                              },
-                              givenName: { 
-                                type: 'string',
-                                example: 'Mateo'
-                              },
-                              familyName: { 
-                                type: 'string',
-                                example: 'Weiner'
-                              },
-                              admin: { 
-                                type: 'boolean',
-                                example: false
-                              },
-                              stars: { 
-                                type: 'string',
-                                example: '4.5'
-                              },
-                              numReviews: { 
-                                type: 'integer',
-                                example: 10
-                              },
-                              photoUrl: { 
-                                type: 'string',
-                                nullable: true,
-                                example: 'https://img1.png'
-                              },
-                              venmoHandle: { 
-                                type: 'string',
-                                nullable: true,
-                                example: '@mateoweiner'
-                              },
-                              email: { 
-                                type: 'string',
-                                format: 'email',
-                                example: 'maw346@cornell.edu'
-                              },
-                              googleId: { 
-                                type: 'string',
-                                example: '21438528358713851'
-                              },
-                              bio: { 
-                                type: 'string',
-                                example: 'Freshman studying CS. He/Him'
-                              },
-                              isActive: { 
-                                type: 'boolean',
-                                example: true
-                              },
-                              blocking: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              blockers: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reports: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reportedBy: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              posts: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              feedbacks: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              }
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       message: {
                         type: 'object',
-                        properties: {
-                          id: {
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          reports: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              format: 'uuid'
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       reason: { type: "string", example: "Inappropriate content" },
                       type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -703,7 +487,7 @@ export class ReportController {
     description: "Gets all message reports.",
     responses: {
       "200": {
-        description: "Message reports returned successfully",
+        description: "Reports returned successfully",
         content: {
           "application/json": {
             schema: {
@@ -721,187 +505,115 @@ export class ReportController {
                           id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
                           firstName: { type: "string", example: "Mateo" },
                           lastName: { type: "string", example: "Weiner" },
-                          profilePicUrl: { type: "string", example: "https://img1.png" }
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
-                      reportedContent: {
+                      reported: {
                         type: "object",
                         properties: {
-                          id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                          type: { type: "string", example: "POST" },
-                          content: { type: "string", example: "Original content that was reported" }
+                          id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
+                          firstName: { type: "string", example: "Mateo" },
+                          lastName: { type: "string", example: "Weiner" },
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
                       post: {
                         type: 'object',
-                        properties: {
-                          id: { 
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          title: { 
-                            type: 'string',
-                            example: 'Bedside light'
-                          },
-                          description: { 
-                            type: 'string',
-                            example: 'Barely used black bedside light with clip'
-                          },
-                          categories: { 
-                            type: 'string',
-                            example: 'ELECTRONICS, HOUSEHOLD'
-                          },
-                          original_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          altered_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          images: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              example: 'https://img2.png'
-                            }
-                          },
-                          created: { 
-                            type: 'number',
-                            example: 1320538301
-                          },
-                          location: { 
-                            type: 'string',
-                            example: ''
-                          },
-                          archive: { 
-                            type: 'boolean',
-                            example: false
-                          },
-                          user: {
-                            type: 'object',
-                            properties: {
-                              id: { 
-                                type: 'string',
-                                format: 'uuid',
-                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                              },
-                              username: { 
-                                type: 'string',
-                                example: 'mweiner'
-                              },
-                              netid: { 
-                                type: 'string',
-                                example: 'maw346'
-                              },
-                              givenName: { 
-                                type: 'string',
-                                example: 'Mateo'
-                              },
-                              familyName: { 
-                                type: 'string',
-                                example: 'Weiner'
-                              },
-                              admin: { 
-                                type: 'boolean',
-                                example: false
-                              },
-                              stars: { 
-                                type: 'string',
-                                example: '4.5'
-                              },
-                              numReviews: { 
-                                type: 'integer',
-                                example: 10
-                              },
-                              photoUrl: { 
-                                type: 'string',
-                                nullable: true,
-                                example: 'https://img1.png'
-                              },
-                              venmoHandle: { 
-                                type: 'string',
-                                nullable: true,
-                                example: '@mateoweiner'
-                              },
-                              email: { 
-                                type: 'string',
-                                format: 'email',
-                                example: 'maw346@cornell.edu'
-                              },
-                              googleId: { 
-                                type: 'string',
-                                example: '21438528358713851'
-                              },
-                              bio: { 
-                                type: 'string',
-                                example: 'Freshman studying CS. He/Him'
-                              },
-                              isActive: { 
-                                type: 'boolean',
-                                example: true
-                              },
-                              blocking: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              blockers: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reports: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reportedBy: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              posts: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              feedbacks: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              }
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       message: {
                         type: 'object',
-                        properties: {
-                          id: {
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          reports: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              format: 'uuid'
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       reason: { type: "string", example: "Inappropriate content" },
                       type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -946,187 +658,115 @@ export class ReportController {
                         id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
                         firstName: { type: "string", example: "Mateo" },
                         lastName: { type: "string", example: "Weiner" },
-                        profilePicUrl: { type: "string", example: "https://img1.png" }
+                        profilePicUrl: { type: "string", example: "https://img1.png" },
+                        admin: { type: "boolean", example: false },
+                        email: { type: "string", example: "mateo@example.com" },
+                        googleId: { type: "string", example: "117366423704274743056" },
+                        isActive: { type: "boolean", example: true },
+                        feedbacks: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        },
+                        blockers: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        },
+                        blocking: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        },
+                        reports: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        },
+                        reportedBy: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        }
                       }
                     },
-                    reportedContent: {
+                    reported: {
                       type: "object",
                       properties: {
-                        id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                        type: { type: "string", example: "POST" },
-                        content: { type: "string", example: "Original content that was reported" }
+                        id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
+                        firstName: { type: "string", example: "Mateo" },
+                        lastName: { type: "string", example: "Weiner" },
+                        profilePicUrl: { type: "string", example: "https://img1.png" },
+                        admin: { type: "boolean", example: false },
+                        email: { type: "string", example: "mateo@example.com" },
+                        googleId: { type: "string", example: "117366423704274743056" },
+                        isActive: { type: "boolean", example: true },
+                        feedbacks: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        },
+                        blockers: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        },
+                        blocking: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        },
+                        reports: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        },
+                        reportedBy: { 
+                          type: 'array',
+                            items: {
+                              type: 'string',
+                              format: 'uuid'
+                            }
+                        }
                       }
                     },
                     post: {
                       type: 'object',
-                      properties: {
-                        id: { 
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        title: { 
-                          type: 'string',
-                          example: 'Bedside light'
-                        },
-                        description: { 
-                          type: 'string',
-                          example: 'Barely used black bedside light with clip'
-                        },
-                        categories: { 
-                          type: 'string',
-                          example: 'ELECTRONICS, HOUSEHOLD'
-                        },
-                        original_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        altered_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        images: {
-                          type: 'array',
-                          items: {
+                        properties: {
+                          id: { 
                             type: 'string',
-                            example: 'https://img2.png'
-                          }
-                        },
-                        created: { 
-                          type: 'number',
-                          example: 1320538301
-                        },
-                        location: { 
-                          type: 'string',
-                          example: ''
-                        },
-                        archive: { 
-                          type: 'boolean',
-                          example: false
-                        },
-                        user: {
-                          type: 'object',
-                          properties: {
-                            id: { 
-                              type: 'string',
-                              format: 'uuid',
-                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                            },
-                            username: { 
-                              type: 'string',
-                              example: 'mweiner'
-                            },
-                            netid: { 
-                              type: 'string',
-                              example: 'maw346'
-                            },
-                            givenName: { 
-                              type: 'string',
-                              example: 'Mateo'
-                            },
-                            familyName: { 
-                              type: 'string',
-                              example: 'Weiner'
-                            },
-                            admin: { 
-                              type: 'boolean',
-                              example: false
-                            },
-                            stars: { 
-                              type: 'string',
-                              example: '4.5'
-                            },
-                            numReviews: { 
-                              type: 'integer',
-                              example: 10
-                            },
-                            photoUrl: { 
-                              type: 'string',
-                              nullable: true,
-                              example: 'https://img1.png'
-                            },
-                            venmoHandle: { 
-                              type: 'string',
-                              nullable: true,
-                              example: '@mateoweiner'
-                            },
-                            email: { 
-                              type: 'string',
-                              format: 'email',
-                              example: 'maw346@cornell.edu'
-                            },
-                            googleId: { 
-                              type: 'string',
-                              example: '21438528358713851'
-                            },
-                            bio: { 
-                              type: 'string',
-                              example: 'Freshman studying CS. He/Him'
-                            },
-                            isActive: { 
-                              type: 'boolean',
-                              example: true
-                            },
-                            blocking: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            blockers: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reports: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reportedBy: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            posts: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            feedbacks: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            }
+                            format: 'uuid',
+                            nullable: true
                           }
                         }
-                      }
                     },
                     message: {
                       type: 'object',
-                      properties: {
-                        id: {
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        reports: {
-                          type: 'array',
-                          items: {
+                        properties: {
+                          id: { 
                             type: 'string',
-                            format: 'uuid'
+                            format: 'uuid',
+                            nullable: true
                           }
                         }
-                      }
                     },
                     reason: { type: "string", example: "Inappropriate content" },
                     type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -1172,187 +812,115 @@ export class ReportController {
                           id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
                           firstName: { type: "string", example: "Mateo" },
                           lastName: { type: "string", example: "Weiner" },
-                          profilePicUrl: { type: "string", example: "https://img1.png" }
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
-                      reportedContent: {
+                      reported: {
                         type: "object",
                         properties: {
-                          id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                          type: { type: "string", example: "POST" },
-                          content: { type: "string", example: "Original content that was reported" }
+                          id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
+                          firstName: { type: "string", example: "Mateo" },
+                          lastName: { type: "string", example: "Weiner" },
+                          profilePicUrl: { type: "string", example: "https://img1.png" },
+                          admin: { type: "boolean", example: false },
+                          email: { type: "string", example: "mateo@example.com" },
+                          googleId: { type: "string", example: "117366423704274743056" },
+                          isActive: { type: "boolean", example: true },
+                          feedbacks: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blockers: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          blocking: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reports: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          },
+                          reportedBy: { 
+                            type: 'array',
+                              items: {
+                                type: 'string',
+                                format: 'uuid'
+                              }
+                          }
                         }
                       },
                       post: {
                         type: 'object',
-                        properties: {
-                          id: { 
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          title: { 
-                            type: 'string',
-                            example: 'Bedside light'
-                          },
-                          description: { 
-                            type: 'string',
-                            example: 'Barely used black bedside light with clip'
-                          },
-                          categories: { 
-                            type: 'string',
-                            example: 'ELECTRONICS, HOUSEHOLD'
-                          },
-                          original_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          altered_price: { 
-                            type: 'number',
-                            example: 10.50
-                          },
-                          images: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              example: 'https://img2.png'
-                            }
-                          },
-                          created: { 
-                            type: 'number',
-                            example: 1320538301
-                          },
-                          location: { 
-                            type: 'string',
-                            example: ''
-                          },
-                          archive: { 
-                            type: 'boolean',
-                            example: false
-                          },
-                          user: {
-                            type: 'object',
-                            properties: {
-                              id: { 
-                                type: 'string',
-                                format: 'uuid',
-                                example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                              },
-                              username: { 
-                                type: 'string',
-                                example: 'mweiner'
-                              },
-                              netid: { 
-                                type: 'string',
-                                example: 'maw346'
-                              },
-                              givenName: { 
-                                type: 'string',
-                                example: 'Mateo'
-                              },
-                              familyName: { 
-                                type: 'string',
-                                example: 'Weiner'
-                              },
-                              admin: { 
-                                type: 'boolean',
-                                example: false
-                              },
-                              stars: { 
-                                type: 'string',
-                                example: '4.5'
-                              },
-                              numReviews: { 
-                                type: 'integer',
-                                example: 10
-                              },
-                              photoUrl: { 
-                                type: 'string',
-                                nullable: true,
-                                example: 'https://img1.png'
-                              },
-                              venmoHandle: { 
-                                type: 'string',
-                                nullable: true,
-                                example: '@mateoweiner'
-                              },
-                              email: { 
-                                type: 'string',
-                                format: 'email',
-                                example: 'maw346@cornell.edu'
-                              },
-                              googleId: { 
-                                type: 'string',
-                                example: '21438528358713851'
-                              },
-                              bio: { 
-                                type: 'string',
-                                example: 'Freshman studying CS. He/Him'
-                              },
-                              isActive: { 
-                                type: 'boolean',
-                                example: true
-                              },
-                              blocking: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              blockers: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reports: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              reportedBy: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              posts: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              },
-                              feedbacks: {
-                                type: 'array',
-                                items: {
-                                  type: 'string',
-                                  format: 'uuid'
-                                }
-                              }
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       message: {
                         type: 'object',
-                        properties: {
-                          id: {
-                            type: 'string',
-                            example: '134841-42b4-4fdd-b074-jkfale'
-                          },
-                          reports: {
-                            type: 'array',
-                            items: {
+                          properties: {
+                            id: { 
                               type: 'string',
-                              format: 'uuid'
+                              format: 'uuid',
+                              nullable: true
                             }
                           }
-                        }
                       },
                       reason: { type: "string", example: "Inappropriate content" },
                       type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -1417,192 +985,42 @@ export class ReportController {
                   properties: {
                     id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
                     reporter: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
-                        firstName: { type: "string", example: "Mateo" },
-                        lastName: { type: "string", example: "Weiner" },
-                        profilePicUrl: { type: "string", example: "https://img1.png" }
-                      }
-                    },
-                    reportedContent: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                        type: { type: "string", example: "POST" },
-                        content: { type: "string", example: "Original content that was reported" }
-                      }
-                    },
-                    post: {
                       type: 'object',
-                      properties: {
-                        id: { 
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        title: { 
-                          type: 'string',
-                          example: 'Bedside light'
-                        },
-                        description: { 
-                          type: 'string',
-                          example: 'Barely used black bedside light with clip'
-                        },
-                        categories: { 
-                          type: 'string',
-                          example: 'ELECTRONICS, HOUSEHOLD'
-                        },
-                        original_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        altered_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        images: {
-                          type: 'array',
-                          items: {
-                            type: 'string',
-                            example: 'https://img2.png'
-                          }
-                        },
-                        created: { 
-                          type: 'number',
-                          example: 1320538301
-                        },
-                        location: { 
-                          type: 'string',
-                          example: ''
-                        },
-                        archive: { 
-                          type: 'boolean',
-                          example: false
-                        },
-                        user: {
-                          type: 'object',
-                          properties: {
-                            id: { 
-                              type: 'string',
-                              format: 'uuid',
-                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                            },
-                            username: { 
-                              type: 'string',
-                              example: 'mweiner'
-                            },
-                            netid: { 
-                              type: 'string',
-                              example: 'maw346'
-                            },
-                            givenName: { 
-                              type: 'string',
-                              example: 'Mateo'
-                            },
-                            familyName: { 
-                              type: 'string',
-                              example: 'Weiner'
-                            },
-                            admin: { 
-                              type: 'boolean',
-                              example: false
-                            },
-                            stars: { 
-                              type: 'string',
-                              example: '4.5'
-                            },
-                            numReviews: { 
-                              type: 'integer',
-                              example: 10
-                            },
-                            photoUrl: { 
-                              type: 'string',
-                              nullable: true,
-                              example: 'https://img1.png'
-                            },
-                            venmoHandle: { 
-                              type: 'string',
-                              nullable: true,
-                              example: '@mateoweiner'
-                            },
-                            email: { 
-                              type: 'string',
-                              format: 'email',
-                              example: 'maw346@cornell.edu'
-                            },
-                            googleId: { 
-                              type: 'string',
-                              example: '21438528358713851'
-                            },
-                            bio: { 
-                              type: 'string',
-                              example: 'Freshman studying CS. He/Him'
-                            },
-                            isActive: { 
-                              type: 'boolean',
-                              example: true
-                            },
-                            blocking: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            blockers: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reports: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reportedBy: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            posts: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            feedbacks: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    message: {
-                      type: 'object',
-                      properties: {
-                        id: {
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        reports: {
-                          type: 'array',
-                          items: {
+                        properties: {
+                          id: { 
                             type: 'string',
                             format: 'uuid'
                           }
                         }
-                      }
+                    },
+                    reported: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                    },
+                    post: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
+                    },
+                    message: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
                     },
                     reason: { type: "string", example: "Inappropriate content" },
                     type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -1662,192 +1080,42 @@ export class ReportController {
                   properties: {
                     id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
                     reporter: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
-                        firstName: { type: "string", example: "Mateo" },
-                        lastName: { type: "string", example: "Weiner" },
-                        profilePicUrl: { type: "string", example: "https://img1.png" }
-                      }
-                    },
-                    reportedContent: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                        type: { type: "string", example: "POST" },
-                        content: { type: "string", example: "Original content that was reported" }
-                      }
-                    },
-                    post: {
                       type: 'object',
-                      properties: {
-                        id: { 
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        title: { 
-                          type: 'string',
-                          example: 'Bedside light'
-                        },
-                        description: { 
-                          type: 'string',
-                          example: 'Barely used black bedside light with clip'
-                        },
-                        categories: { 
-                          type: 'string',
-                          example: 'ELECTRONICS, HOUSEHOLD'
-                        },
-                        original_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        altered_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        images: {
-                          type: 'array',
-                          items: {
-                            type: 'string',
-                            example: 'https://img2.png'
-                          }
-                        },
-                        created: { 
-                          type: 'number',
-                          example: 1320538301
-                        },
-                        location: { 
-                          type: 'string',
-                          example: ''
-                        },
-                        archive: { 
-                          type: 'boolean',
-                          example: false
-                        },
-                        user: {
-                          type: 'object',
-                          properties: {
-                            id: { 
-                              type: 'string',
-                              format: 'uuid',
-                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                            },
-                            username: { 
-                              type: 'string',
-                              example: 'mweiner'
-                            },
-                            netid: { 
-                              type: 'string',
-                              example: 'maw346'
-                            },
-                            givenName: { 
-                              type: 'string',
-                              example: 'Mateo'
-                            },
-                            familyName: { 
-                              type: 'string',
-                              example: 'Weiner'
-                            },
-                            admin: { 
-                              type: 'boolean',
-                              example: false
-                            },
-                            stars: { 
-                              type: 'string',
-                              example: '4.5'
-                            },
-                            numReviews: { 
-                              type: 'integer',
-                              example: 10
-                            },
-                            photoUrl: { 
-                              type: 'string',
-                              nullable: true,
-                              example: 'https://img1.png'
-                            },
-                            venmoHandle: { 
-                              type: 'string',
-                              nullable: true,
-                              example: '@mateoweiner'
-                            },
-                            email: { 
-                              type: 'string',
-                              format: 'email',
-                              example: 'maw346@cornell.edu'
-                            },
-                            googleId: { 
-                              type: 'string',
-                              example: '21438528358713851'
-                            },
-                            bio: { 
-                              type: 'string',
-                              example: 'Freshman studying CS. He/Him'
-                            },
-                            isActive: { 
-                              type: 'boolean',
-                              example: true
-                            },
-                            blocking: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            blockers: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reports: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reportedBy: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            posts: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            feedbacks: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    message: {
-                      type: 'object',
-                      properties: {
-                        id: {
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        reports: {
-                          type: 'array',
-                          items: {
+                        properties: {
+                          id: { 
                             type: 'string',
                             format: 'uuid'
                           }
                         }
-                      }
+                    },
+                    reported: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                    },
+                    post: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
+                    },
+                    message: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
                     },
                     reason: { type: "string", example: "Inappropriate content" },
                     type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -1887,19 +1155,13 @@ export class ReportController {
               },
               message: {
                 type: 'object',
-                properties: {
-                  id: {
-                    type: 'string',
-                    example: '134841-42b4-4fdd-b074-jkfale'
-                  },
-                  reports: {
-                    type: 'array',
-                    items: {
+                  properties: {
+                    id: { 
                       type: 'string',
-                      format: 'uuid'
+                      format: 'uuid',
+                      nullable: true
                     }
                   }
-                }
               },
               reason: {
                 type: "string",
@@ -1918,11 +1180,54 @@ export class ReportController {
             schema: {
               type: "object",
               properties: {
-                id: { type: "string" },
-                type: { type: "string", enum: ["MESSAGE"] },
-                reason: { type: "string" },
-                description: { type: "string" },
-                resolved: { type: "boolean" }
+                report: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
+                    reporter: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                    },
+                    reported: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                    },
+                    post: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
+                    },
+                    message: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
+                    },
+                    reason: { type: "string", example: "Inappropriate content" },
+                    type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
+                    resolved: { type: "boolean", example: false },
+                    created: { type: "string", format: "date-time", example: "2024-02-20T15:30:00Z" }
+                  }
+                }
               }
             }
           }
@@ -1954,192 +1259,42 @@ export class ReportController {
                   properties: {
                     id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
                     reporter: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
-                        firstName: { type: "string", example: "Mateo" },
-                        lastName: { type: "string", example: "Weiner" },
-                        profilePicUrl: { type: "string", example: "https://img1.png" }
-                      }
-                    },
-                    reportedContent: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                        type: { type: "string", example: "POST" },
-                        content: { type: "string", example: "Original content that was reported" }
-                      }
-                    },
-                    post: {
                       type: 'object',
-                      properties: {
-                        id: { 
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        title: { 
-                          type: 'string',
-                          example: 'Bedside light'
-                        },
-                        description: { 
-                          type: 'string',
-                          example: 'Barely used black bedside light with clip'
-                        },
-                        categories: { 
-                          type: 'string',
-                          example: 'ELECTRONICS, HOUSEHOLD'
-                        },
-                        original_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        altered_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        images: {
-                          type: 'array',
-                          items: {
-                            type: 'string',
-                            example: 'https://img2.png'
-                          }
-                        },
-                        created: { 
-                          type: 'number',
-                          example: 1320538301
-                        },
-                        location: { 
-                          type: 'string',
-                          example: ''
-                        },
-                        archive: { 
-                          type: 'boolean',
-                          example: false
-                        },
-                        user: {
-                          type: 'object',
-                          properties: {
-                            id: { 
-                              type: 'string',
-                              format: 'uuid',
-                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                            },
-                            username: { 
-                              type: 'string',
-                              example: 'mweiner'
-                            },
-                            netid: { 
-                              type: 'string',
-                              example: 'maw346'
-                            },
-                            givenName: { 
-                              type: 'string',
-                              example: 'Mateo'
-                            },
-                            familyName: { 
-                              type: 'string',
-                              example: 'Weiner'
-                            },
-                            admin: { 
-                              type: 'boolean',
-                              example: false
-                            },
-                            stars: { 
-                              type: 'string',
-                              example: '4.5'
-                            },
-                            numReviews: { 
-                              type: 'integer',
-                              example: 10
-                            },
-                            photoUrl: { 
-                              type: 'string',
-                              nullable: true,
-                              example: 'https://img1.png'
-                            },
-                            venmoHandle: { 
-                              type: 'string',
-                              nullable: true,
-                              example: '@mateoweiner'
-                            },
-                            email: { 
-                              type: 'string',
-                              format: 'email',
-                              example: 'maw346@cornell.edu'
-                            },
-                            googleId: { 
-                              type: 'string',
-                              example: '21438528358713851'
-                            },
-                            bio: { 
-                              type: 'string',
-                              example: 'Freshman studying CS. He/Him'
-                            },
-                            isActive: { 
-                              type: 'boolean',
-                              example: true
-                            },
-                            blocking: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            blockers: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reports: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reportedBy: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            posts: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            feedbacks: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    message: {
-                      type: 'object',
-                      properties: {
-                        id: {
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        reports: {
-                          type: 'array',
-                          items: {
+                        properties: {
+                          id: { 
                             type: 'string',
                             format: 'uuid'
                           }
                         }
-                      }
+                    },
+                    reported: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                    },
+                    post: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
+                    },
+                    message: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
                     },
                     reason: { type: "string", example: "Inappropriate content" },
                     type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -2181,192 +1336,42 @@ export class ReportController {
                   properties: {
                     id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
                     reporter: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string", example: "381527oejf-42b4-4fdd-b074-dfwbejko229" },
-                        firstName: { type: "string", example: "Mateo" },
-                        lastName: { type: "string", example: "Weiner" },
-                        profilePicUrl: { type: "string", example: "https://img1.png" }
-                      }
-                    },
-                    reportedContent: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string", example: "134841-42b4-4fdd-b074-jkfale" },
-                        type: { type: "string", example: "POST" },
-                        content: { type: "string", example: "Original content that was reported" }
-                      }
-                    },
-                    post: {
                       type: 'object',
-                      properties: {
-                        id: { 
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        title: { 
-                          type: 'string',
-                          example: 'Bedside light'
-                        },
-                        description: { 
-                          type: 'string',
-                          example: 'Barely used black bedside light with clip'
-                        },
-                        categories: { 
-                          type: 'string',
-                          example: 'ELECTRONICS, HOUSEHOLD'
-                        },
-                        original_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        altered_price: { 
-                          type: 'number',
-                          example: 10.50
-                        },
-                        images: {
-                          type: 'array',
-                          items: {
-                            type: 'string',
-                            example: 'https://img2.png'
-                          }
-                        },
-                        created: { 
-                          type: 'number',
-                          example: 1320538301
-                        },
-                        location: { 
-                          type: 'string',
-                          example: ''
-                        },
-                        archive: { 
-                          type: 'boolean',
-                          example: false
-                        },
-                        user: {
-                          type: 'object',
-                          properties: {
-                            id: { 
-                              type: 'string',
-                              format: 'uuid',
-                              example: '7d98989b-42b4-4fdd-b074-0c704ab51e0c'
-                            },
-                            username: { 
-                              type: 'string',
-                              example: 'mweiner'
-                            },
-                            netid: { 
-                              type: 'string',
-                              example: 'maw346'
-                            },
-                            givenName: { 
-                              type: 'string',
-                              example: 'Mateo'
-                            },
-                            familyName: { 
-                              type: 'string',
-                              example: 'Weiner'
-                            },
-                            admin: { 
-                              type: 'boolean',
-                              example: false
-                            },
-                            stars: { 
-                              type: 'string',
-                              example: '4.5'
-                            },
-                            numReviews: { 
-                              type: 'integer',
-                              example: 10
-                            },
-                            photoUrl: { 
-                              type: 'string',
-                              nullable: true,
-                              example: 'https://img1.png'
-                            },
-                            venmoHandle: { 
-                              type: 'string',
-                              nullable: true,
-                              example: '@mateoweiner'
-                            },
-                            email: { 
-                              type: 'string',
-                              format: 'email',
-                              example: 'maw346@cornell.edu'
-                            },
-                            googleId: { 
-                              type: 'string',
-                              example: '21438528358713851'
-                            },
-                            bio: { 
-                              type: 'string',
-                              example: 'Freshman studying CS. He/Him'
-                            },
-                            isActive: { 
-                              type: 'boolean',
-                              example: true
-                            },
-                            blocking: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            blockers: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reports: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            reportedBy: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            posts: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            },
-                            feedbacks: {
-                              type: 'array',
-                              items: {
-                                type: 'string',
-                                format: 'uuid'
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    message: {
-                      type: 'object',
-                      properties: {
-                        id: {
-                          type: 'string',
-                          example: '134841-42b4-4fdd-b074-jkfale'
-                        },
-                        reports: {
-                          type: 'array',
-                          items: {
+                        properties: {
+                          id: { 
                             type: 'string',
                             format: 'uuid'
                           }
                         }
-                      }
+                    },
+                    reported: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid'
+                          }
+                        }
+                    },
+                    post: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
+                    },
+                    message: {
+                      type: 'object',
+                        properties: {
+                          id: { 
+                            type: 'string',
+                            format: 'uuid',
+                            nullable: true
+                          }
+                        }
                     },
                     reason: { type: "string", example: "Inappropriate content" },
                     type: { type: "string", example: "POST", enum: ["POST", "PROFILE", "MESSAGE"] },
@@ -2383,7 +1388,7 @@ export class ReportController {
         description: "Report not found"
       },
       "401": {
-        description: "Unauthorized - User is not an admin"
+        description: "Unauthorized - User is not an admin or owner of the report"
       }
     }
   })
