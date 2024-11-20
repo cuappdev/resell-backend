@@ -43,7 +43,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
   public async createPost(
     title: string,
     description: string,
-    categories: string[],
+    category: string,
     price: number,
     images: string[],
     user: UserModel,
@@ -51,7 +51,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     const post = new PostModel();
     post.title = title;
     post.description = description;
-    post.categories = categories;
+    post.category = category;
     post.original_price = price;
     post.altered_price = price;
     post.images = images;
@@ -82,11 +82,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async filterPosts(category: string): Promise<PostModel[]> {
+  public async filterPosts(categories: string[]): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where(":category = ANY (post.categories)", { category: category })
+      .where("post.category IN (:...categories)", { categories: categories })
       .andWhere("post.archive = false")
       .getMany();
   }
@@ -97,6 +97,42 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.user", "user")
       .where("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END >= :lowerBound", { lowerBound: lowerBound })
       .andWhere("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END <= :upperBound", { upperBound: upperBound })
+      .andWhere("post.archive = false")
+      .getMany();
+  }
+
+  public async filterPriceHighToLow(): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.archive = false")
+      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "DESC")
+      .getMany();
+  }
+  
+  public async filterPriceLowToHigh(): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.archive = false")
+      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "ASC")
+      .getMany();
+  }
+
+  public async filterNewlyListed(): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.archive = false")
+      .orderBy("post.created", "DESC")
+      .getMany();
+  }
+
+  public async filterByCondition(conditions: string[]): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.condition IN (:...conditions)", { conditions })
       .andWhere("post.archive = false")
       .getMany();
   }

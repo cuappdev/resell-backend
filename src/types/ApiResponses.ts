@@ -58,7 +58,7 @@ export interface Post {
   id: Uuid;
   title: string;
   description: string;
-  categories: string[];
+  category: string;
   original_price: number;
   altered_price: number;
   images: string[];
