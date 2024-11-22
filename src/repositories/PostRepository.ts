@@ -44,6 +44,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     title: string,
     description: string,
     category: string,
+    condition: string,
     price: number,
     images: string[],
     user: UserModel,
@@ -52,6 +53,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.title = title;
     post.description = description;
     post.category = category;
+    post.condition = condition;
     post.original_price = price;
     post.altered_price = price;
     post.images = images;

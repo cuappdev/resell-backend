@@ -28,6 +28,7 @@ export class PostFactory {
         fakePost.description = 'Fermented since o-week';
         fakePost.archive = false;
         fakePost.category = 'HANDMADE';
+        fakePost.condition = 'NEW';
         fakePost.original_price = 500.15;
         fakePost.altered_price = -1;
         fakePost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
@@ -48,6 +49,7 @@ export class PostFactory {
         fakePost.description = faker.vehicle.color();
         fakePost.archive = false;
         fakePost.category = 'SPORTS & OUTDOORS';
+        fakePost.condition = 'NEW';
         fakePost.original_price = Number(faker.commerce.price(100, 400));
         fakePost.altered_price = -1;
         fakePost.images = [faker.internet.url()];

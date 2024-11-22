@@ -152,6 +152,7 @@ describe('request tests', () => {
       title: 'Textbook',
       description: 'Textbook for 3110',
       category: 'HANDMADE',
+      condition: 'NEW',
       original_price: 500.15,
       imagesBase64: [],
       created: 1667192023,

@@ -17,3 +17,9 @@ export type APIUserSession = {
     SPORTS_AND_OUTDOORS,
     OTHER
 }
+
+  export enum Condition {
+    GENTLY_USED,
+    USED,
+    NEVER_USED
+}

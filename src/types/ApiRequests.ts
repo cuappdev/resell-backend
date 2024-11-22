@@ -64,6 +64,7 @@ export interface CreatePostRequest {
     title: string;
     description: string;
     category: string;
+    condition: string;
     original_price: number;
     imagesBase64: string[];
     userId: Uuid;

@@ -59,6 +59,7 @@ export interface Post {
   title: string;
   description: string;
   category: string;
+  condition: string;
   original_price: number;
   altered_price: number;
   images: string[];

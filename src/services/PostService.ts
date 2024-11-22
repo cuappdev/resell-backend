@@ -63,7 +63,7 @@ export class PostService {
         const imageUrl = image.data;
         images.push(imageUrl);
       }
-      const freshPost = await postRepository.createPost(post.title, post.description, post.category, post.original_price, images, user);
+      const freshPost = await postRepository.createPost(post.title, post.description, post.category, post.condition, post.original_price, images, user);
       const requestRepository = Repositories.request(transactionalEntityManager);
       const requests = await requestRepository.getAllRequest();
       for (const request of requests) {

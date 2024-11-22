@@ -28,6 +28,9 @@ export class PostModel {
   @Column()
   category: string;
 
+  @Column()
+  condition: string;
+
   @Column("numeric", { scale: 2 })
   original_price: number;
 
@@ -75,6 +78,7 @@ export class PostModel {
       title: this.title,
       description: this.description,
       category: this.category,
+      condition: this.condition,
       original_price: this.original_price,
       altered_price: this.altered_price,
       images: this.images,

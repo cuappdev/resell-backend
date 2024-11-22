@@ -17,6 +17,7 @@ define(PostModel, (_, context?: { index?: number, user?: UserModel }) => {
   post.title = `Sample Post Title - User ${post.user.givenName} - Index: ${index}`;
   post.description = `This is a sample description for post - User ${post.user.givenName} - Index: ${index}.`;
   post.category = 'Electronics';
+  post.condition = 'New';
   post.original_price = 100.00 + index;
   post.altered_price = 80.00 + index;
   post.images = [
