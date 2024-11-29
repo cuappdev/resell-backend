@@ -161,3 +161,17 @@ export interface ReportMessageRequest {
     message: MessageModel;
     reason: string;
 }
+
+// TRANSACTIONS
+export interface CreateTransactionRequest {
+    location: string;
+    amount: number;
+    transactionDate: Date;
+    postId: Uuid;
+    buyerId: Uuid;
+    sellerId: Uuid;
+}
+
+export interface UpdateTransactionStatusRequest {
+    completed: boolean;
+}
