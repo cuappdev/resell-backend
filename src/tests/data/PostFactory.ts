@@ -32,6 +32,7 @@ export class PostFactory {
         fakePost.altered_price = -1;
         fakePost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
         fakePost.location = 'The Dorm Hotel';
+        fakePost.sold = false;
 
         return fakePost;
     }
@@ -52,6 +53,7 @@ export class PostFactory {
         fakePost.altered_price = -1;
         fakePost.images = [faker.internet.url()];
         fakePost.location = faker.address.city();
+        fakePost.sold = false;
 
         return fakePost;
     }

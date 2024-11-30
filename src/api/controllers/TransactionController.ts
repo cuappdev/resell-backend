@@ -66,10 +66,4 @@ export class TransactionController {
     return { transaction: await this.transactionService.getTransactionByPostId(params) };
   }
 
-  @Delete("id/:id/")
-  async deleteTransaction(
-    @Params() params: UuidParam
-  ): Promise<{ transaction: TransactionModel }> {
-    return { transaction: await this.transactionService.deleteTransaction(params) };
-  }
 }

@@ -136,4 +136,20 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.altered_price = new_price
     return await this.repository.save(post)
   }
+
+  public async markPostAsSold(post: PostModel): Promise<PostModel> {
+    post.sold = true;
+    return await this.repository.save(post)
+  }
+
+  public async getPostWithSaversById(id: Uuid): Promise<PostModel | undefined> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user") // Load the post's user
+      .leftJoinAndSelect("post.savers", "savers") // Load the savers relationship
+      .where("post.id = :id", { id })
+      .getOne();
+  }
+
+
 }

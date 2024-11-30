@@ -6,9 +6,10 @@ import { TransactionModel } from "../models/TransactionModel";
 import { UserModel } from "../models/UserModel";
 import { PostModel } from "../models/PostModel";
 import Repositories, { TransactionsManager } from "../repositories";
-import { CreateTransactionRequest, UpdateTransactionStatusRequest } from "../types";
+import { CreateTransactionRequest, FindTokensRequest, UpdateTransactionStatusRequest, Uuid } from "../types";
 import { TransactionRepository } from "../repositories/TransactionRepository";
 import { NotFoundError, ForbiddenError } from "routing-controllers";
+import { NotifService } from "./NotifService";
 
 @Service()
 export class TransactionService {
@@ -82,12 +83,65 @@ export class TransactionService {
   // Update transaction status (mark as completed)
   public async completeTransaction(params: UuidParam, request: UpdateTransactionStatusRequest): Promise<TransactionModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
       const transactionRepository = Repositories.transaction(transactionalEntityManager);
+
       const transaction = await transactionRepository.getTransactionById(params.id);
 
       if (!transaction) throw new NotFoundError("Transaction not found!");
       transaction.completed = request.completed;
 
+      const post = await postRepository.getPostById(transaction.post.id);
+      if (!post) throw new NotFoundError("Post not found!");
+      post.sold = true;
+      await postRepository.markPostAsSold(post);
+
+      // Track notified users by their UUIDs
+      const notifiedUserIds = new Set<Uuid>();
+      const notifService = new NotifService(transactionalEntityManager);
+
+      // Notify the buyer
+      if (!notifiedUserIds.has(transaction.buyer.id)) {
+        const buyerNotifRequest: FindTokensRequest = {
+          email: transaction.buyer.email,
+          title: "Item Sold Notification",
+          body: `'${post.title}' has been sold to you!`,
+          data: {} as JSON,
+        };
+        await notifService.sendNotifs(buyerNotifRequest);
+        notifiedUserIds.add(transaction.buyer.id);
+      }
+
+      // Notify the seller
+      if (!notifiedUserIds.has(transaction.seller.id)) {
+        const sellerNotifRequest: FindTokensRequest = {
+          email: transaction.seller.email,
+          title: "Item Sold Notification",
+          body: `Your item '${post.title}' has been sold!`,
+          data: {} as JSON,
+        };
+        await notifService.sendNotifs(sellerNotifRequest);
+        notifiedUserIds.add(transaction.seller.id);
+      }
+
+      const postWithSavers = await postRepository.getPostWithSaversById(post.id);
+      if (!postWithSavers) throw new NotFoundError("Post not found!");
+
+      // Notify all users who saved the post (excluding duplicates)
+      if (postWithSavers.savers){
+        for (const user of postWithSavers.savers) {
+          if (!notifiedUserIds.has(user.id)) {
+            const postSoldNotifRequest: FindTokensRequest = {
+              email: user.email,
+              title: "Item Sold Notification",
+              body: `The '${post.title}' you bookmarked has been sold.`,
+              data: {} as JSON,
+            };
+            await notifService.sendNotifs(postSoldNotifRequest);
+            notifiedUserIds.add(user.id);
+          }
+        }
+      }
       return await transactionRepository.completeTransaction(transaction);
     });
   }
@@ -102,15 +156,4 @@ export class TransactionService {
     });
   }
 
-  // Delete transaction
-  public async deleteTransaction(params: UuidParam): Promise<TransactionModel> {
-    return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const transactionRepository = Repositories.transaction(transactionalEntityManager);
-      const transaction = await transactionRepository.getTransactionById(params.id);
-
-      if (!transaction) throw new NotFoundError("Transaction not found!");
-
-      return await transactionRepository.deleteTransaction(transaction);
-    });
-  }
 }

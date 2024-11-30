@@ -6,3 +6,4 @@ export * from './UserSessionFactory';
 export * from './PostFactory';
 export * from './RequestFactory';
 export * from './UserReviewFactory';
+export * from './TransactionFactory';

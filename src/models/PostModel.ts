@@ -66,6 +66,9 @@ export class PostModel {
   })
   matched: RequestModel[];
 
+  @Column({ default: false })
+  sold: boolean;
+
   @OneToMany(() => ReportModel, (report) => report.post)
   public reports: ReportModel[];
 
@@ -84,6 +87,7 @@ export class PostModel {
       user: this.user.getUserProfile(),
       savers: this.savers?.map((user) => user.getUserProfile()),
       matched: this.matched?.map((request) => request.getRequestInfo()),
+      sold: this.sold,
     };
   }
 }

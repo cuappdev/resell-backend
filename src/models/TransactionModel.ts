@@ -26,15 +26,15 @@ import {
     @Column({ default: false })
     completed: boolean; // Whether the transaction is completed
   
-    @ManyToOne(() => PostModel)
+    @ManyToOne(() => PostModel, { cascade: false })
     @JoinColumn({ name: "post_id" })
     post: PostModel; // The item/listing itself
   
-    @ManyToOne(() => UserModel)
+    @ManyToOne(() => UserModel, { cascade: false })
     @JoinColumn({ name: "buyer_id" })
     buyer: UserModel; // The buyer
   
-    @ManyToOne(() => UserModel)
+    @ManyToOne(() => UserModel, { cascade: false })
     @JoinColumn({ name: "seller_id" })
     seller: UserModel; // The seller
   

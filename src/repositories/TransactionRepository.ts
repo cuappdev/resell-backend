@@ -53,8 +53,6 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
   public async getTransactionByPostId(postId: Uuid): Promise<TransactionModel | undefined> {
     return await this.repository
       .createQueryBuilder("transaction")
-      .leftJoinAndSelect("transaction.buyer", "buyer")
-      .leftJoinAndSelect("transaction.seller", "seller")
       .leftJoinAndSelect("transaction.post", "post")
       .where("post.id = :postId", { postId })
       .getOne();
@@ -88,8 +86,4 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
     return await this.repository.save(transaction);
   }
 
-  // Delete a transaction
-  public async deleteTransaction(transaction: TransactionModel): Promise<TransactionModel> {
-    return await this.repository.remove(transaction);
-  }
 }
