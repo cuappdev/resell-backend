@@ -8,6 +8,7 @@ import { UserReviewRepository } from "./UserReviewRepository";
 import { UserSessionRepository } from "./UserSessionRepository";
 import { ReportRepository } from "./ReportRepository";
 import { TransactionRepository } from "./TransactionRepository";
+import { TransactionReviewRepository } from "./TransactionReviewRepository";
 
 export default class RRepositories {
   public static user(
@@ -59,6 +60,12 @@ export default class RRepositories {
   ): TransactionRepository {
     return transactionalEntityManager.getCustomRepository(TransactionRepository);
   }
+
+  public static transactionReview(
+    transactionalEntityManager: EntityManager
+  ): TransactionReviewRepository {
+    return transactionalEntityManager.getCustomRepository(TransactionReviewRepository);
+  }  
 }
 
 export class TransactionsManager {

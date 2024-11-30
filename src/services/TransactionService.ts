@@ -142,6 +142,11 @@ export class TransactionService {
           }
         }
       }
+
+      // Need to now archive the sold post from the seller's active posts
+      await postRepository.archivePost(post);
+
+      
       return await transactionRepository.completeTransaction(transaction);
     });
   }
