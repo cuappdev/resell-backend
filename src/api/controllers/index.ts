@@ -7,6 +7,7 @@ import { UserController } from './UserController';
 import { UserReviewController } from './UserReviewController';
 import { NotifController } from './NotifController'
 import { ReportController } from './ReportController';
+import { TransactionController } from './TransactionController';
 
 export const controllers = [
   AuthController,
@@ -18,4 +19,6 @@ export const controllers = [
   ReportController,
   UserController,
   UserReviewController,
+  TransactionController
+  TransactionReviewController
 ];

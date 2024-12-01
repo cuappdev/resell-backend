@@ -64,23 +64,23 @@ export class TransactionFactory {
         fakeTransaction.transactionDate = faker.date.recent(30);
         fakeTransaction.completed = faker.datatype.boolean();
 
-        const fakeBuyer = new UserModel();
-        fakeBuyer.id = faker.datatype.uuid();
-        fakeBuyer.givenName = faker.name.firstName();
-        fakeBuyer.familyName = faker.name.lastName();
-        fakeTransaction.buyer = fakeBuyer;
+        // const fakeBuyer = new UserModel();
+        // fakeBuyer.id = faker.datatype.uuid();
+        // fakeBuyer.givenName = faker.name.firstName();
+        // fakeBuyer.familyName = faker.name.lastName();
+        // fakeTransaction.buyer = fakeBuyer;
 
-        const fakeSeller = new UserModel();
-        fakeSeller.id = faker.datatype.uuid();
-        fakeSeller.givenName = faker.name.firstName();
-        fakeSeller.familyName = faker.name.lastName();
-        fakeTransaction.seller = fakeSeller;
+        // const fakeSeller = new UserModel();
+        // fakeSeller.id = faker.datatype.uuid();
+        // fakeSeller.givenName = faker.name.firstName();
+        // fakeSeller.familyName = faker.name.lastName();
+        // fakeTransaction.seller = fakeSeller;
 
-        const fakePost = new PostModel();
-        fakePost.id = faker.datatype.uuid();
-        fakePost.title = faker.commerce.productName();
-        fakePost.description = faker.commerce.productDescription();
-        fakeTransaction.post = fakePost;
+        // const fakePost = new PostModel();
+        // fakePost.id = faker.datatype.uuid();
+        // fakePost.title = faker.commerce.productName();
+        // fakePost.description = faker.commerce.productDescription();
+        // fakeTransaction.post = fakePost;
 
         return fakeTransaction;
     }

@@ -5,6 +5,8 @@ import { UserReviewModel } from '../../models/UserReviewModel';
 import { UserSessionModel } from '../../models/UserSessionModel';
 import { DatabaseConnection } from './DatabaseConnection';
 import { TransactionModel } from '../../models/TransactionModel';
+import { TransactionReviewModel } from '../../models/TransactionReviewModel';
+
 
 
 export class DataFactory {
@@ -14,6 +16,8 @@ export class DataFactory {
     private requests: RequestModel[] = [];
     private userReviews: UserReviewModel[] = [];
     private transactions: TransactionModel[] = [];
+    private transactionReviews: TransactionReviewModel[] = [];
+
 
 
     public async write(): Promise<void> {
@@ -25,6 +29,7 @@ export class DataFactory {
             this.requests = await txn.save(this.requests);
             this.userReviews = await txn.save(this.userReviews);
             this.transactions = await txn.save(this.transactions);
+            this.transactionReviews = await txn.save(this.transactionReviews);
         });
     }
 
@@ -66,6 +71,13 @@ export class DataFactory {
     public createTransactions(...transactions: TransactionModel[]) {
         for (let i = 0; i < transactions.length; i += 1) {
             this.transactions.push(transactions[i]);
+        }
+        return this;
+    }
+
+    public createTransactionReviews (...transactionReviews: TransactionReviewModel[]) {
+        for (let i = 0; i < transactionReviews.length; i += 1) {
+            this.transactionReviews.push(transactionReviews[i]);
         }
         return this;
     }
