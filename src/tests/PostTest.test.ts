@@ -34,6 +34,7 @@ beforeEach(async () => {
   expectedPost.altered_price = -1;
   expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
   expectedPost.location = 'The Dorm Hotel';
+  expectedPost.sold = false;
 });
 
 afterAll(async () => {

@@ -37,7 +37,7 @@ export class UserModel {
   @Column()
   admin: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, name: "isActive" })
   isActive: boolean;
 
   @Column({ type: "numeric", default: 0 })

@@ -10,6 +10,9 @@ import { PostService } from '../../services/PostService';
 import { RequestService } from '../../services/RequestService';
 import { UserService } from '../../services/UserService';
 import { UserReviewService } from '../../services/UserReviewService';
+import { TransactionController } from '../../api/controllers/TransactionController';
+import { TransactionService } from '../../services/TransactionService';
+
 
 export class ControllerFactory {
     public static user(conn: Connection): UserController {
@@ -35,5 +38,10 @@ export class ControllerFactory {
     public static userReview(conn: Connection): UserReviewController {
       const userReviewService = new UserReviewService(conn.manager);
       return new UserReviewController(userReviewService);
+    }
+
+    public static transaction(conn: Connection): TransactionController {
+      const transactionService = new TransactionService(conn.manager);
+      return new TransactionController(transactionService);
     }
 }
