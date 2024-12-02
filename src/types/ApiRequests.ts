@@ -149,6 +149,19 @@ export interface FindTokensRequest {
     data: JSON;
 }
 
+export interface DiscountNotificationRequest {
+    listingId: Uuid;
+    oldPrice: number;
+    newPrice: number;
+    sellerId: Uuid;
+}
+
+export interface RequestMatchNotificationRequest {
+    requestId: Uuid;
+    listingId: Uuid;
+    userId: Uuid;
+}
+
 // REPORTS
 export interface ReportPostRequest {
     reported: Uuid;

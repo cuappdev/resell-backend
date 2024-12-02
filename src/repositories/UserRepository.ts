@@ -68,6 +68,14 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
+  public async getUsersWhoSavedPost(postId: Uuid): Promise<UserModel[]> {
+    return await this.repository
+        .createQueryBuilder("user")
+        .leftJoin("user.saved", "saved_posts")
+        .where("saved_posts.id = :postId", { postId })
+        .getMany();
+}
+
   public async getUserByEmail(email: string): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
