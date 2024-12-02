@@ -151,7 +151,8 @@ describe('request tests', () => {
     const newPost = {
       title: 'Textbook',
       description: 'Textbook for 3110',
-      categories: ['HANDMADE', 'OTHER'],
+      category: 'HANDMADE',
+      condition: 'NEW',
       original_price: 500.15,
       imagesBase64: [],
       created: 1667192023,

@@ -28,7 +28,8 @@ beforeEach(async () => {
   expectedPost.title = 'Mateo\'s Kombucha';
   expectedPost.description = 'Fermented since o-week';
   expectedPost.archive = false;
-  expectedPost.categories = ['HANDMADE', 'OTHER'];
+  expectedPost.category = 'HANDMADE';
+  expectedPost.condition = 'NEW';
   expectedPost.original_price = 500.15;
   expectedPost.altered_price = -1;
   expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
@@ -119,7 +120,8 @@ describe('post tests', () => {
     const newPost = {
       title: 'Mateo\'s Kombucha',
       description: 'Fermented since o-week',
-      categories: ['HANDMADE', 'OTHER'],
+      category: 'HANDMADE',
+      condition: 'NEW',
       original_price: 500.15,
       imagesBase64: [],
       created: 1667192023,
@@ -265,7 +267,7 @@ describe('post tests', () => {
     expect(getPostsResponse.posts).toEqual([]);
   });
 
-  test('filter posts by category', async () => {
+  test('filter posts by category/categories', async () => {
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
 
@@ -277,7 +279,7 @@ describe('post tests', () => {
     expectedPost.user = post.user;
 
     let filter = {
-      category: 'HANDMADE',
+      categories: ['HANDMADE'],
     }
 
     let getPostsResponse = await postController.filterPosts(post.user, filter);
@@ -288,7 +290,7 @@ describe('post tests', () => {
     expect(getPostsResponse.posts).toEqual([expectedPost]);
 
     filter = {
-      category: 'OTHER',
+      categories: ['OTHER', 'HANDMADE'],
     }
 
     getPostsResponse = await postController.filterPosts(post.user, filter);
@@ -299,7 +301,7 @@ describe('post tests', () => {
     expect(getPostsResponse.posts).toEqual([expectedPost]);
 
     filter = {
-      category: 'SCHOOL',
+      categories: ['SCHOOL'],
     }
 
     getPostsResponse = await postController.filterPosts(post.user, filter);
@@ -395,6 +397,125 @@ describe('post tests', () => {
     let getPostsResponse = await postController.filterPostsByPrice(post.user, filter);
 
     expect(getPostsResponse.posts).toEqual([])
+  });
+
+  test('filter posts by price high to low - multiple posts', async () => {
+    const post1 = PostFactory.fakeTemplate();
+    const post2 = PostFactory.fake();
+    const post3 = PostFactory.fake();
+    
+    post1.user = UserFactory.fakeTemplate();
+    post2.user = UserFactory.fake();
+    post3.user = UserFactory.fake();
+    
+    post1.original_price = 1000.15;
+    post2.original_price = 500.15;
+    post3.original_price = 100.15;
+
+    await new DataFactory()
+      .createPosts(post1, post2, post3)
+      .createUsers(post1.user, post2.user, post3.user)
+      .write();
+
+    const getPostsResponse = await postController.filterPriceHighToLow(post1.user);
+    
+    // Convert prices for comparison
+    getPostsResponse.posts.forEach(post => {
+      post.original_price = Number(post.original_price);
+      post.altered_price = Number(post.altered_price);
+    });
+
+    expect(getPostsResponse.posts).toHaveLength(3);
+    expect(getPostsResponse.posts[0].original_price).toEqual(post1.original_price);
+    expect(getPostsResponse.posts[1].original_price).toEqual(post2.original_price);
+    expect(getPostsResponse.posts[2].original_price).toEqual(post3.original_price);
+  });
+
+  test('filter posts by price low to high - multiple posts', async () => {
+    const post1 = PostFactory.fakeTemplate();
+    const post2 = PostFactory.fake();
+    const post3 = PostFactory.fake();
+    
+    post1.user = UserFactory.fakeTemplate();
+    post2.user = UserFactory.fake();
+    post3.user = UserFactory.fake();
+    
+    post1.original_price = 1000.15;
+    post2.original_price = 500.15;
+    post3.original_price = 100.15;
+
+    await new DataFactory()
+      .createPosts(post1, post2, post3)
+      .createUsers(post1.user, post2.user, post3.user)
+      .write();
+
+    const getPostsResponse = await postController.filterPriceLowToHigh(post1.user);
+    
+    // Convert prices for comparison
+    getPostsResponse.posts.forEach(post => {
+      post.original_price = Number(post.original_price);
+      post.altered_price = Number(post.altered_price);
+    });
+
+    expect(getPostsResponse.posts).toHaveLength(3);
+    expect(getPostsResponse.posts[0].original_price).toEqual(post3.original_price);
+    expect(getPostsResponse.posts[1].original_price).toEqual(post2.original_price);
+    expect(getPostsResponse.posts[2].original_price).toEqual(post1.original_price);
+  });
+
+  test('filter posts by newly listed - multiple posts', async () => {
+    const post1 = PostFactory.fakeTemplate();
+    const post2 = PostFactory.fake();
+    const post3 = PostFactory.fake();
+    
+    post1.user = UserFactory.fakeTemplate();
+    post2.user = UserFactory.fake();
+    post3.user = UserFactory.fake();
+
+    const now = new Date();
+    post1.created = new Date(now.setDate(now.getDate() - 2));  // 2 days ago
+    post2.created = new Date(now.setDate(now.getDate() + 1));  // 1 day ago
+    post3.created = new Date(now.setDate(now.getDate() + 1));  // today
+
+    await new DataFactory()
+      .createPosts(post1, post2, post3)
+      .createUsers(post1.user, post2.user, post3.user)
+      .write();
+
+    const getPostsResponse = await postController.filterNewlyListed(post1.user);
+
+    expect(getPostsResponse.posts).toHaveLength(3);
+    expect(new Date(getPostsResponse.posts[0].created)).toEqual(post3.created);
+    expect(new Date(getPostsResponse.posts[1].created)).toEqual(post2.created);
+    expect(new Date(getPostsResponse.posts[2].created)).toEqual(post1.created);
+  });
+
+  test('filter posts by multiple conditions', async () => {
+    const post1 = PostFactory.fakeTemplate();
+    const post2 = PostFactory.fake();
+    const post3 = PostFactory.fake();
+    
+    post1.user = UserFactory.fakeTemplate();
+    post2.user = UserFactory.fake();
+    post3.user = UserFactory.fake();
+    
+    post1.condition = "Gently Used";
+    post2.condition = "Never Used";
+    post3.condition = "Used";
+
+    await new DataFactory()
+      .createPosts(post1, post2, post3)
+      .createUsers(post1.user, post2.user, post3.user)
+      .write();
+
+    const filter = {
+      condition: ["Gently Used", "Never Used"]
+    };
+
+    const getPostsResponse = await postController.filterByCondition(post1.user, filter);
+    expect(getPostsResponse.posts).toHaveLength(2);
+    expect(getPostsResponse.posts.map(post => post.condition)).toContain(post1.condition);
+    expect(getPostsResponse.posts.map(post => post.condition)).toContain(post2.condition);
   });
 
   test('successfully saves a post', async () => {

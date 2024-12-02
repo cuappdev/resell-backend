@@ -63,7 +63,8 @@ export interface UnblockUserRequest {
 export interface CreatePostRequest {
     title: string;
     description: string;
-    categories: string[];
+    category: string;
+    condition: string;
     original_price: number;
     imagesBase64: string[];
     userId: Uuid;
@@ -90,12 +91,16 @@ export interface GetSearchedFeedbackRequest {
 }
 
 export interface FilterPostsRequest {
-    category: string;
+    categories: string[];
 }
 
 export interface FilterPostsByPriceRequest {
     lowerBound: number;
     upperBound: number;
+}
+
+export interface FilterPostsByConditionRequest {
+    condition: string[];
 }
 
 // GENERAL IMAGES

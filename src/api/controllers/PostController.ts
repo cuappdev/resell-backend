@@ -8,6 +8,7 @@ import {
   EditPriceResponse,
   FilterPostsRequest,
   FilterPostsByPriceRequest,
+  FilterPostsByConditionRequest,
   GetPostResponse,
   GetPostsResponse,
   GetSearchedPostsRequest,
@@ -61,6 +62,26 @@ export class PostController {
   @Post('filterByPrice/')
   async filterPostsByPrice(@CurrentUser() user: UserModel, @Body() filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<GetPostsResponse> {
     return { posts: await this.postService.filterPostsByPrice(user, filterPostsByPriceRequest) };
+  }
+
+  @Post('filterPriceHighToLow/')
+  async filterPriceHighToLow(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPriceHighToLow(user) };
+  }
+
+  @Post('filterPriceLowToHigh/')
+  async filterPriceLowToHigh(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPriceLowToHigh(user) };
+  }
+
+  @Post('filterNewlyListed/')
+  async filterNewlyListed(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterNewlyListed(user) };
+  }
+
+  @Post('filterByCondition/')
+  async filterByCondition(@CurrentUser() user: UserModel, @Body() filterPostsByConditionRequest: FilterPostsByConditionRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterByCondition(user, filterPostsByConditionRequest) };
   }
 
   @Get('archive/')
