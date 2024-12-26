@@ -147,7 +147,7 @@ describe('transaction tests', () => {
     expect(retrievedPost.post.sold).toEqual(true);
   });
 
-  test('complete a transaction - ensure post is marked as sold and savers are notified', async () => {
+  test('complete a transaction - ensure post is marked as sold and savers are notified and post is archived', async () => {
     const buyer = UserFactory.fake();
     const seller = UserFactory.fake();
     const saver1 = UserFactory.fake();
@@ -178,6 +178,8 @@ describe('transaction tests', () => {
   
     // Verify the post is marked as sold
     expect(retrievedPost.post.sold).toEqual(true);
+    expect(retrievedPost.post.archive).toEqual(true);
+
   });
   
 

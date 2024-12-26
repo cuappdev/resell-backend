@@ -12,6 +12,8 @@ import { UserService } from '../../services/UserService';
 import { UserReviewService } from '../../services/UserReviewService';
 import { TransactionController } from '../../api/controllers/TransactionController';
 import { TransactionService } from '../../services/TransactionService';
+import { TransactionReviewController } from '../../api/controllers/TransactionReviewController';
+import { TransactionReviewService } from '../../services/TransactionReviewService';
 
 
 export class ControllerFactory {
@@ -43,5 +45,10 @@ export class ControllerFactory {
     public static transaction(conn: Connection): TransactionController {
       const transactionService = new TransactionService(conn.manager);
       return new TransactionController(transactionService);
+    }
+
+    public static transactionReview(conn: Connection): TransactionReviewController {
+      const transactionReviewService = new TransactionReviewService(conn.manager);
+      return new TransactionReviewController(transactionReviewService);
     }
 }

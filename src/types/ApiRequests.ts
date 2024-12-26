@@ -175,3 +175,13 @@ export interface CreateTransactionRequest {
 export interface UpdateTransactionStatusRequest {
     completed: boolean;
 }
+
+export interface CreateTransactionReviewRequest {
+    transactionId: Uuid;
+    stars: number;
+    comments?: string | null;
+    hadIssues: boolean;
+    issueCategory?: string | null;
+    issueDetails?: string | null;
+}
+  
