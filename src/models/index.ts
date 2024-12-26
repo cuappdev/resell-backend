@@ -6,7 +6,8 @@ import { UserReviewModel } from './UserReviewModel'
 import { UserSessionModel } from './UserSessionModel';
 import { ReportModel } from './ReportModel';
 import { MessageModel } from './MessageModel';
-
+import { TransactionModel } from './TransactionModel';
+import { TransactionReviewModel } from './TransactionReviewModel';
 
 export const models = [
   FeedbackModel,
@@ -16,5 +17,7 @@ export const models = [
   UserReviewModel,
   UserSessionModel,
   ReportModel,
-  MessageModel
+  MessageModel,
+  TransactionModel,
+  TransactionReviewModel
 ];

@@ -5,6 +5,8 @@ import { FeedbackModel } from '../models/FeedbackModel';
 import { UserReviewModel } from '../models/UserReviewModel';
 import { ReportModel } from '../models/ReportModel';
 import { RequestModel } from '../models/RequestModel';
+import { TransactionModel } from '../models/TransactionModel';
+import { TransactionReviewModel } from '../models/TransactionReviewModel';
 import { getRepository } from 'typeorm';
 
 export default class SeedInitialData implements Seeder {
@@ -14,23 +16,32 @@ export default class SeedInitialData implements Seeder {
       return;
     }
 
-    // Reset the data: delete all users, posts, feedback, reviews, reports, and requests
+    // Reset the data: delete all users, posts, feedback, reviews, reports, requests, transactions, and transaction reviews
     const userRepository = getRepository(UserModel);
     const postRepository = getRepository(PostModel);
     const feedbackRepository = getRepository(FeedbackModel);
     const userReviewRepository = getRepository(UserReviewModel);
     const reportRepository = getRepository(ReportModel);
     const requestRepository = getRepository(RequestModel);
+    const transactionRepository = getRepository(TransactionModel);
+    const transactionReviewRepository = getRepository(TransactionReviewModel);
+
+    await transactionReviewRepository.delete({});
+    await transactionRepository.delete({});
     await requestRepository.delete({});
     await reportRepository.delete({});
     await userReviewRepository.delete({});
     await feedbackRepository.delete({});
     await postRepository.delete({});
     await userRepository.delete({});
-    console.log(' - Deleted all existing users, posts, feedback, reviews, reports, and requests');
+    console.log(
+      ' - Deleted all existing users, posts, feedback, reviews, reports, requests, transactions, and transaction reviews'
+    );
 
     // Create users, posts, feedback, reviews, reports, and requests
     const users = [];
+    const posts = [];
+    const transactions = [];
     for (let i = 1; i <= 5; i++) {
       const user = await factory(UserModel)({ index: i }).create();
       users.push(user);
@@ -38,7 +49,8 @@ export default class SeedInitialData implements Seeder {
       // Create posts for users with an odd index
       if (i % 2 !== 0) {
         for (let j = 1; j <= 2; j++) {
-          await factory(PostModel)({ index: j, user }).create();
+          const post = await factory(PostModel)({ index: j, user }).create();
+          posts.push(post);
         }
       }
 
@@ -50,7 +62,11 @@ export default class SeedInitialData implements Seeder {
 
     // Create user reviews for each even-indexed user and the preceding user
     for (let i = 2; i <= users.length; i += 2) {
-      await factory(UserReviewModel)({ index: i, buyer: users[i - 2], seller: users[i - 1] }).create();
+      await factory(UserReviewModel)({
+        index: i,
+        buyer: users[i - 2],
+        seller: users[i - 1],
+      }).create();
     }
 
     // Create reports for users with even indexes
@@ -59,8 +75,11 @@ export default class SeedInitialData implements Seeder {
         index: i,
         reporter: users[i - 2],
         reported: users[i - 1],
-        post: i % 3 === 0 ? null : await factory(PostModel)({ index: 1, user: users[i - 2] }).create(),
-        message: i % 3 !== 0 ? null : undefined
+        post:
+          i % 3 === 0
+            ? null
+            : await factory(PostModel)({ index: 1, user: users[i - 2] }).create(),
+        message: i % 3 !== 0 ? null : undefined,
       }).create();
     }
 
@@ -70,6 +89,36 @@ export default class SeedInitialData implements Seeder {
       for (let j = 1; j <= 2; j++) {
         await factory(RequestModel)({ index: j, user }).create();
       }
+    }
+
+    // Create transactions for half of the posts
+    const halfPostCount = Math.floor(posts.length / 2);
+    for (let i = 0; i < halfPostCount; i++) {
+      const post = posts[i];
+      const buyer = users[(i + 1) % users.length]; // Select a buyer (cyclically)
+      const seller = post.user; // Seller is the post owner
+
+      const transaction = await factory(TransactionModel)({
+        index: i + 1,
+        buyer,
+        seller,
+        post,
+      }).create();
+      transactions.push(transaction);
+    }
+
+    // Create transaction reviews for half of the transactions
+    for (let i = 0; i < transactions.length; i++) {
+      const transaction = transactions[i];
+      await factory(TransactionReviewModel)({
+        index: i + 1,
+        transaction,
+        stars: 5,
+        comments: i % 2 === 0 ? 'Great transaction!' : null,
+        hadIssues: i % 3 === 0,
+        issueCategory: i % 3 === 0 ? 'Late delivery' : null,
+        issueDetails: i % 3 === 0 ? 'The seller was late by 30 minutes.' : null,
+      }).create();
     }
   }
 }

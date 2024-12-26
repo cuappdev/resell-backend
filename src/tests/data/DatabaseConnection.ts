@@ -28,6 +28,8 @@ export class DatabaseConnection {
       // the order of elements matters here, since this will be the order of deletion.
       // if a table (A) exists with an fkey to another table (B), make sure B is listed higher than A.
       const tableNames = [
+        'TransactionReview',
+        'Transaction',
         'Feedback',
         'Post',
         'Request',

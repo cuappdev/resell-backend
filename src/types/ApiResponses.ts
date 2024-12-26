@@ -69,6 +69,7 @@ export interface Post {
   user: PrivateProfile;
   savers: PrivateProfile[];
   matched: Request[];
+  sold: boolean;
 }
 
 export interface GetPostsResponse {
