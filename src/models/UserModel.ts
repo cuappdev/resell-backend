@@ -28,10 +28,10 @@ export class UserModel {
   @Column({ unique: true, nullable: true })
   netid: string;
 
-  @Column()
+  @Column({ name: "givenName" })
   givenName: string;
 
-  @Column()
+  @Column({ name: "familyName" })
   familyName: string;
 
   @Column()
@@ -43,19 +43,19 @@ export class UserModel {
   @Column({ type: "numeric", default: 0 })
   stars: number;
 
-  @Column({ type: "integer", default: 0 })
+  @Column({ type: "integer", default: 0 , name: "numReviews"})
   numReviews: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: "photoUrl" })
   photoUrl: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: "venmoHandle" })
   venmoHandle: string;
 
   @Column({ unique: true })
   email: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, name: "googleId" })
   googleId: string;
 
   @Column({ type: "text", default: "" })

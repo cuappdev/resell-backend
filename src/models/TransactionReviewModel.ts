@@ -13,16 +13,16 @@ export class TransactionReviewModel {
   @Column({ type : 'text', nullable: true })
   comments: string | null; // Optional field for review comments
 
-  @Column({ default: false })
+  @Column({ default: false, name: 'hadIssues' })
   hadIssues: boolean; // Boolean flag indicating if there were issues
 
-  @Column({ type : 'text', nullable: true })
+  @Column({ type : 'text', nullable: true, name: 'issueCategory' })
   issueCategory: string | null; // Category of the issue (optional)
 
-  @Column({ type : 'text', nullable: true })
+  @Column({ type : 'text', nullable: true, name: 'issueDetails' })
   issueDetails: string | null; // Detailed explanation of the issue (optional)
 
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ type: 'timestamptz', name: 'createdAt' })
   createdAt: Date; // Auto-generated timestamp of when the review was created
 
   @OneToOne(() => TransactionModel, { cascade : false })

@@ -11,17 +11,21 @@ export class ReportModel {
   id: Uuid;
 
   @ManyToOne(() => UserModel, (user) => user.reports)
+  @JoinColumn({ name: "reporterId" })
   reporter: UserModel;
 
   @ManyToOne(() => UserModel, (user) => user.reportedBy)
+  @JoinColumn({ name: "reportedId" })
   reported: UserModel;
 
   @ManyToOne(() => PostModel, (post) => post.reports, { nullable: true })
+  @JoinColumn({ name: "postId" })
   post?: PostModel;
 
   @ManyToOne(() => MessageModel, (message) => message.reports, {
     nullable: true,
   })
+  @JoinColumn({ name: "messageId" })
   message?: MessageModel;
 
   @Column({nullable: false})

@@ -20,7 +20,7 @@ import {
     @Column("numeric", { scale: 2 })
     amount: number; // Transaction amount
   
-    @Column({ type: "timestamptz" })
+    @Column({ type: "timestamptz" , name: "transactionDate"})
     transactionDate: Date; // Date and time of the transaction
   
     @Column({ default: false })
@@ -38,7 +38,7 @@ import {
     @JoinColumn({ name: "seller_id" })
     seller: UserModel; // The seller
   
-    @CreateDateColumn({ type: "timestamptz" })
+    @CreateDateColumn({ type: "timestamptz", name: "createdAt" })
     createdAt: Date; // Automatically store when the transaction record was created
 
 
