@@ -10,5 +10,5 @@ export class LoginRequest implements AuthRequest {
     user: GoogleLoginUser;
 
     @IsDefined()
-    deviceToken: string;
+    fcmToken: string;
 }

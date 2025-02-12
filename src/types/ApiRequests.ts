@@ -17,7 +17,7 @@ export interface GoogleLoginUser {
 export interface AuthRequest {
     idToken: string;
     user: GoogleLoginUser;
-    deviceToken: string;
+    fcmToken: string;
 }
 
 export interface EditProfileRequest {
@@ -128,14 +128,21 @@ export interface CreateUserReviewRequest {
     sellerId: Uuid,
 }
 // NOTIFICATION
-export interface ExpoPushMessage {
-    to: string[];
-    //special type for ExpoPushMessage
-    sound: 'default';
+export interface FirebasePushMessage {
+    fcmToken: string; 
     title: string;
     body: string;
-    data: JSON;
+    data: Record<string, any>;
 }
+
+// export interface ExpoPushMessage {
+//     to: string[];
+//     //special type for ExpoPushMessage
+//     sound: 'default';
+//     title: string;
+//     body: string;
+//     data: JSON;
+// }
 
 export interface SaveTokenRequest {
     token: string;

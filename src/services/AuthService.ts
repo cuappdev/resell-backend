@@ -70,9 +70,9 @@ export class AuthService {
           if (!user.isActive) {
             throw new ForbiddenError("User is soft deleted");
           }
-          //add device token
+          //add fcm token
           const session = await sessionsRepository.createSession(user);  
-          sessionsRepository.updateSessionDeviceToken(session, authRequest.deviceToken)        
+          sessionsRepository.updateSessionFcmToken(session, authRequest.fcmToken)        
           return session;
         });
       }

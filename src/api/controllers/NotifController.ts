@@ -1,5 +1,4 @@
-import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
-import { ExpoPushMessage, PushTicket, FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from 'src/types';
+import { Body, Post, JsonController } from 'routing-controllers';
 import { NotifService } from '../../services/NotifService';
 
 @JsonController('notif/')
@@ -11,18 +10,17 @@ export class NotifController {
     }
 
     @Post()
-    async sendNotif(@Body() findTokensRequest: FindTokensRequest) {
-      return this.notifService.sendNotifs(findTokensRequest);
+    async sendNotif(@Body() request: { email: string; title: string; body: string; data: any }) {
+      return this.notifService.sendNotifs(request);
     }
 
     @Post('discount')
-    async sendDiscountNotif(@Body() discountRequest: DiscountNotificationRequest) {
-        return this.notifService.sendDiscountNotification(discountRequest);
+    async sendDiscountNotif(@Body() request: { listingId: string; oldPrice: number; newPrice: number }) {
+        return this.notifService.sendDiscountNotification(request);
     }
 
     @Post('request-match')
-    async sendRequestMatchNotif(@Body() matchRequest: RequestMatchNotificationRequest) {
-        return this.notifService.sendRequestMatchNotification(matchRequest);
+    async sendRequestMatchNotif(@Body() request: { listingId: string; requestId: string; userId: string }) {
+        return this.notifService.sendRequestMatchNotification(request);
     }
 }
-
