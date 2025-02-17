@@ -1,5 +1,5 @@
 import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
-import { ExpoPushMessage, PushTicket, FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from 'src/types';
+import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from 'src/types';
 import { NotifService } from '../../services/NotifService';
 
 @JsonController('notif/')

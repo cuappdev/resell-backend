@@ -14,7 +14,7 @@ import { getLoadedModel } from '../utils/SentenceEncoder';
 import { PostRepository } from 'src/repositories/PostRepository';
 import { FindTokensRequest } from '../types';
 import { NotifService } from './NotifService';
-require('@tensorflow-models/universal-sentence-encoder')
+//require('@tensorflow-models/universal-sentence-encoder')
 
 @Service() 
 export class PostService {

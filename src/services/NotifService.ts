@@ -1,13 +1,27 @@
 import { NotFoundError} from 'routing-controllers';
 import { Service } from 'typedi';
-import { ExpoPushMessage, PushTicket, FindTokensRequest, NotifSent, DiscountNotificationRequest, RequestMatchNotificationRequest } from '../types';
-import { Expo } from 'expo-server-sdk';
-import { UserRepository } from 'src/repositories/UserRepository';
+import { NotificationData, FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from '../types';
 import Repositories, { TransactionsManager } from '../repositories';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
-var accessToken = process.env['EXPO_ACCESS_TOKEN']
-const expoServer = new Expo({ accessToken: accessToken });
+// var accessToken = process.env['EXPO_ACCESS_TOKEN']
+// const expoServer = new Expo({ accessToken: accessToken });
+import * as admin from 'firebase-admin';
+import { getMessaging, Message } from 'firebase-admin/messaging';
+
+
+var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+if (!serviceAccountPath) {
+  throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH environment variable is not set.');
+}
+
+const serviceAccount = require(serviceAccountPath);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  // Optionally, you can specify the database URL if needed:
+  // databaseURL: "https://resell-e99a2-default-rtdb.firebaseio.com"
+  });
 
 
 @Service()
@@ -18,28 +32,28 @@ export class NotifService {
         this.transactions = new TransactionsManager(entityManager);
     }
 
-    // /**
-//  * Takes an array of notifications and sends them to users in batches (called chunks)
-//  * @param {NotifObject[]} notifs an array of notification objects
-//  * @param {Object} expoServer the server object to connect with
-//  */
-
-// Comment to push main
-
-    public sendNotifChunks = async (notifs : ExpoPushMessage[], expoServer : Expo) => {
-        let chunks = expoServer.chunkPushNotifications(notifs);
-        let tickets = [];
-
-        for (let chunk of chunks) {
+    public sendFCMNotifs = async (notifs : NotificationData[]) => {
+        for  (let notif of notifs) {
+            const msg: Message = {
+                notification: {
+                  title: notif.title,
+                  body: notif.body,
+                },
+                data: notif.data as unknown as { [key: string]: string },
+                token: notif.to[0],
+            };
             try {
-                let ticketChunk = await expoServer.sendPushNotificationsAsync(chunk);
-                // store tickets to check for notif status later
-                tickets.push(...ticketChunk);
-            } catch (err) {
-                console.log("Error while sending notif chunk");
+                const response = await getMessaging().send(msg);
+                console.log(`Notification sent successfully: ${response}`);
+            } catch (error) {
+                console.error(
+                    `Error sending notification for title "${notif.title}" to token ${notif.to[0]}:`,
+                    error
+                );
+                // Rethrow the error so that the caller is aware of the failure
+                throw error;
             }
-            console.log(tickets);
-        }
+          }
     }
 
     public async sendNotifs(request: FindTokensRequest) {
@@ -56,7 +70,7 @@ export class NotifService {
                 if (sess.deviceToken) {
                 allDeviceTokens.push(sess.deviceToken); }
             }
-            let notif: ExpoPushMessage= 
+            let notif: NotificationData= 
                 {
                     to: allDeviceTokens,
                     sound: 'default',
@@ -65,7 +79,7 @@ export class NotifService {
                     data: request.data
                 }
             try {
-                let notifs : ExpoPushMessage[] = [];
+                let notifs : NotificationData[] = [];
                 notif.to.forEach(token => {
                     notifs.push({
                         to: [token],
@@ -75,7 +89,7 @@ export class NotifService {
                         data: notif.data
                     })
                 })
-                this.sendNotifChunks(notifs, expoServer)
+                this.sendFCMNotifs(notifs)
             }
             
             // Simply do nothing if the user has no tokens
@@ -114,7 +128,7 @@ export class NotifService {
                         ((request.oldPrice - request.newPrice) / request.oldPrice) * 100
                     );
 
-                    let notif: ExpoPushMessage = {
+                    let notif: NotificationData = {
                         to: allDeviceTokens,
                         sound: 'default',
                         title: 'Price Drop Alert! 🎉',
@@ -127,7 +141,7 @@ export class NotifService {
                     };
 
                     try {
-                        let notifs: ExpoPushMessage[] = [];
+                        let notifs: NotificationData[] = [];
                         notif.to.forEach(token => {
                             notifs.push({
                                 to: [token],
@@ -137,7 +151,7 @@ export class NotifService {
                                 data: notif.data
                             });
                         });
-                        await this.sendNotifChunks(notifs, expoServer);
+                        await this.sendFCMNotifs(notifs);
                     } catch (err) {
                         console.log(err);
                     }
@@ -169,7 +183,7 @@ export class NotifService {
             }
 
             if (allDeviceTokens.length > 0) {
-                let notif: ExpoPushMessage = {
+                let notif: NotificationData = {
                     to: allDeviceTokens,
                     sound: 'default',
                     title: 'Request Match Found! 🎯',
@@ -183,7 +197,7 @@ export class NotifService {
                 };
 
                 try {
-                    let notifs: ExpoPushMessage[] = [];
+                    let notifs: NotificationData[] = [];
                     notif.to.forEach(token => {
                         notifs.push({
                             to: [token],
@@ -193,7 +207,7 @@ export class NotifService {
                             data: notif.data
                         });
                     });
-                    await this.sendNotifChunks(notifs, expoServer);
+                    await this.sendFCMNotifs(notifs);
                 } catch (err) {
                     console.log(err);
                 }
