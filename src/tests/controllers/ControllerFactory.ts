@@ -14,6 +14,8 @@ import { TransactionController } from '../../api/controllers/TransactionControll
 import { TransactionService } from '../../services/TransactionService';
 import { TransactionReviewController } from '../../api/controllers/TransactionReviewController';
 import { TransactionReviewService } from '../../services/TransactionReviewService';
+import { NotifService } from '../../services/NotifService';
+import { NotifController } from '../../api/controllers/NotifController';
 
 
 export class ControllerFactory {
@@ -50,5 +52,10 @@ export class ControllerFactory {
     public static transactionReview(conn: Connection): TransactionReviewController {
       const transactionReviewService = new TransactionReviewService(conn.manager);
       return new TransactionReviewController(transactionReviewService);
+    }
+
+    public static notif(conn: Connection): NotifController {
+      const notifService = new NotifService(conn.manager);
+      return new NotifController(notifService);
     }
 }

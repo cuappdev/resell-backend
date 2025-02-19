@@ -8,6 +8,7 @@ import { ReportModel } from './ReportModel';
 import { MessageModel } from './MessageModel';
 import { TransactionModel } from './TransactionModel';
 import { TransactionReviewModel } from './TransactionReviewModel';
+import { NotifModel } from './NotifModel';
 
 export const models = [
   FeedbackModel,
@@ -19,5 +20,6 @@ export const models = [
   ReportModel,
   MessageModel,
   TransactionModel,
-  TransactionReviewModel
+  TransactionReviewModel,
+  NotifModel
 ];

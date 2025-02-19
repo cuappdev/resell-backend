@@ -1,6 +1,7 @@
 import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from 'src/types';
 import { NotifService } from '../../services/NotifService';
+import { UserModel } from '../../models/UserModel';
 
 @JsonController('notif/')
 export class NotifController {
@@ -8,6 +9,11 @@ export class NotifController {
 
     constructor(notifService: NotifService) {
       this.notifService = notifService;
+    }
+
+    @Get('recent')
+    async getRecentNotifications(@CurrentUser() user: UserModel) {
+      return this.notifService.getRecentNotifications(user.id);
     }
 
     @Post()
@@ -25,4 +31,3 @@ export class NotifController {
         return this.notifService.sendRequestMatchNotification(matchRequest);
     }
 }
-
