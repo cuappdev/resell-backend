@@ -5,6 +5,9 @@ import dotenv from 'dotenv';
 import { createExpressServer, ForbiddenError, useContainer as routingUseContainer } from 'routing-controllers';
 import { EntityManager, getManager, useContainer } from 'typeorm';
 import { Container } from 'typeorm-typedi-extensions';
+import { Express } from 'express';
+import * as swaggerUi from 'swagger-ui-express';
+import * as path from 'path';
 
 import { controllers } from './api/controllers';
 import { middlewares } from './api/middlewares';
@@ -31,7 +34,7 @@ async function main() {
     throw new Error("Connection to DB failed. Check console output");
   });
 
-  const app = createExpressServer({
+  const app: Express = createExpressServer({
     cors: true,
     routePrefix: '/api/',
     controllers: controllers,
@@ -63,6 +66,13 @@ async function main() {
     defaultErrorHandler: false,
   });
 
+  const host = process.env.HOST ?? 'localhost';
+  const port = process.env.PORT ?? 3000;
+
+  const swaggerDocument = require(path.join(__dirname, '../swagger.json'));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  console.log(`Swagger documentation available at http://${host}:${port}/api-docs`);
+  
   const entityManager = getManager();
   const reportService = new ReportService(entityManager);
   const reportController = new ReportController(reportService);
@@ -93,9 +103,6 @@ async function main() {
       messageReports: reportToString(messageReports) });
   });
   
-  const host = process.env.HOST ?? 'localhost';
-  const port = +(process.env.PORT ?? 3000);
-
   app.listen(port, () => {
     console.log(`Resell backend bartering on ${host}:${port}`);
   });

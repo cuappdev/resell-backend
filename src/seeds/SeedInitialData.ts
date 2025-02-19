@@ -8,6 +8,7 @@ import { RequestModel } from '../models/RequestModel';
 import { TransactionModel } from '../models/TransactionModel';
 import { TransactionReviewModel } from '../models/TransactionReviewModel';
 import { getRepository } from 'typeorm';
+import { NotifModel } from '../models/NotifModel'
 
 export default class SeedInitialData implements Seeder {
   public async run(factory: Factory): Promise<void> {
@@ -25,6 +26,7 @@ export default class SeedInitialData implements Seeder {
     const requestRepository = getRepository(RequestModel);
     const transactionRepository = getRepository(TransactionModel);
     const transactionReviewRepository = getRepository(TransactionReviewModel);
+    const notifRepository = getRepository(NotifModel)
 
     await transactionReviewRepository.delete({});
     await transactionRepository.delete({});
@@ -32,6 +34,7 @@ export default class SeedInitialData implements Seeder {
     await reportRepository.delete({});
     await userReviewRepository.delete({});
     await feedbackRepository.delete({});
+    await notifRepository.delete({});
     await postRepository.delete({});
     await userRepository.delete({});
     console.log(
@@ -119,6 +122,16 @@ export default class SeedInitialData implements Seeder {
         issueCategory: i % 3 === 0 ? 'Late delivery' : null,
         issueDetails: i % 3 === 0 ? 'The seller was late by 30 minutes.' : null,
       }).create();
+    }
+
+    // Create notifications for each user
+    for (const user of users) {
+      for (let j = 1; j <= 3; j++) {
+        await factory(NotifModel)({ 
+          user,  
+          index: j  
+        }).create();
+      }
     }
   }
 }

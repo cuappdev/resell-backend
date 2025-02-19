@@ -31,6 +31,7 @@ export class DatabaseConnection {
         'TransactionReview',
         'Transaction',
         'Feedback',
+        'notifications', // Add notifications table before User since it has a fk to User
         'Post',
         'Request',
         'UserSession',

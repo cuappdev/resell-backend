@@ -106,7 +106,14 @@ export class TransactionService {
           email: transaction.buyer.email,
           title: "Item Sold Notification",
           body: `'${post.title}' has been sold to you!`,
-          data: {} as JSON,
+          data: {
+            postId: post.id,
+            postTitle: post.title,
+            transactionId: transaction.id,
+            sellerId: transaction.seller.id,
+            sellerUsername: transaction.seller.username,
+            price: transaction.amount
+          } as unknown as JSON
         };
         await notifService.sendNotifs(buyerNotifRequest);
         notifiedUserIds.add(transaction.buyer.id);
@@ -118,7 +125,14 @@ export class TransactionService {
           email: transaction.seller.email,
           title: "Item Sold Notification",
           body: `Your item '${post.title}' has been sold!`,
-          data: {} as JSON,
+          data: {
+            postId: post.id,
+            postTitle: post.title,
+            transactionId: transaction.id,
+            buyerId: transaction.buyer.id,
+            buyerUsername: transaction.buyer.username,
+            price: transaction.amount
+          } as unknown as JSON
         };
         await notifService.sendNotifs(sellerNotifRequest);
         notifiedUserIds.add(transaction.seller.id);
@@ -135,7 +149,15 @@ export class TransactionService {
               email: user.email,
               title: "Item Sold Notification",
               body: `The '${post.title}' you bookmarked has been sold.`,
-              data: {} as JSON,
+              data: {
+                postId: post.id,
+                postTitle: post.title,
+                transactionId: transaction.id,
+                sellerId: transaction.seller.id,
+                sellerUsername: transaction.seller.username,
+                buyerId: transaction.buyer.id,
+                buyerUsername: transaction.buyer.username
+              } as unknown as JSON
             };
             await notifService.sendNotifs(postSoldNotifRequest);
             notifiedUserIds.add(user.id);

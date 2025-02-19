@@ -173,28 +173,6 @@ export interface GetUserReviewResponse {
 export interface GetUserReviewsResponse {
   userReviews: UserReview[];
 }
-// NOTIFICATIONS
-
-export interface PushTicketData {
-  status: string;
-  id: string;
-  message: string;
-  details: JSON;
-}
-
-export interface PushTicketErrorData {
-  code: string;
-  message: string;
-}
-
-export interface PushTicket {
-  data: PushTicketData[];
-  errors: PushTicketErrorData[];
-}
-
-export interface NotifSent {
-  status: string;
-}
 
 // REPORTS
 export interface Report {

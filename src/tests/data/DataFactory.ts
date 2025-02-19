@@ -6,6 +6,7 @@ import { UserSessionModel } from '../../models/UserSessionModel';
 import { DatabaseConnection } from './DatabaseConnection';
 import { TransactionModel } from '../../models/TransactionModel';
 import { TransactionReviewModel } from '../../models/TransactionReviewModel';
+import { NotifModel } from '../../models/NotifModel';
 
 
 
@@ -17,6 +18,7 @@ export class DataFactory {
     private userReviews: UserReviewModel[] = [];
     private transactions: TransactionModel[] = [];
     private transactionReviews: TransactionReviewModel[] = [];
+    private notifications: NotifModel[] = [];
 
 
 
@@ -30,6 +32,7 @@ export class DataFactory {
             this.userReviews = await txn.save(this.userReviews);
             this.transactions = await txn.save(this.transactions);
             this.transactionReviews = await txn.save(this.transactionReviews);
+            this.notifications = await txn.save(this.notifications);
         });
     }
 
@@ -78,6 +81,13 @@ export class DataFactory {
     public createTransactionReviews (...transactionReviews: TransactionReviewModel[]) {
         for (let i = 0; i < transactionReviews.length; i += 1) {
             this.transactionReviews.push(transactionReviews[i]);
+        }
+        return this;
+    }
+
+    public createNotifications(...notifications: NotifModel[]): DataFactory {
+        for (let i = 0; i < notifications.length; i += 1) {
+            this.notifications.push(notifications[i]);
         }
         return this;
     }

@@ -14,7 +14,7 @@ import { getLoadedModel } from '../utils/SentenceEncoder';
 import { PostRepository } from 'src/repositories/PostRepository';
 import { FindTokensRequest } from '../types';
 import { NotifService } from './NotifService';
-require('@tensorflow-models/universal-sentence-encoder')
+//require('@tensorflow-models/universal-sentence-encoder')
 
 @Service() 
 export class PostService {
@@ -270,13 +270,17 @@ export class PostService {
       const userRepository = Repositories.user(transactionalEntityManager);
       const postOwner = await userRepository.getUserById(post.user.id);
       if (!postOwner) throw new NotFoundError('Post owner not found!');
-      const bookmarkNotifRequest: FindTokensRequest =
-            {
-              email: postOwner.email,
-              title: "Bookmark Listing Notification",
-              body: user.username + " bookmarked your listing!",
-              data: {} as JSON
-            }
+      const bookmarkNotifRequest: FindTokensRequest = {
+        email: postOwner.email,
+        title: "Bookmark Listing Notification",
+        body: user.username + " bookmarked your listing!",
+        data: {
+          postId: post.id,
+          postTitle: post.title,
+          bookmarkedBy: user.id,
+          bookmarkedByUsername: user.username
+        } as unknown as JSON
+      }
       const notifService = new NotifService(transactionalEntityManager);
       await notifService.sendNotifs(bookmarkNotifRequest);
       return await userRepository.savePost(user, post);
@@ -378,4 +382,3 @@ export class PostService {
     });
   }
 }
-
