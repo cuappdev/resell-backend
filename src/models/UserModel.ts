@@ -28,10 +28,10 @@ export class UserModel {
   @Column({ unique: true, nullable: true })
   netid: string;
 
-  @Column()
+  @Column({ nullable: true })
   givenName: string;
 
-  @Column()
+  @Column({ nullable: true })
   familyName: string;
 
   @Column()
@@ -55,7 +55,7 @@ export class UserModel {
   @Column({ unique: true })
   email: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   googleId: string;
 
   @Column({ type: "text", default: "" })

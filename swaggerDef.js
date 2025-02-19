@@ -299,6 +299,147 @@ module.exports = {
           }
         }
       }
+    },
+    '/notif/recent': {
+      get: {
+        tags: ['Notification'],
+        summary: 'Get recent notifications for the current user',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': {
+            description: 'List of recent notifications',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    notifications: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Notification' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/notif/': {
+      post: {
+        tags: ['Notification'],
+        summary: 'Send a notification',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  email: { type: 'string' },
+                  title: { type: 'string' },
+                  body: { type: 'string' },
+                  data: { type: 'object' }
+                },
+                required: ['email', 'title', 'body']
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Notification sent successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/notif/discount': {
+      post: {
+        tags: ['Notification'],
+        summary: 'Send a discount notification',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  listingId: { type: 'string', format: 'uuid' },
+                  oldPrice: { type: 'number' },
+                  newPrice: { type: 'number' },
+                  sellerId: { type: 'string', format: 'uuid' }
+                },
+                required: ['listingId', 'oldPrice', 'newPrice', 'sellerId']
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Discount notification sent successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/notif/request-match': {
+      post: {
+        tags: ['Notification'],
+        summary: 'Send a request match notification',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  requestId: { type: 'string', format: 'uuid' },
+                  listingId: { type: 'string', format: 'uuid' },
+                  userId: { type: 'string', format: 'uuid' }
+                },
+                required: ['requestId', 'listingId', 'userId']
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Request match notification sent successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   components: {
@@ -336,6 +477,17 @@ module.exports = {
         properties: {
           messageId: { type: 'string', format: 'uuid' },
           reason: { type: 'string' }
+        }
+      },
+      Notification: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          userId: { type: 'string', format: 'uuid' },
+          title: { type: 'string' },
+          body: { type: 'string' },
+          read: { type: 'boolean' },
+          created: { type: 'string', format: 'date-time' }
         }
       }
     },

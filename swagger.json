@@ -1216,6 +1216,59 @@
         }
       }
     },
+    "/notif/recent": {
+      "get": {
+        "tags": ["Notifications"],
+        "summary": "Get recent notifications for current user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of recent notifications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "notifications": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "userId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "body": {
+                            "type": "string"
+                          },
+                          "read": {
+                            "type": "boolean"
+                          },
+                          "created": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - User not authenticated"
+          }
+        }
+      }
+    },
     "/request": {
       "get": {
         "tags": ["Request"],
