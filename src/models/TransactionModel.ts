@@ -20,7 +20,7 @@ import {
     @Column("numeric", { scale: 2 })
     amount: number; // Transaction amount
   
-    @Column({ type: "timestamptz" })
+    @Column({ type: "timestamptz", nullable: true })
     transactionDate: Date; // Date and time of the transaction
   
     @Column({ default: false })

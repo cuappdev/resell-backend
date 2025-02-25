@@ -1,13 +1,27 @@
 import { NotFoundError} from 'routing-controllers';
 import { Service } from 'typedi';
-import { ExpoPushMessage, PushTicket, FindTokensRequest, NotifSent, DiscountNotificationRequest, RequestMatchNotificationRequest } from '../types';
-import { Expo } from 'expo-server-sdk';
-import { UserRepository } from 'src/repositories/UserRepository';
+import { NotificationData, FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from '../types';
 import Repositories, { TransactionsManager } from '../repositories';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
-var accessToken = process.env['EXPO_ACCESS_TOKEN']
-const expoServer = new Expo({ accessToken: accessToken });
+// var accessToken = process.env['EXPO_ACCESS_TOKEN']
+// const expoServer = new Expo({ accessToken: accessToken });
+import * as admin from 'firebase-admin';
+import { getMessaging, Message } from 'firebase-admin/messaging';
+
+
+var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+if (!serviceAccountPath) {
+  throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH environment variable is not set.');
+}
+
+const serviceAccount = require(serviceAccountPath);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  // Optionally, you can specify the database URL if needed:
+  // databaseURL: "https://resell-e99a2-default-rtdb.firebaseio.com"
+  });
 
 
 @Service()
@@ -18,28 +32,41 @@ export class NotifService {
         this.transactions = new TransactionsManager(entityManager);
     }
 
-    // /**
-//  * Takes an array of notifications and sends them to users in batches (called chunks)
-//  * @param {NotifObject[]} notifs an array of notification objects
-//  * @param {Object} expoServer the server object to connect with
-//  */
-
-// Comment to push main
-
-    public sendNotifChunks = async (notifs : ExpoPushMessage[], expoServer : Expo) => {
-        let chunks = expoServer.chunkPushNotifications(notifs);
-        let tickets = [];
-
-        for (let chunk of chunks) {
-            try {
-                let ticketChunk = await expoServer.sendPushNotificationsAsync(chunk);
-                // store tickets to check for notif status later
-                tickets.push(...ticketChunk);
-            } catch (err) {
-                console.log("Error while sending notif chunk");
+    public sendFCMNotifs = async (notifs: NotificationData[], userId: string) => {
+        return this.transactions.readWrite(async (transactionalEntityManager) => {
+            const notifRepository = Repositories.notification(transactionalEntityManager);
+            
+            for (let notif of notifs) {
+                const msg: Message = {
+                    notification: {
+                        title: notif.title,
+                        body: notif.body,
+                    },
+                    data: notif.data as unknown as { [key: string]: string },
+                    token: notif.to[0],
+                };
+                try {
+                    // Send FCM notification
+                    const response = await getMessaging().send(msg);
+                    console.log(`Notification sent successfully: ${response}`);
+                    
+                    // Save notification to database
+                    await notifRepository.save({
+                        userId: userId,
+                        title: notif.title,
+                        body: notif.body,
+                        data: notif.data,
+                        read: false
+                    });
+                } catch (error) {
+                    console.error(
+                        `Error sending notification for title "${notif.title}" to token ${notif.to[0]}:`,
+                        error
+                    );
+                    throw error;
+                }
             }
-            console.log(tickets);
-        }
+        });
     }
 
     public async sendNotifs(request: FindTokensRequest) {
@@ -54,18 +81,18 @@ export class NotifService {
             const allsessions = await userSessionRepository.getSessionsByUserId(user.id);
             for (var sess of allsessions) {
                 if (sess.deviceToken) {
-                allDeviceTokens.push(sess.deviceToken); }
-            }
-            let notif: ExpoPushMessage= 
-                {
-                    to: allDeviceTokens,
-                    sound: 'default',
-                    title: request.title,
-                    body: request.body,
-                    data: request.data
+                    allDeviceTokens.push(sess.deviceToken);
                 }
+            }
+            let notif: NotificationData = {
+                to: allDeviceTokens,
+                sound: 'default',
+                title: request.title,
+                body: request.body,
+                data: request.data
+            }
             try {
-                let notifs : ExpoPushMessage[] = [];
+                let notifs: NotificationData[] = [];
                 notif.to.forEach(token => {
                     notifs.push({
                         to: [token],
@@ -75,129 +102,138 @@ export class NotifService {
                         data: notif.data
                     })
                 })
-                this.sendNotifChunks(notifs, expoServer)
+                await this.sendFCMNotifs(notifs, user.id)
+            } catch (err) {
+                console.log(err)
             }
-            
-            // Simply do nothing if the user has no tokens
-            catch (err) { 
-                console.log(err) }
         })
     }
 
     public async sendDiscountNotification(request: DiscountNotificationRequest) {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const postRepository = Repositories.post(transactionalEntityManager);
             const userRepository = Repositories.user(transactionalEntityManager);
-            
-            // Get the post
-            const post = await postRepository.getPostById(request.listingId);
+            const userSessionRepository = Repositories.session(transactionalEntityManager);
+            const postRepository = Repositories.post(transactionalEntityManager);
+
+            let user = await userRepository.getUserById(request.sellerId);
+            if (!user) {
+                throw new NotFoundError("User not found!");
+            }
+
+            let post = await postRepository.getPostById(request.listingId);
             if (!post) {
                 throw new NotFoundError("Post not found!");
             }
-            
-            // Get all users who saved this post
-            const usersWithSavedPost = await userRepository.getUsersWhoSavedPost(post.id);
-            
-            for (const user of usersWithSavedPost) {
-                const userSessionRepository = Repositories.session(transactionalEntityManager);
-                const allDeviceTokens = [];
-                const allsessions = await userSessionRepository.getSessionsByUserId(user.id);
-                
-                for (var sess of allsessions) {
-                    if (sess.deviceToken) {
-                        allDeviceTokens.push(sess.deviceToken);
-                    }
-                }
-                
-                if (allDeviceTokens.length > 0) {
-                    const discountPercentage = Math.round(
-                        ((request.oldPrice - request.newPrice) / request.oldPrice) * 100
-                    );
 
-                    let notif: ExpoPushMessage = {
-                        to: allDeviceTokens,
-                        sound: 'default',
-                        title: 'Price Drop Alert! 🎉',
-                        body: `A post you saved is now ${discountPercentage}% off!`,
-                        data: {
-                            postId: request.listingId,
-                            oldPrice: request.oldPrice,
-                            newPrice: request.newPrice
-                        } as unknown as JSON
-                    };
-
-                    try {
-                        let notifs: ExpoPushMessage[] = [];
-                        notif.to.forEach(token => {
-                            notifs.push({
-                                to: [token],
-                                sound: 'default',
-                                title: notif.title,
-                                body: notif.body,
-                                data: notif.data
-                            });
-                        });
-                        await this.sendNotifChunks(notifs, expoServer);
-                    } catch (err) {
-                        console.log(err);
-                    }
-                }
-            }
-        });
-    }
-
-    public async sendRequestMatchNotification(request: RequestMatchNotificationRequest) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const postRepository = Repositories.post(transactionalEntityManager);
-            const requestRepository = Repositories.request(transactionalEntityManager);
-
-            const post = await postRepository.getPostById(request.listingId);
-            const userRequest = await requestRepository.getRequestById(request.requestId);
-
-            if (!post || !userRequest) {
-                throw new NotFoundError("Post or Request not found!");
-            }
-
-            const userSessionRepository = Repositories.session(transactionalEntityManager);
             const allDeviceTokens = [];
-            const allsessions = await userSessionRepository.getSessionsByUserId(request.userId);
-            
+            const allsessions = await userSessionRepository.getSessionsByUserId(user.id);
             for (var sess of allsessions) {
                 if (sess.deviceToken) {
                     allDeviceTokens.push(sess.deviceToken);
                 }
             }
 
-            if (allDeviceTokens.length > 0) {
-                let notif: ExpoPushMessage = {
-                    to: allDeviceTokens,
-                    sound: 'default',
-                    title: 'Request Match Found! 🎯',
-                    body: `We found a post that matches your request for ${userRequest.title}`,
-                    data: {
-                        postId: request.listingId,
-                        requestId: request.requestId,
-                        postTitle: post.title,
-                        price: post.original_price
-                    } as unknown as JSON
-                };
+            let notif: NotificationData = {
+                to: allDeviceTokens,
+                sound: 'default',
+                title: "Price Drop Alert!",
+                body: `${post.title} is now available at $${request.newPrice}!`,
+                data: {
+                    postId: post.id,
+                    postTitle: post.title,
+                    originalPrice: request.oldPrice,
+                    newPrice: request.newPrice,
+                    sellerId: post.user.id,
+                    sellerUsername: post.user.username
+                } as unknown as JSON
+            }
 
-                try {
-                    let notifs: ExpoPushMessage[] = [];
-                    notif.to.forEach(token => {
-                        notifs.push({
-                            to: [token],
-                            sound: 'default',
-                            title: notif.title,
-                            body: notif.body,
-                            data: notif.data
-                        });
+            try {
+                let notifs: NotificationData[] = [];
+                notif.to.forEach(token => {
+                    notifs.push({
+                        to: [token],
+                        sound: notif.sound,
+                        title: notif.title,
+                        body: notif.body,
+                        data: notif.data
                     });
-                    await this.sendNotifChunks(notifs, expoServer);
-                } catch (err) {
-                    console.log(err);
+                });
+                await this.sendFCMNotifs(notifs, user.id);
+            } catch (err) {
+                console.log(err);
+            }
+        });
+    }
+
+    public async sendRequestMatchNotification(request: RequestMatchNotificationRequest) {
+        return this.transactions.readWrite(async (transactionalEntityManager) => {
+            const userRepository = Repositories.user(transactionalEntityManager);
+            const userSessionRepository = Repositories.session(transactionalEntityManager);
+            const postRepository = Repositories.post(transactionalEntityManager);
+            const requestRepository = Repositories.request(transactionalEntityManager);
+
+            let user = await userRepository.getUserById(request.userId);
+            if (!user) {
+                throw new NotFoundError("User not found!");
+            }
+
+            let post = await postRepository.getPostById(request.listingId);
+            if (!post) {
+                throw new NotFoundError("Post not found!");
+            }
+
+            let userRequest = await requestRepository.getRequestById(request.requestId);
+            if (!userRequest) {
+                throw new NotFoundError("Request not found!");
+            }
+
+            const allDeviceTokens = [];
+            const allsessions = await userSessionRepository.getSessionsByUserId(user.id);
+            for (var sess of allsessions) {
+                if (sess.deviceToken) {
+                    allDeviceTokens.push(sess.deviceToken);
                 }
             }
+
+            let notif: NotificationData = {
+                to: allDeviceTokens,
+                sound: 'default',
+                title: "Request Match Found!",
+                body: `We found a match for your request: ${post.title}`,
+                data: {
+                    postId: post.id,
+                    postTitle: post.title,
+                    price: post.altered_price > 0 ? post.altered_price : post.original_price,
+                    requestId: userRequest.id,
+                    requestTitle: userRequest.title,
+                    sellerId: post.user.id,
+                    sellerUsername: post.user.username
+                } as unknown as JSON
+            }
+
+            try {
+                let notifs: NotificationData[] = [];
+                notif.to.forEach(token => {
+                    notifs.push({
+                        to: [token],
+                        sound: notif.sound,
+                        title: notif.title,
+                        body: notif.body,
+                        data: notif.data
+                    });
+                });
+                await this.sendFCMNotifs(notifs, request.userId);
+            } catch (err) {
+                console.log(err);
+            }
+        });
+    }
+
+    public async getRecentNotifications(userId: string) {
+        return this.transactions.readWrite(async (transactionalEntityManager) => {
+            const notifRepository = Repositories.notification(transactionalEntityManager);
+            return await notifRepository.getRecentNotifications(userId);
         });
     }
 }
