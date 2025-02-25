@@ -7,8 +7,12 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000/api",
+      "url": "https://resell-dev.cornellappdev.com/api",
       "description": "Development server"
+    },
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Local development"
     }
   ],
   "tags": [
