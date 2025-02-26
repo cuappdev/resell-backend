@@ -2,7 +2,7 @@ import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete} fr
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, SaveTokenRequest, SetAdminByEmailRequest } from '../../types';
+import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, CreateUserRequest, SetAdminByEmailRequest } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
@@ -11,6 +11,11 @@ export class UserController {
 
   constructor(userService: UserService) {
     this.userService = userService;
+  }
+
+  @Post('create/')
+  async createUser(@CurrentUser() user: UserModel, @Body() createUserRequest: CreateUserRequest): Promise<UserModel> {
+    return await this.userService.createUser(user, createUserRequest);
   }
 
   @Get()

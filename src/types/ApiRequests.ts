@@ -41,6 +41,7 @@ export interface CreateUserRequest {
     email: string;
     googleId: string;
     bio: string;
+    fcmToken: string;
 }
 
 // USER

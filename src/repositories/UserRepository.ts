@@ -89,8 +89,10 @@ export class UserRepository extends AbstractRepository<UserModel> {
     givenName: string,
     familyName: string,
     photoUrl: string,
+    venmoHandle: string,
     email: string,
     googleId: string,
+    bio: string,
   ): Promise<UserModel> {
     let existingUser = await this.repository
     .createQueryBuilder("user")
@@ -124,8 +126,10 @@ export class UserRepository extends AbstractRepository<UserModel> {
     user.familyName = familyName;
     user.admin = adminStatus || false;
     user.photoUrl = photoUrl;
+    user.venmoHandle = venmoHandle;
     user.email = email;
     user.googleId = googleId;
+    user.bio = bio;
     return this.repository.save(user);
   }
 

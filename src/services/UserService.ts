@@ -6,7 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest } from '../types';
+import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest, CreateUserRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -15,6 +15,24 @@ export class UserService {
 
   constructor(@InjectManager() entityManager: EntityManager) {
     this.transactions = new TransactionsManager(entityManager);
+  }
+
+  public async createUser(user: UserModel, createUserRequest: CreateUserRequest): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      return await userRepository.createUser(
+        createUserRequest.username,
+        createUserRequest.netid,
+        createUserRequest.givenName,
+        createUserRequest.familyName,
+        createUserRequest.photoUrl,
+        createUserRequest.venmoHandle,
+        createUserRequest.email,
+        createUserRequest.googleId,
+        createUserRequest.bio
+      );
+      // TODO: add fcm token to future fcm model / db
+    });
   }
 
   public async getAllUsers(user: UserModel): Promise<UserModel[]> {
