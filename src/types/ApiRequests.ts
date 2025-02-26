@@ -5,6 +5,10 @@ import { MessageModel } from '../models/MessageModel';
 
 // AUTH
 
+export interface FcmToken {
+    token: string;
+}
+
 export interface GoogleLoginUser {
     id: string;
     email: string;
