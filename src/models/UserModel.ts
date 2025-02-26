@@ -28,6 +28,8 @@ export class UserModel {
   @Column({ unique: true, nullable: true })
   netid: string;
 
+  isNewUser?: boolean; // Not stored in DB, used only for auth flow
+
   @Column({ nullable: true })
   givenName: string;
 
