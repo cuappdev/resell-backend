@@ -54,9 +54,13 @@ brew install --cask pgadmin4
 ```
 
 Open pgAdmin and configure the connection using the defined user and password.
+Name = resell-dev
+Hostname = 127.0.0.1
 
 
 ## Create/Update Objects in Postgres DB
+
+First run npm install
 
 To create/update the database objects, run:
 ```bash
