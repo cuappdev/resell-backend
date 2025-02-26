@@ -36,6 +36,18 @@ alter user postgres with superuser;
 create database "resell-dev";
 ```
 
+Use the \l command to see if the "resell-dev" is owned by user postgres. If
+instead it is owned by another root user, drop the database via:
+```bash
+drop database "resell-dev";
+```
+and login to psql via
+```bash
+psql postgres postgres
+```
+. Then, create the database again, and it should be owned by user postgres.
+
+
 ## Connecting to DB
 
 In order to connect to the database, follow these steps:
@@ -59,6 +71,32 @@ Open pgAdmin and configure the connection using the defined user and password.
 ## Create/Update Objects in Postgres DB
 
 To create/update the database objects, run:
+```bash
+npm run db:migrate
+```
+
+## Migration debugging last resort
+
+If you are encountering migrations errors, use this as a last resort
+1. Log into psql and run
+```bash
+drop database "resell-dev"
+```
+WARNING: This will delete all data in your database as well. Make sure you do not have any important data in your database.
+
+2. Create the database again via.
+```bash
+create database "resell-dev"
+```
+
+3. Delete all of the migration files in the "migrations" folder
+
+4. Create a new migration file titled "init" via.
+```bash
+npm run db:migrate:generate init
+```
+
+5. Run the migration
 ```bash
 npm run db:migrate
 ```
