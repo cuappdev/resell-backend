@@ -2,7 +2,7 @@ import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete} fr
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, CreateUserRequest, SetAdminByEmailRequest } from '../../types';
+import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, CreateUserRequest, SetAdminByEmailRequest, FcmToken } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
@@ -78,4 +78,10 @@ export class UserController {
   async softDeleteUser(@Params() params: UuidParam): Promise<GetUserResponse> {
     return { user: await this.userService.softDeleteUser(params) };
   }
+
+  @Post('logout/')
+  async logout(@Body() fcmToken: FcmToken): Promise<null> {
+    return await this.userService.logout(fcmToken);
+  }
+
 }

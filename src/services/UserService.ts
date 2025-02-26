@@ -6,7 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest, CreateUserRequest } from '../types';
+import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest, CreateUserRequest, FcmToken } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -178,5 +178,10 @@ export class UserService {
       await requestRepository.archiveAllRequestsByUserId(user.id);
       return userRepository.softDeleteUser(user);
     });
+  }
+
+  public async logout(fcmToken: FcmToken): Promise<null> {
+      return null;
+      // TODO: add fcm token to future fcm model / db and then delete it from model here 
   }
 }
