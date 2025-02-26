@@ -155,17 +155,26 @@ export class UserService {
     });
   }
 
-  public async deleteUser(user: UserModel, params: UuidParam): Promise<UserModel> {
+  public async deleteUser(user: UserModel): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const userToDelete = await userRepository.getUserById(params.id);
+      const userToDelete = await userRepository.getUserById(user.id);
       if (!userToDelete) throw new NotFoundError('User not found!');
-      if (user.id !== userToDelete.id && !user.admin) {
-        throw new UnauthorizedError('User does not have permission to delete other users');
-      }
       return userRepository.deleteUser(userToDelete);
     });
   }
+
+  // public async deleteUser(user: UserModel, params: UuidParam): Promise<UserModel> {
+  //   return this.transactions.readWrite(async (transactionalEntityManager) => {
+  //     const userRepository = Repositories.user(transactionalEntityManager);
+  //     const userToDelete = await userRepository.getUserById(params.id);
+  //     if (!userToDelete) throw new NotFoundError('User not found!');
+  //     if (user.id !== userToDelete.id && !user.admin) {
+  //       throw new UnauthorizedError('User does not have permission to delete other users');
+  //     }
+  //     return userRepository.deleteUser(userToDelete);
+  //   });
+  // }
 
   public async softDeleteUser(params: UuidParam): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {

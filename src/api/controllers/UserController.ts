@@ -69,10 +69,15 @@ export class UserController {
     return { users: await this.userService.getBlockedUsersById(params) };
   }
 
-  @Delete('id/:id/')
-  async deleteUser(@Params() params: UuidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
-    return { user: await this.userService.deleteUser(user, params) };
+  @Delete()
+  async deleteUser(@CurrentUser() user: UserModel): Promise<UserModel> {
+    return await this.userService.deleteUser(user);
   }
+
+  // @Delete('id/:id/')
+  // async deleteUser(@Params() params: UuidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+  //   return { user: await this.userService.deleteUser(user, params) };
+  // }
 
   @Post('softDelete/id/:id/')
   async softDeleteUser(@Params() params: UuidParam): Promise<GetUserResponse> {
