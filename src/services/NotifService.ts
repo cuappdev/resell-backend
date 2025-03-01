@@ -72,16 +72,16 @@ export class NotifService {
     public async sendNotifs(request: FindTokensRequest) {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
             const userRepository = Repositories.user(transactionalEntityManager);
-            const userSessionRepository = Repositories.session(transactionalEntityManager);
+            const fcmTokenRepository = Repositories.fcmToken(transactionalEntityManager);
             let user = await userRepository.getUserByEmail(request.email);
             if (!user) {
                 throw new NotFoundError("User not found!");
             }
             const allDeviceTokens = [];
-            const allsessions = await userSessionRepository.getSessionsByUserId(user.firebaseUid);
-            for (var sess of allsessions) {
-                if (sess.deviceToken) {
-                    allDeviceTokens.push(sess.deviceToken);
+            const alltokens = await fcmTokenRepository.getTokensByUserId(user.firebaseUid);
+            for (var token of alltokens) {
+                if (token.fcmToken) {
+                    allDeviceTokens.push(token.fcmToken);
                 }
             }
             let notif: NotificationData = {
@@ -89,7 +89,8 @@ export class NotifService {
                 sound: 'default',
                 title: request.title,
                 body: request.body,
-                data: request.data
+                data: request.data as unknown as JSON
+
             }
             try {
                 let notifs: NotificationData[] = [];
@@ -112,7 +113,7 @@ export class NotifService {
     public async sendDiscountNotification(request: DiscountNotificationRequest) {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
             const userRepository = Repositories.user(transactionalEntityManager);
-            const userSessionRepository = Repositories.session(transactionalEntityManager);
+            const fcmTokenRepository = Repositories.fcmToken(transactionalEntityManager);
             const postRepository = Repositories.post(transactionalEntityManager);
 
             let user = await userRepository.getUserById(request.sellerId);
@@ -126,10 +127,10 @@ export class NotifService {
             }
 
             const allDeviceTokens = [];
-            const allsessions = await userSessionRepository.getSessionsByUserId(user.firebaseUid);
-            for (var sess of allsessions) {
-                if (sess.deviceToken) {
-                    allDeviceTokens.push(sess.deviceToken);
+            const allTokens = await fcmTokenRepository.getTokensByUserId(user.firebaseUid);
+            for (var token of allTokens) {
+                if (token.fcmToken) {
+                    allDeviceTokens.push(token.fcmToken);
                 }
             }
 
@@ -169,7 +170,7 @@ export class NotifService {
     public async sendRequestMatchNotification(request: RequestMatchNotificationRequest) {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
             const userRepository = Repositories.user(transactionalEntityManager);
-            const userSessionRepository = Repositories.session(transactionalEntityManager);
+            const fcmTokenRepository = Repositories.fcmToken(transactionalEntityManager);
             const postRepository = Repositories.post(transactionalEntityManager);
             const requestRepository = Repositories.request(transactionalEntityManager);
 
@@ -189,10 +190,10 @@ export class NotifService {
             }
 
             const allDeviceTokens = [];
-            const allsessions = await userSessionRepository.getSessionsByUserId(user.firebaseUid);
-            for (var sess of allsessions) {
-                if (sess.deviceToken) {
-                    allDeviceTokens.push(sess.deviceToken);
+            const allTokens = await fcmTokenRepository.getTokensByUserId(user.firebaseUid);
+            for (var token of allTokens) {
+                if (token.fcmToken) {
+                    allDeviceTokens.push(token.fcmToken);
                 }
             }
 

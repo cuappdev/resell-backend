@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
-import { UuidParam } from '../api/validators/GenericRequests';
+import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest, CreateUserRequest, FcmTokenRequest } from '../types';
@@ -164,19 +164,7 @@ export class UserService {
     });
   }
 
-  // public async deleteUser(user: UserModel, params: UuidParam): Promise<UserModel> {
-  //   return this.transactions.readWrite(async (transactionalEntityManager) => {
-  //     const userRepository = Repositories.user(transactionalEntityManager);
-  //     const userToDelete = await userRepository.getUserById(params.id);
-  //     if (!userToDelete) throw new NotFoundError('User not found!');
-  //     if (user.id !== userToDelete.id && !user.admin) {
-  //       throw new UnauthorizedError('User does not have permission to delete other users');
-  //     }
-  //     return userRepository.deleteUser(userToDelete);
-  //   });
-  // }
-
-  public async softDeleteUser(params: UuidParam): Promise<UserModel> {
+  public async softDeleteUser(params: FirebaseUidParam): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
       const postRepository = Repositories.post(transactionalEntityManager);

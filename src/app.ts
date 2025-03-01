@@ -65,7 +65,7 @@ async function main() {
         // Find or create user in your database using Firebase UID
         const manager = getManager();
         let user = await manager.findOne(UserModel, { firebaseUid: userId }, 
-          { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
+          { relations: ["posts", "saved", "feedbacks", "requests"] });
         if (!user) {
           // Check if this is the user creation route
           const isUserCreateRoute = action.request.path === '/api/user/create' || action.request.path === 'api/authorize';
@@ -115,15 +115,6 @@ async function main() {
 
   app.get('/api/reports/admin/', async (req: any, res: any) => {
     const userCheck = async (action: any) => {
-      // const accessToken = action.headers["authorization"];
-      // const manager = getManager();
-      // const session = await manager.findOne(UserSessionModel, { accessToken: accessToken });
-      // if (session && session.expiresAt.getTime() > Date.now()) {
-      //   const userId = session.userId;
-      //   const user = await manager.findOne(UserModel, { firebaseUid: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
-      //   if (!user || !user.admin) throw new ForbiddenError("User unauthorized");
-      //   return user;
-      // }
       const authHeader = action.request.headers["authorization"];
       if (!authHeader) {
         throw new ForbiddenError("No authorization token provided");

@@ -19,7 +19,7 @@ export class FcmTokenModel {
   timestamp: Date;
 
   @ManyToOne(() => UserModel, user => user.firebaseUid)
-  @JoinColumn({ name: 'user' })
+  @JoinColumn({ name: 'userId' })
   user: UserModel
 
 }

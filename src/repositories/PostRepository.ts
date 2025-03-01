@@ -22,11 +22,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getOne();
   }
 
-  public async getPostsByUserId(userId: Uuid): Promise<PostModel[]> {
+  public async getPostsByUserId(userId: string): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where("user.id = :userId", { userId })
+      .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = false")
       .getMany();
   }
@@ -147,11 +147,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async getArchivedPostsByUserId(userId: Uuid): Promise<PostModel[]> {
+  public async getArchivedPostsByUserId(userId: string): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where("user.id = :userId", { userId })
+      .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = true")
       .getMany();
   }
@@ -161,12 +161,12 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository.save(post)
   }
 
-  public async archiveAllPostsByUserId(userId: Uuid): Promise<void> {
+  public async archiveAllPostsByUserId(userId: string): Promise<void> {
     await this.repository
       .createQueryBuilder()
       .update(PostModel)
       .set({ archive: true })
-      .where("user.id = :userId", { userId })
+      .where("user.firebaseUid = :userId", { userId })
       .execute();
   }
 

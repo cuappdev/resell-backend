@@ -3,7 +3,7 @@ import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete} fr
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
 import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, CreateUserRequest, SetAdminByEmailRequest, FcmTokenRequest } from '../../types';
-import { UuidParam } from '../validators/GenericRequests';
+import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
 export class UserController {
@@ -80,7 +80,7 @@ export class UserController {
   // }
 
   @Post('softDelete/id/:id/')
-  async softDeleteUser(@Params() params: UuidParam): Promise<GetUserResponse> {
+  async softDeleteUser(@Params() params: FirebaseUidParam): Promise<GetUserResponse> {
     return { user: await this.userService.softDeleteUser(params) };
   }
 

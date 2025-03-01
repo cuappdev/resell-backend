@@ -2,7 +2,7 @@ import { Body, Delete, Get, JsonController, Params, Post } from 'routing-control
 
 import { FeedbackService } from '../../services/FeedbackService';
 import { CreateFeedbackRequest, GetFeedbackResponse, GetFeedbacksResponse, GetSearchedFeedbackRequest } from '../../types';
-import { UuidParam } from '../validators/GenericRequests';
+import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 
 @JsonController('feedback/')
 export class FeedbackController {
@@ -24,7 +24,7 @@ export class FeedbackController {
   }
 
   @Get('userId/:id/')
-  async getFeedbackByUserId(@Params() params: UuidParam): Promise<GetFeedbacksResponse> {
+  async getFeedbackByUserId(@Params() params: FirebaseUidParam): Promise<GetFeedbacksResponse> {
     return { feedbacks: await this.feedbackService.getFeedbackByUserId(params) };
   }
 

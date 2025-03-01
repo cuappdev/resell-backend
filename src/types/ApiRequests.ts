@@ -72,7 +72,7 @@ export interface CreatePostRequest {
     condition: string;
     original_price: number;
     imagesBase64: string[];
-    userId: Uuid;
+    userId: string;
 }
 
 export interface GetSearchedPostsRequest {
@@ -84,11 +84,11 @@ export interface EditPostPriceRequest {
 }
 
 // FEEDBACK
-
+  
 export interface CreateFeedbackRequest {
     description: string;
     images: string[];
-    userId: Uuid;
+    userId: string;
 }
 
 export interface GetSearchedFeedbackRequest {
@@ -120,7 +120,7 @@ export interface CreateRequestRequest {
     title: string;
     description: string;
     archive: boolean;
-    userId: Uuid;
+    userId: string;
 }
 
 // USER REVIEW
@@ -129,8 +129,8 @@ export interface CreateUserReviewRequest {
     fulfilled: boolean,
     stars: number,
     comments: string,
-    buyerId: Uuid,
-    sellerId: Uuid,
+    buyerId: string,
+    sellerId: string,
 }
 // NOTIFICATION
 export interface NotificationData {

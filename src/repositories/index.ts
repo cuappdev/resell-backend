@@ -9,6 +9,7 @@ import { ReportRepository } from "./ReportRepository";
 import { TransactionRepository } from "./TransactionRepository";
 import { TransactionReviewRepository } from "./TransactionReviewRepository";
 import { NotifRepository } from "./NotifRepository"
+import { FcmTokenRepository } from "./FcmTokenRepository";
 
 export default class Repositories {
   public static user(
@@ -63,6 +64,12 @@ export default class Repositories {
     transactionalEntityManager: EntityManager
   ): NotifRepository {
     return transactionalEntityManager.getCustomRepository(NotifRepository);
+  }
+
+  public static fcmToken(
+    transactionalEntityManager: EntityManager
+  ): FcmTokenRepository {
+    return transactionalEntityManager.getCustomRepository(FcmTokenRepository);
   }
 }
 

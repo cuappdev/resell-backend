@@ -4,7 +4,7 @@ import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { UserModel } from '../models/UserModel';
-import { TimeParam, UuidParam } from '../api/validators/GenericRequests';
+import { TimeParam, UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { PostModel } from 'src/models/PostModel';
 import { RequestModel } from '../models/RequestModel';
 import Repositories, { TransactionsManager } from '../repositories';
@@ -34,7 +34,7 @@ export class RequestService {
     });
   }
 
-  public async getRequestByUserId(params: UuidParam): Promise<RequestModel[]> {
+  public async getRequestByUserId(params: FirebaseUidParam): Promise<RequestModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const requestRepository = Repositories.request(transactionalEntityManager);
       const request = await requestRepository.getRequestByUserId(params.id);
@@ -73,7 +73,7 @@ export class RequestService {
     });
   }
 
-  public async archiveAllRequestsByUserId(params: UuidParam): Promise<RequestModel[]> {
+  public async archiveAllRequestsByUserId(params: FirebaseUidParam): Promise<RequestModel[]> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const requestRepository = Repositories.request(transactionalEntityManager);
       const userRepository = Repositories.user(transactionalEntityManager);

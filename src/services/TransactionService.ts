@@ -96,8 +96,8 @@ export class TransactionService {
       post.sold = true;
       await postRepository.markPostAsSold(post);
 
-      // Track notified users by their UUIDs
-      const notifiedUserIds = new Set<Uuid>();
+      // Track notified users by their ids
+      const notifiedUserIds = new Set<string>();
       const notifService = new NotifService(transactionalEntityManager);
 
       // Notify the buyer

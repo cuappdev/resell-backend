@@ -20,11 +20,11 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .getOne();
   }
 
-  public async getRequestByUserId(userId: Uuid): Promise<RequestModel[]> {
+  public async getRequestByUserId(userId: string): Promise<RequestModel[]> {
     return await this.repository
       .createQueryBuilder("request")
       .leftJoinAndSelect("request.user", "user")
-      .where("user.id = :userId", { userId })
+      .where("user.firebaseUid = :userId", { userId })
       .getMany();
   }
 
@@ -58,7 +58,7 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .createQueryBuilder()
       .update(RequestModel)
       .set({ archive: true })
-      .where("user.id = :userId", { userId })
+      .where("user.firebaseUid = :userId", { userId })
       .execute();
   }
 

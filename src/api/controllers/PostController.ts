@@ -14,7 +14,7 @@ import {
   GetSearchedPostsRequest,
   IsSavedPostResponse,
 } from '../../types';
-import { UuidParam } from '../validators/GenericRequests';
+import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 
 @JsonController('post/')
 export class PostController {
@@ -35,7 +35,7 @@ export class PostController {
   }
 
   @Get('userId/:id/')
-  async getPostsByUserId(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostsResponse> {
+  async getPostsByUserId(@CurrentUser() user: UserModel, @Params() params: FirebaseUidParam): Promise<GetPostsResponse> {
     return { posts: await this.postService.getPostsByUserId(user, params) };
   }
 
@@ -90,7 +90,7 @@ export class PostController {
   }
 
   @Get('archive/userId/:id/')
-  async getArchivedPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse> {
+  async getArchivedPostsByUserId(@Params() params: FirebaseUidParam): Promise<GetPostsResponse> {
     return { posts: await this.postService.getArchivedPostsByUserId(params) };
   }
 
@@ -100,7 +100,7 @@ export class PostController {
   }
 
   @Post('archiveAll/userId/:id/')
-  async archiveAllPostsByUserId(@Params() params: UuidParam): Promise<GetPostsResponse> {
+  async archiveAllPostsByUserId(@Params() params: FirebaseUidParam): Promise<GetPostsResponse> {
     return { posts: await this.postService.archiveAllPostsByUserId(params) };
   }
 

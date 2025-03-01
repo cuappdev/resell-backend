@@ -4,7 +4,7 @@ import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
-import { UuidParam } from '../api/validators/GenericRequests';
+import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
@@ -44,7 +44,7 @@ export class PostService {
     });
   }
 
-  public async getPostsByUserId(currentUser: UserModel, params: UuidParam): Promise<PostModel[]> {
+  public async getPostsByUserId(currentUser: UserModel, params: FirebaseUidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const userPosts = await postRepository.getPostsByUserId(params.id);
@@ -185,7 +185,7 @@ export class PostService {
     });
   }
 
-  public async getArchivedPostsByUserId(params: UuidParam): Promise<PostModel[]> {
+  public async getArchivedPostsByUserId(params: FirebaseUidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
       const user = await userRepository.getUserById(params.id)
@@ -208,7 +208,7 @@ export class PostService {
     });
   }
 
-  public async archiveAllPostsByUserId(params: UuidParam): Promise<PostModel[]> {
+  public async archiveAllPostsByUserId(params: FirebaseUidParam): Promise<PostModel[]> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const userRepository = Repositories.user(transactionalEntityManager);

@@ -12,19 +12,19 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return await this.repository.find();
   }
 
-  public async getUserById(id: Uuid): Promise<UserModel | undefined> {
+  public async getUserById(id: string): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .where("user.id = :id", { id })
+      .where("user.firebaseUid = :id", { id })
       .getOne();
   }
 
-  public async getUserWithBlockedInfo(id: Uuid): Promise<UserModel | undefined> {
+  public async getUserWithBlockedInfo(id: string): Promise<UserModel | undefined> {
     return this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
       .leftJoinAndSelect("user.blockers", "user_blocking_users.blockers")
-      .where("user.id = :id", { id })
+      .where("user.firebaseUid = :id", { id })
       .getOne();
   }
 
@@ -59,11 +59,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return false;
   }
 
-  public async getSavedPostsByUserId(id: Uuid): Promise<UserModel | undefined> {
+  public async getSavedPostsByUserId(id: string): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
-      .where("user.id = :id", { id })
+      .where("user.firebaseUid = :id", { id })
       .leftJoinAndSelect("user.saved", "post")
       .getOne();
   }

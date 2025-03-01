@@ -3,7 +3,7 @@ import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'ro
 import { UserModel } from '../../models/UserModel';
 import { RequestService } from '../../services/RequestService';
 import { CreateRequestRequest, GetPostsResponse, GetRequestResponse, GetRequestsResponse } from '../../types';
-import { TimeParam, UuidParam } from '../validators/GenericRequests';
+import { TimeParam, UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 
 @JsonController('request/')
 export class RequestController {
@@ -25,7 +25,7 @@ export class RequestController {
   }
 
   @Get('userId/:id/')
-  async getRequestsByUserId(@Params() params: UuidParam): Promise<GetRequestsResponse> {
+  async getRequestsByUserId(@Params() params: FirebaseUidParam): Promise<GetRequestsResponse> {
     return { requests: await this.requestService.getRequestByUserId(params) };
   }
 
@@ -45,7 +45,7 @@ export class RequestController {
   }
 
   @Post('archiveAll/userId/:id/')
-  async archiveAllRequestsByUserId(@Params() params: UuidParam): Promise<GetRequestsResponse> {
+  async archiveAllRequestsByUserId(@Params() params: FirebaseUidParam): Promise<GetRequestsResponse> {
     return { requests: await this.requestService.archiveAllRequestsByUserId(params) };
   }
 

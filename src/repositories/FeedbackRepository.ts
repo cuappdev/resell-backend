@@ -19,11 +19,11 @@ export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
     .getOne();
   }
 
-  public async getFeedbackByUserId(userId: Uuid): Promise<FeedbackModel[]> {
+  public async getFeedbackByUserId(userId: string): Promise<FeedbackModel[]> {
     return await this.repository
       .createQueryBuilder("feedback")
       .leftJoinAndSelect("feedback.user", "user")
-      .where("user.id = :userId", { userId })
+      .where("user.firebaseUid = :userId", { userId })
       .getMany();
   }
 
