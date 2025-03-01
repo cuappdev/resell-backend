@@ -34,7 +34,6 @@ export class DatabaseConnection {
         'notifications', // Add notifications table before User since it has a fk to User
         'Post',
         'Request',
-        'UserSession',
         'UserReview',
         'User'
       ];

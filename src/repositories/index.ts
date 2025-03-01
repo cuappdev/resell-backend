@@ -5,7 +5,6 @@ import { PostRepository } from "./PostRepository";
 import { RequestRepository } from "./RequestRepository";
 import { UserRepository } from "./UserRepository";
 import { UserReviewRepository } from "./UserReviewRepository";
-import { UserSessionRepository } from "./UserSessionRepository";
 import { ReportRepository } from "./ReportRepository";
 import { TransactionRepository } from "./TransactionRepository";
 import { TransactionReviewRepository } from "./TransactionReviewRepository";
@@ -40,14 +39,6 @@ export default class Repositories {
     transactionalEntityManager: EntityManager
   ): UserReviewRepository {
     return transactionalEntityManager.getCustomRepository(UserReviewRepository);
-  }
-
-  public static session(
-    transactionalEntityManager: EntityManager
-  ): UserSessionRepository {
-    return transactionalEntityManager.getCustomRepository(
-      UserSessionRepository
-    );
   }
 
   public static report(

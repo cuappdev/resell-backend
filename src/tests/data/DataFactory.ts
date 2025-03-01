@@ -2,7 +2,6 @@ import { PostModel } from '../../models/PostModel';
 import { RequestModel } from '../../models/RequestModel';
 import { UserModel } from '../../models/UserModel';
 import { UserReviewModel } from '../../models/UserReviewModel';
-import { UserSessionModel } from '../../models/UserSessionModel';
 import { DatabaseConnection } from './DatabaseConnection';
 import { TransactionModel } from '../../models/TransactionModel';
 import { TransactionReviewModel } from '../../models/TransactionReviewModel';
@@ -13,7 +12,6 @@ import { NotifModel } from '../../models/NotifModel';
 export class DataFactory {
     private users: UserModel[] = [];
     private posts: PostModel[] = [];
-    private userSessions: UserSessionModel[] = [];
     private requests: RequestModel[] = [];
     private userReviews: UserReviewModel[] = [];
     private transactions: TransactionModel[] = [];
@@ -27,7 +25,6 @@ export class DataFactory {
         await conn.transaction(async (txn) => {
             this.users = await txn.save(this.users);
             this.posts = await txn.save(this.posts);
-            this.userSessions = await txn.save(this.userSessions);
             this.requests = await txn.save(this.requests);
             this.userReviews = await txn.save(this.userReviews);
             this.transactions = await txn.save(this.transactions);
@@ -46,13 +43,6 @@ export class DataFactory {
     public createPosts(...posts: PostModel[]): DataFactory {
         for (let i = 0; i < posts.length; i += 1) {
             this.posts.push(posts[i]);
-        }
-        return this;
-    }
-
-    public createUserSessions(...userSessions: UserSessionModel[]): DataFactory {
-        for (let i = 0; i < userSessions.length; i += 1) {
-            this.userSessions.push(userSessions[i]);
         }
         return this;
     }

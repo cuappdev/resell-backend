@@ -12,7 +12,6 @@ import * as path from 'path';
 import { controllers } from './api/controllers';
 import { middlewares } from './api/middlewares';
 import { UserModel } from './models/UserModel';
-import { UserSessionModel } from './models/UserSessionModel';
 import { ReportPostRequest, ReportProfileRequest, ReportMessageRequest } from './types';
 import { GetReportsResponse, Report } from './types/ApiResponses';
 import { ReportController } from './api/controllers/ReportController';
@@ -59,12 +58,13 @@ async function main() {
         const decodedToken = await admin.auth().verifyIdToken(token);
         // Check if the email is a Cornell email
         const email = decodedToken.email;
+        const userId = decodedToken.uid;
         if (!email || !email.endsWith('@cornell.edu')) {
           throw new ForbiddenError('Only Cornell email addresses are allowed');
         }
         // Find or create user in your database using Firebase UID
         const manager = getManager();
-        let user = await manager.findOne(UserModel, { googleId: email }, 
+        let user = await manager.findOne(UserModel, { firebaseUid: userId }, 
           { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
         if (!user) {
           // Check if this is the user creation route
@@ -115,16 +115,38 @@ async function main() {
 
   app.get('/api/reports/admin/', async (req: any, res: any) => {
     const userCheck = async (action: any) => {
-      const accessToken = action.headers["authorization"];
-      const manager = getManager();
-      const session = await manager.findOne(UserSessionModel, { accessToken: accessToken });
-      if (session && session.expiresAt.getTime() > Date.now()) {
-        const userId = session.userId;
-        const user = await manager.findOne(UserModel, { firebaseUid: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
+      // const accessToken = action.headers["authorization"];
+      // const manager = getManager();
+      // const session = await manager.findOne(UserSessionModel, { accessToken: accessToken });
+      // if (session && session.expiresAt.getTime() > Date.now()) {
+      //   const userId = session.userId;
+      //   const user = await manager.findOne(UserModel, { firebaseUid: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
+      //   if (!user || !user.admin) throw new ForbiddenError("User unauthorized");
+      //   return user;
+      // }
+      const authHeader = action.request.headers["authorization"];
+      if (!authHeader) {
+        throw new ForbiddenError("No authorization token provided");
+      }
+      const token = authHeader.split(' ')[1];
+      if (!token) {
+        throw new ForbiddenError("Invalid authorization token format");
+      }
+      try {
+        // Verify the token using Firebase Admin SDK
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        const userId = decodedToken.uid;
+        // Find or create user in your database using Firebase UID
+        const manager = getManager();
+        const user = await manager.findOne(UserModel, { firebaseUid: userId });
         if (!user || !user.admin) throw new ForbiddenError("User unauthorized");
         return user;
+      } catch (error) {
+        if (error.code === 'auth/id-token-expired') {
+          throw new UnauthorizedError('Token has expired');
+        }
+        throw new UnauthorizedError('Invalid authorization token');
       }
-      throw new ForbiddenError("User unauthorized");
     }
     const user = await userCheck(req);
     user.admin = true;
