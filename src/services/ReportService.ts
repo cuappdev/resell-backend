@@ -85,10 +85,10 @@ export class ReportService {
       if (!reportedPost) {
         throw new NotFoundError("Reported post not found");
       }
-      if (reportedPost.user.id === reporter.id) {
+      if (reportedPost.user.firebaseUid === reporter.firebaseUid) {
         throw new ForbiddenError("You cannot report your own post");
       }
-      if (reportedPost.user.id != reportedUser.id) {
+      if (reportedPost.user.firebaseUid != reportedUser.firebaseUid) {
         throw new ForbiddenError("Reported user does not own the post");
       }
       if (reportPostRequest.reason === "") {
@@ -111,7 +111,7 @@ export class ReportService {
       if (!reportedUser) {
         throw new NotFoundError("Reported user not found");
       }
-      if (reportedUser.id === reporter.id) {
+      if (reportedUser.firebaseUid === reporter.firebaseUid) {
         throw new ForbiddenError("You cannot report your own profile");
       }
       if (reportProfileRequest.reason === "") {
@@ -170,7 +170,7 @@ export class ReportService {
       if (!report) {
         throw new NotFoundError("Report not found");
       }
-      if (!user.admin && report.reporter.id !== user.id) {
+      if (!user.admin && report.reporter.firebaseUid !== user.firebaseUid) {
         throw new ForbiddenError("User does not have permission to delete reports");
       }
       return Repositories.report(transactionalEntityManager).deleteReport(report);

@@ -2,7 +2,7 @@ import { Body, CurrentUser, Delete, Get, HeaderParam, JsonController, Params, Po
 
 import { UserModel } from '../../models/UserModel';
 import { AuthService } from '../../services/AuthService';
-import { FcmToken } from '../../types';
+import { FcmTokenRequest } from '../../types';
 
 @JsonController('auth/')
 export class AuthController {
@@ -13,7 +13,7 @@ export class AuthController {
   }
 
   @Post()
-  async authorize(@CurrentUser() user: UserModel, @Body() fcmToken: FcmToken): Promise<UserModel | null> {
+  async authorize(@CurrentUser() user: UserModel, @Body() fcmToken: FcmTokenRequest): Promise<UserModel | null> {
     return await this.authService.authorize(user, fcmToken.token);
   }
 }

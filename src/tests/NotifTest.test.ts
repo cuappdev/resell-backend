@@ -34,7 +34,7 @@ describe('notification tests', () => {
   test('get recent notifications - single notification', async () => {
     const [user] = UserFactory.create(1);
     const [notif] = NotifFactory.create();
-    notif.userId = user.id;
+    notif.userId = user.firebaseUid;
 
     await new DataFactory()
       .createUsers(user)
@@ -46,7 +46,7 @@ describe('notification tests', () => {
     expect(response[0].id).toBe(notif.id);
     expect(response[0].title).toBe(notif.title);
     expect(response[0].body).toBe(notif.body);
-    expect(response[0].userId).toBe(user.id);
+    expect(response[0].userId).toBe(user.firebaseUid);
   });
 
   test('get recent notifications - multiple notifications ordered by date', async () => {
@@ -58,13 +58,13 @@ describe('notification tests', () => {
     
     const [notif1, notif2, notif3] = NotifFactory.create(3);
     
-    notif1.userId = user.id;
+    notif1.userId = user.firebaseUid;
     notif1.createdAt = date1;
     
-    notif2.userId = user.id;
+    notif2.userId = user.firebaseUid;
     notif2.createdAt = date2;
     
-    notif3.userId = user.id;
+    notif3.userId = user.firebaseUid;
     notif3.createdAt = date3;
 
     await new DataFactory()
@@ -82,7 +82,7 @@ describe('notification tests', () => {
   test('get recent notifications - limit to 10', async () => {
     const [user] = UserFactory.create(1);
     const notifs = NotifFactory.create(15);
-    notifs.forEach(notif => notif.userId = user.id);
+    notifs.forEach(notif => notif.userId = user.firebaseUid);
 
     await new DataFactory()
       .createUsers(user)
@@ -97,8 +97,8 @@ describe('notification tests', () => {
     const [user1, user2] = UserFactory.create(2);
     
     const [notif1, notif2] = NotifFactory.create(2);
-    notif1.userId = user1.id;
-    notif2.userId = user2.id;
+    notif1.userId = user1.firebaseUid;
+    notif2.userId = user2.firebaseUid;
 
     await new DataFactory()
       .createUsers(user1, user2)

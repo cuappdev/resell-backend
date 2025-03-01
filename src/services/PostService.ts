@@ -93,7 +93,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
-      if (user.id != post.user?.id && !user.admin) throw new ForbiddenError('User is not poster!');
+      if (user.firebaseUid != post.user?.firebaseUid && !user.admin) throw new ForbiddenError('User is not poster!');
       return postRepository.deletePost(post);
     });
   }
@@ -203,7 +203,7 @@ export class PostService {
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
       if (post.user.isActive == false) throw new NotFoundError('User is not active!');
-      if (user.id != post.user?.id) throw new ForbiddenError('User is not poster!');
+      if (user.firebaseUid != post.user?.firebaseUid) throw new ForbiddenError('User is not poster!');
       return await postRepository.archivePost(post);
     });
   }
@@ -215,7 +215,7 @@ export class PostService {
       const user = await userRepository.getUserById(params.id)
       if (!user) throw new NotFoundError('User not found!');
       if (!user.isActive) throw new NotFoundError('User is not active!');
-      const posts = await postRepository.getPostsByUserId(user.id);
+      const posts = await postRepository.getPostsByUserId(user.firebaseUid);
       for (const post of posts) {
         if (!post) throw new NotFoundError('Post not found!');
         await postRepository.archivePost(post);
@@ -227,7 +227,7 @@ export class PostService {
   public async getSavedPostsByUserId(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const userWithSaved = await userRepository.getSavedPostsByUserId(user.id);
+      const userWithSaved = await userRepository.getSavedPostsByUserId(user.firebaseUid);
       if (!userWithSaved) throw new NotFoundError('User not found');
   
       const filteredPosts: PostModel[] = [];
@@ -239,15 +239,15 @@ export class PostService {
   
         // Check if the current user blocked the post author
         const isBlockedByCurrentUser = userWithSaved.blocking?.some(
-          blockedUser => blockedUser.id === postAuthor.id
+          blockedUser => blockedUser.firebaseUid === postAuthor.firebaseUid
         ) ?? false;
   
         if (isBlockedByCurrentUser) continue; // Skip this post immediately
   
         // Check if the post author blocked the current user
-        const postAuthorWithBlockedInfo = await userRepository.getUserWithBlockedInfo(postAuthor.id);
+        const postAuthorWithBlockedInfo = await userRepository.getUserWithBlockedInfo(postAuthor.firebaseUid);
         const isBlockedByPostAuthor = postAuthorWithBlockedInfo?.blocking?.some(
-          blockedUser => blockedUser.id === user.id
+          blockedUser => blockedUser.firebaseUid === user.firebaseUid
         ) ?? false;
   
         // Include the post if there’s no blocking in either direction
@@ -268,7 +268,7 @@ export class PostService {
       if (!post) throw new NotFoundError('Post not found!');
       if (post.user.isActive == false) throw new NotFoundError('User is not active!');
       const userRepository = Repositories.user(transactionalEntityManager);
-      const postOwner = await userRepository.getUserById(post.user.id);
+      const postOwner = await userRepository.getUserById(post.user.firebaseUid);
       if (!postOwner) throw new NotFoundError('Post owner not found!');
       const bookmarkNotifRequest: FindTokensRequest = {
         email: postOwner.email,
@@ -277,7 +277,7 @@ export class PostService {
         data: {
           postId: post.id,
           postTitle: post.title,
-          bookmarkedBy: user.id,
+          bookmarkedBy: user.firebaseUid,
           bookmarkedByUsername: user.username
         } as unknown as JSON
       }
@@ -369,12 +369,12 @@ export class PostService {
   public async filterBlockedUserPosts(posts: PostModel[], user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.id);
+      const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.firebaseUid);
       const blockedUsers = userWithBlockedInfo?.blocking;
       return posts.filter((post) => {
         if (blockedUsers) {
           for (const blockedUser of blockedUsers) {
-            if (post.user?.id == blockedUser.id) return false;
+            if (post.user?.firebaseUid == blockedUser.firebaseUid) return false;
           }
         }
         return true;

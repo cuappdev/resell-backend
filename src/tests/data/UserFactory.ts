@@ -23,7 +23,7 @@ export class UserFactory {
          * for exact details
          */
         const fakeUser = new UserModel();
-        fakeUser.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+        fakeUser.firebaseUid = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
         fakeUser.givenName = 'Shungo';
         fakeUser.familyName = 'Najima';
         fakeUser.username = 'snajima';
@@ -47,7 +47,7 @@ export class UserFactory {
          * for exact details
          */
         const fakeUser = new UserModel();
-        fakeUser.id = 'c6f0a14a-48ae-4b1c-bd6f-5f3b7e8c2b99';
+        fakeUser.firebaseUid = 'c6f0a14a-48ae-4b1c-bd6f-5f3b7e8c2b99';
         fakeUser.givenName = 'Tony';
         fakeUser.familyName = 'Matchev';
         fakeUser.username = 'tmatchev';
@@ -72,7 +72,7 @@ export class UserFactory {
         const lastName = faker.name.lastName();
 
         const fakeUser = new UserModel();
-        fakeUser.id = faker.datatype.uuid();
+        fakeUser.firebaseUid = faker.datatype.uuid();
         fakeUser.givenName = firstName;
         fakeUser.familyName = lastName;
         fakeUser.username = faker.internet.userName(firstName, lastName);

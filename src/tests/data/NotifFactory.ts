@@ -8,7 +8,7 @@ export class NotifFactory {
 
   public static fake(): NotifModel {
     const notif = new NotifModel();
-    notif.userId = UserFactory.create(1)[0].id;
+    notif.userId = UserFactory.create(1)[0].firebaseUid;
     notif.title = 'Test notification title';
     notif.body = 'Test notification message';
     notif.read = false;
@@ -19,7 +19,7 @@ export class NotifFactory {
 
   public static fakeTemplate(): NotifModel {
     const notif = new NotifModel();
-    notif.userId = UserFactory.create(1)[0].id;
+    notif.userId = UserFactory.create(1)[0].firebaseUid;
     notif.title = 'Template notification title';
     notif.body = 'Template notification message';
     notif.read = false;

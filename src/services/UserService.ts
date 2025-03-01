@@ -6,7 +6,7 @@ import { InjectManager } from 'typeorm-typedi-extensions';
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest, CreateUserRequest, FcmToken } from '../types';
+import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest, CreateUserRequest, FcmTokenRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 
 @Service()
@@ -112,12 +112,12 @@ export class UserService {
   public async blockUser(user: UserModel, blockUserRequest: BlockUserRequest): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      if (user.id === blockUserRequest.blocked) {
+      if (user.firebaseUid === blockUserRequest.blocked) {
         throw new UnauthorizedError('User cannot block themselves!');
       }
       if (!user.isActive) throw new UnauthorizedError('User is not active!');
-      const joinedUser = await userRepository.getUserWithBlockedInfo(user.id);
-      if (joinedUser?.blocking?.find((blockedUser) => blockedUser.id === blockUserRequest.blocked)) {
+      const joinedUser = await userRepository.getUserWithBlockedInfo(user.firebaseUid);
+      if (joinedUser?.blocking?.find((blockedUser) => blockedUser.firebaseUid === blockUserRequest.blocked)) {
         throw new UnauthorizedError('User is already blocked!');
       }
       const blocked = await userRepository.getUserById(blockUserRequest.blocked);
@@ -132,13 +132,13 @@ export class UserService {
       const userRepository = Repositories.user(transactionalEntityManager);
       const blocked = await userRepository.getUserById(unblockUserRequest.unblocked);
       if (!blocked) throw new NotFoundError('Blocked user not found!');
-      if (user.id === unblockUserRequest.unblocked) {
+      if (user.firebaseUid === unblockUserRequest.unblocked) {
         throw new UnauthorizedError('User cannot unblock themselves!');
       }
       if (!user.isActive) throw new UnauthorizedError('User is not active!');
-      const joinedUser = await userRepository.getUserWithBlockedInfo(user.id);
+      const joinedUser = await userRepository.getUserWithBlockedInfo(user.firebaseUid);
       if (!joinedUser) throw new NotFoundError('Joined user not found!');
-      if (!joinedUser.blocking?.find((blockedUser) => blockedUser.id === unblockUserRequest.unblocked)) {
+      if (!joinedUser.blocking?.find((blockedUser) => blockedUser.firebaseUid === unblockUserRequest.unblocked)) {
         throw new UnauthorizedError('User is not blocked!');
       }
       return userRepository.unblockUser(joinedUser, blocked);
@@ -158,7 +158,7 @@ export class UserService {
   public async deleteUser(user: UserModel): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      const userToDelete = await userRepository.getUserById(user.id);
+      const userToDelete = await userRepository.getUserById(user.firebaseUid);
       if (!userToDelete) throw new NotFoundError('User not found!');
       return userRepository.deleteUser(userToDelete);
     });
@@ -183,13 +183,13 @@ export class UserService {
       const requestRepository = Repositories.request(transactionalEntityManager);
       const user = await userRepository.getUserById(params.id);
       if (!user) throw new NotFoundError('User not found!');
-      await postRepository.archiveAllPostsByUserId(user.id);
-      await requestRepository.archiveAllRequestsByUserId(user.id);
+      await postRepository.archiveAllPostsByUserId(user.firebaseUid);
+      await requestRepository.archiveAllRequestsByUserId(user.firebaseUid);
       return userRepository.softDeleteUser(user);
     });
   }
 
-  public async logout(fcmToken: FcmToken): Promise<null> {
+  public async logout(fcmToken: FcmTokenRequest): Promise<null> {
       return null;
       // TODO: add fcm token to future fcm model / db and then delete it from model here 
   }

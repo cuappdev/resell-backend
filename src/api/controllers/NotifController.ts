@@ -13,7 +13,7 @@ export class NotifController {
 
     @Get('recent')
     async getRecentNotifications(@CurrentUser() user: UserModel) {
-      return this.notifService.getRecentNotifications(user.id);
+      return this.notifService.getRecentNotifications(user.firebaseUid);
     }
 
     @Post()

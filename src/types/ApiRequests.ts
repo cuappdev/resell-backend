@@ -5,7 +5,7 @@ import { MessageModel } from '../models/MessageModel';
 
 // AUTH
 
-export interface FcmToken {
+export interface FcmTokenRequest {
     token: string;
 }
 

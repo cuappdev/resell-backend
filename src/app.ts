@@ -75,7 +75,7 @@ async function main() {
           // For user creation routes, return a minimal UserModel
           const tempUser = new UserModel();
           tempUser.googleId = email;
-          tempUser.id = decodedToken.uid;
+          tempUser.firebaseUid = decodedToken.uid;
           tempUser.isNewUser = true; 
           return tempUser;
         } 
@@ -120,7 +120,7 @@ async function main() {
       const session = await manager.findOne(UserSessionModel, { accessToken: accessToken });
       if (session && session.expiresAt.getTime() > Date.now()) {
         const userId = session.userId;
-        const user = await manager.findOne(UserModel, { id: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
+        const user = await manager.findOne(UserModel, { firebaseUid: userId }, { relations: ["posts", "saved", "sessions", "feedbacks", "requests"] });
         if (!user || !user.admin) throw new ForbiddenError("User unauthorized");
         return user;
       }

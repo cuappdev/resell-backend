@@ -10,7 +10,7 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
   public async createSession(user: UserModel): Promise<UserSessionModel> {
     const session = new UserSessionModel();
     session.user = user;
-    session.userId = user.id;
+    session.userId = user.firebaseUid;
     session.update();
     await this.repository.save(session);
     return session;
@@ -87,7 +87,7 @@ export class UserSessionRepository extends AbstractRepository<UserSessionModel> 
       .leftJoinAndSelect("UserSessionModel.user", "user")
       .where("UserSessionModel.accessToken = :accessToken", { accessToken })
       .getOne();
-    const userId = session?.user.id;
+    const userId = session?.user.firebaseUid;
     return userId;
   }
 

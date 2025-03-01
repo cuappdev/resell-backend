@@ -88,8 +88,8 @@ describe('user review tests', () => {
             fulfilled: false,
             stars: 4,
             comments: 'Seller arrived late, but very friendly!',
-            buyerId: buyer.id,
-            sellerId: seller.id,
+            buyerId: buyer.firebaseUid,
+            sellerId: seller.firebaseUid,
         };
 
         const getUserReviewResponse = await userReviewController.createUserReview(newUserReview);

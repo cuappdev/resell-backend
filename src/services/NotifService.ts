@@ -78,7 +78,7 @@ export class NotifService {
                 throw new NotFoundError("User not found!");
             }
             const allDeviceTokens = [];
-            const allsessions = await userSessionRepository.getSessionsByUserId(user.id);
+            const allsessions = await userSessionRepository.getSessionsByUserId(user.firebaseUid);
             for (var sess of allsessions) {
                 if (sess.deviceToken) {
                     allDeviceTokens.push(sess.deviceToken);
@@ -102,7 +102,7 @@ export class NotifService {
                         data: notif.data
                     })
                 })
-                await this.sendFCMNotifs(notifs, user.id)
+                await this.sendFCMNotifs(notifs, user.firebaseUid)
             } catch (err) {
                 console.log(err)
             }
@@ -126,7 +126,7 @@ export class NotifService {
             }
 
             const allDeviceTokens = [];
-            const allsessions = await userSessionRepository.getSessionsByUserId(user.id);
+            const allsessions = await userSessionRepository.getSessionsByUserId(user.firebaseUid);
             for (var sess of allsessions) {
                 if (sess.deviceToken) {
                     allDeviceTokens.push(sess.deviceToken);
@@ -143,7 +143,7 @@ export class NotifService {
                     postTitle: post.title,
                     originalPrice: request.oldPrice,
                     newPrice: request.newPrice,
-                    sellerId: post.user.id,
+                    sellerId: post.user.firebaseUid,
                     sellerUsername: post.user.username
                 } as unknown as JSON
             }
@@ -159,7 +159,7 @@ export class NotifService {
                         data: notif.data
                     });
                 });
-                await this.sendFCMNotifs(notifs, user.id);
+                await this.sendFCMNotifs(notifs, user.firebaseUid);
             } catch (err) {
                 console.log(err);
             }
@@ -189,7 +189,7 @@ export class NotifService {
             }
 
             const allDeviceTokens = [];
-            const allsessions = await userSessionRepository.getSessionsByUserId(user.id);
+            const allsessions = await userSessionRepository.getSessionsByUserId(user.firebaseUid);
             for (var sess of allsessions) {
                 if (sess.deviceToken) {
                     allDeviceTokens.push(sess.deviceToken);
@@ -207,7 +207,7 @@ export class NotifService {
                     price: post.altered_price > 0 ? post.altered_price : post.original_price,
                     requestId: userRequest.id,
                     requestTitle: userRequest.title,
-                    sellerId: post.user.id,
+                    sellerId: post.user.firebaseUid,
                     sellerUsername: post.user.username
                 } as unknown as JSON
             }

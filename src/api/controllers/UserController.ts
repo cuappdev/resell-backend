@@ -2,7 +2,7 @@ import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete} fr
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, CreateUserRequest, SetAdminByEmailRequest, FcmToken } from '../../types';
+import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, CreateUserRequest, SetAdminByEmailRequest, FcmTokenRequest } from '../../types';
 import { UuidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
@@ -85,7 +85,7 @@ export class UserController {
   }
 
   @Post('logout/')
-  async logout(@Body() fcmToken: FcmToken): Promise<null> {
+  async logout(@Body() fcmToken: FcmTokenRequest): Promise<null> {
     return await this.userService.logout(fcmToken);
   }
 

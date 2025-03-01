@@ -4,23 +4,21 @@ import {
   ManyToMany,
   OneToMany,
   JoinTable,
-  JoinColumn,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from "typeorm";
 
 import { PrivateProfile, Uuid } from "../types";
 import { FeedbackModel } from "./FeedbackModel";
 import { PostModel } from "./PostModel";
 import { RequestModel } from "./RequestModel";
-import { UserSessionModel } from "./UserSessionModel";
 import { UserReviewModel } from "./UserReviewModel";
 import { ReportModel } from "./ReportModel";
-import { MessageModel } from "./MessageModel";
+import { FcmTokenModel } from "./FcmTokenModel";
 
 @Entity("User")
 export class UserModel {
-  @PrimaryGeneratedColumn("uuid")
-  id: Uuid;
+  @PrimaryColumn({ name: "firebaseUid" })
+  firebaseUid: string;
 
   @Column({ unique: true })
   username: string;
@@ -92,10 +90,10 @@ export class UserModel {
   @ManyToMany(() => PostModel, (post) => post.savers)
   saved: PostModel[];
 
-  @OneToMany(() => UserSessionModel, (session) => session.user, {
+  @OneToMany(() => FcmTokenModel, (token) => token.user, {
     cascade: true,
   })
-  sessions: UserSessionModel[];
+  tokens: FcmTokenModel[];
 
   @OneToMany(() => FeedbackModel, (feedback) => feedback.user)
   feedbacks: FeedbackModel[];
@@ -111,7 +109,7 @@ export class UserModel {
 
   public getUserProfile(): PrivateProfile {
     return {
-      id: this.id,
+      firebaseUid: this.firebaseUid,
       username: this.username,
       netid: this.netid,
       givenName: this.givenName,

@@ -13,7 +13,7 @@ define(NotifModel, (_, context?: { user?: UserModel; index?: number }) => {
   notif.read = false;
   
   if (context?.user) {
-    notif.userId = context.user.id;
+    notif.userId = context.user.firebaseUid;
     notif.user = context.user;
   }
 

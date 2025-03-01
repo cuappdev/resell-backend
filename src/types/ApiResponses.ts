@@ -17,7 +17,7 @@ export interface ErrorResponse {
 // USER
 
 export interface PublicProfile {
-  id: Uuid;
+  firebaseUid: string;
   username: string;
   netid: string;
   givenName: string;

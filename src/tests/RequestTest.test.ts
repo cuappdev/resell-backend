@@ -107,7 +107,7 @@ describe('request tests', () => {
       title: 'Textbook',
       description: 'Textbook for CS 1110',
       archive: false,
-      userId: user.id,
+      userId: user.firebaseUid,
     };
 
     const getRequestResponse = await requestController.createRequest(newRequest);
@@ -156,7 +156,7 @@ describe('request tests', () => {
       original_price: 500.15,
       imagesBase64: [],
       created: 1667192023,
-      userId: user.id,
+      userId: user.firebaseUid,
     };
 
     await ControllerFactory.post(conn).createPost(newPost);

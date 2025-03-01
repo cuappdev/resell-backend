@@ -68,7 +68,7 @@ export class RequestService {
       const request = await requestRepository.getRequestById(params.id);
       if (!request) throw new NotFoundError('Request not found!');
       if (request.user.isActive == false) throw new NotFoundError('User is not active!');
-      if (user.id != request.user?.id) throw new ForbiddenError('User is not poster!');
+      if (user.firebaseUid != request.user?.firebaseUid) throw new ForbiddenError('User is not poster!');
       return await requestRepository.archiveRequest(request);
     });
   }
@@ -80,7 +80,7 @@ export class RequestService {
       const user = await userRepository.getUserById(params.id)
       if (!user) throw new NotFoundError('User not found!');
       if (!user.isActive) throw new NotFoundError('User is not active!');
-      const requests = await requestRepository.getRequestByUserId(user.id);
+      const requests = await requestRepository.getRequestByUserId(user.firebaseUid);
       for (const request of requests) {
         if (!request) throw new NotFoundError('Request not found!');
         await requestRepository.archiveRequest(request);

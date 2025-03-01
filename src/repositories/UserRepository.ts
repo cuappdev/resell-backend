@@ -183,11 +183,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
       throw new NotFoundError("User has not been blocked!")
     }
     else {
-      if (!blocker.blocking.find((user) => user.id === blocked.id)) {
+      if (!blocker.blocking.find((user) => user.firebaseUid === blocked.firebaseUid)) {
         throw new NotFoundError("User has not been blocked!")
       }
       // remove blocked user from blocking list
-      blocker.blocking = blocker.blocking.filter((user) => user.id !== blocked.id);
+      blocker.blocking = blocker.blocking.filter((user) => user.firebaseUid !== blocked.firebaseUid);
     }
     return this.repository.save(blocker);
   }

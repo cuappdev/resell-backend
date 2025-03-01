@@ -29,7 +29,7 @@ beforeEach(async () => {
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
 
   expectedUser = new UserModel();
-  expectedUser.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+  expectedUser.firebaseUid = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
   expectedUser.givenName = 'Shungo';
   expectedUser.familyName = 'Najima';
   expectedUser.username = 'snajima';
@@ -194,11 +194,11 @@ describe('user tests', () => {
       .createUsers(user1, user2)
       .write();
 
-    const blockUserResponse = await userController.blockUser({blocked: user2.id}, user1);
+    const blockUserResponse = await userController.blockUser({blocked: user2.firebaseUid}, user1);
     if (blockUserResponse.user != undefined) {
       if (blockUserResponse.user.blocking != undefined) {
         blockUserResponse.user.blocking.forEach((user: UserModel) => {
-          expect(user.id).toBe(user2.id);
+          expect(user.firebaseUid).toBe(user2.firebaseUid);
         });
       }
     }
@@ -214,7 +214,7 @@ describe('user tests', () => {
       .write();
 
     try {
-      await userController.blockUser({blocked: user.id}, user);
+      await userController.blockUser({blocked: user.firebaseUid}, user);
     } catch (error) {
       expect(error.message).toBe('User cannot block themselves!');
     }
@@ -227,9 +227,9 @@ describe('user tests', () => {
       .createUsers(user1, user2)
       .write();
 
-    await userController.blockUser({blocked: user2.id}, user1);
+    await userController.blockUser({blocked: user2.firebaseUid}, user1);
     try {
-      await userController.blockUser({blocked: user2.id}, user1);
+      await userController.blockUser({blocked: user2.firebaseUid}, user1);
     } catch (error) {
       expect(error.message).toBe('User is already blocked!');
     }
@@ -242,18 +242,18 @@ describe('user tests', () => {
       .createUsers(user1, user2)
       .write();
 
-    const blockUserResponse = await userController.blockUser({blocked: user2.id}, user1);
+    const blockUserResponse = await userController.blockUser({blocked: user2.firebaseUid}, user1);
     if (blockUserResponse.user != undefined) {
       if (blockUserResponse.user.blocking != undefined) {
         blockUserResponse.user.blocking.forEach((user: UserModel) => {
-          expect(user.id).toBe(user2.id);
+          expect(user.firebaseUid).toBe(user2.firebaseUid);
         });
       }
     }
     expect(blockUserResponse.user?.blocking).toHaveLength(1);
     expect(blockUserResponse.user?.blockers).toHaveLength(0);
 
-    const unblockUserResponse = await userController.unblockUser({unblocked: user2.id}, user1);
+    const unblockUserResponse = await userController.unblockUser({unblocked: user2.firebaseUid}, user1);
     expect(unblockUserResponse.user?.blocking).toHaveLength(0);
     expect(unblockUserResponse.user?.blockers).toHaveLength(0);
   });
@@ -266,7 +266,7 @@ describe('user tests', () => {
       .write();
 
     try {
-      await userController.unblockUser({unblocked: user2.id}, user1);
+      await userController.unblockUser({unblocked: user2.firebaseUid}, user1);
     } catch (error) {
       expect(error.message).toBe('User is not blocked!');
     }
@@ -323,7 +323,7 @@ describe('user tests', () => {
     .toEqual(new Set([blockedPost.id, blockerPost.id]));
 
     // Blocker blocks blocked
-    await userController.blockUser({ blocked: blocked.id }, blocker);
+    await userController.blockUser({ blocked: blocked.firebaseUid }, blocker);
 
     // Verify blocker’s saved posts no longer contain blockedPost
     blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
@@ -336,7 +336,7 @@ describe('user tests', () => {
     expect(blockedSavedPosts.posts.map(post => post.id)).toEqual([neutralPost.id]);
 
     // Blocker unblocks blocked
-    await userController.unblockUser({ unblocked: blocked.id }, blocker);
+    await userController.unblockUser({ unblocked: blocked.firebaseUid }, blocker);
     // Verify blocker has saved posts
     blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
       expect(blockerSavedPosts).not.toBeUndefined();
@@ -393,7 +393,7 @@ describe('user tests', () => {
     expect(blockedSavedPosts.posts[0].id).toEqual(blockerPost.id);
 
     // Blocker blocks blocked
-    await userController.blockUser({ blocked: blocked.id }, blocker);
+    await userController.blockUser({ blocked: blocked.firebaseUid }, blocker);
 
     // Verify blocker’s saved posts no longer contain blockedPost
     blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
@@ -406,7 +406,7 @@ describe('user tests', () => {
     expect(blockedSavedPosts.posts).toEqual([]);
 
     // Blocker unblocks blocked
-    await userController.unblockUser({ unblocked: blocked.id }, blocker);
+    await userController.unblockUser({ unblocked: blocked.firebaseUid }, blocker);
 
     // Verify blocker has saved blockedPost
     blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
@@ -476,7 +476,7 @@ describe('user tests', () => {
       .write();
 
     try {
-      await userController.deleteUser({id: user2.id}, user1);
+      await userController.deleteUser({firebaseUid: user2.firebaseUid}, user1);
     } catch (error) {
       expect(error.message).toBe('User does not have permission to delete other users');
     }
@@ -489,7 +489,7 @@ describe('user tests', () => {
       .createUsers(user)
       .write();
 
-    const userUuid = {id: user.id};
+    const userUuid = {id: user.firebaseUid};
 
     const getBlockedUsersResponse = await userController.getBlockedUsersById(userUuid);
     expect(getBlockedUsersResponse.users).toHaveLength(0);
@@ -502,8 +502,8 @@ describe('user tests', () => {
       .createUsers(user1, user2)
       .write();
 
-    await userController.blockUser({blocked: user2.id}, user1);
-    const user1Uuid = {id: user1.id};
+    await userController.blockUser({blocked: user2.firebaseUid}, user1);
+    const user1Uuid = {id: user1.firebaseUid};
     const getBlockedUsersResponse = await userController.getBlockedUsersById(user1Uuid);
     expect(getBlockedUsersResponse.users).toHaveLength(1);
   });

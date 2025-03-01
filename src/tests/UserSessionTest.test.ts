@@ -82,16 +82,16 @@ describe('user session tests', () => {
     const user = UserFactory.fake();
     const [session1, session2] = UserSessionFactory.create(2);
     session1.user = user;
-    session1.userId = user.id;
+    session1.userId = user.firebaseUid;
     session2.user = user;
-    session2.userId = user.id;
+    session2.userId = user.firebaseUid;
 
     await new DataFactory()
       .createUsers(user)
       .createUserSessions(session1, session2)
       .write();
 
-    uuidParam.id = user.id;
+    uuidParam.id = user.firebaseUid;
 
     const getSessionsResponse = await authController.getSessionsByUserId(uuidParam);
 
@@ -102,7 +102,7 @@ describe('user session tests', () => {
     const user = UserFactory.fake();
     const session = UserSessionFactory.fake();
     session.user = user;
-    session.userId = user.id;
+    session.userId = user.firebaseUid;
 
     await new DataFactory()
       .createUsers(user)
@@ -125,7 +125,7 @@ describe('user session tests', () => {
     const session = UserSessionFactory.fake();
     session.expiresAt = new Date();
     session.user = user;
-    session.userId = user.id;
+    session.userId = user.firebaseUid;
 
     await new DataFactory()
       .createUsers(user)
