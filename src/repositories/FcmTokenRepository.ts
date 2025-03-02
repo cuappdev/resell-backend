@@ -10,7 +10,7 @@ export class FcmTokenRepository extends AbstractRepository<FcmTokenModel> {
     return await this.repository
       .createQueryBuilder("fcmToken")
       .leftJoinAndSelect("fcmToken.user", "user")
-      .where("user.id = :userId", { userId })
+      .where("user.firebaseUid = :userId", { userId })
       .getMany();
   }
 
