@@ -20,7 +20,8 @@ export class UserService {
   public async createUser(user: UserModel, createUserRequest: CreateUserRequest): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
-      return await userRepository.createUser(
+      const makeUser = await userRepository.createUser(
+        user.firebaseUid,
         createUserRequest.username,
         createUserRequest.netid,
         createUserRequest.givenName,
@@ -31,7 +32,15 @@ export class UserService {
         createUserRequest.googleId,
         createUserRequest.bio
       );
-      // TODO: add fcm token to future fcm model / db
+        const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
+        const token = await fcmRepository.createFcmToken(
+          createUserRequest.fcmToken,
+          true,
+          new Date(),
+          makeUser
+        );
+        makeUser.tokens = [token];
+        return makeUser;
     });
   }
 
@@ -177,8 +186,13 @@ export class UserService {
     });
   }
 
-  public async logout(fcmToken: FcmTokenRequest): Promise<null> {
+  public async logout(fcmTokenRequest: FcmTokenRequest): Promise<null> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
+      const token = await fcmRepository.getTokenByFcmToken(fcmTokenRequest.token);
+      if (!token) throw new NotFoundError('Token not found!');
+      await fcmRepository.deleteToken(token);
       return null;
-      // TODO: add fcm token to future fcm model / db and then delete it from model here 
+    });
   }
 }

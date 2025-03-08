@@ -3,6 +3,8 @@ import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
+import { NotFoundError } from 'routing-controllers';
+
 
 @Service()
 export class AuthService {
@@ -16,7 +18,15 @@ export class AuthService {
     if (user.isNewUser) {
       return null;
     }
-    // TODO: add fcm token to future fcm token model
-    return user;
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
+      const token = await fcmRepository.createFcmToken(
+        fcmToken,
+        true,
+        new Date(),
+        user
+      );
+      return user;
+    });
   }
 }
