@@ -8,6 +8,7 @@ import { MessageModel } from './MessageModel';
 import { TransactionModel } from './TransactionModel';
 import { TransactionReviewModel } from './TransactionReviewModel';
 import { NotifModel } from './NotifModel';
+import { FcmTokenModel } from './FcmTokenModel';
 
 export const models = [
   FeedbackModel,
@@ -19,5 +20,6 @@ export const models = [
   MessageModel,
   TransactionModel,
   TransactionReviewModel,
-  NotifModel
+  NotifModel,
+  FcmTokenModel
 ];

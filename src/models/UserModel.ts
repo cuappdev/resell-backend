@@ -20,6 +20,10 @@ export class UserModel {
   @PrimaryColumn({ name: "firebaseUid" })
   firebaseUid: string;
 
+  /** @deprecated This column will be removed after the AuthorizationRefactor migration */
+  @Column()
+  id: string;
+
   @Column({ unique: true })
   username: string;
 
@@ -66,11 +70,11 @@ export class UserModel {
     name: "user_blocking_users",
     joinColumn: {
       name: "blockers",
-      referencedColumnName: "id",
+      referencedColumnName: "firebaseUid",
     },
     inverseJoinColumn: {
       name: "blocking",
-      referencedColumnName: "id",
+      referencedColumnName: "firebaseUid",
     },
   })
   blocking: UserModel[] | undefined;

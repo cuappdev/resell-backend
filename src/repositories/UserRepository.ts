@@ -84,6 +84,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async createUser(
+    firebaseUid: string,
     username: string,
     netid: string,
     givenName: string,
@@ -120,6 +121,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
     const adminStatus = adminEmails?.includes(email);
 
     const user = new UserModel();
+    user.firebaseUid = firebaseUid;
     user.username = username;
     user.netid = netid;
     user.givenName = givenName;

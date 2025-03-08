@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 import { Uuid } from '../types';
 import { UserModel } from './UserModel';
 
-@Entity('FcmToken')
+@Entity('FCMToken')
 export class FcmTokenModel {    
 
   @PrimaryGeneratedColumn('uuid')
@@ -18,7 +18,7 @@ export class FcmTokenModel {
   @Column()
   timestamp: Date;
 
-  @ManyToOne(() => UserModel, user => user.firebaseUid)
+  @ManyToOne(() => UserModel, user => user.tokens)
   @JoinColumn({ name: 'userId' })
   user: UserModel
 
