@@ -30,6 +30,13 @@ export class FcmTokenRepository extends AbstractRepository<FcmTokenModel> {
     return token;
   }
 
+  public async getTokenByFcmToken(fcmToken: string): Promise<FcmTokenModel | undefined> {
+    return await this.repository
+      .createQueryBuilder("fcmToken")
+      .where("fcmToken.fcmToken = :fcmToken", { fcmToken })
+      .getOne();
+  }
+
   public async deleteToken(token: FcmTokenModel): Promise<FcmTokenModel> {
     return this.repository.remove(token);
   }

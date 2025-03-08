@@ -17,11 +17,11 @@ if (!serviceAccountPath) {
 
 const serviceAccount = require(serviceAccountPath);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  // Optionally, you can specify the database URL if needed:
-  // databaseURL: "https://resell-e99a2-default-rtdb.firebaseio.com"
-  });
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+//   // Optionally, you can specify the database URL if needed:
+//   // databaseURL: "https://resell-e99a2-default-rtdb.firebaseio.com"
+//   });
 
 
 @Service()
