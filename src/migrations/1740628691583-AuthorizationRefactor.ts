@@ -36,20 +36,52 @@ export class AuthorizationRefactor1740628691583 implements MigrationInterface {
             ["notifications", "user_id", "FK_notifications_user"]
         ];
         for (const [table, column, fk] of userTableColumnFKs) {
-            await queryRunner.query(`ALTER TABLE "${table}" DROP CONSTRAINT "${fk}"`);
+            // check via query if the col exists in the table. if it does not, do not go thorugh with the bottom 3 queries
+            const result = await queryRunner.query(`SELECT column_name FROM information_schema.columns WHERE table_name = '${table}' AND column_name = '${column}'`);
+            if (result.length === 0) {
+                continue;
+            }
+            // Drop the old foreign key constraint if it exists
+            await queryRunner.query(`
+                DO $$ 
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1 
+                        FROM information_schema.table_constraints 
+                        WHERE constraint_name = '${fk}'
+                    ) THEN
+                        ALTER TABLE "${table}" DROP CONSTRAINT "${fk}";
+                    END IF;
+                END $$;
+            `);
             await queryRunner.query(`ALTER TABLE "${table}" ADD COLUMN "${column}_firebaseUid" VARCHAR`);
                 
             // Update the temporary column with Firebase UID from User table 
             await queryRunner.query(`
                 UPDATE "${table}" t
-                SET "${column}_firebaseUid" = u.firebaseUid
+                SET "${column}_firebaseUid" = u."firebaseUid"
                 FROM "User" u
                 WHERE t.${column} = u.id
             `);
         }
-        
-         // 3. Drop old primary key constraint on User table
-         await queryRunner.query(`ALTER TABLE "User" DROP CONSTRAINT "PK_User_id"`);
+
+         // Drop the primary key constraint by finding its name first
+         await queryRunner.query(`
+            DO $$ 
+            DECLARE
+                constraint_name text;
+            BEGIN
+                SELECT tc.constraint_name into constraint_name
+                FROM information_schema.table_constraints tc
+                WHERE tc.table_name = 'User'
+                AND tc.constraint_type = 'PRIMARY KEY';
+                
+                IF constraint_name IS NOT NULL THEN
+                    -- Use CASCADE to automatically drop dependent objects
+                    EXECUTE 'ALTER TABLE "User" DROP CONSTRAINT "' || constraint_name || '" CASCADE';
+                END IF;
+            END $$;
+         `);
 
          // 4. Make firebaseUid the new primary key
          await queryRunner.query(`
@@ -59,6 +91,10 @@ export class AuthorizationRefactor1740628691583 implements MigrationInterface {
          `);
  
         for (const [table, column, fk] of userTableColumnFKs) {
+            const result = await queryRunner.query(`SELECT column_name FROM information_schema.columns WHERE table_name = '${table}' AND column_name = '${column}'`);
+            if (result.length === 0) {
+                continue;
+            }
             //drop old column
             await queryRunner.query(`ALTER TABLE "${table}" DROP COLUMN "${column}"`);
 
@@ -82,6 +118,7 @@ export class AuthorizationRefactor1740628691583 implements MigrationInterface {
             )
         `);
         await queryRunner.query(`CREATE INDEX "IDX_FCMToken_userId" ON "FCMToken"("userId")`);
+        await queryRunner.query(`CREATE INDEX "IDX_FCMToken_fcmToken" ON "FCMToken"("fcmToken")`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
