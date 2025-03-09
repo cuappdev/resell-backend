@@ -6,23 +6,9 @@ import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 // var accessToken = process.env['EXPO_ACCESS_TOKEN']
 // const expoServer = new Expo({ accessToken: accessToken });
-import * as admin from 'firebase-admin';
+// import * as admin from 'firebase-admin';
 import { getMessaging, Message } from 'firebase-admin/messaging';
-
-
-var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
-if (!serviceAccountPath) {
-  throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH environment variable is not set.');
-}
-
-const serviceAccount = require(serviceAccountPath);
-
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-//   // Optionally, you can specify the database URL if needed:
-//   // databaseURL: "https://resell-e99a2-default-rtdb.firebaseio.com"
-//   });
-
+import { admin } from '../app';
 
 @Service()
 export class NotifService {

@@ -20,14 +20,22 @@ import { ReportService } from './services/ReportService';
 import { ReportRepository } from './repositories/ReportRepository';
 import { reportToString } from './utils/Requests';
 import { CurrentUserChecker } from 'routing-controllers/types/CurrentUserChecker';
-import * as admin from 'firebase-admin';
+import * as firebaseAdmin from 'firebase-admin';
 
 
 dotenv.config();
+var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
+const serviceAccount = require(serviceAccountPath);
+
+
+if (!serviceAccountPath) {
+  throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH environment variable is not set.');
+}
 
 // Initialize Firebase Admin SDK
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
+export const admin = firebaseAdmin.initializeApp({
+  credential: firebaseAdmin.credential.cert(serviceAccount),
+  // databaseURL: "https://resell-e99a2-default-rtdb.firebaseio.com"
 });
 
 async function main() {
