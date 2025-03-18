@@ -73,11 +73,11 @@ export class UserController {
   async deleteUser(@CurrentUser() user: UserModel): Promise<UserModel> {
     return await this.userService.deleteUser(user);
   }
-
-  // @Delete('id/:id/')
-  // async deleteUser(@Params() params: UuidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
-  //   return { user: await this.userService.deleteUser(user, params) };
-  // }
+  
+  @Delete('id/:id/')
+  async deleteUserByOtherUser(@Params() params: FirebaseUidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+    return { user: await this.userService.deleteUserByOtherUser(user, params) };
+  }
 
   @Post('softDelete/id/:id/')
   async softDeleteUser(@Params() params: FirebaseUidParam): Promise<GetUserResponse> {

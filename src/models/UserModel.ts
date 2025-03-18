@@ -21,7 +21,7 @@ export class UserModel {
   firebaseUid: string;
 
   /** @deprecated This column will be removed after the AuthorizationRefactor migration */
-  @Column()
+  @Column({ nullable: true })
   id: string;
 
   @Column({ unique: true })

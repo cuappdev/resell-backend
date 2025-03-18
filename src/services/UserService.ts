@@ -173,6 +173,18 @@ export class UserService {
     });
   }
 
+  public async deleteUserByOtherUser(user: UserModel, params: FirebaseUidParam): Promise<UserModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const userToDelete = await userRepository.getUserById(params.id);
+      if (!userToDelete) throw new NotFoundError('User not found!');
+      if (user.firebaseUid !== userToDelete.firebaseUid && !user.admin) {
+        throw new UnauthorizedError('User does not have permission to delete other users');
+      }
+      return userRepository.deleteUser(userToDelete);
+    });
+  }
+
   public async softDeleteUser(params: FirebaseUidParam): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
