@@ -25,7 +25,7 @@
       "description": "Post management endpoints"
     },
     {
-      "name": "Notifications",
+      "name": "Notification",
       "description": "Notification management endpoints"
     },
     {
@@ -1107,116 +1107,80 @@
     },
     "/notif": {
       "post": {
-        "summary": "Send notifications",
-        "tags": ["Notifications"],
+        "summary": "Send notification",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FindTokensRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/FindTokensRequest" }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Notifications sent successfully"
-          }
-        }
-      }
-    },
-    "/notif/discount": {
-      "post": {
-        "summary": "Send discount notifications",
-        "tags": ["Notifications"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DiscountNotificationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Discount notifications sent successfully"
-          }
-        }
-      }
-    },
-    "/notif/request-match": {
-      "post": {
-        "summary": "Send request match notifications",
-        "tags": ["Notifications"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RequestMatchNotificationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Request match notifications sent successfully"
+            "description": "Notification sent successfully"
           }
         }
       }
     },
     "/notif/recent": {
       "get": {
-        "tags": ["Notifications"],
-        "summary": "Get recent notifications for current user",
+        "tags": ["Notification"],
+        "summary": "Get recent notifications",
         "security": [{ "bearerAuth": [] }],
         "responses": {
           "200": {
-            "description": "List of recent notifications",
+            "description": "Recent notifications retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "notifications": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid"
-                          },
-                          "userId": {
-                            "type": "string",
-                            "format": "uuid"
-                          },
-                          "title": {
-                            "type": "string"
-                          },
-                          "body": {
-                            "type": "string"
-                          },
-                          "read": {
-                            "type": "boolean"
-                          },
-                          "created": {
-                            "type": "string",
-                            "format": "date-time"
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Notification" }
                 }
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized - User not authenticated"
+          }
+        }
+      }
+    },
+    "/notif/request-match": {
+      "post": {
+        "summary": "Send request match notification",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RequestMatchNotificationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request match notification sent successfully"
+          }
+        }
+      }
+    },
+    "/notif/discount": {
+      "post": {
+        "summary": "Send discount notification",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DiscountNotificationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Discount notification sent successfully"
           }
         }
       }
@@ -2491,18 +2455,52 @@
           }
         }
       },
-      "DiscountNotificationRequest": {
-        "type": "object",
-        "properties": {
-          "userId": { "type": "string", "format": "uuid" },
-          "discount": { "type": "number" }
-        }
-      },
       "RequestMatchNotificationRequest": {
         "type": "object",
         "properties": {
-          "userId": { "type": "string", "format": "uuid" },
-          "matchDetails": { "type": "object" }
+          "firebaseUid": { 
+            "type": "string",
+            "description": "Firebase UID of the user"
+          },
+          "listingId": { 
+            "type": "string", 
+            "format": "uuid",
+            "description": "UUID of the post/listing"
+          },
+          "requestId": { 
+            "type": "string", 
+            "format": "uuid",
+            "description": "UUID of the request to match"
+          }
+        },
+        "required": ["firebaseUid", "listingId", "requestId"]
+      },
+      "DiscountNotificationRequest": {
+        "type": "object",
+        "properties": {
+          "sellerId": { 
+            "type": "string",
+            "description": "Firebase UID of the seller"
+          },
+          "listingId": { 
+            "type": "string", 
+            "format": "uuid",
+            "description": "UUID of the post/listing"
+          },
+          "oldPrice": { "type": "number" },
+          "newPrice": { "type": "number" }
+        },
+        "required": ["sellerId", "listingId", "oldPrice", "newPrice"]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "body": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "type": "object" },
+          "createdAt": { "type": "string", "format": "date-time" }
         }
       },
       "GetRequestResponse": {
