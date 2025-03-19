@@ -676,18 +676,49 @@
         }
       }
     },
+    "/user/create": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Create a new user",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateUserRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/user": {
       "get": {
-        "summary": "Get all users",
         "tags": ["User"],
+        "summary": "Get all users",
         "security": [{ "bearerAuth": [] }],
         "responses": {
           "200": {
-            "description": "Users retrieved successfully",
+            "description": "List of users retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUsersResponse"
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/User" }
+                    }
+                  }
                 }
               }
             }
@@ -695,16 +726,14 @@
         }
       },
       "post": {
-        "summary": "Edit user profile",
         "tags": ["User"],
+        "summary": "Edit user profile",
         "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EditProfileRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/EditProfileRequest" }
             }
           }
         },
@@ -714,8 +743,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["User"],
+        "summary": "Delete current user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
               }
             }
           }
@@ -724,17 +771,15 @@
     },
     "/user/id/{id}": {
       "get": {
-        "summary": "Get user by ID",
         "tags": ["User"],
+        "summary": "Get user by ID",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
+            "schema": { "type": "string", "format": "uuid" }
           }
         ],
         "responses": {
@@ -743,7 +788,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
@@ -751,18 +799,16 @@
         }
       },
       "delete": {
-        "summary": "Delete user by ID",
         "tags": ["User"],
+        "summary": "Delete user by other user",
         "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
+            "description": "Firebase UID of the user to delete",
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -771,7 +817,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
@@ -781,16 +830,15 @@
     },
     "/user/googleId/{id}": {
       "get": {
-        "summary": "Get user by Google ID",
         "tags": ["User"],
+        "summary": "Get user by Google ID",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -799,7 +847,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
@@ -809,17 +860,15 @@
     },
     "/user/postId/{id}": {
       "get": {
-        "summary": "Get user by post ID",
         "tags": ["User"],
+        "summary": "Get user by post ID",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
+            "schema": { "type": "string", "format": "uuid" }
           }
         ],
         "responses": {
@@ -828,7 +877,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
@@ -838,15 +890,14 @@
     },
     "/user/email": {
       "post": {
-        "summary": "Get user by email",
         "tags": ["User"],
+        "summary": "Get user by email",
+        "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GetUserByEmailRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/GetUserByEmailRequest" }
             }
           }
         },
@@ -856,7 +907,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
@@ -866,16 +920,14 @@
     },
     "/user/admin": {
       "post": {
-        "summary": "Set user as admin",
         "tags": ["User"],
+        "summary": "Set user as admin",
         "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetAdminByEmailRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/SetAdminByEmailRequest" }
             }
           }
         },
@@ -885,7 +937,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
@@ -895,16 +950,14 @@
     },
     "/user/block": {
       "post": {
-        "summary": "Block a user",
         "tags": ["User"],
+        "summary": "Block a user",
         "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BlockUserRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/BlockUserRequest" }
             }
           }
         },
@@ -914,7 +967,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
@@ -924,16 +980,14 @@
     },
     "/user/unblock": {
       "post": {
-        "summary": "Unblock a user",
         "tags": ["User"],
+        "summary": "Unblock a user",
         "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UnblockUserRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/UnblockUserRequest" }
             }
           }
         },
@@ -943,7 +997,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
@@ -953,17 +1010,15 @@
     },
     "/user/blocked/id/{id}": {
       "get": {
-        "summary": "Get blocked users by user ID",
         "tags": ["User"],
+        "summary": "Get blocked users by ID",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
+            "schema": { "type": "string", "format": "uuid" }
           }
         ],
         "responses": {
@@ -972,7 +1027,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUsersResponse"
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/User" }
+                    }
+                  }
                 }
               }
             }
@@ -982,17 +1043,16 @@
     },
     "/user/softDelete/id/{id}": {
       "post": {
-        "summary": "Soft delete a user",
         "tags": ["User"],
+        "summary": "Soft delete user",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
+            "description": "Firebase UID of the user to soft delete",
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -1001,10 +1061,32 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/user/logout": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Logout user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FcmTokenRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logged out successfully"
           }
         }
       }
@@ -2253,22 +2335,27 @@
       },
       "CreateUserRequest": {
         "type": "object",
-        "required": ["email", "password"],
         "properties": {
-          "email": { "type": "string", "format": "email" },
-          "password": { "type": "string" },
-          "name": { "type": "string" },
-          "netId": { "type": "string" },
-          "googleId": { "type": "string" },
-          "photoUrl": { "type": "string" }
-        }
+          "givenName": { "type": "string" },
+          "familyName": { "type": "string" },
+          "email": { "type": "string" }
+        },
+        "required": ["givenName", "familyName", "email"]
       },
       "EditProfileRequest": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "photoUrl": { "type": "string" }
+          "givenName": { "type": "string" },
+          "familyName": { "type": "string" },
+          "profilePicUrl": { "type": "string" }
         }
+      },
+      "GetUserByEmailRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" }
+        },
+        "required": ["email"]
       },
       "GetPostResponse": {
         "type": "object",
@@ -2476,34 +2563,33 @@
           "reason": { "type": "string" }
         }
       },
-      "GetUserByEmailRequest": {
-        "type": "object",
-        "required": ["email"],
-        "properties": {
-          "email": { "type": "string", "format": "email" }
-        }
-      },
       "SetAdminByEmailRequest": {
         "type": "object",
-        "required": ["email", "admin"],
         "properties": {
-          "email": { "type": "string", "format": "email" },
+          "email": { "type": "string" },
           "admin": { "type": "boolean" }
-        }
+        },
+        "required": ["email", "admin"]
       },
       "BlockUserRequest": {
         "type": "object",
-        "required": ["blockedId"],
         "properties": {
-          "blockedId": { "type": "string", "format": "uuid" }
-        }
+          "userId": { 
+            "type": "string",
+            "description": "Firebase UID of the user to block"
+          }
+        },
+        "required": ["userId"]
       },
       "UnblockUserRequest": {
         "type": "object",
-        "required": ["unblockedId"],
         "properties": {
-          "unblockedId": { "type": "string", "format": "uuid" }
-        }
+          "userId": { 
+            "type": "string",
+            "description": "Firebase UID of the user to unblock"
+          }
+        },
+        "required": ["userId"]
       },
       "FilterPostsByConditionRequest": {
         "type": "object",
