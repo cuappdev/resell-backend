@@ -325,15 +325,14 @@
       "get": {
         "summary": "Get archived posts by user ID",
         "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -342,7 +341,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetPostsResponse"
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/GetPostResponse" }
+                    }
+                  }
                 }
               }
             }
@@ -384,24 +389,29 @@
       "post": {
         "summary": "Archive all posts by user ID",
         "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Posts archived successfully",
+            "description": "All posts archived successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetPostsResponse"
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/GetPostResponse" }
+                    }
+                  }
                 }
               }
             }
@@ -598,10 +608,8 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -610,7 +618,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetPostsResponse"
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/GetPostResponse" }
+                    }
+                  }
                 }
               }
             }
