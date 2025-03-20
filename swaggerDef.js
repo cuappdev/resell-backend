@@ -152,7 +152,7 @@ module.exports = {
             name: 'id',
             in: 'path',
             required: true,
-            schema: { type: 'string', format: 'uuid' }
+            schema: { type: 'string' }
           }
         ],
         responses: {
@@ -377,10 +377,10 @@ module.exports = {
               schema: {
                 type: 'object',
                 properties: {
-                  listingId: { type: 'string', format: 'uuid' },
+                  listingId: { type: 'string' },
                   oldPrice: { type: 'number' },
                   newPrice: { type: 'number' },
-                  sellerId: { type: 'string', format: 'uuid' }
+                  sellerId: { type: 'string' }
                 },
                 required: ['listingId', 'oldPrice', 'newPrice', 'sellerId']
               }
@@ -644,7 +644,7 @@ module.exports = {
         type: 'object',
         properties: {
           id: { type: 'string', format: 'uuid' },
-          reporterId: { type: 'string', format: 'uuid' },
+          reporterId: { type: 'string' },
           reason: { type: 'string' },
           resolved: { type: 'boolean' },
           createdAt: { type: 'string', format: 'date-time' },
@@ -663,7 +663,7 @@ module.exports = {
         type: 'object',
         required: ['profileId', 'reason'],
         properties: {
-          profileId: { type: 'string', format: 'uuid' },
+          profileId: { type: 'string' },
           reason: { type: 'string' }
         }
       },
@@ -716,19 +716,26 @@ module.exports = {
       User: {
         type: 'object',
         properties: {
+          firebaseUid: { type: 'string' },
           id: { type: 'string' },
-          email: { type: 'string' },
-          name: { type: 'string' }
+          username: { type: 'string' },
+          netid: { type: 'string' },
+          givenName: { type: 'string' },
+          familyName: { type: 'string' },
+          admin: { type: 'boolean' },
+          isActive: { type: 'boolean' },
+          stars: { type: 'number' },
+          numReviews: { type: 'integer' },
+          photoUrl: { type: 'string' }
         }
       },
       CreateFeedbackRequest: {
         type: 'object',
         properties: {
           title: { type: 'string' },
-          description: { type: 'string' },
-          firebaseUid: { type: 'string' }
+          description: { type: 'string' }
         },
-        required: ['title', 'description', 'firebaseUid']
+        required: ['title', 'description']
       },
       GetSearchedFeedbackRequest: {
         type: 'object',
