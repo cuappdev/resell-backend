@@ -7,7 +7,7 @@ module.exports = {
   },
   servers: [
     {
-      url: 'http://localhost:3000', // Base URL
+      url: 'http://localhost:3000',
       description: 'Development server',
     },
   ],
@@ -325,41 +325,42 @@ module.exports = {
         }
       }
     },
-    '/notif/': {
+    '/notif': {
       post: {
         tags: ['Notification'],
-        summary: 'Send a notification',
+        summary: 'Send notification',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
           content: {
             'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  email: { type: 'string' },
-                  title: { type: 'string' },
-                  body: { type: 'string' },
-                  data: { type: 'object' }
-                },
-                required: ['email', 'title', 'body']
-              }
+              schema: { $ref: '#/components/schemas/FindTokensRequest' }
             }
           }
         },
         responses: {
           '200': {
-            description: 'Notification sent successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean' }
-                  }
-                }
-              }
+            description: 'Notification sent successfully'
+          }
+        }
+      }
+    },
+    '/notif/request-match': {
+      post: {
+        tags: ['Notification'],
+        summary: 'Send request match notification',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/RequestMatchNotificationRequest' }
             }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Request match notification sent successfully'
           }
         }
       }
@@ -403,36 +404,28 @@ module.exports = {
         }
       }
     },
-    '/notif/request-match': {
+    '/user/softDelete/id/{id}': {
       post: {
-        tags: ['Notification'],
-        summary: 'Send a request match notification',
+        tags: ['User'],
+        summary: 'Soft delete a user',
         security: [{ bearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  requestId: { type: 'string', format: 'uuid' },
-                  listingId: { type: 'string', format: 'uuid' },
-                  userId: { type: 'string', format: 'uuid' }
-                },
-                required: ['requestId', 'listingId', 'userId']
-              }
-            }
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' }
           }
-        },
+        ],
         responses: {
           '200': {
-            description: 'Request match notification sent successfully',
+            description: 'User soft deleted successfully',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    success: { type: 'boolean' }
+                    user: { $ref: '#/components/schemas/User' }
                   }
                 }
               }
@@ -440,7 +433,210 @@ module.exports = {
           }
         }
       }
-    }
+    },
+    '/auth': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Authorize user',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/FcmTokenRequest' }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'User authorized successfully',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/User' }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/feedback': {
+      get: {
+        tags: ['Feedback'],
+        summary: 'Get all feedback',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': {
+            description: 'List of all feedback',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    feedbacks: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Feedback' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      post: {
+        tags: ['Feedback'],
+        summary: 'Create feedback',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/CreateFeedbackRequest' }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Feedback created successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    feedback: { $ref: '#/components/schemas/Feedback' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/feedback/id/{id}': {
+      get: {
+        tags: ['Feedback'],
+        summary: 'Get feedback by ID',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' }
+          }
+        ],
+        responses: {
+          '200': {
+            description: 'Feedback details',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    feedback: { $ref: '#/components/schemas/Feedback' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      delete: {
+        tags: ['Feedback'],
+        summary: 'Delete feedback by ID',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' }
+          }
+        ],
+        responses: {
+          '200': {
+            description: 'Feedback deleted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    feedback: { $ref: '#/components/schemas/Feedback' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/feedback/firebaseUid/{id}': {
+      get: {
+        tags: ['Feedback'],
+        summary: 'Get feedback by firebaseUid',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'Firebase UID of the user',
+            schema: { type: 'string' }
+          }
+        ],
+        responses: {
+          '200': {
+            description: 'List of feedback by user',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    feedbacks: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Feedback' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/feedback/search': {
+      post: {
+        tags: ['Feedback'],
+        summary: 'Search feedback',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/GetSearchedFeedbackRequest' }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Search results',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    feedbacks: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Feedback' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
   },
   components: {
     schemas: {
@@ -483,13 +679,75 @@ module.exports = {
         type: 'object',
         properties: {
           id: { type: 'string', format: 'uuid' },
-          userId: { type: 'string', format: 'uuid' },
           title: { type: 'string' },
           body: { type: 'string' },
-          read: { type: 'boolean' },
-          created: { type: 'string', format: 'date-time' }
+          type: { type: 'string' },
+          data: { type: 'object' },
+          createdAt: { type: 'string', format: 'date-time' }
         }
-      }
+      },
+      FindTokensRequest: {
+        type: 'object',
+        properties: {
+          tokens: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          title: { type: 'string' },
+          body: { type: 'string' }
+        },
+        required: ['tokens', 'title', 'body']
+      },
+      RequestMatchNotificationRequest: {
+        type: 'object',
+        properties: {
+          requestId: { type: 'string', format: 'uuid' },
+          firebaseUid: { type: 'string' }
+        },
+        required: ['requestId', 'firebaseUid']
+      },
+      FcmTokenRequest: {
+        type: 'object',
+        properties: {
+          token: { type: 'string' }
+        },
+        required: ['token']
+      },
+      User: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          email: { type: 'string' },
+          name: { type: 'string' }
+        }
+      },
+      CreateFeedbackRequest: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          description: { type: 'string' },
+          firebaseUid: { type: 'string' }
+        },
+        required: ['title', 'description', 'firebaseUid']
+      },
+      GetSearchedFeedbackRequest: {
+        type: 'object',
+        properties: {
+          query: { type: 'string' }
+        },
+        required: ['query']
+      },
+      Feedback: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          title: { type: 'string' },
+          description: { type: 'string' },
+          firebaseUid: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' }
+        }
+      },
     },
     securitySchemes: {
       bearerAuth: {
