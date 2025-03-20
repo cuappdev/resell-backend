@@ -321,9 +321,9 @@
         }
       }
     },
-    "/post/archive/userId/{id}": {
+    "/post/archive/firebaseUid/{id}": {
       "get": {
-        "summary": "Get archived posts by user ID",
+        "summary": "Get archived posts by firebaseUid",
         "tags": ["Post"],
         "security": [{ "bearerAuth": [] }],
         "parameters": [
@@ -385,9 +385,9 @@
         }
       }
     },
-    "/post/archiveAll/userId/{id}": {
+    "/post/archiveAll/firebaseUid/{id}": {
       "post": {
-        "summary": "Archive all posts by user ID",
+        "summary": "Archive all posts by firebaseUid",
         "tags": ["Post"],
         "security": [{ "bearerAuth": [] }],
         "parameters": [
@@ -598,9 +598,9 @@
         }
       }
     },
-    "/post/userId/{id}": {
+    "/post/firebaseUid/{id}": {
       "get": {
-        "summary": "Get posts by user ID",
+        "summary": "Get posts by firebaseUid",
         "tags": ["Post"],
         "security": [{ "bearerAuth": [] }],
         "parameters": [
@@ -793,7 +793,8 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "description": "Firebase UID of the user to delete",
+            "schema": { "type": "string" }          
           }
         ],
         "responses": {
@@ -1032,7 +1033,8 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -1273,17 +1275,18 @@
         }
       }
     },
-    "/request/userId/{id}": {
+    "/request/firebaseUid/{id}": {
       "get": {
         "tags": ["Request"],
-        "summary": "Get requests by user ID",
+        "summary": "Get requests by firebaseUid",
         "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -1323,17 +1326,18 @@
         }
       }
     },
-    "/request/archiveAll/userId/{id}": {
+    "/request/archiveAll/firebaseUid/{id}": {
       "post": {
         "tags": ["Request"],
-        "summary": "Archive all requests by user ID",
+        "summary": "Archive all requests by firebaseUid",
         "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string"}
           }
         ],
         "responses": {
@@ -1519,7 +1523,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -1767,18 +1771,18 @@
         }
       }
     },
-    "/feedback/userId/{id}": {
+    "/feedback/firebaseUid/{id}": {
       "get": {
-        "summary": "Get feedback by user ID",
+        "summary": "Get feedback by firebaseUid",
         "tags": ["Feedback"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
+            "description": "Firebase UID of the user",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -1945,7 +1949,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -1978,7 +1982,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -2350,9 +2354,7 @@
                 "type": "array",
                 "items": { "type": "string" }
               },
-              "userId": { "type": "string", "format": "uuid" },
-              "createdAt": { "type": "string", "format": "date-time" },
-              "updatedAt": { "type": "string", "format": "date-time" }
+              "firebaseUid": { "type": "string"}
             }
           }
         }
@@ -2510,7 +2512,7 @@
             "type": "object",
             "properties": {
               "id": { "type": "string", "format": "uuid" },
-              "userId": { "type": "string", "format": "uuid" },
+              "firebaseUid": { "type": "string"},
               "title": { "type": "string" },
               "description": { "type": "string" },
               "price": { "type": "number" },
@@ -2532,12 +2534,12 @@
       },
       "CreateRequestRequest": {
         "type": "object",
-        "required": ["title", "description", "price", "userId"],
+        "required": ["title", "description", "price", "firebaseUid"],
         "properties": {
           "title": { "type": "string" },
           "description": { "type": "string" },
           "price": { "type": "number" },
-          "userId": { "type": "string", "format": "uuid" }
+          "firebaseUid": { "type": "string" }
         }
       },
       "Report": {
@@ -2586,22 +2588,22 @@
       "BlockUserRequest": {
         "type": "object",
         "properties": {
-          "userId": { 
+          "firebaseUid": { 
             "type": "string",
             "description": "Firebase UID of the user to block"
           }
         },
-        "required": ["userId"]
+        "required": ["firebaseUid"]
       },
       "UnblockUserRequest": {
         "type": "object",
         "properties": {
-          "userId": { 
+          "firebaseUid": { 
             "type": "string",
             "description": "Firebase UID of the user to unblock"
           }
         },
-        "required": ["userId"]
+        "required": ["firebaseUid"]
       },
       "FilterPostsByConditionRequest": {
         "type": "object",
@@ -2656,7 +2658,7 @@
             "type": "object",
             "properties": {
               "id": { "type": "string", "format": "uuid" },
-              "userId": { "type": "string", "format": "uuid" },
+              "firebaseUid": { "type": "string" },
               "content": { "type": "string" },
               "createdAt": { "type": "string", "format": "date-time" }
             }
@@ -2676,9 +2678,9 @@
       },
       "CreateFeedbackRequest": {
         "type": "object",
-        "required": ["userId", "content"],
+        "required": ["firebaseUid", "content"],
         "properties": {
-          "userId": { "type": "string", "format": "uuid" },
+          "firebaseUid": { "type": "string" },
           "content": { "type": "string" }
         }
       },
