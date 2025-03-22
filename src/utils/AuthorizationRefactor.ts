@@ -26,13 +26,35 @@ export async function populateFirebaseUids(queryRunner: QueryRunner) {
     for (const user of users) {
         try {
             // Get user by email from Firebase
-            const firebaseUser = await admin.auth().getUserByEmail(user.email);
-            
-            // Update the firebaseUid using the query runner, not the manager
+
+            try{
+                const firebaseUser = await admin.auth().getUserByEmail(user.email);
+                // Update the firebaseUid using the query runner, not the manager
             await queryRunner.query(
                 `UPDATE "User" SET "firebaseUid" = $1 WHERE id = $2`,
                 [firebaseUser.uid, user.id]
             ); 
+            }
+            catch (error: any){
+                const firebaseUser = await admin.auth().createUser({
+                    email: user.email,
+                    displayName: user.name,
+                    password: 'temporaryPassword123!'  // Set a temporary password
+                });
+                console.log('user did not exist');
+                // Update the firebaseUid using the query runner, not the manager
+            await queryRunner.query(
+                `UPDATE "User" SET "firebaseUid" = $1 WHERE id = $2`,
+                [firebaseUser.uid, user.id]
+            ); 
+        
+
+            }
+            // // Update the firebaseUid using the query runner, not the manager
+            // await queryRunner.query(
+            //     `UPDATE "User" SET "firebaseUid" = $1 WHERE id = $2`,
+            //     [firebaseUser.uid, user.id]
+            // ); 
             // // Update firebaseUid for all users with random values (for testing)
             // DO NOT RUN/UNCOMMENT THIS IF RUNNING ON PROD
             // await queryRunner.query(
