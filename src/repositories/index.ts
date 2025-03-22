@@ -5,11 +5,11 @@ import { PostRepository } from "./PostRepository";
 import { RequestRepository } from "./RequestRepository";
 import { UserRepository } from "./UserRepository";
 import { UserReviewRepository } from "./UserReviewRepository";
-import { UserSessionRepository } from "./UserSessionRepository";
 import { ReportRepository } from "./ReportRepository";
 import { TransactionRepository } from "./TransactionRepository";
 import { TransactionReviewRepository } from "./TransactionReviewRepository";
 import { NotifRepository } from "./NotifRepository"
+import { FcmTokenRepository } from "./FcmTokenRepository";
 
 export default class Repositories {
   public static user(
@@ -42,14 +42,6 @@ export default class Repositories {
     return transactionalEntityManager.getCustomRepository(UserReviewRepository);
   }
 
-  public static session(
-    transactionalEntityManager: EntityManager
-  ): UserSessionRepository {
-    return transactionalEntityManager.getCustomRepository(
-      UserSessionRepository
-    );
-  }
-
   public static report(
     transactionalEntityManager: EntityManager
   ): ReportRepository {
@@ -72,6 +64,12 @@ export default class Repositories {
     transactionalEntityManager: EntityManager
   ): NotifRepository {
     return transactionalEntityManager.getCustomRepository(NotifRepository);
+  }
+
+  public static fcmToken(
+    transactionalEntityManager: EntityManager
+  ): FcmTokenRepository {
+    return transactionalEntityManager.getCustomRepository(FcmTokenRepository);
   }
 }
 

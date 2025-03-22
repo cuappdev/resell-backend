@@ -31,13 +31,13 @@ export class TransactionFactory {
         fakeTransaction.completed = true;
 
         const fakeBuyer = new UserModel();
-        fakeBuyer.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+        fakeBuyer.firebaseUid = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
         fakeBuyer.givenName = 'John';
         fakeBuyer.familyName = 'Doe';
         fakeTransaction.buyer = fakeBuyer;
 
         const fakeSeller = new UserModel();
-        fakeSeller.id = '91e6896c-a549-41bf-8851-604e7fbd4f2f';
+        fakeSeller.firebaseUid = '91e6896c-a549-41bf-8851-604e7fbd4f2f';
         fakeSeller.givenName = 'Jane';
         fakeSeller.familyName = 'Smith';
         fakeTransaction.seller = fakeSeller;

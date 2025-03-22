@@ -12,19 +12,19 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return await this.repository.find();
   }
 
-  public async getUserById(id: Uuid): Promise<UserModel | undefined> {
+  public async getUserById(id: string): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
-      .where("user.id = :id", { id })
+      .where("user.firebaseUid = :id", { id })
       .getOne();
   }
 
-  public async getUserWithBlockedInfo(id: Uuid): Promise<UserModel | undefined> {
+  public async getUserWithBlockedInfo(id: string): Promise<UserModel | undefined> {
     return this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
       .leftJoinAndSelect("user.blockers", "user_blocking_users.blockers")
-      .where("user.id = :id", { id })
+      .where("user.firebaseUid = :id", { id })
       .getOne();
   }
 
@@ -59,11 +59,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return false;
   }
 
-  public async getSavedPostsByUserId(id: Uuid): Promise<UserModel | undefined> {
+  public async getSavedPostsByUserId(id: string): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
-      .where("user.id = :id", { id })
+      .where("user.firebaseUid = :id", { id })
       .leftJoinAndSelect("user.saved", "post")
       .getOne();
   }
@@ -84,13 +84,16 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async createUser(
+    firebaseUid: string,
     username: string,
     netid: string,
     givenName: string,
     familyName: string,
     photoUrl: string,
+    venmoHandle: string,
     email: string,
     googleId: string,
+    bio: string,
   ): Promise<UserModel> {
     let existingUser = await this.repository
     .createQueryBuilder("user")
@@ -118,14 +121,17 @@ export class UserRepository extends AbstractRepository<UserModel> {
     const adminStatus = adminEmails?.includes(email);
 
     const user = new UserModel();
+    user.firebaseUid = firebaseUid;
     user.username = username;
     user.netid = netid;
     user.givenName = givenName;
     user.familyName = familyName;
     user.admin = adminStatus || false;
     user.photoUrl = photoUrl;
+    user.venmoHandle = venmoHandle;
     user.email = email;
     user.googleId = googleId;
+    user.bio = bio;
     return this.repository.save(user);
   }
 
@@ -179,11 +185,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
       throw new NotFoundError("User has not been blocked!")
     }
     else {
-      if (!blocker.blocking.find((user) => user.id === blocked.id)) {
+      if (!blocker.blocking.find((user) => user.firebaseUid === blocked.firebaseUid)) {
         throw new NotFoundError("User has not been blocked!")
       }
       // remove blocked user from blocking list
-      blocker.blocking = blocker.blocking.filter((user) => user.id !== blocked.id);
+      blocker.blocking = blocker.blocking.filter((user) => user.firebaseUid !== blocked.firebaseUid);
     }
     return this.repository.save(blocker);
   }

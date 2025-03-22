@@ -3,12 +3,12 @@ import { PostModel } from './PostModel';
 import { RequestModel } from './RequestModel';
 import { UserModel } from './UserModel';
 import { UserReviewModel } from './UserReviewModel'
-import { UserSessionModel } from './UserSessionModel';
 import { ReportModel } from './ReportModel';
 import { MessageModel } from './MessageModel';
 import { TransactionModel } from './TransactionModel';
 import { TransactionReviewModel } from './TransactionReviewModel';
 import { NotifModel } from './NotifModel';
+import { FcmTokenModel } from './FcmTokenModel';
 
 export const models = [
   FeedbackModel,
@@ -16,10 +16,10 @@ export const models = [
   RequestModel,
   UserModel,
   UserReviewModel,
-  UserSessionModel,
   ReportModel,
   MessageModel,
   TransactionModel,
   TransactionReviewModel,
-  NotifModel
+  NotifModel,
+  FcmTokenModel
 ];

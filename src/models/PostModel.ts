@@ -57,7 +57,7 @@ export class PostModel {
   @JoinTable({
     name: "user_saved_posts",
     joinColumn: { name: "saved", referencedColumnName: "id" },
-    inverseJoinColumn: { name: "savers", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "savers", referencedColumnName: "firebaseUid" },
   })
   savers: UserModel[];
 

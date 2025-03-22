@@ -51,7 +51,7 @@ export class UserReviewService {
             const userReviewRepository = Repositories.userReview(transactionalEntityManager);
             const userReview = await userReviewRepository.getUserReviewById(params.id);
             if (!userReview) throw new NotFoundError("User Review not found!");
-            if (buyer.id != userReview.buyer?.id && !buyer.admin) throw new ForbiddenError("User is not buyer!");
+            if (buyer.firebaseUid != userReview.buyer?.firebaseUid && !buyer.admin) throw new ForbiddenError("User is not buyer!");
             return userReviewRepository.deleteUserReview(userReview);
         })
     }

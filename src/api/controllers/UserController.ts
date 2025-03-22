@@ -2,8 +2,8 @@ import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete} fr
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, SaveTokenRequest, SetAdminByEmailRequest } from '../../types';
-import { UuidParam } from '../validators/GenericRequests';
+import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, CreateUserRequest, SetAdminByEmailRequest, FcmTokenRequest } from '../../types';
+import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 
 @JsonController('user/')
 export class UserController {
@@ -11,6 +11,11 @@ export class UserController {
 
   constructor(userService: UserService) {
     this.userService = userService;
+  }
+
+  @Post('create/')
+  async createUser(@CurrentUser() user: UserModel, @Body() createUserRequest: CreateUserRequest): Promise<UserModel> {
+    return await this.userService.createUser(user, createUserRequest);
   }
 
   @Get()
@@ -64,13 +69,24 @@ export class UserController {
     return { users: await this.userService.getBlockedUsersById(params) };
   }
 
+  @Delete()
+  async deleteUser(@CurrentUser() user: UserModel): Promise<UserModel> {
+    return await this.userService.deleteUser(user);
+  }
+  
   @Delete('id/:id/')
-  async deleteUser(@Params() params: UuidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
-    return { user: await this.userService.deleteUser(user, params) };
+  async deleteUserByOtherUser(@Params() params: FirebaseUidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+    return { user: await this.userService.deleteUserByOtherUser(user, params) };
   }
 
   @Post('softDelete/id/:id/')
-  async softDeleteUser(@Params() params: UuidParam): Promise<GetUserResponse> {
+  async softDeleteUser(@Params() params: FirebaseUidParam): Promise<GetUserResponse> {
     return { user: await this.userService.softDeleteUser(params) };
   }
+
+  @Post('logout/')
+  async logout(@Body() fcmToken: FcmTokenRequest): Promise<null> {
+    return await this.userService.logout(fcmToken);
+  }
+
 }

@@ -96,12 +96,12 @@ export class TransactionService {
       post.sold = true;
       await postRepository.markPostAsSold(post);
 
-      // Track notified users by their UUIDs
-      const notifiedUserIds = new Set<Uuid>();
+      // Track notified users by their ids
+      const notifiedUserIds = new Set<string>();
       const notifService = new NotifService(transactionalEntityManager);
 
       // Notify the buyer
-      if (!notifiedUserIds.has(transaction.buyer.id)) {
+      if (!notifiedUserIds.has(transaction.buyer.firebaseUid)) {
         const buyerNotifRequest: FindTokensRequest = {
           email: transaction.buyer.email,
           title: "Item Sold Notification",
@@ -110,17 +110,17 @@ export class TransactionService {
             postId: post.id,
             postTitle: post.title,
             transactionId: transaction.id,
-            sellerId: transaction.seller.id,
+            sellerId: transaction.seller.firebaseUid,
             sellerUsername: transaction.seller.username,
             price: transaction.amount
           } as unknown as JSON
         };
         await notifService.sendNotifs(buyerNotifRequest);
-        notifiedUserIds.add(transaction.buyer.id);
+        notifiedUserIds.add(transaction.buyer.firebaseUid);
       }
 
       // Notify the seller
-      if (!notifiedUserIds.has(transaction.seller.id)) {
+      if (!notifiedUserIds.has(transaction.seller.firebaseUid)) {
         const sellerNotifRequest: FindTokensRequest = {
           email: transaction.seller.email,
           title: "Item Sold Notification",
@@ -129,13 +129,13 @@ export class TransactionService {
             postId: post.id,
             postTitle: post.title,
             transactionId: transaction.id,
-            buyerId: transaction.buyer.id,
+            buyerId: transaction.buyer.firebaseUid,
             buyerUsername: transaction.buyer.username,
             price: transaction.amount
           } as unknown as JSON
         };
         await notifService.sendNotifs(sellerNotifRequest);
-        notifiedUserIds.add(transaction.seller.id);
+        notifiedUserIds.add(transaction.seller.firebaseUid);
       }
 
       const postWithSavers = await postRepository.getPostWithSaversById(post.id);
@@ -144,7 +144,7 @@ export class TransactionService {
       // Notify all users who saved the post (excluding duplicates)
       if (postWithSavers.savers){
         for (const user of postWithSavers.savers) {
-          if (!notifiedUserIds.has(user.id)) {
+          if (!notifiedUserIds.has(user.firebaseUid)) {
             const postSoldNotifRequest: FindTokensRequest = {
               email: user.email,
               title: "Item Sold Notification",
@@ -153,14 +153,14 @@ export class TransactionService {
                 postId: post.id,
                 postTitle: post.title,
                 transactionId: transaction.id,
-                sellerId: transaction.seller.id,
+                sellerId: transaction.seller.firebaseUid,
                 sellerUsername: transaction.seller.username,
-                buyerId: transaction.buyer.id,
+                buyerId: transaction.buyer.firebaseUid,
                 buyerUsername: transaction.buyer.username
               } as unknown as JSON
             };
             await notifService.sendNotifs(postSoldNotifRequest);
-            notifiedUserIds.add(user.id);
+            notifiedUserIds.add(user.firebaseUid);
           }
         }
       }

@@ -4,29 +4,33 @@ import {
   ManyToMany,
   OneToMany,
   JoinTable,
-  JoinColumn,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from "typeorm";
 
 import { PrivateProfile, Uuid } from "../types";
 import { FeedbackModel } from "./FeedbackModel";
 import { PostModel } from "./PostModel";
 import { RequestModel } from "./RequestModel";
-import { UserSessionModel } from "./UserSessionModel";
 import { UserReviewModel } from "./UserReviewModel";
 import { ReportModel } from "./ReportModel";
-import { MessageModel } from "./MessageModel";
+import { FcmTokenModel } from "./FcmTokenModel";
 
 @Entity("User")
 export class UserModel {
-  @PrimaryGeneratedColumn("uuid")
-  id: Uuid;
+  @PrimaryColumn({ name: "firebaseUid" })
+  firebaseUid: string;
+
+  /** @deprecated This column will be removed after the AuthorizationRefactor migration */
+  @Column({ nullable: true })
+  id: string;
 
   @Column({ unique: true })
   username: string;
 
   @Column({ unique: true, nullable: true })
   netid: string;
+
+  isNewUser?: boolean; // Not stored in DB, used only for auth flow
 
   @Column({ nullable: true })
   givenName: string;
@@ -66,11 +70,11 @@ export class UserModel {
     name: "user_blocking_users",
     joinColumn: {
       name: "blockers",
-      referencedColumnName: "id",
+      referencedColumnName: "firebaseUid",
     },
     inverseJoinColumn: {
       name: "blocking",
-      referencedColumnName: "id",
+      referencedColumnName: "firebaseUid",
     },
   })
   blocking: UserModel[] | undefined;
@@ -90,10 +94,10 @@ export class UserModel {
   @ManyToMany(() => PostModel, (post) => post.savers)
   saved: PostModel[];
 
-  @OneToMany(() => UserSessionModel, (session) => session.user, {
+  @OneToMany(() => FcmTokenModel, (token) => token.user, {
     cascade: true,
   })
-  sessions: UserSessionModel[];
+  tokens: FcmTokenModel[];
 
   @OneToMany(() => FeedbackModel, (feedback) => feedback.user)
   feedbacks: FeedbackModel[];
@@ -109,7 +113,7 @@ export class UserModel {
 
   public getUserProfile(): PrivateProfile {
     return {
-      id: this.id,
+      firebaseUid: this.firebaseUid,
       username: this.username,
       netid: this.netid,
       givenName: this.givenName,

@@ -17,3 +17,7 @@ export class TimeParam {
   id: Uuid;
   time: Date | undefined
 }
+
+export class FirebaseUidParam {
+  id: string;
+}

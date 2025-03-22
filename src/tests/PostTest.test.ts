@@ -106,7 +106,7 @@ describe('post tests', () => {
       .createUsers(post.user)
       .write();
 
-    const getPostsResponse = await postController.getPostsByUserId(post.user, {id: post.user.id});
+    const getPostsResponse = await postController.getPostsByUserId(post.user, {id: post.user.firebaseUid});
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     expect(getPostsResponse.posts).toEqual([post]);
   });
@@ -126,7 +126,7 @@ describe('post tests', () => {
       original_price: 500.15,
       imagesBase64: [],
       created: 1667192023,
-      userId: user.id,
+      userId: user.firebaseUid,
     };
 
     const getPostResponse = await postController.createPost(newPost);

@@ -88,8 +88,8 @@ describe('transaction tests', () => {
       amount: 150.75,
       transactionDate: new Date('2024-01-01T12:00:00Z'),
       postId: post.id,
-      buyerId: buyer.id,
-      sellerId: seller.id,
+      buyerId: buyer.firebaseUid,
+      sellerId: seller.firebaseUid,
     };
 
     const createTransactionResponse = await transactionController.createTransaction(newTransaction);
@@ -117,7 +117,7 @@ describe('transaction tests', () => {
       .createTransactions(transaction1, transaction2)
       .write();
 
-    const getTransactionsResponse = await transactionController.getTransactionsByBuyerId({ id: buyer.id });
+    const getTransactionsResponse = await transactionController.getTransactionsByBuyerId({ id: buyer.firebaseUid });
     expect(getTransactionsResponse.transactions).toHaveLength(2);
   });
 

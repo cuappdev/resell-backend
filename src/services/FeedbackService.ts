@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
-import { UuidParam } from '../api/validators/GenericRequests';
+import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { FeedbackModel } from '../models/FeedbackModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { CreateFeedbackRequest, GetSearchedFeedbackRequest } from '../types';
@@ -32,7 +32,7 @@ export class FeedbackService {
     });
   }
 
-  public async getFeedbackByUserId(params: UuidParam): Promise<FeedbackModel[]> {
+  public async getFeedbackByUserId(params: FirebaseUidParam): Promise<FeedbackModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
     const feedbackRepository = Repositories.feedback(transactionalEntityManager);
     const feedback = await feedbackRepository.getFeedbackByUserId(params.id);

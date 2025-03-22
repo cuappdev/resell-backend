@@ -4,7 +4,7 @@ import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { UserModel } from '../models/UserModel';
-import { TimeParam, UuidParam } from '../api/validators/GenericRequests';
+import { TimeParam, UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { PostModel } from 'src/models/PostModel';
 import { RequestModel } from '../models/RequestModel';
 import Repositories, { TransactionsManager } from '../repositories';
@@ -34,7 +34,7 @@ export class RequestService {
     });
   }
 
-  public async getRequestByUserId(params: UuidParam): Promise<RequestModel[]> {
+  public async getRequestByUserId(params: FirebaseUidParam): Promise<RequestModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const requestRepository = Repositories.request(transactionalEntityManager);
       const request = await requestRepository.getRequestByUserId(params.id);
@@ -68,19 +68,19 @@ export class RequestService {
       const request = await requestRepository.getRequestById(params.id);
       if (!request) throw new NotFoundError('Request not found!');
       if (request.user.isActive == false) throw new NotFoundError('User is not active!');
-      if (user.id != request.user?.id) throw new ForbiddenError('User is not poster!');
+      if (user.firebaseUid != request.user?.firebaseUid) throw new ForbiddenError('User is not poster!');
       return await requestRepository.archiveRequest(request);
     });
   }
 
-  public async archiveAllRequestsByUserId(params: UuidParam): Promise<RequestModel[]> {
+  public async archiveAllRequestsByUserId(params: FirebaseUidParam): Promise<RequestModel[]> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const requestRepository = Repositories.request(transactionalEntityManager);
       const userRepository = Repositories.user(transactionalEntityManager);
       const user = await userRepository.getUserById(params.id)
       if (!user) throw new NotFoundError('User not found!');
       if (!user.isActive) throw new NotFoundError('User is not active!');
-      const requests = await requestRepository.getRequestByUserId(user.id);
+      const requests = await requestRepository.getRequestByUserId(user.firebaseUid);
       for (const request of requests) {
         if (!request) throw new NotFoundError('Request not found!');
         await requestRepository.archiveRequest(request);

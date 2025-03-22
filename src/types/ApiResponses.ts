@@ -5,7 +5,6 @@ import { PostModel } from "../models/PostModel";
 import { UserModel } from "../models/UserModel";
 import { ReportModel } from "../models/ReportModel";
 import { MessageModel } from "../models/MessageModel";
-import { APIUserSession } from "../types";
 
 // RESPONSE TYPES
 
@@ -17,7 +16,7 @@ export interface ErrorResponse {
 // USER
 
 export interface PublicProfile {
-  id: Uuid;
+  firebaseUid: string;
   username: string;
   netid: string;
   givenName: string;
@@ -115,19 +114,6 @@ export interface GetFeedbackResponse {
   feedback: Feedback;
 }
 
-// SESSIONS
-
-export interface GetSessionsReponse {
-  sessions: APIUserSession[];
-}
-
-export interface GetSessionReponse {
-  session: APIUserSession;
-}
-
-export interface LogoutResponse {
-  logoutSuccess: boolean;
-}
 
 // IMAGES
 

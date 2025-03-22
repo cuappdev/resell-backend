@@ -33,8 +33,8 @@ export class DatabaseConnection {
         'Feedback',
         'notifications', // Add notifications table before User since it has a fk to User
         'Post',
+        'FCMToken',
         'Request',
-        'UserSession',
         'UserReview',
         'User'
       ];

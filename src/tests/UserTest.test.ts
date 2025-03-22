@@ -6,8 +6,8 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, PostFactory, UserFactory } from './data';
-import e from 'express';
-import exp from 'constants';
+import { CreateUserRequest } from '../types';
+
 
 let uuidParam: UuidParam;
 let expectedUser: UserModel;
@@ -15,6 +15,12 @@ let conn: Connection;
 let userController: UserController;
 let postController: PostController;
 
+// Helper function to omit a property from an object. Used for testing without the deprecated id property in UserModel.
+function omit(obj: any, keyToOmit: string) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key]) => key !== keyToOmit)
+  );
+}
 
 beforeAll(async () => {
   await DatabaseConnection.connect();
@@ -29,7 +35,7 @@ beforeEach(async () => {
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
 
   expectedUser = new UserModel();
-  expectedUser.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
+  expectedUser.firebaseUid = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
   expectedUser.givenName = 'Shungo';
   expectedUser.familyName = 'Najima';
   expectedUser.username = 'snajima';
@@ -96,7 +102,8 @@ describe('user tests', () => {
     if (getUserResponse.user != undefined) {
       getUserResponse.user.stars = Number(getUserResponse.user.stars);
     }
-    expect(getUserResponse.user).toEqual(expectedUser);
+
+    expect(omit(getUserResponse.user, 'id')).toEqual(omit(expectedUser, 'id'));
   });
 
   test('get user by email', async () => {
@@ -110,7 +117,7 @@ describe('user tests', () => {
     if (getUserResponse.user != undefined) {
       getUserResponse.user.stars = Number(getUserResponse.user.stars);
     }
-    expect(getUserResponse.user).toEqual(expectedUser);
+    expect(omit(getUserResponse.user, 'id')).toEqual(omit(expectedUser, 'id'));
   });
 
   test('get user by google id', async () => {
@@ -124,7 +131,7 @@ describe('user tests', () => {
     if (getUserResponse.user != undefined) {
       getUserResponse.user.stars = Number(getUserResponse.user.stars);
     }
-    expect(getUserResponse.user).toEqual(expectedUser);
+    expect(omit(getUserResponse.user, 'id')).toEqual(omit(expectedUser, 'id'));
   });
 
   test('edit profile', async () => {
@@ -137,54 +144,75 @@ describe('user tests', () => {
     await userController.editProfile({
       photoUrlBase64: undefined,
       username: undefined,
-      venmoHandle: '@Shungo-Najima1',
+      venmoHandle: 'Shungo-Najima1',
       bio: 'Mateo Slay'
     }, user);
 
     expectedUser.bio = "Mateo Slay";
-    expectedUser.venmoHandle = "@Shungo-Najima1";
+    expectedUser.venmoHandle = "Shungo-Najima1";
 
     const getUserResponse = await userController.getUserByGoogleId('shungoGoogleID');
     if (getUserResponse.user != undefined) {
       getUserResponse.user.stars = Number(getUserResponse.user.stars);
     }
-    expect(getUserResponse.user).toEqual(expectedUser);
+    expect(omit(getUserResponse.user, 'id')).toEqual(omit(expectedUser, 'id'));
   });
 
   test('set super admin status', async () => {
-    const authController = ControllerFactory.auth(conn);
+    // Create super admin user first
+    const superAdmin = UserFactory.fake();
+    superAdmin.email = 'appdevresell@gmail.com';
+    superAdmin.admin = true;
 
-    const createUserRequest = {
+    await new DataFactory()
+      .createUsers(superAdmin)
+      .write();
+
+    const createUserRequest: CreateUserRequest = {
       username: "admin",
       netid: "adm999",
       givenName: "administrator",
       familyName: "Weiner",
       photoUrl: "https://melmagazine.com/wp-content/uploads/2021/01/66f-1.jpg",
-      venmoHandle: "@admin-Weiner",
-      email: "appdevresell@gmail.com",
+      venmoHandle: "admin-Weiner",
+      email: "adm999@cornell.edu",
       googleId: "mateoGoogleId",
       bio: "Personally, I would not stand for this.",
+      fcmToken: ""
     }
 
-    const createUserRequestResponse = await authController.createUser(createUserRequest);
+    // Create a new regular user
+    const newUser = await userController.createUser(superAdmin, createUserRequest);
+    expect(newUser.admin).toEqual(false); // New users should not be admin by default
 
-    expect(createUserRequestResponse.user?.admin).toEqual(true);
+    // Make the user an admin using setAdmin
+    const setAdminResponse = await userController.setAdmin({ 
+      email: createUserRequest.email, 
+      status: true 
+    }, superAdmin);
+    expect(setAdminResponse.user?.admin).toBe(true);
   });
 
   test('set admin status from super user', async () => {
-    const admin = UserFactory.fakeTemplate();
-    admin.email = 'appdevresell@gmail.com';
-    let user = UserFactory.fake();
+    // Create super admin user first
+    const superAdmin = UserFactory.fake();
+    superAdmin.email = 'appdevresell@gmail.com';
+    superAdmin.admin = true;
+
+    // Create a regular user
+    const regularUser = UserFactory.fake();
+    regularUser.email = regularUser.netid + '@cornell.edu';
 
     await new DataFactory()
-      .createUsers(admin, user)
+      .createUsers(superAdmin, regularUser)
       .write();
 
-    expectedUser.admin = true;
-
-    const getUserResponse = await userController.setAdmin({ email: user.email, status: true }, admin);
-
-    expect(getUserResponse.user?.admin).toBe(true);
+    // Make the regular user an admin
+    const setAdminResponse = await userController.setAdmin({ 
+      email: regularUser.email, 
+      status: true 
+    }, superAdmin);
+    expect(setAdminResponse.user?.admin).toBe(true);
   });
 
   test('block users', async () => {
@@ -194,11 +222,11 @@ describe('user tests', () => {
       .createUsers(user1, user2)
       .write();
 
-    const blockUserResponse = await userController.blockUser({blocked: user2.id}, user1);
+    const blockUserResponse = await userController.blockUser({blocked: user2.firebaseUid}, user1);
     if (blockUserResponse.user != undefined) {
       if (blockUserResponse.user.blocking != undefined) {
         blockUserResponse.user.blocking.forEach((user: UserModel) => {
-          expect(user.id).toBe(user2.id);
+          expect(user.firebaseUid).toBe(user2.firebaseUid);
         });
       }
     }
@@ -214,7 +242,7 @@ describe('user tests', () => {
       .write();
 
     try {
-      await userController.blockUser({blocked: user.id}, user);
+      await userController.blockUser({blocked: user.firebaseUid}, user);
     } catch (error) {
       expect(error.message).toBe('User cannot block themselves!');
     }
@@ -227,9 +255,9 @@ describe('user tests', () => {
       .createUsers(user1, user2)
       .write();
 
-    await userController.blockUser({blocked: user2.id}, user1);
+    await userController.blockUser({blocked: user2.firebaseUid}, user1);
     try {
-      await userController.blockUser({blocked: user2.id}, user1);
+      await userController.blockUser({blocked: user2.firebaseUid}, user1);
     } catch (error) {
       expect(error.message).toBe('User is already blocked!');
     }
@@ -242,18 +270,18 @@ describe('user tests', () => {
       .createUsers(user1, user2)
       .write();
 
-    const blockUserResponse = await userController.blockUser({blocked: user2.id}, user1);
+    const blockUserResponse = await userController.blockUser({blocked: user2.firebaseUid}, user1);
     if (blockUserResponse.user != undefined) {
       if (blockUserResponse.user.blocking != undefined) {
         blockUserResponse.user.blocking.forEach((user: UserModel) => {
-          expect(user.id).toBe(user2.id);
+          expect(user.firebaseUid).toBe(user2.firebaseUid);
         });
       }
     }
     expect(blockUserResponse.user?.blocking).toHaveLength(1);
     expect(blockUserResponse.user?.blockers).toHaveLength(0);
 
-    const unblockUserResponse = await userController.unblockUser({unblocked: user2.id}, user1);
+    const unblockUserResponse = await userController.unblockUser({unblocked: user2.firebaseUid}, user1);
     expect(unblockUserResponse.user?.blocking).toHaveLength(0);
     expect(unblockUserResponse.user?.blockers).toHaveLength(0);
   });
@@ -266,7 +294,7 @@ describe('user tests', () => {
       .write();
 
     try {
-      await userController.unblockUser({unblocked: user2.id}, user1);
+      await userController.unblockUser({unblocked: user2.firebaseUid}, user1);
     } catch (error) {
       expect(error.message).toBe('User is not blocked!');
     }
@@ -323,7 +351,7 @@ describe('user tests', () => {
     .toEqual(new Set([blockedPost.id, blockerPost.id]));
 
     // Blocker blocks blocked
-    await userController.blockUser({ blocked: blocked.id }, blocker);
+    await userController.blockUser({ blocked: blocked.firebaseUid }, blocker);
 
     // Verify blocker’s saved posts no longer contain blockedPost
     blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
@@ -336,7 +364,7 @@ describe('user tests', () => {
     expect(blockedSavedPosts.posts.map(post => post.id)).toEqual([neutralPost.id]);
 
     // Blocker unblocks blocked
-    await userController.unblockUser({ unblocked: blocked.id }, blocker);
+    await userController.unblockUser({ unblocked: blocked.firebaseUid }, blocker);
     // Verify blocker has saved posts
     blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
       expect(blockerSavedPosts).not.toBeUndefined();
@@ -393,7 +421,7 @@ describe('user tests', () => {
     expect(blockedSavedPosts.posts[0].id).toEqual(blockerPost.id);
 
     // Blocker blocks blocked
-    await userController.blockUser({ blocked: blocked.id }, blocker);
+    await userController.blockUser({ blocked: blocked.firebaseUid }, blocker);
 
     // Verify blocker’s saved posts no longer contain blockedPost
     blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
@@ -406,7 +434,7 @@ describe('user tests', () => {
     expect(blockedSavedPosts.posts).toEqual([]);
 
     // Blocker unblocks blocked
-    await userController.unblockUser({ unblocked: blocked.id }, blocker);
+    await userController.unblockUser({ unblocked: blocked.firebaseUid }, blocker);
 
     // Verify blocker has saved blockedPost
     blockerSavedPosts = await postController.getSavedPostsByUserId(blocker);
@@ -438,9 +466,9 @@ describe('user tests', () => {
     if (getUserResponse.user != undefined) {
       getUserResponse.user.stars = Number(getUserResponse.user.stars);
     }
-    expect(getUserResponse.user).toEqual(expectedUser);
+    expect(omit(getUserResponse.user, 'id')).toEqual(omit(expectedUser, 'id'));
 
-    const deleteUserResponse = await userController.deleteUser(uuidParam, user);
+    const deleteUserResponse = await userController.deleteUserByOtherUser(uuidParam, user);
     if (deleteUserResponse.user != undefined) {
       deleteUserResponse.user.stars = Number(deleteUserResponse.user.stars);
     }
@@ -460,7 +488,7 @@ describe('user tests', () => {
     const preDeleteUserResponse = await userController.getUsers(admin);
     expect(preDeleteUserResponse.users).toHaveLength(2);
 
-    const deleteUserResponse = await userController.deleteUser(uuidParam, admin);
+    const deleteUserResponse = await userController.deleteUserByOtherUser(uuidParam, admin);
     if (deleteUserResponse.user != undefined) {
       deleteUserResponse.user.stars = Number(deleteUserResponse.user.stars);
     }
@@ -476,7 +504,7 @@ describe('user tests', () => {
       .write();
 
     try {
-      await userController.deleteUser({id: user2.id}, user1);
+      await userController.deleteUserByOtherUser({id: user2.firebaseUid}, user1);
     } catch (error) {
       expect(error.message).toBe('User does not have permission to delete other users');
     }
@@ -489,7 +517,7 @@ describe('user tests', () => {
       .createUsers(user)
       .write();
 
-    const userUuid = {id: user.id};
+    const userUuid = {id: user.firebaseUid};
 
     const getBlockedUsersResponse = await userController.getBlockedUsersById(userUuid);
     expect(getBlockedUsersResponse.users).toHaveLength(0);
@@ -502,8 +530,8 @@ describe('user tests', () => {
       .createUsers(user1, user2)
       .write();
 
-    await userController.blockUser({blocked: user2.id}, user1);
-    const user1Uuid = {id: user1.id};
+    await userController.blockUser({blocked: user2.firebaseUid}, user1);
+    const user1Uuid = {id: user1.firebaseUid};
     const getBlockedUsersResponse = await userController.getBlockedUsersById(user1Uuid);
     expect(getBlockedUsersResponse.users).toHaveLength(1);
   });
