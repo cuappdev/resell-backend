@@ -2999,6 +2999,80 @@
             "items": { "$ref": "#/components/schemas/UserReview" }
           }
         }
+      },
+      "PrivateProfile": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "firebaseUid": { "type": "string" },
+          "username": { "type": "string" },
+          "netid": { "type": "string" },
+          "givenName": { "type": "string" },
+          "familyName": { "type": "string" },
+          "photoUrl": { "type": "string" },
+          "venmoHandle": { "type": "string" },
+          "email": { "type": "string" },
+          "googleId": { "type": "string" },
+          "bio": { "type": "string" },
+          "admin": { "type": "boolean" },
+          "created": { "type": "string", "format": "date-time" },
+          "updated": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "category": { "type": "string" },
+          "condition": { "type": "string" },
+          "originalPrice": { "type": "number" },
+          "alteredPrice": { "type": "number" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "created": { "type": "string", "format": "date-time" },
+          "location": { "type": "string" },
+          "archive": { "type": "boolean" },
+          "seller": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "Feedback": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "created": { "type": "string", "format": "date-time" },
+          "user": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "content": { "type": "string" },
+          "sender": { "$ref": "#/components/schemas/PrivateProfile" },
+          "receiver": { "$ref": "#/components/schemas/PrivateProfile" },
+          "created": { "type": "string", "format": "date-time" },
+          "read": { "type": "boolean" }
+        }
+      },
+      "Request": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string" },
+          "created": { "type": "string", "format": "date-time" },
+          "updated": { "type": "string", "format": "date-time" },
+          "buyer": { "$ref": "#/components/schemas/PrivateProfile" },
+          "post": { "$ref": "#/components/schemas/Post" }
+        }
       }
     }
   }
