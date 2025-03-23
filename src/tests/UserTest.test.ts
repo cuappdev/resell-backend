@@ -5,7 +5,7 @@ import { Connection } from 'typeorm';
 import { UuidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import { ControllerFactory } from './controllers';
-import { DatabaseConnection, DataFactory, PostFactory, UserFactory } from './data';
+import { DatabaseConnection, DataFactory, PostFactory, UserFactory, FcmTokenFactory } from './data';
 import { CreateUserRequest } from '../types';
 
 
@@ -471,6 +471,36 @@ describe('user tests', () => {
     const deleteUserResponse = await userController.deleteUserByOtherUser(uuidParam, user);
     if (deleteUserResponse.user != undefined) {
       deleteUserResponse.user.stars = Number(deleteUserResponse.user.stars);
+    }
+    const getUsersResponse = await userController.getUsers(admin);
+    expect(getUsersResponse.users).toHaveLength(0);
+  });
+
+  test('delete users - user deletes themselves with fcm', async () => {
+    const admin = UserFactory.fake();
+    const user = UserFactory.fakeTemplate();
+    const fcmToken = FcmTokenFactory.fake();
+    fcmToken.user = user;
+    user.tokens = [fcmToken];
+    admin.admin = true;
+
+    await new DataFactory()
+      .createUsers(user)
+      .createFcmTokens(fcmToken)
+      .write();
+
+    const preDeleteUserResponse = await userController.getUsers(admin);
+    expect(preDeleteUserResponse.users).toHaveLength(1);
+
+    const getUserResponse = await userController.getUserById(uuidParam);
+    if (getUserResponse.user != undefined) {
+      getUserResponse.user.stars = Number(getUserResponse.user.stars);
+    }
+    expect(omit(getUserResponse.user, 'id')).toEqual(omit(expectedUser, 'id'));
+
+    const deleteUserResponse = await userController.deleteUser(user);
+    if (deleteUserResponse != undefined) {
+      deleteUserResponse.stars = Number(deleteUserResponse.stars);
     }
     const getUsersResponse = await userController.getUsers(admin);
     expect(getUsersResponse.users).toHaveLength(0);

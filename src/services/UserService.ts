@@ -169,6 +169,8 @@ export class UserService {
       const userRepository = Repositories.user(transactionalEntityManager);
       const userToDelete = await userRepository.getUserById(user.firebaseUid);
       if (!userToDelete) throw new NotFoundError('User not found!');
+      const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
+      await fcmRepository.deleteAllTokensByUserId(userToDelete.firebaseUid);
       return userRepository.deleteUser(userToDelete);
     });
   }
