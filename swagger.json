@@ -2199,7 +2199,9 @@
             "description": "List of all user reviews",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/GetUserReviewsResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserReviewsResponse"
+                }
               }
             }
           }
@@ -2222,7 +2224,9 @@
             "description": "User review created",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/GetUserReviewResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserReviewResponse"
+                }
               }
             }
           }
@@ -2247,7 +2251,9 @@
             "description": "User review details",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/GetUserReviewResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserReviewResponse"
+                }
               }
             }
           }
@@ -2270,7 +2276,9 @@
             "description": "User review deleted",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/GetUserReviewResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserReviewResponse"
+                }
               }
             }
           }
@@ -2293,13 +2301,44 @@
           "user": {
             "type": "object",
             "properties": {
-              "id": { "type": "string", "format": "uuid" },
-              "email": { "type": "string", "format": "email" },
-              "name": { "type": "string" },
-              "netId": { "type": "string" },
-              "googleId": { "type": "string" },
+              "firebaseUid": { "type": "string" },
+              "username": { "type": "string" },
+              "netid": { "type": "string" },
+              "givenName": { "type": "string" },
+              "familyName": { "type": "string" },
+              "stars": { "type": "number" },
+              "numReviews": { "type": "number" },
               "photoUrl": { "type": "string" },
-              "admin": { "type": "boolean" }
+              "venmoHandle": { "type": "string" },
+              "bio": { "type": "string" },
+              "posts": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Post" }
+              },
+              "admin": { "type": "boolean" },
+              "email": { "type": "string" },
+              "googleId": { "type": "string" },
+              "isActive": { "type": "boolean" },
+              "feedbacks": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Feedback" }
+              },
+              "blockers": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/User" }
+              },
+              "blocking": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/User" }
+              },
+              "reports": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Report" }
+              },
+              "reportedBy": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Report" }
+              }
             }
           }
         }
@@ -2310,26 +2349,97 @@
           "users": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/GetUserResponse"
+              "type": "object",
+              "properties": {
+                "firebaseUid": { "type": "string" },
+                "username": { "type": "string" },
+                "netid": { "type": "string" },
+                "givenName": { "type": "string" },
+                "familyName": { "type": "string" },
+                "stars": { "type": "number" },
+                "numReviews": { "type": "number" },
+                "photoUrl": { "type": "string" },
+                "venmoHandle": { "type": "string" },
+                "bio": { "type": "string" },
+                "posts": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Post" }
+                },
+                "admin": { "type": "boolean" },
+                "email": { "type": "string" },
+                "googleId": { "type": "string" },
+                "isActive": { "type": "boolean" },
+                "feedbacks": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Feedback" }
+                },
+                "blockers": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
+                },
+                "blocking": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
+                },
+                "reports": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Report" }
+                },
+                "reportedBy": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Report" }
+                }
+              }
             }
           }
         }
       },
       "CreateUserRequest": {
         "type": "object",
+        "required": [
+          "username",
+          "netid",
+          "givenName",
+          "familyName",
+          "photoUrl",
+          "venmoHandle",
+          "email",
+          "googleId",
+          "bio",
+          "fcmToken"
+        ],
         "properties": {
+          "username": { "type": "string" },
+          "netid": { "type": "string" },
           "givenName": { "type": "string" },
           "familyName": { "type": "string" },
-          "email": { "type": "string" }
-        },
-        "required": ["givenName", "familyName", "email"]
+          "photoUrl": { "type": "string" },
+          "venmoHandle": { "type": "string" },
+          "email": { "type": "string" },
+          "googleId": { "type": "string" },
+          "bio": { "type": "string" },
+          "fcmToken": { "type": "string" }
+        }
       },
       "EditProfileRequest": {
         "type": "object",
         "properties": {
-          "givenName": { "type": "string" },
-          "familyName": { "type": "string" },
-          "profilePicUrl": { "type": "string" }
+          "photoUrlBase64": { 
+            "type": "string",
+            "nullable": true
+          },
+          "username": { 
+            "type": "string",
+            "nullable": true
+          },
+          "venmoHandle": { 
+            "type": "string",
+            "nullable": true
+          },
+          "bio": { 
+            "type": "string",
+            "nullable": true
+          }
         }
       },
       "GetUserByEmailRequest": {
@@ -2345,16 +2455,30 @@
           "post": {
             "type": "object",
             "properties": {
-              "id": { "type": "string", "format": "uuid" },
+              "id": { "type": "string" },
               "title": { "type": "string" },
               "description": { "type": "string" },
-              "price": { "type": "number" },
+              "category": { "type": "string" },
               "condition": { "type": "string" },
-              "imageUrls": { 
+              "original_price": { "type": "number" },
+              "altered_price": { "type": "number" },
+              "images": {
                 "type": "array",
                 "items": { "type": "string" }
               },
-              "firebaseUid": { "type": "string"}
+              "created": { "type": "string", "format": "date-time" },
+              "location": { "type": "string" },
+              "archive": { "type": "boolean" },
+              "user": { "$ref": "#/components/schemas/PrivateProfile" },
+              "savers": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/PrivateProfile" }
+              },
+              "matched": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Request" }
+              },
+              "sold": { "type": "boolean" }
             }
           }
         }
@@ -2365,30 +2489,66 @@
           "posts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/GetPostResponse"
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "category": { "type": "string" },
+                "condition": { "type": "string" },
+                "original_price": { "type": "number" },
+                "altered_price": { "type": "number" },
+                "images": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "created": { "type": "string", "format": "date-time" },
+                "location": { "type": "string" },
+                "archive": { "type": "boolean" },
+                "user": { "$ref": "#/components/schemas/PrivateProfile" },
+                "savers": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/PrivateProfile" }
+                },
+                "matched": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Request" }
+                },
+                "sold": { "type": "boolean" }
+              }
             }
           }
         }
       },
       "CreatePostRequest": {
         "type": "object",
-        "required": ["title", "description", "price", "condition"],
+        "required": [
+          "title",
+          "description",
+          "category",
+          "condition",
+          "original_price",
+          "imagesBase64",
+          "userId"
+        ],
         "properties": {
           "title": { "type": "string" },
           "description": { "type": "string" },
-          "price": { "type": "number" },
+          "category": { "type": "string" },
           "condition": { "type": "string" },
-          "imageUrls": {
+          "original_price": { "type": "number" },
+          "imagesBase64": {
             "type": "array",
             "items": { "type": "string" }
-          }
+          },
+          "userId": { "type": "string" }
         }
       },
       "GetSearchedPostsRequest": {
         "type": "object",
-        "required": ["query"],
+        "required": ["keywords"],
         "properties": {
-          "query": { "type": "string" }
+          "keywords": { "type": "string" }
         }
       },
       "FcmTokenRequest": {
@@ -2401,81 +2561,76 @@
       "User": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "email": { "type": "string" },
-          "name": { "type": "string" }
-        }
-      },
-      "LoginRequest": {
-        "type": "object",
-        "required": ["email", "password"],
-        "properties": {
-          "email": { "type": "string", "format": "email" },
-          "password": { "type": "string" }
-        }
-      },
-      "APIUserSession": {
-        "type": "object",
-        "properties": {
-          "accessToken": { "type": "string" },
-          "refreshToken": { "type": "string" }
-        }
-      },
-      "LogoutResponse": {
-        "type": "object",
-        "properties": {
-          "logoutSuccess": { "type": "boolean" }
-        }
-      },
-      "GetSessionsReponse": {
-        "type": "object",
-        "properties": {
-          "sessions": {
+          "firebaseUid": { "type": "string" },
+          "username": { "type": "string" },
+          "netid": { "type": "string" },
+          "givenName": { "type": "string" },
+          "familyName": { "type": "string" },
+          "stars": { "type": "number" },
+          "numReviews": { "type": "number" },
+          "photoUrl": { "type": "string" },
+          "venmoHandle": { "type": "string" },
+          "bio": { "type": "string" },
+          "posts": {
             "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        }
-      },
-      "GetSessionReponse": {
-        "type": "object",
-        "properties": {
-          "session": {
-            "type": "object"
+            "items": { "$ref": "#/components/schemas/Post" }
+          },
+          "admin": { "type": "boolean" },
+          "email": { "type": "string" },
+          "googleId": { "type": "string" },
+          "isActive": { "type": "boolean" },
+          "feedbacks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Feedback" }
+          },
+          "blockers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/User" }
+          },
+          "blocking": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/User" }
+          },
+          "reports": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Report" }
+          },
+          "reportedBy": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Report" }
           }
         }
       },
       "FindTokensRequest": {
         "type": "object",
+        "required": [
+          "email",
+          "title",
+          "body",
+          "data"
+        ],
         "properties": {
-          "tokens": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "email": { "type": "string" },
+          "title": { "type": "string" },
+          "body": { "type": "string" },
+          "data": { 
+            "type": "object",
+            "additionalProperties": true
           }
         }
       },
       "RequestMatchNotificationRequest": {
         "type": "object",
+        "required": [
+          "requestId",
+          "listingId",
+          "userId"
+        ],
         "properties": {
-          "firebaseUid": { 
-            "type": "string",
-            "description": "Firebase UID of the user"
-          },
-          "listingId": { 
-            "type": "string", 
-            "format": "uuid",
-            "description": "UUID of the post/listing"
-          },
-          "requestId": { 
-            "type": "string", 
-            "format": "uuid",
-            "description": "UUID of the request to match"
-          }
-        },
-        "required": ["firebaseUid", "listingId", "requestId"]
+          "requestId": { "type": "string" },
+          "listingId": { "type": "string" },
+          "userId": { "type": "string" }
+        }
       },
       "DiscountNotificationRequest": {
         "type": "object",
@@ -2496,13 +2651,28 @@
       },
       "Notification": {
         "type": "object",
+        "required": [
+          "to",
+          "sound",
+          "title",
+          "body",
+          "data"
+        ],
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
+          "to": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "sound": {
+            "type": "string",
+            "enum": ["default"]
+          },
           "title": { "type": "string" },
           "body": { "type": "string" },
-          "type": { "type": "string" },
-          "data": { "type": "object" },
-          "createdAt": { "type": "string", "format": "date-time" }
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          }
         }
       },
       "GetRequestResponse": {
@@ -2511,12 +2681,15 @@
           "request": {
             "type": "object",
             "properties": {
-              "id": { "type": "string", "format": "uuid" },
-              "firebaseUid": { "type": "string"},
+              "id": { "type": "string" },
               "title": { "type": "string" },
               "description": { "type": "string" },
-              "price": { "type": "number" },
-              "createdAt": { "type": "string", "format": "date-time" }
+              "archive": { "type": "boolean" },
+              "user": { "$ref": "#/components/schemas/PrivateProfile" },
+              "matches": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Post" }
+              }
             }
           }
         }
@@ -2534,23 +2707,37 @@
       },
       "CreateRequestRequest": {
         "type": "object",
-        "required": ["title", "description", "price", "firebaseUid"],
+        "required": ["title", "description", "archive", "userId"],
         "properties": {
           "title": { "type": "string" },
           "description": { "type": "string" },
-          "price": { "type": "number" },
-          "firebaseUid": { "type": "string" }
+          "archive": { "type": "boolean" },
+          "userId": { "type": "string" }
         }
       },
       "Report": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "reporterId": { "type": "string", "format": "uuid" },
+          "id": { "type": "string" },
+          "reporter": { "$ref": "#/components/schemas/PrivateProfile" },
+          "reported": { "$ref": "#/components/schemas/PrivateProfile" },
+          "post": { 
+            "type": "object",
+            "nullable": true,
+            "$ref": "#/components/schemas/Post"
+          },
+          "message": { 
+            "type": "object",
+            "nullable": true,
+            "$ref": "#/components/schemas/Message"
+          },
           "reason": { "type": "string" },
+          "type": { 
+            "type": "string",
+            "enum": ["post", "profile", "message"]
+          },
           "resolved": { "type": "boolean" },
-          "createdAt": { "type": "string", "format": "date-time" },
-          "updatedAt": { "type": "string", "format": "date-time" }
+          "created": { "type": "string", "format": "date-time" }
         }
       },
       "ReportPostRequest": {
