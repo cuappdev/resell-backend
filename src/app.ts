@@ -35,7 +35,7 @@ if (!serviceAccountPath) {
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    // databaseURL: "https://resell-e99a2-default-rtdb.firebaseio.com"
+  
   });
 }
 

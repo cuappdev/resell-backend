@@ -9,7 +9,6 @@ const serviceAccount = require(serviceAccountPath);
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        databaseURL: 'https://<YOUR_PROJECT_ID>.firebaseio.com'
     });
 }
 
