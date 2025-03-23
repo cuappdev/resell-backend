@@ -2742,25 +2742,29 @@
       },
       "ReportPostRequest": {
         "type": "object",
-        "required": ["postId", "reason"],
+        "required": ["reported", "post", "reason"],
         "properties": {
-          "postId": { "type": "string", "format": "uuid" },
+          "reported": { "type": "string", "format": "uuid" },
+          "post": { "type": "string", "format": "uuid" },
           "reason": { "type": "string" }
         }
       },
       "ReportProfileRequest": {
         "type": "object",
-        "required": ["profileId", "reason"],
+        "required": ["reported", "reason"],
         "properties": {
-          "profileId": { "type": "string", "format": "uuid" },
+          "reported": { "type": "string", "format": "uuid" },
           "reason": { "type": "string" }
         }
       },
       "ReportMessageRequest": {
         "type": "object",
-        "required": ["messageId", "reason"],
+        "required": ["reported", "message", "reason"],
         "properties": {
-          "messageId": { "type": "string", "format": "uuid" },
+          "reported": { "type": "string" },
+          "message": { 
+            "$ref": "#/components/schemas/Message"
+          },
           "reason": { "type": "string" }
         }
       },
@@ -2775,28 +2779,31 @@
       "BlockUserRequest": {
         "type": "object",
         "properties": {
-          "firebaseUid": { 
+          "blocked": { 
             "type": "string",
-            "description": "Firebase UID of the user to block"
+            "format": "uuid"
           }
         },
-        "required": ["firebaseUid"]
+        "required": ["blocked"]
       },
       "UnblockUserRequest": {
         "type": "object",
         "properties": {
-          "firebaseUid": { 
+          "unblocked": { 
             "type": "string",
-            "description": "Firebase UID of the user to unblock"
+            "format": "uuid"
           }
         },
-        "required": ["firebaseUid"]
+        "required": ["unblocked"]
       },
       "FilterPostsByConditionRequest": {
         "type": "object",
         "required": ["condition"],
         "properties": {
-          "condition": { "type": "string" }
+          "condition": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
         }
       },
       "IsSavedPostResponse": {
@@ -2807,9 +2814,9 @@
       },
       "EditPostPriceRequest": {
         "type": "object",
-        "required": ["price"],
+        "required": ["new_price"],
         "properties": {
-          "price": { "type": "number" }
+          "new_price": { "type": "number" }
         }
       },
       "EditPriceResponse": {
@@ -2820,22 +2827,20 @@
       },
       "FilterPostsRequest": {
         "type": "object",
-        "required": ["filters"],
+        "required": ["categories"],
         "properties": {
-          "filters": {
+          "categories": {
             "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "items": { "type": "string" }
           }
         }
       },
       "FilterPostsByPriceRequest": {
         "type": "object",
-        "required": ["minPrice", "maxPrice"],
+        "required": ["lowerBound", "upperBound"],
         "properties": {
-          "minPrice": { "type": "number" },
-          "maxPrice": { "type": "number" }
+          "lowerBound": { "type": "number" },
+          "upperBound": { "type": "number" }
         }
       },
       "GetFeedbackResponse": {
@@ -2844,10 +2849,13 @@
           "feedback": {
             "type": "object",
             "properties": {
-              "id": { "type": "string", "format": "uuid" },
-              "firebaseUid": { "type": "string" },
-              "content": { "type": "string" },
-              "createdAt": { "type": "string", "format": "date-time" }
+              "id": { "type": "string" },
+              "description": { "type": "string" },
+              "images": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "user": { "$ref": "#/components/schemas/PrivateProfile" }
             }
           }
         }
@@ -2865,54 +2873,53 @@
       },
       "CreateFeedbackRequest": {
         "type": "object",
-        "required": ["firebaseUid", "content"],
+        "required": ["description", "images", "userId"],
         "properties": {
-          "firebaseUid": { "type": "string" },
-          "content": { "type": "string" }
+          "description": { "type": "string" },
+          "images": { "type": "array", "items": { "type": "string" } },
+          "userId": { "type": "string" }
         }
       },
       "GetSearchedFeedbackRequest": {
         "type": "object",
-        "required": ["query"],
+        "required": ["keywords"],
         "properties": {
-          "query": { "type": "string" }
+          "keywords": { "type": "string" }
         }
       },
       "UploadImageRequest": {
         "type": "object",
-        "required": ["image", "imageType"],
+        "required": ["imageBase64"],
         "properties": {
-          "image": { "type": "string", "format": "binary" },
-          "imageType": { "type": "string" }
+          "imageBase64": { "type": "string", "format": "binary" }
         }
       },
       "ImageUrlResponse": {
         "type": "object",
         "properties": {
-          "image": {
-            "type": "object",
-            "properties": {
-              "url": { "type": "string" }
-            }
-          }
+          "image": { "type": "string" }
         }
       },
       "Transaction": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "buyerId": { "type": "string", "format": "uuid" },
-          "sellerId": { "type": "string", "format": "uuid" },
-          "postId": { "type": "string", "format": "uuid" },
-          "status": { "type": "string", "enum": ["pending", "completed", "cancelled"] },
-          "createdAt": { "type": "string", "format": "date-time" },
-          "updatedAt": { "type": "string", "format": "date-time" }
+          "id": { "type": "string" },
+          "location": { "type": "string" },
+          "amount": { "type": "number" },
+          "transactionDate": { "type": "string", "format": "date-time" },
+          "completed": { "type": "boolean" },
+          "post": { "$ref": "#/components/schemas/Post" },
+          "buyer": { "$ref": "#/components/schemas/PrivateProfile" },
+          "seller": { "$ref": "#/components/schemas/PrivateProfile" },
+          "createdAt": { "type": "string", "format": "date-time" }
         }
       },
       "CreateTransactionRequest": {
         "type": "object",
-        "required": ["buyerId", "sellerId", "postId"],
+        "required": ["location", "amount", "buyerId", "sellerId", "postId"],
         "properties": {
+          "location": { "type": "string" },
+          "amount": { "type": "number" },
           "buyerId": { "type": "string", "format": "uuid" },
           "sellerId": { "type": "string", "format": "uuid" },
           "postId": { "type": "string", "format": "uuid" }
@@ -2920,51 +2927,62 @@
       },
       "UpdateTransactionStatusRequest": {
         "type": "object",
-        "required": ["status"],
+        "required": ["completed"],
         "properties": {
-          "status": { "type": "string", "enum": ["pending", "completed", "cancelled"] }
+          "completed": { "type": "boolean" }
         }
       },
       "TransactionReview": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "transactionId": { "type": "string", "format": "uuid" },
-          "rating": { "type": "number", "minimum": 1, "maximum": 5 },
-          "comment": { "type": "string" },
+          "id": { "type": "string" },
+          "stars": { "type": "number", "minimum": 1, "maximum": 5 },
+          "comments": { "type": "string", "nullable": true },
+          "hadIssues": { "type": "boolean" },
+          "issueCategory": { "type": "string", "nullable": true },
+          "issueDetails": { "type": "string", "nullable": true },
           "createdAt": { "type": "string", "format": "date-time" },
-          "updatedAt": { "type": "string", "format": "date-time" }
+          "transaction": { 
+            "oneOf": [
+              { "$ref": "#/components/schemas/Transaction" },
+              { "type": "string" }
+            ]
+          }
         }
       },
       "CreateTransactionReviewRequest": {
         "type": "object",
-        "required": ["transactionId", "rating"],
+        "required": ["transactionId", "stars", "hadIssues"],
         "properties": {
-          "transactionId": { "type": "string", "format": "uuid" },
-          "rating": { "type": "number", "minimum": 1, "maximum": 5 },
-          "comment": { "type": "string" }
+          "transactionId": { "type": "string" },
+          "stars": { "type": "number", "minimum": 1, "maximum": 5 },
+          "comments": { "type": "string", "nullable": true },
+          "hadIssues": { "type": "boolean" },
+          "issueCategory": { "type": "string", "nullable": true },
+          "issueDetails": { "type": "string", "nullable": true }
         }
       },
       "UserReview": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "buyerId": { "type": "string", "format": "uuid" },
-          "sellerId": { "type": "string", "format": "uuid" },
-          "rating": { "type": "number", "minimum": 1, "maximum": 5 },
-          "comment": { "type": "string" },
-          "createdAt": { "type": "string", "format": "date-time" },
-          "updatedAt": { "type": "string", "format": "date-time" }
+          "id": { "type": "string" },
+          "fulfilled": { "type": "boolean" },
+          "stars": { "type": "number", "minimum": 1, "maximum": 5 },
+          "comments": { "type": "string" },
+          "date": { "type": "string", "format": "date-time" },
+          "buyer": { "$ref": "#/components/schemas/PrivateProfile" },
+          "seller": { "$ref": "#/components/schemas/PrivateProfile" }
         }
       },
       "CreateUserReviewRequest": {
         "type": "object",
-        "required": ["buyerId", "sellerId", "rating"],
+        "required": ["fulfilled", "stars", "comments", "buyerId", "sellerId"],
         "properties": {
-          "buyerId": { "type": "string", "format": "uuid" },
-          "sellerId": { "type": "string", "format": "uuid" },
-          "rating": { "type": "number", "minimum": 1, "maximum": 5 },
-          "comment": { "type": "string" }
+          "fulfilled": { "type": "boolean" },
+          "stars": { "type": "number", "minimum": 1, "maximum": 5 },
+          "comments": { "type": "string" },
+          "buyerId": { "type": "string" },
+          "sellerId": { "type": "string" }
         }
       },
       "GetUserReviewResponse": {
