@@ -2460,8 +2460,8 @@
               "description": { "type": "string" },
               "category": { "type": "string" },
               "condition": { "type": "string" },
-              "original_price": { "type": "number" },
-              "altered_price": { "type": "number" },
+              "originalPrice": { "type": "number" },
+              "alteredPrice": { "type": "number" },
               "images": {
                 "type": "array",
                 "items": { "type": "string" }
@@ -2496,8 +2496,8 @@
                 "description": { "type": "string" },
                 "category": { "type": "string" },
                 "condition": { "type": "string" },
-                "original_price": { "type": "number" },
-                "altered_price": { "type": "number" },
+                "originalPrice": { "type": "number" },
+                "alteredPrice": { "type": "number" },
                 "images": {
                   "type": "array",
                   "items": { "type": "string" }
@@ -2527,7 +2527,7 @@
           "description",
           "category",
           "condition",
-          "original_price",
+          "originalPrice",
           "imagesBase64",
           "userId"
         ],
@@ -2536,7 +2536,7 @@
           "description": { "type": "string" },
           "category": { "type": "string" },
           "condition": { "type": "string" },
-          "original_price": { "type": "number" },
+          "originalPrice": { "type": "number" },
           "imagesBase64": {
             "type": "array",
             "items": { "type": "string" }
@@ -2772,9 +2772,9 @@
         "type": "object",
         "properties": {
           "email": { "type": "string" },
-          "admin": { "type": "boolean" }
+          "status": { "type": "boolean" }
         },
-        "required": ["email", "admin"]
+        "required": ["email", "status"]
       },
       "BlockUserRequest": {
         "type": "object",
