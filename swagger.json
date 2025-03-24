@@ -2583,17 +2583,18 @@
       },
       "ReportPostRequest": {
         "type": "object",
-        "required": ["postId", "reason"],
+        "required": ["post", "reason","reported"],
         "properties": {
-          "postId": { "type": "string", "format": "uuid" },
-          "reason": { "type": "string" }
+          "post": { "type": "string", "format": "uuid" },
+          "reason": { "type": "string" },
+          "reported": { "type": "string" , "format": "uuid"}
         }
       },
       "ReportProfileRequest": {
         "type": "object",
-        "required": ["profileId", "reason"],
+        "required": ["reported", "reason"],
         "properties": {
-          "profileId": { "type": "string", "format": "uuid" },
+          "reported": { "type": "string", "format": "uuid" },
           "reason": { "type": "string" }
         }
       },

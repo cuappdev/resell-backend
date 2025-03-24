@@ -75,7 +75,7 @@ async function main() {
           throw new ForbiddenError('Only Cornell email addresses are allowed');
         }
         // Find or create user in your database using Firebase UID
-        const manager = getManager();
+        const manager = getManager(); 
         let user = await manager.findOne(UserModel, { firebaseUid: userId }, 
           { relations: ["posts", "saved", "feedbacks", "requests"] });
         if (!user) {
@@ -127,7 +127,7 @@ async function main() {
 
   app.get('/api/reports/admin/', async (req: any, res: any) => {
     const userCheck = async (action: any) => {
-      const authHeader = action.request.headers["authorization"];
+      const authHeader = req.headers["authorization"];
       if (!authHeader) {
         throw new ForbiddenError("No authorization token provided");
       }
