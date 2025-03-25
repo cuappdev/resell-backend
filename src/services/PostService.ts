@@ -2,7 +2,7 @@ import { Tensor2D } from '@tensorflow/tfjs';
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
+import { InjectManager, InjectRepository } from 'typeorm-typedi-extensions';
 
 import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
@@ -24,10 +24,15 @@ export class PostService {
     this.transactions = new TransactionsManager(entityManager);
   }
 
-  public async getAllPosts(user: UserModel): Promise<PostModel[]> {
+  public async getAllPosts(user: UserModel, page: number, limit: number): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const activeUserPosts = this.filterInactiveUserPosts(await postRepository.getAllPosts());
+      const skip = (page - 1) * limit;
+
+       
+      
+      const activeUserPosts = this.filterInactiveUserPosts(await postRepository.getAllPostsPaginated(skip,limit));
+      // const filteredPosts = this.filterBlockedUserPosts(activeUserPosts, user);
       return this.filterBlockedUserPosts(activeUserPosts, user);
     });
   }

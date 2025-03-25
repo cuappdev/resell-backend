@@ -1,4 +1,4 @@
-import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, Delete, Get, JsonController, Params, Post, QueryParam } from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel';
 import { PostService } from '../../services/PostService';
@@ -25,8 +25,11 @@ export class PostController {
   }
 
   @Get()
-  async getPosts(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
-    return { posts: await this.postService.getAllPosts(user) };
+  async getPosts(@CurrentUser() user: UserModel,
+  @QueryParam('page', { required: false }) page: number = 1,   // Default page 1
+  @QueryParam('limit', { required: false }) limit: number = 10 // Default limit 10
+): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getAllPosts(user,page,limit) };
   }
 
   @Get('id/:id/')
