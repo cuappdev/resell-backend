@@ -2449,16 +2449,19 @@
       },
       "CreatePostRequest": {
         "type": "object",
-        "required": ["title", "description", "price", "condition"],
+        "required": ["title", "description", "price", "condition","imagesBase64","category","original_price","userId"],
         "properties": {
           "title": { "type": "string" },
           "description": { "type": "string" },
           "price": { "type": "number" },
           "condition": { "type": "string" },
-          "imageUrls": {
+          "imagesBase64": {
             "type": "array",
             "items": { "type": "string" }
-          }
+          },
+          "category": { "type": "string" },
+          "original_price": { "type": "number" },
+          "userId": { "type": "string" }
         }
       },
       "GetSearchedPostsRequest": {
@@ -2708,10 +2711,14 @@
       },
       "CreateFeedbackRequest": {
         "type": "object",
-        "required": ["userId", "content"],
+        "required": ["userId", "description","images"],
         "properties": {
           "userId": { "type": "string", "format": "uuid" },
-          "content": { "type": "string" }
+          "description": { "type": "string" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
         }
       },
       "GetSearchedFeedbackRequest": {
