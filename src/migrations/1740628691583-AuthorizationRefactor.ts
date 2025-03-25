@@ -1,5 +1,16 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 import { populateFirebaseUids, validateFirebaseUids } from "../utils/AuthorizationRefactor";
+import * as admin from 'firebase-admin';
+
+// Firebase Initialization
+var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
+const serviceAccount = require(serviceAccountPath);
+
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+    });
+}
 
 export class AuthorizationRefactor1740628691583 implements MigrationInterface {
 
