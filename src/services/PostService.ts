@@ -28,11 +28,7 @@ export class PostService {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const skip = (page - 1) * limit;
-
-       
-      
       const activeUserPosts = this.filterInactiveUserPosts(await postRepository.getAllPostsPaginated(skip,limit));
-      // const filteredPosts = this.filterBlockedUserPosts(activeUserPosts, user);
       return this.filterBlockedUserPosts(activeUserPosts, user);
     });
   }
