@@ -2,7 +2,7 @@ import { Tensor2D } from '@tensorflow/tfjs';
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
-import { InjectManager, InjectRepository } from 'typeorm-typedi-extensions';
+import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
