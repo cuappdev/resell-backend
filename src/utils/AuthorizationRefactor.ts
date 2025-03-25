@@ -36,17 +36,9 @@ export async function populateFirebaseUids(queryRunner: QueryRunner) {
             ); 
             }
             catch (error: any){
-                const firebaseUser = await admin.auth().createUser({
-                    email: user.email,
-                    displayName: user.name,
-                    password: 'temporaryPassword123!'  // Set a temporary password
-                });
+            
                 console.log('user did not exist');
-                // Update the firebaseUid using the query runner, not the manager
-            await queryRunner.query(
-                `UPDATE "User" SET "firebaseUid" = $1 WHERE id = $2`,
-                [firebaseUser.uid, user.id]
-            ); 
+            
         
 
             }
