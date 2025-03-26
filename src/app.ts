@@ -20,7 +20,7 @@ import { ReportService } from './services/ReportService';
 import { ReportRepository } from './repositories/ReportRepository';
 import { reportToString } from './utils/Requests';
 import { CurrentUserChecker } from 'routing-controllers/types/CurrentUserChecker';
-import * as firebaseAdmin from 'firebase-admin';
+import * as admin from 'firebase-admin';
 
 
 dotenv.config();
@@ -32,11 +32,15 @@ if (!serviceAccountPath) {
   throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH environment variable is not set.');
 }
 
-// Initialize Firebase Admin SDK
-export const admin = firebaseAdmin.initializeApp({
-  credential: firebaseAdmin.credential.cert(serviceAccount),
-  // databaseURL: "https://resell-e99a2-default-rtdb.firebaseio.com"
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  
+  });
+}
+
+
+export { admin };  // Export the admin instance
 
 async function main() {
   routingUseContainer(Container);
@@ -73,7 +77,7 @@ async function main() {
           throw new ForbiddenError('Only Cornell email addresses are allowed');
         }
         // Find or create user in your database using Firebase UID
-        const manager = getManager();
+        const manager = getManager(); 
         let user = await manager.findOne(UserModel, { firebaseUid: userId }, 
           { relations: ["posts", "saved", "feedbacks", "requests"] });
         if (!user) {
@@ -125,6 +129,15 @@ async function main() {
 
   app.get('/api/reports/admin/', async (req: any, res: any) => {
     const userCheck = async (action: any) => {
+      const authHeader = req.headers["authorization"];
+      if (!authHeader) {
+        throw new ForbiddenError("No authorization token provided");
+      }
+      const token = authHeader.split(' ')[1];
+      if (!token) {
+        throw new ForbiddenError("Invalid authorization token format");
+      }
+
       try {
         const userId = action.request.firebaseUid;
         // Find or create user in your database using Firebase UID
