@@ -24,10 +24,11 @@ export class PostService {
     this.transactions = new TransactionsManager(entityManager);
   }
 
-  public async getAllPosts(user: UserModel): Promise<PostModel[]> {
+  public async getAllPosts(user: UserModel, page: number, limit: number): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const activeUserPosts = this.filterInactiveUserPosts(await postRepository.getAllPosts());
+      const skip = (page - 1) * limit;
+      const activeUserPosts = this.filterInactiveUserPosts(await postRepository.getAllPostsPaginated(skip,limit));
       return this.filterBlockedUserPosts(activeUserPosts, user);
     });
   }

@@ -14,6 +14,16 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
+  public async getAllPostsPaginated(skip:number,limit:number): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.archive = false")
+      .skip(skip)               // Skip previous pages
+    .take(limit)
+      .getMany();
+  }
+
   public async getPostById(id: Uuid): Promise<PostModel | undefined> {
     return await this.repository
       .createQueryBuilder("post")
