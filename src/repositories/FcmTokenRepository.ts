@@ -1,5 +1,5 @@
 import { UserModel } from 'src/models/UserModel';
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { AbstractRepository, DeleteResult, EntityRepository } from 'typeorm';
 
 import { FcmTokenModel } from '../models/FcmTokenModel';
 import { Uuid } from '../types';
@@ -39,6 +39,10 @@ export class FcmTokenRepository extends AbstractRepository<FcmTokenModel> {
 
   public async deleteToken(token: FcmTokenModel): Promise<FcmTokenModel> {
     return this.repository.remove(token);
+  }
+
+  public async deleteAllTokensByUserId(userId: string): Promise<DeleteResult> {
+    return this.repository.delete({ user: { firebaseUid: userId } });
   }
 
   public async updateTokenTimestamp(token: FcmTokenModel, newTimestamp: Date): Promise<FcmTokenModel> {

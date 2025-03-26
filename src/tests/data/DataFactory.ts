@@ -6,6 +6,7 @@ import { DatabaseConnection } from './DatabaseConnection';
 import { TransactionModel } from '../../models/TransactionModel';
 import { TransactionReviewModel } from '../../models/TransactionReviewModel';
 import { NotifModel } from '../../models/NotifModel';
+import { FcmTokenModel } from 'src/models/FcmTokenModel';
 
 
 
@@ -17,6 +18,7 @@ export class DataFactory {
     private transactions: TransactionModel[] = [];
     private transactionReviews: TransactionReviewModel[] = [];
     private notifications: NotifModel[] = [];
+    private fcmTokens: FcmTokenModel[] = [];
 
 
 
@@ -78,6 +80,13 @@ export class DataFactory {
     public createNotifications(...notifications: NotifModel[]): DataFactory {
         for (let i = 0; i < notifications.length; i += 1) {
             this.notifications.push(notifications[i]);
+        }
+        return this;
+    }
+    
+    public createFcmTokens(...fcmTokens: FcmTokenModel[]): DataFactory {
+        for (let i = 0; i < fcmTokens.length; i += 1) {
+            this.fcmTokens.push(fcmTokens[i]);
         }
         return this;
     }
