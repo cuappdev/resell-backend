@@ -71,6 +71,8 @@ async function main() {
         // Check if the email is a Cornell email
         const email = decodedToken.email;
         const userId = decodedToken.uid;
+        action.request.email = email;
+        action.request.firebaseUid = userId;
         if (!email || !email.endsWith('@cornell.edu')) {
           throw new ForbiddenError('Only Cornell email addresses are allowed');
         }
@@ -135,10 +137,9 @@ async function main() {
       if (!token) {
         throw new ForbiddenError("Invalid authorization token format");
       }
+
       try {
-        // Verify the token using Firebase Admin SDK
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        const userId = decodedToken.uid;
+        const userId = action.request.firebaseUid;
         // Find or create user in your database using Firebase UID
         const manager = getManager();
         const user = await manager.findOne(UserModel, { firebaseUid: userId });

@@ -8,3 +8,4 @@ export * from './UserReviewFactory';
 export * from './TransactionFactory';
 export * from './TransactionReviewFactory';
 export * from './NotifFactory';
+export * from './FcmTokenFactory';
