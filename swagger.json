@@ -88,6 +88,28 @@
         "summary": "Get all posts",
         "tags": ["Post"],
         "security": [{ "bearerAuth": [] }],
+        "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "description": "Page number",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 1
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "description": "Number of posts per page",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 10
+        }
+      }
+    ],
         "responses": {
           "200": {
             "description": "Posts retrieved successfully",
