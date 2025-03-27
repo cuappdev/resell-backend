@@ -184,22 +184,22 @@ export interface GetReportsResponse {
 
 //CHATS
 
-export interface ChatResponse {
-  listingID:Uuid,
-  buyerID:Uuid,
-  sellerID:Uuid,
-  userIDs: Uuid[],  // For easy querying - frontend can see all the chats you are part of
-  lastMessage:string,
-  updatedAt: Date,
-  messages: MessageRefactored[]
+// export interface ChatResponse {
+//   listingID:Uuid,
+//   buyerID:Uuid,
+//   sellerID:Uuid,
+//   userIDs: Uuid[],  // For easy querying - frontend can see all the chats you are part of
+//   lastMessage:string,
+//   updatedAt: Date,
+//   messages: MessageRefactored[]
 
-}
+// }
 
-export interface MessageRefactored { //need to change s.t. this can be multiple formats
-  id: Uuid;
-  senderID: Uuid;
-  text: string;
-  timestamp: Date;
-  images: string[],
-  read:boolean
-}
+// export interface MessageRefactored { //need to change s.t. this can be multiple formats
+//   id: Uuid;
+//   senderID: Uuid;
+//   text: string;
+//   timestamp: Date;
+//   images: string[],
+//   read:boolean
+// }
