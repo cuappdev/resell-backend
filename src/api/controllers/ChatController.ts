@@ -37,13 +37,16 @@ export const updateFirestore = async (
     const subcollectionRef = chatsRef.doc(chatId).collection('messages');
 
     await subcollectionRef.add(message);
-      
     
     console.log('Created new chat document!');
   } else {
     const subcollectionRef = chatsRef.doc(chatId).collection('messages');
-
     await subcollectionRef.add(message);
+    if (lastMessage!=''){
+      await chatsRef.doc(chatId).update({
+        lastMessage: lastMessage,
+      })
+    }
    
   }
 }
