@@ -9,9 +9,11 @@ import { NotifController } from './NotifController'
 import { ReportController } from './ReportController';
 import { TransactionController } from './TransactionController';
 import { TransactionReviewController } from './TransactionReviewController';
+import { ChatController } from './ChatController';
 
 export const controllers = [
   AuthController,
+  ChatController,
   FeedbackController,
   ImageController,
   NotifController,

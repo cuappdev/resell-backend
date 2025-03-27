@@ -206,4 +206,49 @@ export interface CreateTransactionReviewRequest {
     issueCategory?: string | null;
     issueDetails?: string | null;
 }
+
+export interface CreateChatMessage {
+    type: string;
+    listindId: Uuid;
+    buyerId: Uuid;
+    sellerId: Uuid;
+    senderId: Uuid;
+    text: string;
+    images:string[]
+}
+
+export interface CreateAvailabilityChat {
+    type: string;
+    listindId: Uuid;
+    buyerId: Uuid;
+    sellerId: Uuid;
+    senderId: Uuid,
+    availabilities:AvailabilityList[] //TODO: not sure if this works
+}
+
+export interface AvailabilityList {
+    startDate: Date;
+    endDate: Date;
+}
+  
+export interface CreateProposalChat {
+    type: string;
+    listindId: Uuid;
+    buyerId: Uuid;
+    sellerId: Uuid;
+    senderId: Uuid,
+    startDate: Date;
+    endDate: Date;
+}
+
+export interface RespondProposalChat {
+    type: string;
+    listindId: Uuid;
+    buyerId: Uuid;
+    sellerId: Uuid;
+    senderId: Uuid,
+    startDate: Date;
+    endDate: Date;
+    accepted: boolean
+}
   
