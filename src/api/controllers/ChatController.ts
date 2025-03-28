@@ -1,7 +1,8 @@
-import { Body, CurrentUser, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, ForbiddenError, JsonController, Params, Post } from 'routing-controllers';
 import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
 import { ChatParam, ChatReadParam } from '../validators/GenericRequests';
 import { CreateChatMessage,CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ChatResponse, ProposalResponse, ChatReadResponse } from '../../types';
+import { UserModel } from '../../models/UserModel';
 
 const db = getFirestore();
 const chatsRef = db.collection('chats_refactored');
@@ -42,13 +43,22 @@ export const updateFirestore = async (
   }
 }
 
+export const checkUsers = async (chatId: string,
+userId:any
+) => {
+  const docRef = db.collection('chats_refactored').doc(chatId);
+  const doc = await docRef.get();
+  const userIDs = doc.data()?.userIDs || [];
+  return userIDs.includes(userId);
+} 
+
 @JsonController('chat/')
 export class ChatController {
     
 
   @Post('message/:id')
   //chose the return to be any since the chat response will vary a lot 
-  async postChat(@Params() params: ChatParam,@Body() chatBody: CreateChatMessage): Promise<MessageResponse>{
+  async postChat(@CurrentUser() user: UserModel,@Params() params: ChatParam,@Body() chatBody: CreateChatMessage): Promise<MessageResponse>{
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
     const now = new Date();
@@ -60,13 +70,20 @@ export class ChatController {
       "timestamp": now,
       "read": false
     }
+    if (doc.exists){
+      const userCheck = await checkUsers(chatId,user.firebaseUid);
+      if (!userCheck){
+        throw new ForbiddenError("This user is not part of this chat");
+      }
+      
+    }
     updateFirestore(chatId,doc.exists,chatBody,message,chatsRef,chatBody.text);
     return message;
     
   }
 
   @Post('availability/:id')
-  async postAvailability(@Params() params: ChatParam,@Body() chatBody: CreateAvailabilityChat): Promise<AvailabilityResponse>{
+  async postAvailability(@CurrentUser() user: UserModel,@Params() params: ChatParam,@Body() chatBody: CreateAvailabilityChat): Promise<AvailabilityResponse>{
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
     const now = new Date();
@@ -76,13 +93,20 @@ export class ChatController {
       "timestamp": now,
       "availabilities":chatBody.availabilities,
     }
+    if (doc.exists){
+      const userCheck = await checkUsers(chatId,user.firebaseUid);
+      if (!userCheck){
+        throw new ForbiddenError("This user is not part of this chat");
+      }
+      
+    }
     updateFirestore(chatId,doc.exists,chatBody,message,chatsRef,"");
 
     return message;
   }
 
   @Post('proposal/initial/:id')
-  async sendProposal(@Params() params: ChatParam,@Body() chatBody: CreateProposalChat): Promise<ProposalResponse>{
+  async sendProposal(@CurrentUser() user: UserModel,@Params() params: ChatParam,@Body() chatBody: CreateProposalChat): Promise<ProposalResponse>{
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
     const now = new Date();
@@ -94,13 +118,20 @@ export class ChatController {
       "startDate":chatBody.startDate,
       "endDate":chatBody.endDate,
     }
+    if (doc.exists){
+      const userCheck = await checkUsers(chatId,user.firebaseUid);
+      if (!userCheck){
+        throw new ForbiddenError("This user is not part of this chat");
+      }
+      
+    }
     updateFirestore(chatId,doc.exists,chatBody,message,chatsRef,"");
     return message;
   }
 
 
   @Post('proposal/:id')
-  async respondProposal(@Params() params: ChatParam,@Body() chatBody: RespondProposalChat): Promise<ProposalResponse>{
+  async respondProposal(@CurrentUser() user: UserModel,@Params() params: ChatParam,@Body() chatBody: RespondProposalChat): Promise<ProposalResponse>{
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
     const now = new Date();
@@ -112,13 +143,20 @@ export class ChatController {
       "startDate":chatBody.startDate,
       "endDate":chatBody.endDate,
     }
+    if (doc.exists){
+      const userCheck = await checkUsers(chatId,user.firebaseUid);
+      if (!userCheck){
+        throw new ForbiddenError("This user is not part of this chat");
+      }
+      
+    }
     updateFirestore(chatId,doc.exists,chatBody,message,chatsRef,"");
     return message;
   }
 
 
   @Post(':chatId/message/:messageId')
-  async markAsRead(@Params() params: ChatReadParam): Promise<ChatReadResponse>{
+  async markAsRead(@CurrentUser() user: UserModel,@Params() params: ChatReadParam): Promise<ChatReadResponse>{
     const chatId = params.chatId;
     const doc = await chatsRef.doc(chatId).get();
    
@@ -126,6 +164,10 @@ export class ChatController {
       console.log('No such document!');
       return {"read":false}
     } else {
+      const userCheck = await checkUsers(chatId,user.firebaseUid);
+      if (!userCheck){
+        throw new ForbiddenError("This user is not part of this chat");
+      }
       const subDocRef = chatsRef.doc(chatId)     // Main collection document
         .collection('messages') // Subcollection
         .doc(params.messageId);     // Subcollection document ID

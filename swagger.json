@@ -2306,6 +2306,141 @@
           }
         }
       }
+    },
+    "/chat/message/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Create a new message chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateChatMessage" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                   "$ref": "#/components/schemas/MessageResponse" 
+                  
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/availability/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Create a new availability chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateAvailabilityChat" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                   "$ref": "#/components/schemas/AvailabilityResponse" 
+                  
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/proposal/initial/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Create an initial proposal chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateProposalChat" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  
+                     "$ref": "#/components/schemas/ProposalResponse" 
+                  
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/proposal/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Respond to a proposal chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RespondProposalChat" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalResponse" 
+                  
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    ,
+
+    "/chat/{chatId}/message/{messageId}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Marks a message in a chat as read",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Chat message read",
+            "content": {
+              "application/json": {
+                "schema": {
+                 "$ref": "#/components/schemas/ReadResponse" 
+                  
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3022,6 +3157,127 @@
           }
         }
       },
+      
+        "CreateChatMessage": {
+          "type": "object",
+          "required": ["type", "listindId", "buyerId", "sellerId", "senderId", "text", "images"],
+          "properties": {
+            "type": { "type": "string" },
+            "listindId": { "type": "string", "format": "uuid" },
+            "buyerId": { "type": "string", "format": "uuid" },
+            "sellerId": { "type": "string", "format": "uuid" },
+            "senderId": { "type": "string", "format": "uuid" },
+            "text": { "type": "string" },
+            "images": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "AvailabilityList": {
+          "type": "object",
+          "required": ["startDate", "endDate"],
+          "properties": {
+            "startDate": { "type": "string", "format": "date-time" },
+            "endDate": { "type": "string", "format": "date-time" }
+          }
+        },
+        "CreateAvailabilityChat": {
+          "type": "object",
+          "required": ["type", "listindId", "buyerId", "sellerId", "senderId", "availabilities"],
+          "properties": {
+            "type": { "type": "string" },
+            "listindId": { "type": "string", "format": "uuid" },
+            "buyerId": { "type": "string", "format": "uuid" },
+            "sellerId": { "type": "string", "format": "uuid" },
+            "senderId": { "type": "string", "format": "uuid" },
+            "availabilities": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/AvailabilityList" }
+            }
+          }
+        },
+        "CreateProposalChat": {
+          "type": "object",
+          "required": ["type", "listindId", "buyerId", "sellerId", "senderId", "startDate", "endDate"],
+          "properties": {
+            "type": { "type": "string" },
+            "listindId": { "type": "string", "format": "uuid" },
+            "buyerId": { "type": "string", "format": "uuid" },
+            "sellerId": { "type": "string", "format": "uuid" },
+            "senderId": { "type": "string", "format": "uuid" },
+            "startDate": { "type": "string", "format": "date-time" },
+            "endDate": { "type": "string", "format": "date-time" }
+          }
+        },
+        "RespondProposalChat": {
+          "type": "object",
+          "required": ["type", "listindId", "buyerId", "sellerId", "senderId", "startDate", "endDate", "accepted"],
+          "properties": {
+            "type": { "type": "string" },
+            "listindId": { "type": "string", "format": "uuid" },
+            "buyerId": { "type": "string", "format": "uuid" },
+            "sellerId": { "type": "string", "format": "uuid" },
+            "senderId": { "type": "string", "format": "uuid" },
+            "startDate": { "type": "string", "format": "date-time" },
+            "endDate": { "type": "string", "format": "date-time" },
+            "accepted": { "type": "boolean" }
+          }
+        }
+      
+,
+
+  "MessageResponse": {
+    "type": "object",
+    "required": ["type", "senderID", "text", "images", "timestamp", "read"],
+    "properties": {
+      "type": { "type": "string" },
+      "senderID": { "type": "string", "format": "uuid" },
+      "text": { "type": "string" },
+      "images": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "timestamp": { "type": "string", "format": "date-time" },
+      "read": { "type": "boolean" }
+    }
+  },
+  "AvailabilityResponse": {
+    "type": "object",
+    "required": ["type", "senderID", "timestamp", "availabilities"],
+    "properties": {
+      "type": { "type": "string" },
+      "senderID": { "type": "string", "format": "uuid" },
+      "timestamp": { "type": "string", "format": "date-time" },
+      "availabilities": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/AvailabilityList" }
+      }
+    }
+  },
+  "ProposalResponse": {
+    "type": "object",
+    "required": ["type", "senderID", "timestamp", "startDate", "endDate"],
+    "properties": {
+      "type": { "type": "string" },
+      "senderID": { "type": "string", "format": "uuid" },
+      "timestamp": { "type": "string", "format": "date-time" },
+      "accepted": { 
+        "type": ["boolean", "null"],
+        "nullable": true
+      },
+      "startDate": { "type": "string", "format": "date-time" },
+      "endDate": { "type": "string", "format": "date-time" }
+    }
+  }
+,
+"ReadResponse": {
+    "type": "object",
+    "required": ["read"],
+    "properties": {
+      "read": { "type": "boolean" }
+    }
+  },
       "PrivateProfile": {
         "type": "object",
         "properties": {
