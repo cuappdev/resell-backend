@@ -1,19 +1,8 @@
 import { Body, CurrentUser, JsonController, Params, Post } from 'routing-controllers';
-import * as admin from 'firebase-admin';
 import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
 import { ChatParam, ChatReadParam } from '../validators/GenericRequests';
-import { CreateChatMessage,CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ChatResponse } from '../../types';
-import dotenv from 'dotenv';
-//will this be an issue I can't read the env variable
-dotenv.config();
-var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
-const serviceAccount = require(serviceAccountPath);
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  
-  });
-}
+import { CreateChatMessage,CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ChatResponse, ProposalResponse, ChatReadResponse } from '../../types';
+
 const db = getFirestore();
 const chatsRef = db.collection('chats_refactored');
 export const updateFirestore = async (
@@ -78,7 +67,6 @@ export class ChatController {
 
   @Post('availability/:id')
   async postAvailability(@Params() params: ChatParam,@Body() chatBody: CreateAvailabilityChat): Promise<AvailabilityResponse>{
-    console.log('here');
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
     const now = new Date();
@@ -94,8 +82,7 @@ export class ChatController {
   }
 
   @Post('proposal/initial/:id')
-  async sendProposal(@Params() params: ChatParam,@Body() chatBody: CreateProposalChat): Promise<any>{
-    console.log('here');
+  async sendProposal(@Params() params: ChatParam,@Body() chatBody: CreateProposalChat): Promise<ProposalResponse>{
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
     const now = new Date();
@@ -113,8 +100,7 @@ export class ChatController {
 
 
   @Post('proposal/:id')
-  async respondProposal(@Params() params: ChatParam,@Body() chatBody: RespondProposalChat): Promise<any>{
-    console.log('here');
+  async respondProposal(@Params() params: ChatParam,@Body() chatBody: RespondProposalChat): Promise<ProposalResponse>{
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
     const now = new Date();
@@ -127,14 +113,12 @@ export class ChatController {
       "endDate":chatBody.endDate,
     }
     updateFirestore(chatId,doc.exists,chatBody,message,chatsRef,"");
-    const ret = await chatsRef.doc(chatId).get();
-    return ret.data();
+    return message;
   }
 
 
   @Post(':chatId/message/:messageId')
-  async markAsRead(@Params() params: ChatReadParam): Promise<any>{
-    console.log('here');
+  async markAsRead(@Params() params: ChatReadParam): Promise<ChatReadResponse>{
     const chatId = params.chatId;
     const doc = await chatsRef.doc(chatId).get();
    

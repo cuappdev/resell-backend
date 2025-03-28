@@ -202,6 +202,21 @@ export interface AvailabilityResponse {
 
 }
 
+export interface ProposalResponse {
+  type: string,
+  senderID: Uuid,
+  timestamp: Date,
+  accepted:boolean|null,
+  startDate:Date,
+  endDate:Date
+
+}
+
+export interface ChatReadResponse {
+  read:boolean
+
+}
+
 export interface ChatResponse {
   listingID:Uuid,
   buyerID:Uuid,
