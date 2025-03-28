@@ -1,6 +1,6 @@
 import { FeedbackModel } from "src/models/FeedbackModel";
 
-import { Uuid } from ".";
+import { AvailabilityList, Uuid } from ".";
 import { PostModel } from "../models/PostModel";
 import { UserModel } from "../models/UserModel";
 import { ReportModel } from "../models/ReportModel";
@@ -184,16 +184,32 @@ export interface GetReportsResponse {
 
 //CHATS
 
-// export interface ChatResponse {
-//   listingID:Uuid,
-//   buyerID:Uuid,
-//   sellerID:Uuid,
-//   userIDs: Uuid[],  // For easy querying - frontend can see all the chats you are part of
-//   lastMessage:string,
-//   updatedAt: Date,
-//   messages: MessageRefactored[]
+export interface MessageResponse {
+  type: string,
+  senderID: Uuid,
+  text: string,
+  images: string[],
+  timestamp: Date,
+  read: boolean
 
-// }
+}
+
+export interface AvailabilityResponse {
+  type: string,
+  senderID: Uuid,
+  timestamp: Date,
+  availabilities: AvailabilityList[]
+
+}
+
+export interface ChatResponse {
+  listingID:Uuid,
+  buyerID:Uuid,
+  sellerID:Uuid,
+  userIDs: Uuid[],  // For easy querying - frontend can see all the chats you are part of
+  lastMessage:string,
+  updatedAt: Date,
+}
 
 // export interface MessageRefactored { //need to change s.t. this can be multiple formats
 //   id: Uuid;

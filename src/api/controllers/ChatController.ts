@@ -1,11 +1,13 @@
-import { Body, CurrentUser, Delete, Get, HeaderParam, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, JsonController, Params, Post } from 'routing-controllers';
 import * as admin from 'firebase-admin';
 import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
-import { ChatParam, ChatReadParam, FirebaseUidParam } from '../validators/GenericRequests';
-import { CreateChatMessage,CreateAvailabilityChat, ChatResponse, CreateProposalChat, RespondProposalChat } from '../../types';
-
+import { ChatParam, ChatReadParam } from '../validators/GenericRequests';
+import { CreateChatMessage,CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ChatResponse } from '../../types';
+import dotenv from 'dotenv';
 //will this be an issue I can't read the env variable
-const serviceAccount = require("./firebase-admin-service-account.json");
+dotenv.config();
+var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
+const serviceAccount = require(serviceAccountPath);
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -53,10 +55,11 @@ export const updateFirestore = async (
 
 @JsonController('chat/')
 export class ChatController {
+    
 
   @Post('message/:id')
   //chose the return to be any since the chat response will vary a lot 
-  async postChat(@Params() params: ChatParam,@Body() chatBody: CreateChatMessage): Promise<any>{
+  async postChat(@Params() params: ChatParam,@Body() chatBody: CreateChatMessage): Promise<MessageResponse>{
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
     const now = new Date();
@@ -69,13 +72,12 @@ export class ChatController {
       "read": false
     }
     updateFirestore(chatId,doc.exists,chatBody,message,chatsRef,chatBody.text);
-    //returning the whole chat resutls in maximum call stack exceeded
     return message;
     
   }
 
   @Post('availability/:id')
-  async postAvailability(@Params() params: ChatParam,@Body() chatBody: CreateAvailabilityChat): Promise<any>{
+  async postAvailability(@Params() params: ChatParam,@Body() chatBody: CreateAvailabilityChat): Promise<AvailabilityResponse>{
     console.log('here');
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
@@ -125,8 +127,8 @@ export class ChatController {
       "endDate":chatBody.endDate,
     }
     updateFirestore(chatId,doc.exists,chatBody,message,chatsRef,"");
-   
-    return message;
+    const ret = await chatsRef.doc(chatId).get();
+    return ret.data();
   }
 
 
@@ -154,7 +156,6 @@ export class ChatController {
     }
     return {"read":true}
   }
-
   
 }
 
