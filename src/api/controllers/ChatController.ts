@@ -1,7 +1,7 @@
 import { Body, CurrentUser, ForbiddenError, JsonController, Params, Post } from 'routing-controllers';
-import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
+import { getFirestore } from 'firebase-admin/firestore';
 import { ChatParam, ChatReadParam } from '../validators/GenericRequests';
-import { CreateChatMessage,CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ChatResponse, ProposalResponse, ChatReadResponse } from '../../types';
+import { CreateChatMessage,CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ProposalResponse, ChatReadResponse } from '../../types';
 import { UserModel } from '../../models/UserModel';
 
 const db = getFirestore();
