@@ -19,6 +19,9 @@ export class RequestModel {
   @Column({ default: false })
   archive: boolean;
 
+  @Column({ nullable: true })
+  embedding: string;
+
   @ManyToOne(() => UserModel, user => user.requests)
   @JoinColumn({ name: 'user' })
   user: UserModel

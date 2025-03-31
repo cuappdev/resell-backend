@@ -3,6 +3,7 @@ import { AbstractRepository, EntityRepository } from 'typeorm';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import { Uuid } from '../types';
+import pgvector from 'pgvector';
 
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
@@ -48,6 +49,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     price: number,
     images: string[],
     user: UserModel,
+    embedding: string,
   ): Promise<PostModel> {
     const post = new PostModel();
     post.title = title;
@@ -59,6 +61,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.images = images;
     post.archive = false;
     post.user = user;
+    post.embedding = embedding;
     return await this.repository.save(post);
   }
 
@@ -189,5 +192,14 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getOne();
   }
 
-
+  public async getSimilarPosts(queryEmbedding: number[], excludePostId: string): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.id != :excludePostId", { excludePostId })
+      .orderBy("embedding <-> CAST(:embedding AS vector(512))")
+      .setParameters({ embedding: pgvector.toSql(queryEmbedding) })
+      .limit(10)
+      .getMany();
+  }
 }
