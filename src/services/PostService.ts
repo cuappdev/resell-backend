@@ -14,6 +14,7 @@ import { getLoadedModel } from '../utils/SentenceEncoder';
 import { PostRepository } from 'src/repositories/PostRepository';
 import { FindTokensRequest } from '../types';
 import { NotifService } from './NotifService';
+import { SearchService } from './SearchService'; // Import SearchService
 //require('@tensorflow-models/universal-sentence-encoder')
 
 @Service() 
@@ -102,6 +103,18 @@ export class PostService {
   public async searchPosts(user: UserModel, getSearchedPostsRequest: GetSearchedPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
+      
+      // Record the search in the searches table
+      const searchService = new SearchService();
+      try {
+        // Store the search asynchronously to not block the search results
+        searchService.createSearch(getSearchedPostsRequest.keywords, user.firebaseUid)
+          .catch(error => console.error("Error recording search:", error));
+      } catch (error) {
+        // Log error but don't fail the search operation
+        console.error("Error initiating search recording:", error);
+      }
+      
       const postsByTitle = await postRepository.searchPostsByTitle(getSearchedPostsRequest.keywords);
       const postsByDescription = await postRepository.searchPostsByDescription(getSearchedPostsRequest.keywords.toLowerCase());
       const posts = postsByTitle;
