@@ -25,7 +25,7 @@ export class CreateSearchesTable1743566564676 implements MigrationInterface {
             ON DELETE CASCADE`);
             
         // Create an index for vector similarity search
-        await queryRunner.query(`CREATE INDEX "idx_searches_vector" ON "searches" USING ivfflat (searchVector vector_cosine_ops)`);
+        await queryRunner.query(`CREATE INDEX "idx_searches_vector" ON "searches" USING ivfflat ("searchVector" vector_cosine_ops)`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
