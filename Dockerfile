@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:20-bullseye
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY . .
