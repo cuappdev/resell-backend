@@ -2,7 +2,7 @@
 import 'reflect-metadata';
 
 import dotenv from 'dotenv';
-import { createExpressServer, ForbiddenError, UnauthorizedError, useContainer as routingUseContainer } from 'routing-controllers';
+import { createExpressServer, ForbiddenError, UnauthorizedError, useContainer as routingUseContainer, HttpError } from 'routing-controllers';
 import { EntityManager, getManager, useContainer } from 'typeorm';
 import { Container } from 'typeorm-typedi-extensions';
 import { Express } from 'express';
@@ -97,6 +97,9 @@ async function main() {
         
         if (error instanceof ForbiddenError) {
           throw error;
+        }
+        if (error.code == 'auth/argument-error'){
+          throw new HttpError(408, 'Request timed out while waiting for response');
         }
         if (error.code === 'auth/id-token-expired') {
           throw new UnauthorizedError('Token has expired');
