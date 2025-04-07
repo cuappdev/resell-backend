@@ -73,6 +73,7 @@ export class ChatController {
     if (doc.exists){
       const userCheck = await checkUsers(chatId,user.firebaseUid);
       if (!userCheck){
+        //TODO: factor this part out into a checkPermissions function that we can call in all the route
         throw new ForbiddenError("This user is not part of this chat");
       }
       
