@@ -30,7 +30,7 @@ export class UserController {
   }
 
   @Get('id/:id/')
-  async getUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
+  async getUserById(@Params() params: FirebaseUidParam): Promise<GetUserResponse> {
     return { user: await this.userService.getUserById(params) };
   }
 
