@@ -93,6 +93,7 @@ async function main() {
         } 
         return user;
       } catch (error) {
+        console.log(error);
         if (error.code === 'auth/id-token-expired') {
           throw new UnauthorizedError('Token has expired');
         }
