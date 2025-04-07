@@ -8,25 +8,10 @@ import { Container } from 'typeorm-typedi-extensions';
 import { Express } from 'express';
 import * as swaggerUi from 'swagger-ui-express';
 import * as path from 'path';
-
-import { controllers } from './api/controllers';
-import { middlewares } from './api/middlewares';
-import { UserModel } from './models/UserModel';
-import { ReportPostRequest, ReportProfileRequest, ReportMessageRequest } from './types';
-import { GetReportsResponse, Report } from './types/ApiResponses';
-import { ReportController } from './api/controllers/ReportController';
-import resellConnection from './utils/DB';
-import { ReportService } from './services/ReportService';
-import { ReportRepository } from './repositories/ReportRepository';
-import { reportToString } from './utils/Requests';
-import { CurrentUserChecker } from 'routing-controllers/types/CurrentUserChecker';
 import * as admin from 'firebase-admin';
-
-
 dotenv.config();
 var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
 const serviceAccount = require(serviceAccountPath);
-
 
 if (!serviceAccountPath) {
   throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH environment variable is not set.');
@@ -41,6 +26,19 @@ if (!admin.apps.length) {
 
 
 export { admin };  // Export the admin instance
+
+import { controllers } from './api/controllers';
+import { middlewares } from './api/middlewares';
+import { UserModel } from './models/UserModel';
+import { ReportPostRequest, ReportProfileRequest, ReportMessageRequest } from './types';
+import { GetReportsResponse, Report } from './types/ApiResponses';
+import { ReportController } from './api/controllers/ReportController';
+import resellConnection from './utils/DB';
+import { ReportService } from './services/ReportService';
+import { ReportRepository } from './repositories/ReportRepository';
+import { reportToString } from './utils/Requests';
+import { CurrentUserChecker } from 'routing-controllers/types/CurrentUserChecker';
+
 
 async function main() {
   routingUseContainer(Container);
