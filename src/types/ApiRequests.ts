@@ -209,7 +209,7 @@ export interface CreateTransactionReviewRequest {
 
 export interface CreateChatMessage {
     type: string;
-    listindId: Uuid;
+    listingId: Uuid;
     buyerId: Uuid;
     sellerId: Uuid;
     senderId: Uuid;
@@ -219,7 +219,7 @@ export interface CreateChatMessage {
 
 export interface CreateAvailabilityChat {
     type: string;
-    listindId: Uuid;
+    listingId: Uuid;
     buyerId: Uuid;
     sellerId: Uuid;
     senderId: Uuid,
@@ -233,7 +233,7 @@ export interface AvailabilityList {
   
 export interface CreateProposalChat {
     type: string;
-    listindId: Uuid;
+    listingId: Uuid;
     buyerId: Uuid;
     sellerId: Uuid;
     senderId: Uuid,
@@ -243,7 +243,7 @@ export interface CreateProposalChat {
 
 export interface RespondProposalChat {
     type: string;
-    listindId: Uuid;
+    listingId: Uuid;
     buyerId: Uuid;
     sellerId: Uuid;
     senderId: Uuid,

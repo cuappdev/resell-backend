@@ -17,7 +17,7 @@ export const updateFirestore = async (
   const now = new Date();
   if (!exists) {
     const data = {
-      "listingID":chatBody.listindId,
+      "listingID":chatBody.listingId,
       "buyerID": chatBody.buyerId,
       "sellerID": chatBody.sellerId,
       "userIDs": [chatBody.buyerId, chatBody.sellerId],  

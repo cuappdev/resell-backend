@@ -3160,10 +3160,10 @@
       
         "CreateChatMessage": {
           "type": "object",
-          "required": ["type", "listindId", "buyerId", "sellerId", "senderId", "text", "images"],
+          "required": ["type", "listingId", "buyerId", "sellerId", "senderId", "text", "images"],
           "properties": {
             "type": { "type": "string" },
-            "listindId": { "type": "string", "format": "uuid" },
+            "listingId": { "type": "string", "format": "uuid" },
             "buyerId": { "type": "string", "format": "uuid" },
             "sellerId": { "type": "string", "format": "uuid" },
             "senderId": { "type": "string", "format": "uuid" },
@@ -3184,10 +3184,10 @@
         },
         "CreateAvailabilityChat": {
           "type": "object",
-          "required": ["type", "listindId", "buyerId", "sellerId", "senderId", "availabilities"],
+          "required": ["type", "listingId", "buyerId", "sellerId", "senderId", "availabilities"],
           "properties": {
             "type": { "type": "string" },
-            "listindId": { "type": "string", "format": "uuid" },
+            "listingId": { "type": "string", "format": "uuid" },
             "buyerId": { "type": "string", "format": "uuid" },
             "sellerId": { "type": "string", "format": "uuid" },
             "senderId": { "type": "string", "format": "uuid" },
@@ -3199,10 +3199,10 @@
         },
         "CreateProposalChat": {
           "type": "object",
-          "required": ["type", "listindId", "buyerId", "sellerId", "senderId", "startDate", "endDate"],
+          "required": ["type", "listingId", "buyerId", "sellerId", "senderId", "startDate", "endDate"],
           "properties": {
             "type": { "type": "string" },
-            "listindId": { "type": "string", "format": "uuid" },
+            "listingId": { "type": "string", "format": "uuid" },
             "buyerId": { "type": "string", "format": "uuid" },
             "sellerId": { "type": "string", "format": "uuid" },
             "senderId": { "type": "string", "format": "uuid" },
@@ -3212,10 +3212,10 @@
         },
         "RespondProposalChat": {
           "type": "object",
-          "required": ["type", "listindId", "buyerId", "sellerId", "senderId", "startDate", "endDate", "accepted"],
+          "required": ["type", "listingId", "buyerId", "sellerId", "senderId", "startDate", "endDate", "accepted"],
           "properties": {
             "type": { "type": "string" },
-            "listindId": { "type": "string", "format": "uuid" },
+            "listingId": { "type": "string", "format": "uuid" },
             "buyerId": { "type": "string", "format": "uuid" },
             "sellerId": { "type": "string", "format": "uuid" },
             "senderId": { "type": "string", "format": "uuid" },
