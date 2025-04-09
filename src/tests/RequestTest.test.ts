@@ -147,11 +147,11 @@ describe('request tests', () => {
       .createRequests(request)
       .createUsers(user)
       .write();
-
+    
     const newPost = {
       title: 'Textbook',
       description: 'Textbook for 3110',
-      category: 'HANDMADE',
+      categories: ['f4c9ad85-9015-45b1-b52f-5d7402313887'],
       condition: 'NEW',
       original_price: 500.15,
       imagesBase64: [],

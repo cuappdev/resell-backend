@@ -654,9 +654,9 @@
         }
       }
     },
-    "/post/filter": {
+    "/post/filterByCategories": {
       "post": {
-        "summary": "Filter posts",
+        "summary": "Filter all posts by multiple categories",
         "tags": ["Post"],
         "security": [{ "bearerAuth": [] }],
         "requestBody": {
