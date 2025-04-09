@@ -136,4 +136,12 @@ export class PostController {
   async similarPosts(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostsResponse> {
     return { posts: await this.postService.similarPosts(user, params) };
   }
+
+  @Get('suggested/')
+  async getSuggestedPosts(
+    @CurrentUser() user: UserModel,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getSuggestedPosts(user, limit) };
+  }
 }
