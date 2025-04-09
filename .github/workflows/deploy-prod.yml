@@ -42,4 +42,4 @@ jobs:
             docker stack rm the-stack
             sleep 20s
             docker stack deploy -c docker-compose.yml the-stack
-            docker system prune -a
+            yes | docker system prune -a
