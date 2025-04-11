@@ -108,7 +108,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .select("post.id")
       .distinct(true)
       .innerJoin("post.categories", "category")
-      .where("category.id IN (:...categories)", { categories })
+      .where("category.name IN (:...categories)", { categories })
       .andWhere("post.archive = false")
       .getMany();
     

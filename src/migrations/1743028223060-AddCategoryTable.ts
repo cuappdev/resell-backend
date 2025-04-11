@@ -4,215 +4,64 @@ export class AddCategoryTable1743028223060 implements MigrationInterface {
     name = 'AddCategoryTable1743028223060'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "Feedback" DROP CONSTRAINT "FK_Feedback_user"`);
-        await queryRunner.query(`ALTER TABLE "UserReview" DROP CONSTRAINT "FK_UserReview_seller"`);
-        await queryRunner.query(`ALTER TABLE "UserReview" DROP CONSTRAINT "FK_UserReview_buyer"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP CONSTRAINT "FK_Report_reported_id"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP CONSTRAINT "FK_Report_reporter_id"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP CONSTRAINT "FK_b0ecf30cfa1f4908dec8d19547c"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP CONSTRAINT "FK_244bde34d749985aa27e551c110"`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" DROP CONSTRAINT "FK_FCMToken_userId"`);
-        await queryRunner.query(`ALTER TABLE "Request" DROP CONSTRAINT "FK_Request_user"`);
-        await queryRunner.query(`ALTER TABLE "Post" DROP CONSTRAINT "FK_Post_user"`);
-        await queryRunner.query(`ALTER TABLE "notifications" DROP CONSTRAINT "FK_notifications_user_id"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP CONSTRAINT "FK_Transaction_seller_id"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP CONSTRAINT "FK_Transaction_buyer_id"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP CONSTRAINT "FK_post"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP CONSTRAINT "FK_transaction"`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" DROP CONSTRAINT "FK_user_blocking_users_blocking"`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" DROP CONSTRAINT "FK_user_blocking_users_blockers"`);
-        await queryRunner.query(`ALTER TABLE "user_saved_posts" DROP CONSTRAINT "FK_user_saved_posts_savers"`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_FCMToken_userId"`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_FCMToken_fcmToken"`);
-        await queryRunner.query(`CREATE TABLE "Category" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" character varying NOT NULL, CONSTRAINT "PK_c2727780c5b9b0c564c29a4977c" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TABLE "post_categories" ("posts" uuid NOT NULL, "categories" uuid NOT NULL, CONSTRAINT "PK_88340cf0b1b8a00578602f4c80b" PRIMARY KEY ("posts", "categories"))`);
-        await queryRunner.query(`CREATE INDEX "IDX_623743dadf52f9b1c5ebdb0ff8" ON "post_categories" ("posts") `);
-        await queryRunner.query(`CREATE INDEX "IDX_1860e6d8b1a47e00c8c0ea937b" ON "post_categories" ("categories") `);
-        await queryRunner.query(`ALTER TABLE "Report" DROP COLUMN "post_id"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP COLUMN "message_id"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP COLUMN "reporter_id"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP COLUMN "reported_id"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "num_reviews"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "given_name"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "family_name"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "photo_url"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "venmo_handle"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP CONSTRAINT "UQ_a4f1fbe21cff2f5860ffa7a3cb6"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "google_id"`);
-        await queryRunner.query(`ALTER TABLE "Post" DROP COLUMN "category"`);
-        await queryRunner.query(`ALTER TABLE "notifications" DROP COLUMN "created_at"`);
-        await queryRunner.query(`ALTER TABLE "notifications" DROP COLUMN "updated_at"`);
-        await queryRunner.query(`ALTER TABLE "notifications" DROP COLUMN "user_id"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP COLUMN "transaction_date"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP COLUMN "created_at"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "had_issues"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "created_at"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "issue_category"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "issue_details"`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD "reporterFirebaseUid" character varying`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD "reportedFirebaseUid" character varying`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD "postId" uuid`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD "messageId" uuid`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "id" character varying`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "givenName" character varying`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "familyName" character varying`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "numReviews" integer NOT NULL DEFAULT '0'`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "photoUrl" character varying`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "venmoHandle" character varying`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "googleId" character varying`);
-        await queryRunner.query(`ALTER TABLE "User" ADD CONSTRAINT "UQ_02dec29f4ca814ab6efa2d4f0c4" UNIQUE ("googleId")`);
-        await queryRunner.query(`ALTER TABLE "notifications" ADD "userId" character varying NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "notifications" ADD "createdAt" TIMESTAMP NOT NULL DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "notifications" ADD "updatedAt" TIMESTAMP NOT NULL DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD "transactionDate" TIMESTAMP WITH TIME ZONE`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "hadIssues" boolean NOT NULL DEFAULT false`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "issueCategory" text`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "issueDetails" text`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" ADD CONSTRAINT "PK_8db623e58cc4bce5fbcc252c66b" PRIMARY KEY ("blockers", "blocking")`);
-        await queryRunner.query(`ALTER TABLE "user_saved_posts" ADD CONSTRAINT "PK_11901fe92c42b2d2a71ca74021a" PRIMARY KEY ("saved", "savers")`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" ALTER COLUMN "notificationsEnabled" DROP DEFAULT`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" ALTER COLUMN "timestamp" DROP DEFAULT`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" ALTER COLUMN "userId" DROP NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "Post" ALTER COLUMN "original_price" TYPE numeric`);
-        await queryRunner.query(`ALTER TABLE "Post" ALTER COLUMN "altered_price" TYPE numeric`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ALTER COLUMN "amount" TYPE numeric`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "comments"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "comments" text`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD CONSTRAINT "UQ_aff62b169ebd519d1f5994e781a" UNIQUE ("transaction_id")`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" ALTER COLUMN "blockers" SET NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" ALTER COLUMN "blocking" SET NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "user_saved_posts" ALTER COLUMN "savers" SET NOT NULL`);
-        await queryRunner.query(`CREATE INDEX "IDX_fab66ba7c0e58e67b0d67f1c23" ON "user_blocking_users" ("blockers") `);
-        await queryRunner.query(`CREATE INDEX "IDX_b5c7223aa162c5ccd1867056f7" ON "user_blocking_users" ("blocking") `);
-        await queryRunner.query(`CREATE INDEX "IDX_1da3c41687f5a8934c7808ef24" ON "user_saved_posts" ("savers") `);
-        await queryRunner.query(`ALTER TABLE "Feedback" ADD CONSTRAINT "FK_e1ca1a1706e36874b6adfaab662" FOREIGN KEY ("user") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "UserReview" ADD CONSTRAINT "FK_003e3b33806e21e65f3fb0b87e6" FOREIGN KEY ("buyer") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "UserReview" ADD CONSTRAINT "FK_1d721b09d28cb397b9b2edf76f7" FOREIGN KEY ("seller") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD CONSTRAINT "FK_a050c9cf7f461bc8fc040a48e0a" FOREIGN KEY ("reporterFirebaseUid") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD CONSTRAINT "FK_16c178e84273608caf9db34df88" FOREIGN KEY ("reportedFirebaseUid") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD CONSTRAINT "FK_4bc548745107f37d3512ed688c5" FOREIGN KEY ("postId") REFERENCES "Post"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD CONSTRAINT "FK_dd826149b8ac72ddc2d1f4e234e" FOREIGN KEY ("messageId") REFERENCES "Message"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" ADD CONSTRAINT "FK_d215a8d66e472d872409915f7d5" FOREIGN KEY ("userId") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Request" ADD CONSTRAINT "FK_db281bd2822e1938f5072960173" FOREIGN KEY ("user") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Post" ADD CONSTRAINT "FK_2067452f95b084577dae22e17e2" FOREIGN KEY ("user") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "notifications" ADD CONSTRAINT "FK_692a909ee0fa9383e7859f9b406" FOREIGN KEY ("userId") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD CONSTRAINT "FK_14f61f7bb377f779431b0be6fa8" FOREIGN KEY ("post_id") REFERENCES "Post"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD CONSTRAINT "FK_a364f08b99819f616ae43f9d6bd" FOREIGN KEY ("buyer_id") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD CONSTRAINT "FK_7c5499049ca89617f3fad055b80" FOREIGN KEY ("seller_id") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD CONSTRAINT "FK_aff62b169ebd519d1f5994e781a" FOREIGN KEY ("transaction_id") REFERENCES "Transaction"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" ADD CONSTRAINT "FK_fab66ba7c0e58e67b0d67f1c232" FOREIGN KEY ("blockers") REFERENCES "User"("firebaseUid") ON DELETE CASCADE ON UPDATE CASCADE`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" ADD CONSTRAINT "FK_b5c7223aa162c5ccd1867056f73" FOREIGN KEY ("blocking") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "user_saved_posts" ADD CONSTRAINT "FK_1da3c41687f5a8934c7808ef24d" FOREIGN KEY ("savers") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "post_categories" ADD CONSTRAINT "FK_623743dadf52f9b1c5ebdb0ff85" FOREIGN KEY ("posts") REFERENCES "Post"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
-        await queryRunner.query(`ALTER TABLE "post_categories" ADD CONSTRAINT "FK_1860e6d8b1a47e00c8c0ea937b9" FOREIGN KEY ("categories") REFERENCES "Category"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        
+    await queryRunner.query(`
+        CREATE TABLE "Category" (
+          "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+          "name" character varying NOT NULL,
+          CONSTRAINT "PK_c2727780c5b9b0c564c29a4977c" PRIMARY KEY ("id")
+        )
+      `);
+  
+   
+      await queryRunner.query(`
+        CREATE TABLE "post_categories" (
+          "posts" uuid NOT NULL,
+          "categories" uuid NOT NULL,
+          CONSTRAINT "PK_88340cf0b1b8a00578602f4c80b" PRIMARY KEY ("posts", "categories"),
+          CONSTRAINT "FK_post" FOREIGN KEY ("posts") REFERENCES "Post"("id") ON DELETE CASCADE,
+          CONSTRAINT "FK_category" FOREIGN KEY ("categories") REFERENCES "Category"("id") ON DELETE CASCADE
+        )
+      `);
+  
+ 
+      await queryRunner.query(`
+        CREATE INDEX "IDX_623743dadf52f9b1c5ebdb0ff8" ON "post_categories" ("posts")
+      `);
+      await queryRunner.query(`
+        CREATE INDEX "IDX_1860e6d8b1a47e00c8c0ea937b" ON "post_categories" ("categories")
+      `);
+  
+   
+      await queryRunner.query(`
+        ALTER TABLE "Post" DROP COLUMN "category"
+      `);
+
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "post_categories" DROP CONSTRAINT "FK_1860e6d8b1a47e00c8c0ea937b9"`);
-        await queryRunner.query(`ALTER TABLE "post_categories" DROP CONSTRAINT "FK_623743dadf52f9b1c5ebdb0ff85"`);
-        await queryRunner.query(`ALTER TABLE "user_saved_posts" DROP CONSTRAINT "FK_1da3c41687f5a8934c7808ef24d"`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" DROP CONSTRAINT "FK_b5c7223aa162c5ccd1867056f73"`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" DROP CONSTRAINT "FK_fab66ba7c0e58e67b0d67f1c232"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP CONSTRAINT "FK_aff62b169ebd519d1f5994e781a"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP CONSTRAINT "FK_7c5499049ca89617f3fad055b80"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP CONSTRAINT "FK_a364f08b99819f616ae43f9d6bd"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP CONSTRAINT "FK_14f61f7bb377f779431b0be6fa8"`);
-        await queryRunner.query(`ALTER TABLE "notifications" DROP CONSTRAINT "FK_692a909ee0fa9383e7859f9b406"`);
-        await queryRunner.query(`ALTER TABLE "Post" DROP CONSTRAINT "FK_2067452f95b084577dae22e17e2"`);
-        await queryRunner.query(`ALTER TABLE "Request" DROP CONSTRAINT "FK_db281bd2822e1938f5072960173"`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" DROP CONSTRAINT "FK_d215a8d66e472d872409915f7d5"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP CONSTRAINT "FK_dd826149b8ac72ddc2d1f4e234e"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP CONSTRAINT "FK_4bc548745107f37d3512ed688c5"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP CONSTRAINT "FK_16c178e84273608caf9db34df88"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP CONSTRAINT "FK_a050c9cf7f461bc8fc040a48e0a"`);
-        await queryRunner.query(`ALTER TABLE "UserReview" DROP CONSTRAINT "FK_1d721b09d28cb397b9b2edf76f7"`);
-        await queryRunner.query(`ALTER TABLE "UserReview" DROP CONSTRAINT "FK_003e3b33806e21e65f3fb0b87e6"`);
-        await queryRunner.query(`ALTER TABLE "Feedback" DROP CONSTRAINT "FK_e1ca1a1706e36874b6adfaab662"`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_1da3c41687f5a8934c7808ef24"`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_b5c7223aa162c5ccd1867056f7"`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_fab66ba7c0e58e67b0d67f1c23"`);
-        await queryRunner.query(`ALTER TABLE "user_saved_posts" ALTER COLUMN "savers" DROP NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" ALTER COLUMN "blocking" DROP NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" ALTER COLUMN "blockers" DROP NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP CONSTRAINT "UQ_aff62b169ebd519d1f5994e781a"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "comments"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "comments" character varying`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ALTER COLUMN "amount" TYPE numeric`);
-        await queryRunner.query(`ALTER TABLE "Post" ALTER COLUMN "altered_price" TYPE numeric`);
-        await queryRunner.query(`ALTER TABLE "Post" ALTER COLUMN "original_price" TYPE numeric`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" ALTER COLUMN "userId" SET NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" ALTER COLUMN "timestamp" SET DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" ALTER COLUMN "notificationsEnabled" SET DEFAULT true`);
-        await queryRunner.query(`ALTER TABLE "user_saved_posts" DROP CONSTRAINT "PK_11901fe92c42b2d2a71ca74021a"`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" DROP CONSTRAINT "PK_8db623e58cc4bce5fbcc252c66b"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "createdAt"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "issueDetails"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "issueCategory"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP COLUMN "hadIssues"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP COLUMN "createdAt"`);
-        await queryRunner.query(`ALTER TABLE "Transaction" DROP COLUMN "transactionDate"`);
-        await queryRunner.query(`ALTER TABLE "notifications" DROP COLUMN "updatedAt"`);
-        await queryRunner.query(`ALTER TABLE "notifications" DROP COLUMN "createdAt"`);
-        await queryRunner.query(`ALTER TABLE "notifications" DROP COLUMN "userId"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP CONSTRAINT "UQ_02dec29f4ca814ab6efa2d4f0c4"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "googleId"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "venmoHandle"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "photoUrl"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "numReviews"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "familyName"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "givenName"`);
-        await queryRunner.query(`ALTER TABLE "User" DROP COLUMN "id"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP COLUMN "messageId"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP COLUMN "postId"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP COLUMN "reportedFirebaseUid"`);
-        await queryRunner.query(`ALTER TABLE "Report" DROP COLUMN "reporterFirebaseUid"`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "issue_details" character varying`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "issue_category" character varying`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD "had_issues" boolean NOT NULL DEFAULT false`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD "transaction_date" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "notifications" ADD "user_id" character varying`);
-        await queryRunner.query(`ALTER TABLE "notifications" ADD "updated_at" TIMESTAMP NOT NULL DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "notifications" ADD "created_at" TIMESTAMP NOT NULL DEFAULT now()`);
-        await queryRunner.query(`ALTER TABLE "Post" ADD "category" character varying NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "google_id" character varying NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "User" ADD CONSTRAINT "UQ_a4f1fbe21cff2f5860ffa7a3cb6" UNIQUE ("google_id")`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "venmo_handle" character varying`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "photo_url" character varying`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "family_name" character varying NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "given_name" character varying NOT NULL`);
-        await queryRunner.query(`ALTER TABLE "User" ADD "num_reviews" integer NOT NULL DEFAULT '0'`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD "reported_id" character varying`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD "reporter_id" character varying`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD "message_id" uuid`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD "post_id" uuid`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_1860e6d8b1a47e00c8c0ea937b"`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_623743dadf52f9b1c5ebdb0ff8"`);
-        await queryRunner.query(`DROP TABLE "post_categories"`);
-        await queryRunner.query(`DROP TABLE "Category"`);
-        await queryRunner.query(`CREATE INDEX "IDX_FCMToken_fcmToken" ON "FCMToken" ("fcmToken") `);
-        await queryRunner.query(`CREATE INDEX "IDX_FCMToken_userId" ON "FCMToken" ("userId") `);
-        await queryRunner.query(`ALTER TABLE "user_saved_posts" ADD CONSTRAINT "FK_user_saved_posts_savers" FOREIGN KEY ("savers") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" ADD CONSTRAINT "FK_user_blocking_users_blockers" FOREIGN KEY ("blockers") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "user_blocking_users" ADD CONSTRAINT "FK_user_blocking_users_blocking" FOREIGN KEY ("blocking") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "TransactionReview" ADD CONSTRAINT "FK_transaction" FOREIGN KEY ("transaction_id") REFERENCES "Transaction"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD CONSTRAINT "FK_post" FOREIGN KEY ("post_id") REFERENCES "Post"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD CONSTRAINT "FK_Transaction_buyer_id" FOREIGN KEY ("buyer_id") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Transaction" ADD CONSTRAINT "FK_Transaction_seller_id" FOREIGN KEY ("seller_id") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "notifications" ADD CONSTRAINT "FK_notifications_user_id" FOREIGN KEY ("user_id") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Post" ADD CONSTRAINT "FK_Post_user" FOREIGN KEY ("user") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Request" ADD CONSTRAINT "FK_Request_user" FOREIGN KEY ("user") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "FCMToken" ADD CONSTRAINT "FK_FCMToken_userId" FOREIGN KEY ("userId") REFERENCES "User"("firebaseUid") ON DELETE CASCADE ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD CONSTRAINT "FK_244bde34d749985aa27e551c110" FOREIGN KEY ("post_id") REFERENCES "Post"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD CONSTRAINT "FK_b0ecf30cfa1f4908dec8d19547c" FOREIGN KEY ("message_id") REFERENCES "Message"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD CONSTRAINT "FK_Report_reporter_id" FOREIGN KEY ("reporter_id") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Report" ADD CONSTRAINT "FK_Report_reported_id" FOREIGN KEY ("reported_id") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "UserReview" ADD CONSTRAINT "FK_UserReview_buyer" FOREIGN KEY ("buyer") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "UserReview" ADD CONSTRAINT "FK_UserReview_seller" FOREIGN KEY ("seller") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Feedback" ADD CONSTRAINT "FK_Feedback_user" FOREIGN KEY ("user") REFERENCES "User"("firebaseUid") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+
+    await queryRunner.query(`
+        ALTER TABLE "Post" ADD "category" character varying NOT NULL
+      `);
+  
+
+      await queryRunner.query(`
+        DROP INDEX "IDX_1860e6d8b1a47e00c8c0ea937b"
+      `);
+      await queryRunner.query(`
+        DROP INDEX "IDX_623743dadf52f9b1c5ebdb0ff8"
+      `);
+  
+
+      await queryRunner.query(`
+        DROP TABLE "post_categories"
+      `);
+  
+
+      await queryRunner.query(`
+        DROP TABLE "Category"
+      `);
     }
 
 }

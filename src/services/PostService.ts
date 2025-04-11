@@ -68,7 +68,7 @@ export class PostService {
         images.push(imageUrl);
       }
       const categoryRepository = Repositories.category(transactionalEntityManager);
-      const categories = await categoryRepository.findByIds(post.categories);
+      const categories = await categoryRepository.findOrCreateByNames(post.categories);
       const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user);
       const requestRepository = Repositories.request(transactionalEntityManager);
       const requests = await requestRepository.getAllRequest();
