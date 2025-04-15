@@ -256,13 +256,13 @@ export class PostRepository extends AbstractRepository<PostModel> {
         SELECT 
           p.id,
           COALESCE(r.recency_score, 0) * 2 AS weighted_recency,
-          COALESCE(s.search_score, 0) * 1 AS weighted_search,
-          COALESCE(pm.purchase_score, 0) * 2 AS weighted_purchase,
-          COALESCE(b.bookmark_score, 0) * 3 AS weighted_bookmark,
+          COALESCE(s.search_score, 0) * 3 AS weighted_search,
+          COALESCE(pm.purchase_score, 0) * 1 AS weighted_purchase,
+          COALESCE(b.bookmark_score, 0) * 2 AS weighted_bookmark,
           (COALESCE(r.recency_score, 0) * 2) + 
-          (COALESCE(s.search_score, 0) * 1) + 
-          (COALESCE(pm.purchase_score, 0) * 2) + 
-          (COALESCE(b.bookmark_score, 0) * 3) AS total_score
+          (COALESCE(s.search_score, 0) * 3) + 
+          (COALESCE(pm.purchase_score, 0) * 1) + 
+          (COALESCE(b.bookmark_score, 0) * 2) AS total_score
         FROM "Post" p
         LEFT JOIN recency_scores r ON p.id = r.id
         LEFT JOIN search_matches s ON p.id = s.id
