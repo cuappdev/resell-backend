@@ -70,10 +70,7 @@ describe('transaction review tests', () => {
     const newTransactionReview : CreateTransactionReviewRequest = {
       transactionId: transaction.id,
       stars: 4,
-      comments: 'Great transaction!',
-      hadIssues: false,
-      issueCategory: null,
-      issueDetails: null,
+      comments: 'Great transaction!'
     };
 
     const createdReview = await transactionReviewController.createTransactionReview(newTransactionReview);

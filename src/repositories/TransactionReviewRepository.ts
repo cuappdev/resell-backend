@@ -36,17 +36,11 @@ export class TransactionReviewRepository extends AbstractRepository<TransactionR
   public async createTransactionReview(
     stars: number,
     comments: string | null,
-    hadIssues: boolean,
-    issueCategory: string | null,
-    issueDetails: string | null,
     transaction: TransactionModel
   ): Promise<TransactionReviewModel> {
     const review = new TransactionReviewModel();
     review.stars = stars;
     review.comments = comments;
-    review.hadIssues = hadIssues;
-    review.issueCategory = issueCategory;
-    review.issueDetails = issueDetails;
     review.transaction = transaction;
     return await this.repository.save(review);
   }
