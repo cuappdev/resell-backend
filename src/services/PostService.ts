@@ -331,6 +331,25 @@ export class PostService {
     })
   }
 
+  /**
+   * Get suggested posts for a user based on their search history, purchase history, and bookmarks
+   * Uses a weighted scoring system to prioritize posts that are:
+   * 1. Recent (decay based on time)
+   * 2. Matches the user's search history (+1 point)
+   * 3. Matches the user's purchase history categories (+2 points)
+   * 4. Bookmarked by the user (+3 points)
+   */
+  public async getSuggestedPosts(user: UserModel, limit: number = 10): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const suggestedPosts = await postRepository.getSuggestedPosts(user.firebaseUid, limit);
+      
+      // Taking out posts from inactive/blocked users
+      const activePosts = this.filterInactiveUserPosts(suggestedPosts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
+  }
+
   public similarity(a: Array<number>, b: Array<number>): number {
     var magnitudeA = Math.sqrt(this.dotProduct(a, a));
     var magnitudeB = Math.sqrt(this.dotProduct(b, b));
