@@ -1,6 +1,6 @@
 import { FeedbackModel } from "src/models/FeedbackModel";
 
-import { Uuid } from ".";
+import { AvailabilityList, Uuid } from ".";
 import { PostModel } from "../models/PostModel";
 import { UserModel } from "../models/UserModel";
 import { ReportModel } from "../models/ReportModel";
@@ -192,4 +192,39 @@ export interface GetReportResponse {
 
 export interface GetReportsResponse {
   reports: Report[];
+}
+
+//CHATS
+
+export interface MessageResponse {
+  type: string,
+  senderID: Uuid,
+  text: string,
+  images: string[],
+  timestamp: Date,
+  read: boolean
+
+}
+
+export interface AvailabilityResponse {
+  type: string,
+  senderID: Uuid,
+  timestamp: Date,
+  availabilities: AvailabilityList[]
+
+}
+
+export interface ProposalResponse {
+  type: string,
+  senderID: Uuid,
+  timestamp: Date,
+  accepted:boolean|null,
+  startDate:Date,
+  endDate:Date
+
+}
+
+export interface ChatReadResponse {
+  read:boolean
+
 }

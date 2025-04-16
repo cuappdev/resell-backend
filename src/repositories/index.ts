@@ -11,6 +11,7 @@ import { TransactionReviewRepository } from "./TransactionReviewRepository";
 import { NotifRepository } from "./NotifRepository"
 import { FcmTokenRepository } from "./FcmTokenRepository";
 import { CategoryRepository } from "./CategoryRepository"
+import { SearchRepository } from "./SearchRepository";
 
 export default class Repositories {
   public static user(
@@ -77,6 +78,12 @@ export default class Repositories {
     transactionalEntityManager: EntityManager
   ): FcmTokenRepository {
     return transactionalEntityManager.getCustomRepository(FcmTokenRepository);
+  }
+
+  public static search(
+    transactionalEntityManager: EntityManager
+  ): SearchRepository {
+    return transactionalEntityManager.getCustomRepository(SearchRepository);
   }
 }
 
