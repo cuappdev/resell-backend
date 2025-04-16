@@ -202,9 +202,6 @@ export interface CreateTransactionReviewRequest {
     transactionId: Uuid;
     stars: number;
     comments?: string | null;
-    hadIssues: boolean;
-    issueCategory?: string | null;
-    issueDetails?: string | null;
 }
 
 export interface CreateChatMessage {

@@ -3113,10 +3113,7 @@
         "properties": {
           "transactionId": { "type": "string" },
           "stars": { "type": "number", "minimum": 1, "maximum": 5 },
-          "comments": { "type": "string", "nullable": true },
-          "hadIssues": { "type": "boolean" },
-          "issueCategory": { "type": "string", "nullable": true },
-          "issueDetails": { "type": "string", "nullable": true }
+          "comments": { "type": "string", "nullable": true }
         }
       },
       "UserReview": {
