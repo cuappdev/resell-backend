@@ -1,15 +1,20 @@
 // necessary immediate imports
 import 'reflect-metadata';
+import 'dotenv/config';
+
 
 import dotenv from 'dotenv';
 import { createExpressServer, ForbiddenError, UnauthorizedError, useContainer as routingUseContainer, HttpError } from 'routing-controllers';
+
 import { EntityManager, getManager, useContainer } from 'typeorm';
 import { Container } from 'typeorm-typedi-extensions';
 import { Express } from 'express';
 import * as swaggerUi from 'swagger-ui-express';
 import * as path from 'path';
 import * as admin from 'firebase-admin';
+
 dotenv.config();
+
 var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
 const serviceAccount = require(serviceAccountPath);
 

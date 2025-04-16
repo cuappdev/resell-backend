@@ -9,6 +9,7 @@ import { TransactionModel } from './TransactionModel';
 import { TransactionReviewModel } from './TransactionReviewModel';
 import { NotifModel } from './NotifModel';
 import { FcmTokenModel } from './FcmTokenModel';
+import { CategoryModel } from './CategoryModel';
 import { SearchModel } from './SearchModel';
 
 export const models = [
@@ -23,5 +24,7 @@ export const models = [
   TransactionReviewModel,
   NotifModel,
   FcmTokenModel,
+  CategoryModel,
   SearchModel,
+
 ];

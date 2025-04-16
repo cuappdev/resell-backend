@@ -654,9 +654,9 @@
         }
       }
     },
-    "/post/filter": {
+    "/post/filterByCategories": {
       "post": {
-        "summary": "Filter posts",
+        "summary": "Filter all posts by multiple categories",
         "tags": ["Post"],
         "security": [{ "bearerAuth": [] }],
         "requestBody": {
@@ -3311,7 +3311,24 @@
           "created": { "type": "string", "format": "date-time" },
           "location": { "type": "string" },
           "archive": { "type": "boolean" },
-          "seller": { "$ref": "#/components/schemas/User" }
+          "user": { "$ref": "#/components/schemas/User" },
+          "savers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PrivateProfile" }
+          },
+          "matched": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Request" }
+          },
+          "categories": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Category" }
+          },
+          "sold": { "type": "boolean" },
+          "reports": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Report" }
+          }
         }
       },
       "Feedback": {
@@ -3347,6 +3364,17 @@
           "updated": { "type": "string", "format": "date-time" },
           "buyer": { "$ref": "#/components/schemas/PrivateProfile" },
           "post": { "$ref": "#/components/schemas/Post" }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "posts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Post" }
+          }
         }
       }
     }

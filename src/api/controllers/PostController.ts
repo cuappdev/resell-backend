@@ -57,9 +57,9 @@ export class PostController {
     return { posts: await this.postService.searchPosts(user, getSearchedPostsRequest) };
   }
 
-  @Post('filter/')
-  async filterPosts(@CurrentUser() user: UserModel, @Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPosts(user, filterPostsRequest) };
+  @Post('filterByCategories/')
+  async filterPostsByCategories(@CurrentUser() user: UserModel, @Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPostsByCategories(user, filterPostsRequest) };
   }
 
   @Post('filterByPrice/')

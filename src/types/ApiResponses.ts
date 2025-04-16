@@ -51,13 +51,24 @@ export interface GetUserResponse {
   user: PrivateProfile | undefined;
 }
 
+// CATEGORY
+
+export interface Category {
+  id: Uuid;
+  name: string;
+  posts: PostModel[];
+}
+
+export interface GetCategoryResponse {
+  categories: Category;
+}
+
 // POST
 
 export interface Post {
   id: Uuid;
   title: string;
   description: string;
-  category: string;
   condition: string;
   original_price: number;
   altered_price: number;
@@ -68,6 +79,7 @@ export interface Post {
   user: PrivateProfile;
   savers: PrivateProfile[];
   matched: Request[];
+  categories: Category[];
   sold: boolean;
 }
 

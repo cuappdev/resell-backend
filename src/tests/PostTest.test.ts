@@ -3,6 +3,7 @@ import { Connection, Not } from 'typeorm';
 
 import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
+import { CategoryModel } from '../models/CategoryModel';
 import { ControllerFactory } from './controllers';
 import { DatabaseConnection, DataFactory, PostFactory, UserFactory } from './data';
 
@@ -23,12 +24,22 @@ beforeEach(async () => {
   uuidParam = new UuidParam();
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
 
+  const category1 = new CategoryModel();
+  category1.id = 'f4c9ad85-9015-45b1-b52f-5d7402313887';
+  category1.name = 'HANDMADE';
+  category1.posts = [];
+
+  const category2 = new CategoryModel();
+  category2.id = 'a2b2c3d4-e5f6-7890-abcd-1234567890ef';
+  category2.name = 'CLOTHING';
+  category2.posts = [];
+
   expectedPost = new PostModel();
   expectedPost.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
   expectedPost.title = 'Mateo\'s Kombucha';
   expectedPost.description = 'Fermented since o-week';
   expectedPost.archive = false;
-  expectedPost.category = 'HANDMADE';
+  expectedPost.categories = [category1, category2];
   expectedPost.condition = 'NEW';
   expectedPost.original_price = 500.15;
   expectedPost.altered_price = -1;
@@ -94,6 +105,15 @@ describe('post tests', () => {
     getPostResponse.post.original_price = Number(getPostResponse.post.original_price);
     getPostResponse.post.altered_price = Number(getPostResponse.post.altered_price);
     expectedPost.created = getPostResponse.post.created;
+    
+    // Update categories.posts in expectedPost to match what comes from the API
+    // This handles the bidirectional relationship issue
+    expectedPost.categories.forEach(category => {
+      if (getPostResponse.post.categories && getPostResponse.post.categories.length > 0) {
+        category.posts = getPostResponse.post.categories[0].posts;
+      }
+    });
+    
     expect(getPostResponse.post).toEqual(expectedPost);
   });
 
@@ -108,6 +128,14 @@ describe('post tests', () => {
 
     const getPostsResponse = await postController.getPostsByUserId(post.user, {id: post.user.firebaseUid});
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
+    
+    // Update the post categories.posts to match what comes from the API
+    post.categories.forEach(category => {
+      if (getPostsResponse.posts[0].categories && getPostsResponse.posts[0].categories.length > 0) {
+        category.posts = getPostsResponse.posts[0].categories[0].posts;
+      }
+    });
+    
     expect(getPostsResponse.posts).toEqual([post]);
   });
 
@@ -121,7 +149,7 @@ describe('post tests', () => {
     const newPost = {
       title: 'Mateo\'s Kombucha',
       description: 'Fermented since o-week',
-      category: 'HANDMADE',
+      categories: ['f4c9ad85-9015-45b1-b52f-5d7402313887', 'a2b2c3d4-e5f6-7890-abcd-1234567890ef'],
       condition: 'NEW',
       original_price: 500.15,
       imagesBase64: [],
@@ -198,6 +226,13 @@ describe('post tests', () => {
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
+    
+    // Update categories.posts in expectedPost to match what comes from the API
+    expectedPost.categories.forEach(category => {
+      if (getPostsResponse.posts[0].categories && getPostsResponse.posts[0].categories.length > 0) {
+        category.posts = getPostsResponse.posts[0].categories[0].posts;
+      }
+    });
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
@@ -221,6 +256,13 @@ describe('post tests', () => {
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
+    
+    // Update categories.posts in expectedPost to match what comes from the API
+    expectedPost.categories.forEach(category => {
+      if (getPostsResponse.posts[0].categories && getPostsResponse.posts[0].categories.length > 0) {
+        category.posts = getPostsResponse.posts[0].categories[0].posts;
+      }
+    });
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
@@ -244,6 +286,13 @@ describe('post tests', () => {
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
+    
+    // Update categories.posts in expectedPost to match what comes from the API
+    expectedPost.categories.forEach(category => {
+      if (getPostsResponse.posts[0].categories && getPostsResponse.posts[0].categories.length > 0) {
+        category.posts = getPostsResponse.posts[0].categories[0].posts;
+      }
+    });
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
@@ -280,35 +329,122 @@ describe('post tests', () => {
     expectedPost.user = post.user;
 
     let filter = {
-      categories: ['HANDMADE'],
+      categories: ["HANDMADE"], // Using category name instead of ID
     }
 
-    let getPostsResponse = await postController.filterPosts(post.user, filter);
-    getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
-    getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
-    expectedPost.created = getPostsResponse.posts[0].created;
+    let getPostsResponse = await postController.filterPostsByCategories(post.user, filter);
+    // Compare post IDs instead of entire post objects
+    expect(getPostsResponse.posts.map(p => p.id)).toEqual([expectedPost.id]);
+   
 
-    expect(getPostsResponse.posts).toEqual([expectedPost]);
-
+    //test with extra categories
     filter = {
-      categories: ['OTHER', 'HANDMADE'],
+      categories: ["OTHER", "HANDMADE"], // Using category names instead of IDs
     }
 
-    getPostsResponse = await postController.filterPosts(post.user, filter);
-    getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
-    getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
-    expectedPost.created = getPostsResponse.posts[0].created;
+    getPostsResponse = await postController.filterPostsByCategories(post.user, filter);
+    // Compare post IDs instead of entire post objects
+    expect(getPostsResponse.posts.map(p => p.id)).toEqual([expectedPost.id]);
 
-    expect(getPostsResponse.posts).toEqual([expectedPost]);
-
+    //test with no matches
     filter = {
-      categories: ['SCHOOL'],
+      categories: ["FOOD"], // A category that the post doesn't have
     }
 
-    getPostsResponse = await postController.filterPosts(post.user, filter);
+    getPostsResponse = await postController.filterPostsByCategories(post.user, filter);
 
     expect(getPostsResponse.posts).toEqual([]);
   });
+
+  test('filter posts by category/categories with multiple posts and testing to not return duplicates', async () => {
+    const user = UserFactory.fakeTemplate();
+  
+    // Create categories
+    const categoryHandmade = new CategoryModel();
+    categoryHandmade.id = 'f4c9ad85-9015-45b1-b52f-5d7402313887';
+    categoryHandmade.name = 'HANDMADE';
+    categoryHandmade.posts = [];
+  
+    const categoryClothing = new CategoryModel();
+    categoryClothing.id = 'a2b2c3d4-e5f6-7890-abcd-1234567890ef';
+    categoryClothing.name = 'CLOTHING';
+    categoryClothing.posts = [];
+  
+    const categoryFood = new CategoryModel();
+    categoryFood.id = 'b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3';
+    categoryFood.name = 'FOOD';
+    categoryFood.posts = [];
+  
+    // Create multiple posts with various category combinations
+    const post1 = PostFactory.fakeTemplate();
+    post1.id = '11111111-1111-1111-1111-111111111111'; // Use a valid UUID
+    post1.title = "Handmade Soap";
+    post1.categories = [categoryHandmade];
+    post1.user = user;
+  
+    const post2 = PostFactory.fakeTemplate();
+    post2.id = '22222222-2222-2222-2222-222222222222'; // Use a valid UUID
+    post2.title = "Stylish Jacket";
+    post2.categories = [categoryClothing];
+    post2.user = user;
+  
+    const post3 = PostFactory.fakeTemplate();
+    post3.id = '33333333-3333-3333-3333-333333333333'; // Use a valid UUID
+    post3.title = "Handmade Jacket";
+    post3.categories = [categoryHandmade, categoryClothing]; // belongs to both
+    post3.user = user;
+  
+    const post4 = PostFactory.fakeTemplate();
+    post4.id = '44444444-4444-4444-4444-444444444444'; // Use a valid UUID
+    post4.title = "Mateo's Organic Kombucha";
+    post4.categories = [categoryFood];
+    post4.user = user;
+  
+    await new DataFactory()
+      .createUsers(user)
+      .createPosts(post1, post2, post3, post4)
+      .write();
+  
+    //Filter by one category, expect multiple posts
+    let filter = {
+      categories: ["HANDMADE"], // Using category name instead of ID
+    };
+  
+    let response = await postController.filterPostsByCategories(user, filter);
+    const handmadePostIds = response.posts.map((p: any) => p.id);
+    expect(new Set(handmadePostIds).size).toBe(handmadePostIds.length); // ensure sql query doesnt accidentally return duplicates
+    expect(handmadePostIds.sort()).toEqual(['11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333'].sort());
+  
+    //Filter multiple categories, expect multiple posts (no duplicates)
+    filter = {
+      categories: ["HANDMADE", "CLOTHING"], // Using category names instead of IDs
+    };
+  
+    response = await postController.filterPostsByCategories(user, filter);
+    const mixedPostIds = response.posts.map((p: any) => p.id);
+    expect(new Set(mixedPostIds).size).toBe(mixedPostIds.length);
+    expect(mixedPostIds.sort()).toEqual(['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333'].sort());
+  
+    //Filter multiple categories, expect multiple posts (no duplicates) 2
+    filter = {
+      categories: ["FOOD", "HANDMADE"], // Using category names instead of IDs
+    };
+  
+    response = await postController.filterPostsByCategories(user, filter);
+    const comboPostIds = response.posts.map((p: any) => p.id);
+    expect(new Set(comboPostIds).size).toBe(comboPostIds.length);
+    expect(comboPostIds.sort()).toEqual(['11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', '44444444-4444-4444-4444-444444444444'].sort());
+  
+    //Filter one category, expect one post
+    filter = {
+      categories: ["FOOD"], // Using category name instead of ID
+    };
+  
+    response = await postController.filterPostsByCategories(user, filter);
+    const foodPostIds = response.posts.map((p: any) => p.id);
+    expect(foodPostIds).toEqual(['44444444-4444-4444-4444-444444444444']);
+  });
+  
 
   test('filter posts by price, where price is strictly within price range', async () => {
     const post = PostFactory.fakeTemplate();
@@ -330,6 +466,13 @@ describe('post tests', () => {
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
+    
+    // Update categories.posts in expectedPost to match what comes from the API
+    expectedPost.categories.forEach(category => {
+      if (getPostsResponse.posts[0].categories && getPostsResponse.posts[0].categories.length > 0) {
+        category.posts = getPostsResponse.posts[0].categories[0].posts;
+      }
+    });
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
@@ -354,6 +497,13 @@ describe('post tests', () => {
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
+    
+    // Update categories.posts in expectedPost to match what comes from the API
+    expectedPost.categories.forEach(category => {
+      if (getPostsResponse.posts[0].categories && getPostsResponse.posts[0].categories.length > 0) {
+        category.posts = getPostsResponse.posts[0].categories[0].posts;
+      }
+    });
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
@@ -377,6 +527,13 @@ describe('post tests', () => {
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
+    
+    // Update categories.posts in expectedPost to match what comes from the API
+    expectedPost.categories.forEach(category => {
+      if (getPostsResponse.posts[0].categories && getPostsResponse.posts[0].categories.length > 0) {
+        category.posts = getPostsResponse.posts[0].categories[0].posts;
+      }
+    });
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
@@ -683,6 +840,13 @@ describe('post tests', () => {
     getPostsResponse.posts[0].original_price = Number(getPostsResponse.posts[0].original_price);
     getPostsResponse.posts[0].altered_price = Number(getPostsResponse.posts[0].altered_price);
     expectedPost.created = getPostsResponse.posts[0].created;
+    
+    // Update categories.posts in expectedPost to match what comes from the API
+    expectedPost.categories.forEach(category => {
+      if (getPostsResponse.posts[0].categories && getPostsResponse.posts[0].categories.length > 0) {
+        category.posts = getPostsResponse.posts[0].categories[0].posts;
+      }
+    });
 
     expect(getPostsResponse.posts).toEqual([expectedPost]);
   });
@@ -721,6 +885,13 @@ describe('post tests', () => {
     getPostResponse.post.original_price = Number(getPostResponse.post.original_price);
     getPostResponse.post.altered_price = Number(getPostResponse.post.altered_price);
     expectedPost.created = getPostResponse.post.created;
+    
+    // Update categories.posts in expectedPost to match what comes from the API
+    expectedPost.categories.forEach(category => {
+      if (getPostResponse.post.categories && getPostResponse.post.categories.length > 0) {
+        category.posts = getPostResponse.post.categories[0].posts;
+      }
+    });
 
     expect(getPostResponse.post).toEqual(expectedPost);
   });

@@ -1,6 +1,7 @@
 import { Uuid } from '.';
 import { MessageModel } from '../models/MessageModel';
 
+
 // REQUEST TYPES
 
 // AUTH
@@ -68,7 +69,7 @@ export interface UnblockUserRequest {
 export interface CreatePostRequest {
     title: string;
     description: string;
-    category: string;
+    categories: string[];
     condition: string;
     original_price: number;
     imagesBase64: string[];
