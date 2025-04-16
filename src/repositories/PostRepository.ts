@@ -102,30 +102,12 @@ export class PostRepository extends AbstractRepository<PostModel> {
   }
 
   public async filterPostsByCategories(categories: string[]): Promise<PostModel[]> {
-    // First identify posts that have any of the specified categories
-    const postsWithFilteredCategories = await this.repository
-      .createQueryBuilder("post")
-      .select("post.id")
-      .distinct(true)
-      .innerJoin("post.categories", "category")
-      .where("category.name IN (:...categories)", { categories })
-      .andWhere("post.archive = false")
-      .getMany();
-    
-    // Exit early if no posts match
-    if (postsWithFilteredCategories.length === 0) {
-      return [];
-    }
-    
-    // Get the IDs of the matching posts
-    const postIds = postsWithFilteredCategories.map(post => post.id);
-    
-    // Then fetch those posts with ALL their categories
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .leftJoinAndSelect("post.categories", "categories")
-      .where("post.id IN (:...postIds)", { postIds })
+      .innerJoin("post.categories", "category")
+      .where("category.name IN (:...categories)", { categories })
+      .andWhere("post.archive = false")
       .getMany();
   }
 

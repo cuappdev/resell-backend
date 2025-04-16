@@ -31,7 +31,7 @@ export class PostFactory {
 
         const category2 = new CategoryModel();
         category2.id = 'a2b2c3d4-e5f6-7890-abcd-1234567890ef';
-        category2.name = 'FOOD';
+        category2.name = 'CLOTHING';
         category2.posts = [];
 
         const fakePost = new PostModel();
@@ -64,7 +64,7 @@ export class PostFactory {
     
         const category2 = new CategoryModel();
         category2.id = 'a2b2c3d4-e5f6-7890-abcd-1234567890ef';
-        category2.name = 'FOOD';
+        category2.name = 'CLOTHING';
         category2.posts = [];
 
         const fakePost = new PostModel();
