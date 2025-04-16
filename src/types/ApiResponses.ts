@@ -216,3 +216,8 @@ export interface ChatReadResponse {
   read:boolean
 
 }
+
+
+export interface AuthTokenResponse{
+  token:string
+}
