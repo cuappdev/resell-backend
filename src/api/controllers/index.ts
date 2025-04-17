@@ -10,9 +10,11 @@ import { ReportController } from './ReportController';
 import { TransactionController } from './TransactionController';
 import { TransactionReviewController } from './TransactionReviewController';
 import { ChatController } from './ChatController';
+import { AuthTokenController } from './AuthToken';
 
 export const controllers = [
   AuthController,
+  AuthTokenController,
   ChatController,
   FeedbackController,
   ImageController,
