@@ -1,7 +1,7 @@
 import { Body, Get, JsonController } from 'routing-controllers';
 import { getAuth } from "firebase-admin/auth";
 import { AuthTokenResponse, FcmTokenRequest } from '../../types';
-import axios from "axios";
+
 @JsonController('authToken/')
 export class AuthTokenController {
 
