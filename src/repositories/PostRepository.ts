@@ -2,6 +2,7 @@ import { AbstractRepository, EntityRepository } from 'typeorm';
 
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
+import { CategoryModel } from '../models/CategoryModel';
 import { Uuid } from '../types';
 
 @EntityRepository(PostModel)
@@ -10,6 +11,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("post.archive = false")
       .getMany();
   }
@@ -18,6 +20,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("post.archive = false")
       .skip(skip)               // Skip previous pages
     .take(limit)
@@ -28,6 +31,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("post.id = :id", { id })
       .getOne();
   }
@@ -36,6 +40,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = false")
       .getMany();
@@ -53,7 +58,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
   public async createPost(
     title: string,
     description: string,
-    category: string,
+    categories: CategoryModel[],
     condition: string,
     price: number,
     images: string[],
@@ -62,7 +67,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     const post = new PostModel();
     post.title = title;
     post.description = description;
-    post.category = category;
+    post.categories = categories;
     post.condition = condition;
     post.original_price = price;
     post.altered_price = price;
@@ -80,6 +85,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("LOWER(post.title) like LOWER(:keywords)", { keywords: `%${keywords}%` })
       .andWhere("post.archive = false")
       .getMany();
@@ -89,16 +95,18 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("LOWER(post.description) like LOWER(:keywords)", { keywords: `%${keywords}%` })
       .andWhere("post.archive = false")
       .getMany();
   }
 
-  public async filterPosts(categories: string[]): Promise<PostModel[]> {
+  public async filterPostsByCategories(categories: string[]): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
-      .where("post.category IN (:...categories)", { categories: categories })
+      .innerJoin("post.categories", "category")
+      .where("category.name IN (:...categories)", { categories })
       .andWhere("post.archive = false")
       .getMany();
   }
@@ -107,6 +115,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END >= :lowerBound", { lowerBound: lowerBound })
       .andWhere("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END <= :upperBound", { upperBound: upperBound })
       .andWhere("post.archive = false")
@@ -117,6 +126,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("post.archive = false")
       .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "DESC")
       .getMany();
@@ -126,6 +136,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("post.archive = false")
       .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "ASC")
       .getMany();
@@ -135,6 +146,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("post.archive = false")
       .orderBy("post.created", "DESC")
       .getMany();
@@ -144,6 +156,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("post.condition IN (:...conditions)", { conditions })
       .andWhere("post.archive = false")
       .getMany();
@@ -153,6 +166,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .andWhere("post.archive = true")
       .getMany();
   }
@@ -161,6 +175,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
       .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = true")
       .getMany();
@@ -195,9 +210,98 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user") // Load the post's user
       .leftJoinAndSelect("post.savers", "savers") // Load the savers relationship
+      .leftJoinAndSelect("post.categories", "categories") // Load the categories relationship
       .where("post.id = :id", { id })
       .getOne();
   }
 
-
+  public async getSuggestedPosts(
+    userId: string,
+    limit: number = 10
+  ): Promise<PostModel[]> {
+    // This query implements the weighted scoring for suggested posts    
+    // Using query for weight calc
+    const posts = await this.repository.query(`
+      WITH 
+      -- Calculate recency score using exponential decay
+      recency_scores AS (
+        SELECT 
+          p.id,
+          EXP(-(EXTRACT(EPOCH FROM (NOW() - p.created)) / 86400)) AS recency_score
+        FROM "Post" p
+        WHERE p.archive = false AND p.sold = false
+      ),
+      
+      -- Get search history matches (weight: 1)
+      search_matches AS (
+        SELECT DISTINCT
+          p.id,
+          1 AS search_score
+        FROM "Post" p
+        JOIN "searches" s ON 
+          (LOWER(p.title) LIKE LOWER('%' || s."searchText" || '%') OR 
+           LOWER(p.description) LIKE LOWER('%' || s."searchText" || '%'))
+        WHERE s."firebaseUid" = $1 AND p.archive = false AND p.sold = false
+      ),
+      
+      -- Get purchase history matches (weight: 2)
+      purchase_matches AS (
+        SELECT DISTINCT
+          p.id,
+          2 AS purchase_score
+        FROM "Post" p
+        JOIN "Transaction" t ON t.buyer_id = $1
+        JOIN "Post" bought_post ON t.post_id = bought_post.id
+        WHERE p.category = bought_post.category 
+          AND p.archive = false 
+          AND p.sold = false
+      ),
+      
+      -- Get bookmark matches (weight: 3)
+      bookmark_matches AS (
+        SELECT DISTINCT
+          p.id,
+          3 AS bookmark_score
+        FROM "Post" p
+        JOIN "user_saved_posts" usp ON usp.saved = p.id
+        WHERE usp.savers = $1 AND p.archive = false AND p.sold = false
+      ),
+      
+      -- Combine all scores
+      combined_scores AS (
+        SELECT 
+          p.id,
+          COALESCE(r.recency_score, 0) * 2 AS weighted_recency,
+          COALESCE(s.search_score, 0) * 3 AS weighted_search,
+          COALESCE(pm.purchase_score, 0) * 1 AS weighted_purchase,
+          COALESCE(b.bookmark_score, 0) * 2 AS weighted_bookmark,
+          (COALESCE(r.recency_score, 0) * 2) + 
+          (COALESCE(s.search_score, 0) * 3) + 
+          (COALESCE(pm.purchase_score, 0) * 1) + 
+          (COALESCE(b.bookmark_score, 0) * 2) AS total_score
+        FROM "Post" p
+        LEFT JOIN recency_scores r ON p.id = r.id
+        LEFT JOIN search_matches s ON p.id = s.id
+        LEFT JOIN purchase_matches pm ON p.id = pm.id
+        LEFT JOIN bookmark_matches b ON p.id = b.id
+        WHERE p.archive = false AND p.sold = false
+      )
+      
+      -- Select posts with user info, ordered by total score
+      SELECT p.* 
+      FROM "Post" p
+      JOIN combined_scores cs ON p.id = cs.id
+      WHERE p.archive = false AND p.sold = false
+      ORDER BY cs.total_score DESC, p.created DESC
+      LIMIT $2;
+    `, [userId, limit]);
+    
+    // Convert query res to PostModel entities
+    return await Promise.all(
+      posts.map(async (post: any) => {
+        const fullPost = await this.getPostById(post.id);
+        return fullPost!;
+      })
+    );
+  }
 }

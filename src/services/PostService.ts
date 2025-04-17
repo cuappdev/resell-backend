@@ -12,6 +12,7 @@ import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, Filte
 import { uploadImage } from '../utils/Requests';
 import { getLoadedModel } from '../utils/SentenceEncoder';
 import { PostRepository } from 'src/repositories/PostRepository';
+import { CategoryRepository } from 'src/repositories/CategoryRepository';
 import { FindTokensRequest } from '../types';
 import { NotifService } from './NotifService';
 import { SearchService } from './SearchService'; // Import SearchService
@@ -67,7 +68,9 @@ export class PostService {
         const imageUrl = image.data;
         images.push(imageUrl);
       }
-      const freshPost = await postRepository.createPost(post.title, post.description, post.category, post.condition, post.original_price, images, user);
+      const categoryRepository = Repositories.category(transactionalEntityManager);
+      const categories = await categoryRepository.findOrCreateByNames(post.categories);
+      const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user);
       const requestRepository = Repositories.request(transactionalEntityManager);
       const requests = await requestRepository.getAllRequest();
       for (const request of requests) {
@@ -136,10 +139,11 @@ export class PostService {
     });
   }
 
-  public async filterPosts(user: UserModel, filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
+
+  public async filterPostsByCategories(user: UserModel, filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPosts(filterPostsRequest.categories);
+      const posts = await postRepository.filterPostsByCategories(filterPostsRequest.categories);
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
@@ -264,7 +268,7 @@ export class PostService {
           blockedUser => blockedUser.firebaseUid === user.firebaseUid
         ) ?? false;
   
-        // Include the post if there’s no blocking in either direction
+        // Include the post if there's no blocking in either direction
         if (!isBlockedByPostAuthor) {
           filteredPosts.push(post);
         }
@@ -329,6 +333,25 @@ export class PostService {
       if (!post) throw new NotFoundError('Post not found!');
       return await postRepository.editPostPrice(post, editPostRequest.new_price);
     })
+  }
+
+  /**
+   * Get suggested posts for a user based on their search history, purchase history, and bookmarks
+   * Uses a weighted scoring system to prioritize posts that are:
+   * 1. Recent (decay based on time)
+   * 2. Matches the user's search history (+1 point)
+   * 3. Matches the user's purchase history categories (+2 points)
+   * 4. Bookmarked by the user (+3 points)
+   */
+  public async getSuggestedPosts(user: UserModel, limit: number = 10): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const suggestedPosts = await postRepository.getSuggestedPosts(user.firebaseUid, limit);
+      
+      // Taking out posts from inactive/blocked users
+      const activePosts = this.filterInactiveUserPosts(suggestedPosts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
   }
 
   public similarity(a: Array<number>, b: Array<number>): number {

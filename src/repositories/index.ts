@@ -10,8 +10,8 @@ import { TransactionRepository } from "./TransactionRepository";
 import { TransactionReviewRepository } from "./TransactionReviewRepository";
 import { NotifRepository } from "./NotifRepository"
 import { FcmTokenRepository } from "./FcmTokenRepository";
+import { CategoryRepository } from "./CategoryRepository"
 import { SearchRepository } from "./SearchRepository";
-
 
 export default class Repositories {
   public static user(
@@ -24,6 +24,12 @@ export default class Repositories {
     transactionalEntityManager: EntityManager
   ): PostRepository {
     return transactionalEntityManager.getCustomRepository(PostRepository);
+  }
+
+  public static category(
+    transactionalEntityManager: EntityManager
+  ): CategoryRepository {
+    return transactionalEntityManager.getCustomRepository(CategoryRepository);
   }
 
   public static feedback(

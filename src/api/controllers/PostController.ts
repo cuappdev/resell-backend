@@ -57,9 +57,9 @@ export class PostController {
     return { posts: await this.postService.searchPosts(user, getSearchedPostsRequest) };
   }
 
-  @Post('filter/')
-  async filterPosts(@CurrentUser() user: UserModel, @Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPosts(user, filterPostsRequest) };
+  @Post('filterByCategories/')
+  async filterPostsByCategories(@CurrentUser() user: UserModel, @Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPostsByCategories(user, filterPostsRequest) };
   }
 
   @Post('filterByPrice/')
@@ -135,5 +135,13 @@ export class PostController {
   @Get('similar/postId/:id/')
   async similarPosts(@CurrentUser() user: UserModel, @Params() params: UuidParam): Promise<GetPostsResponse> {
     return { posts: await this.postService.similarPosts(user, params) };
+  }
+
+  @Get('suggested/')
+  async getSuggestedPosts(
+    @CurrentUser() user: UserModel,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getSuggestedPosts(user, limit) };
   }
 }

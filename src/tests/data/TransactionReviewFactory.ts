@@ -26,10 +26,6 @@ export class TransactionReviewFactory {
     fakeTransactionReview.id = '1e900348-df68-42b3-a8c9-270205575314';
     fakeTransactionReview.stars = 5;
     fakeTransactionReview.comments = 'Everything went smoothly!';
-    fakeTransactionReview.hadIssues = false;
-    fakeTransactionReview.issueCategory = null;
-    fakeTransactionReview.issueDetails = null;
-
     return fakeTransactionReview;
   }
 
@@ -43,9 +39,6 @@ export class TransactionReviewFactory {
     fakeTransactionReview.id = faker.datatype.uuid();
     fakeTransactionReview.stars = faker.datatype.number({ min: 1, max: 5 });
     fakeTransactionReview.comments = faker.random.boolean() ? faker.lorem.sentence() : null;
-    fakeTransactionReview.hadIssues = faker.datatype.boolean();
-    fakeTransactionReview.issueCategory = fakeTransactionReview.hadIssues ? faker.lorem.word() : null;
-    fakeTransactionReview.issueDetails = fakeTransactionReview.hadIssues ? faker.lorem.sentence() : null;
 
     return fakeTransactionReview;
   }

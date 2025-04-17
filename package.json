@@ -1,4 +1,5 @@
 {
+
   "name": "resell-server",
   "version": "1.0.0",
   "description": "An open-sourced backend service for Resell.",
@@ -75,4 +76,3 @@
     "typeorm-typedi-extensions": "^0.4.1",
     "xml2js": "^0.5.0"
   }
-}

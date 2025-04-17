@@ -13,5 +13,6 @@ module.exports = {
 
 process.env = Object.assign(process.env, {
   ADMIN_EMAILS: 'appdevresell@gmail.com, maw346@cornell.edu, sn685@cornell.edu',
-  FIREBASE_SERVICE_ACCOUNT_PATH: '/Users/ashley/appdev/secrets/resell-e99a2-firebase-adminsdk-v4keu-e2c9d1d32d.json'
+  FIREBASE_SERVICE_ACCOUNT_PATH: '/Users/hover/OneDrive/Desktop/AppDev/secrets/firebase-admin-service-account.json'
+  
 });

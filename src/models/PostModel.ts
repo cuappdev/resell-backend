@@ -13,6 +13,7 @@ import { Post, Uuid } from "../types";
 import { RequestModel } from "./RequestModel";
 import { UserModel } from "./UserModel";
 import { ReportModel } from "./ReportModel";
+import { CategoryModel } from "./CategoryModel";
 
 @Entity("Post")
 export class PostModel {
@@ -24,9 +25,6 @@ export class PostModel {
 
   @Column()
   description: string;
-
-  @Column()
-  category: string;
 
   @Column()
   condition: string;
@@ -69,6 +67,14 @@ export class PostModel {
   })
   matched: RequestModel[];
 
+  @ManyToMany(() => CategoryModel, (category) => category.posts)
+  @JoinTable({
+    name: "post_categories",
+    joinColumn: { name: "posts", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "categories", referencedColumnName: "id" },
+  })
+  categories: CategoryModel[];
+
   @Column({ default: false })
   sold: boolean;
 
@@ -80,7 +86,6 @@ export class PostModel {
       id: this.id,
       title: this.title,
       description: this.description,
-      category: this.category,
       condition: this.condition,
       original_price: this.original_price,
       altered_price: this.altered_price,
@@ -91,6 +96,7 @@ export class PostModel {
       user: this.user.getUserProfile(),
       savers: this.savers?.map((user) => user.getUserProfile()),
       matched: this.matched?.map((request) => request.getRequestInfo()),
+      categories: this.categories?.map((category) => category.getCategoryInfo()),
       sold: this.sold,
     };
   }

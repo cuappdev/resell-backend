@@ -56,9 +56,6 @@ export class TransactionReviewService {
       const freshTransactionReview = await transactionReviewRepository.createTransactionReview(
         review.stars,
         review.comments || null,
-        review.hadIssues || false,
-        review.issueCategory || null,
-        review.issueDetails || null,
         transaction
       );
       return freshTransactionReview;
