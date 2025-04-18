@@ -7,9 +7,7 @@ import { TransactionModel } from '../../models/TransactionModel';
 import { TransactionReviewModel } from '../../models/TransactionReviewModel';
 import { NotifModel } from '../../models/NotifModel';
 import { FcmTokenModel } from 'src/models/FcmTokenModel';
-import { CategoryModel } from '../../models/CategoryModel'; // Added import statement for CategoryModel
-
-
+import { CategoryModel } from '../../models/CategoryModel'; 
 
 export class DataFactory {
     private users: UserModel[] = [];
@@ -20,7 +18,7 @@ export class DataFactory {
     private transactionReviews: TransactionReviewModel[] = [];
     private notifications: NotifModel[] = [];
     private fcmTokens: FcmTokenModel[] = [];
-    private categories: CategoryModel[] = []; // Added categories array
+    private categories: CategoryModel[] = [];
 
 
 
@@ -28,8 +26,6 @@ export class DataFactory {
         const conn = await DatabaseConnection.connect();
         await conn.transaction(async (txn) => {
             this.users = await txn.save(this.users);
-            
-            // Extract all categories from posts and save them first
             const allCategories = new Set<CategoryModel>();
             for (const post of this.posts) {
                 if (post.categories && post.categories.length > 0) {
