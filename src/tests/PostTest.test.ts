@@ -63,6 +63,11 @@ describe('post tests', () => {
   test('get all posts - one post', async () => {
     const post = PostFactory.fake();
     post.user = UserFactory.fake();
+    
+    // Ensure categories is initialized
+    if (!post.categories) {
+      post.categories = [];
+    }
 
     await new DataFactory()
       .createPosts(post)
@@ -79,6 +84,14 @@ describe('post tests', () => {
     const [user1, user2] = UserFactory.create(2);
     post1.user = user1;
     post2.user = user2;
+    
+    // Ensure categories is initialized for both posts
+    if (!post1.categories) {
+      post1.categories = [];
+    }
+    if (!post2.categories) {
+      post2.categories = [];
+    }
 
     await new DataFactory()
       .createPosts(post1, post2)
@@ -105,9 +118,7 @@ describe('post tests', () => {
     getPostResponse.post.original_price = Number(getPostResponse.post.original_price);
     getPostResponse.post.altered_price = Number(getPostResponse.post.altered_price);
     expectedPost.created = getPostResponse.post.created;
-    
-    // Update categories.posts in expectedPost to match what comes from the API
-    // This handles the bidirectional relationship issue
+  
     expectedPost.categories.forEach(category => {
       if (getPostResponse.post.categories && getPostResponse.post.categories.length > 0) {
         category.posts = getPostResponse.post.categories[0].posts;
@@ -167,6 +178,11 @@ describe('post tests', () => {
   test('delete post by id', async () => {
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fakeTemplate();
+    
+    // Ensure categories is initialized
+    if (!post.categories) {
+      post.categories = [];
+    }
 
     await new DataFactory()
       .createPosts(post)
@@ -191,6 +207,11 @@ describe('post tests', () => {
     const adminUser = UserFactory.fakeTemplate();
     post.user = user;
     adminUser.admin = true;
+    
+    // Ensure categories is initialized
+    if (!post.categories) {
+      post.categories = [];
+    }
 
     await new DataFactory()
       .createUsers(user, adminUser)
@@ -569,6 +590,11 @@ describe('post tests', () => {
     post1.original_price = 1000.15;
     post2.original_price = 500.15;
     post3.original_price = 100.15;
+    
+    // Ensure categories are initialized for all posts
+    if (!post1.categories) post1.categories = [];
+    if (!post2.categories) post2.categories = [];
+    if (!post3.categories) post3.categories = [];
 
     await new DataFactory()
       .createPosts(post1, post2, post3)
@@ -601,6 +627,11 @@ describe('post tests', () => {
     post1.original_price = 1000.15;
     post2.original_price = 500.15;
     post3.original_price = 100.15;
+    
+    // Ensure categories are initialized for all posts
+    if (!post1.categories) post1.categories = [];
+    if (!post2.categories) post2.categories = [];
+    if (!post3.categories) post3.categories = [];
 
     await new DataFactory()
       .createPosts(post1, post2, post3)
@@ -682,6 +713,11 @@ describe('post tests', () => {
     const user = UserFactory.fakeTemplate();
     user.saved = [];
     post.user = user;
+    
+    // Ensure categories is initialized
+    if (!post.categories) {
+      post.categories = [];
+    }
 
     // Create initial data in the database
     await new DataFactory()
@@ -710,6 +746,11 @@ describe('post tests', () => {
     const user = UserFactory.fakeTemplate();
     user.saved = [];
     post.user = user;
+    
+    // Ensure categories is initialized
+    if (!post.categories) {
+      post.categories = [];
+    }
 
     // Initialize data in the database
     await new DataFactory()
@@ -753,6 +794,17 @@ describe('post tests', () => {
     post1.user = user;
     post2.user = user;
     post3.user = user;
+    
+    // Ensure categories is initialized for all posts
+    if (!post1.categories) {
+      post1.categories = [];
+    }
+    if (!post2.categories) {
+      post2.categories = [];
+    }
+    if (!post3.categories) {
+      post3.categories = [];
+    }
 
     // Create initial data in the database
     await new DataFactory()
