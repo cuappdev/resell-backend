@@ -238,6 +238,51 @@
         }
       }
     },
+    "/post/searchSuggestions/{searchIndex}/{postCount}": {
+      "get": {
+        "summary": "Get post search suggestions by vector similarity",
+        "tags": ["Post"],
+        "parameters": [
+          {
+            "name": "searchIndex",
+            "in": "path",
+            "description": "The ID of the SearchModel to use as the query vector",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "postCount",
+            "in": "path",
+            "description": "The number of post suggestions to return",
+            "required": true,
+            "schema": { "type": "integer", "default": 5 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of post IDs ranked by vector similarity to the search query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "postIds": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Array of post IDs, most similar first"
+                    }
+                  },
+                  "required": ["postIds"]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Search not found"
+          }
+        }
+      }
+    },
     "/post/filterPriceHighToLow": {
       "post": {
         "summary": "Filter posts by price high to low",
