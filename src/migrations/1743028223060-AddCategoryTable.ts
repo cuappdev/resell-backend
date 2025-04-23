@@ -31,6 +31,23 @@ export class AddCategoryTable1743028223060 implements MigrationInterface {
       await queryRunner.query(`
         CREATE INDEX "IDX_1860e6d8b1a47e00c8c0ea937b" ON "post_categories" ("categories")
       `);
+
+       // Insert unique categories into the new Category table
+  await queryRunner.query(`
+    INSERT INTO "Category" ("name")
+    SELECT DISTINCT "category"
+    FROM "Post"
+    WHERE "category" IS NOT NULL
+  `);
+
+  // Create post-category relations
+  await queryRunner.query(`
+    INSERT INTO "post_categories" ("posts", "categories")
+    SELECT "Post"."id", "Category"."id"
+    FROM "Post"
+    JOIN "Category" ON "Post"."category" = "Category"."name"
+    WHERE "Post"."category" IS NOT NULL
+  `);
   
    
       await queryRunner.query(`
@@ -44,6 +61,18 @@ export class AddCategoryTable1743028223060 implements MigrationInterface {
     await queryRunner.query(`
         ALTER TABLE "Post" ADD "category" character varying NOT NULL
       `);
+
+      // Backfill category using first match from post_categories
+  await queryRunner.query(`
+    UPDATE "Post"
+    SET "category" = subquery."name"
+    FROM (
+      SELECT pc."posts" as post_id, c."name"
+      FROM "post_categories" pc
+      JOIN "Category" c ON pc."categories" = c."id"
+    ) AS subquery
+    WHERE "Post"."id" = subquery."post_id"
+  `);
   
 
       await queryRunner.query(`
