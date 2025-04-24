@@ -39,6 +39,9 @@ export const updateFirestore = async (
         lastMessage: lastMessage,
       })
     }
+    await chatsRef.doc(chatId).update({
+      updatedAt: new Date(),
+    })
    
   }
 }
@@ -177,9 +180,7 @@ export class ChatController {
         read: true
       });
 
-      await chatsRef.doc(chatId).update({
-        updatedAt: new Date(),
-      })
+    
     }
     return {"read":true}
   }
