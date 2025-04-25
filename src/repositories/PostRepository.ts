@@ -3,7 +3,8 @@ import { AbstractRepository, EntityRepository } from 'typeorm';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import { CategoryModel } from '../models/CategoryModel';
-import { Uuid } from '../types';
+import { FilterPostsUnifiedRequest, Uuid } from '../types';
+import Repositories from '.';
 
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
@@ -101,66 +102,67 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async filterPostsByCategories(categories: string[]): Promise<PostModel[]> {
-    return await this.repository
-      .createQueryBuilder("post")
-      .leftJoinAndSelect("post.user", "user")
-      .innerJoin("post.categories", "category")
-      .where("category.name IN (:...categories)", { categories })
-      .andWhere("post.archive = false")
-      .getMany();
-  }
-
-  public async filterPostsByPrice(lowerBound: number, upperBound: number): Promise<PostModel[]> {
-    return await this.repository
+    public async filterPostsUnified(filterPostsUnifiedRequest: FilterPostsUnifiedRequest): Promise<PostModel[]> {
+    const qb = this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END >= :lowerBound", { lowerBound: lowerBound })
-      .andWhere("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END <= :upperBound", { upperBound: upperBound })
-      .andWhere("post.archive = false")
-      .getMany();
-  }
+      .where("post.archive = false");
 
-  public async filterPriceHighToLow(): Promise<PostModel[]> {
-    return await this.repository
-      .createQueryBuilder("post")
-      .leftJoinAndSelect("post.user", "user")
-      .leftJoinAndSelect("post.categories", "categories")
-      .where("post.archive = false")
-      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "DESC")
-      .getMany();
+    // Categories
+    if (filterPostsUnifiedRequest.categories && filterPostsUnifiedRequest.categories.length > 0) {
+      qb.innerJoin("post.categories", "catFilter", "catFilter.name IN (:...categories)", {
+        categories: filterPostsUnifiedRequest.categories,
+      });
+    }
+
+    // Pricing
+    if (filterPostsUnifiedRequest.price) {
+      if (filterPostsUnifiedRequest.price.lowerBound !== undefined) {
+        qb.andWhere(
+          "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END) >= :lowerBound",
+          { lowerBound: filterPostsUnifiedRequest.price.lowerBound }
+        );
+      }
+      if (filterPostsUnifiedRequest.price.upperBound !== undefined) {
+        qb.andWhere(
+          "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END) <= :upperBound",
+          { upperBound: filterPostsUnifiedRequest.price.upperBound }
+        );
+      }
+    }
+
+    // Conditions
+    if (filterPostsUnifiedRequest.conditions && filterPostsUnifiedRequest.conditions.length > 0) {
+      qb.andWhere("post.condition IN (:...conditions)", {
+        conditions: filterPostsUnifiedRequest.conditions,
+      });
+    }
+
+    // Sorting
+    if (filterPostsUnifiedRequest.sortField && filterPostsUnifiedRequest.sortField !== "any") {
+      switch (filterPostsUnifiedRequest.sortField) {
+        case "priceLowToHigh":
+          qb.orderBy(
+            "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END)",
+            "ASC"
+          );
+          break;
+        case "priceHighToLow":
+          qb.orderBy(
+            "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END)",
+            "DESC"
+          );
+          break;
+        case "newlyListed":
+          qb.orderBy("post.created", "DESC");
+          break;
+      }
+    }
+
+    return await qb.getMany();
   }
   
-  public async filterPriceLowToHigh(): Promise<PostModel[]> {
-    return await this.repository
-      .createQueryBuilder("post")
-      .leftJoinAndSelect("post.user", "user")
-      .leftJoinAndSelect("post.categories", "categories")
-      .where("post.archive = false")
-      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "ASC")
-      .getMany();
-  }
-
-  public async filterNewlyListed(): Promise<PostModel[]> {
-    return await this.repository
-      .createQueryBuilder("post")
-      .leftJoinAndSelect("post.user", "user")
-      .leftJoinAndSelect("post.categories", "categories")
-      .where("post.archive = false")
-      .orderBy("post.created", "DESC")
-      .getMany();
-  }
-
-  public async filterByCondition(conditions: string[]): Promise<PostModel[]> {
-    return await this.repository
-      .createQueryBuilder("post")
-      .leftJoinAndSelect("post.user", "user")
-      .leftJoinAndSelect("post.categories", "categories")
-      .where("post.condition IN (:...conditions)", { conditions })
-      .andWhere("post.archive = false")
-      .getMany();
-  }
 
   public async getArchivedPosts(): Promise<PostModel[]> {
     return await this.repository

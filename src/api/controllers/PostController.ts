@@ -13,6 +13,7 @@ import {
   GetPostsResponse,
   GetSearchedPostsRequest,
   IsSavedPostResponse,
+  FilterPostsUnifiedRequest,
 } from '../../types';
 import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 
@@ -57,34 +58,12 @@ export class PostController {
     return { posts: await this.postService.searchPosts(user, getSearchedPostsRequest) };
   }
 
-  @Post('filterByCategories/')
-  async filterPostsByCategories(@CurrentUser() user: UserModel, @Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPostsByCategories(user, filterPostsRequest) };
-  }
-
-  @Post('filterByPrice/')
-  async filterPostsByPrice(@CurrentUser() user: UserModel, @Body() filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPostsByPrice(user, filterPostsByPriceRequest) };
-  }
-
-  @Post('filterPriceHighToLow/')
-  async filterPriceHighToLow(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPriceHighToLow(user) };
-  }
-
-  @Post('filterPriceLowToHigh/')
-  async filterPriceLowToHigh(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPriceLowToHigh(user) };
-  }
-
-  @Post('filterNewlyListed/')
-  async filterNewlyListed(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterNewlyListed(user) };
-  }
-
-  @Post('filterByCondition/')
-  async filterByCondition(@CurrentUser() user: UserModel, @Body() filterPostsByConditionRequest: FilterPostsByConditionRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterByCondition(user, filterPostsByConditionRequest) };
+  @Post('filter/')
+  async filterPosts(
+    @CurrentUser() user: UserModel,
+    @Body() filterPostsUnifiedRequest: FilterPostsUnifiedRequest
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPostsUnified(user, filterPostsUnifiedRequest) };
   }
 
   @Get('archive/')

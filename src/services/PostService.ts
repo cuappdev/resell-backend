@@ -8,7 +8,7 @@ import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest } from '../types';
+import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest, FilterPostsUnifiedRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 import { getLoadedModel } from '../utils/SentenceEncoder';
 import { PostRepository } from 'src/repositories/PostRepository';
@@ -139,56 +139,10 @@ export class PostService {
     });
   }
 
-
-  public async filterPostsByCategories(user: UserModel, filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
+  public async filterPostsUnified(user: UserModel, filterPostsUnifiedRequest: FilterPostsUnifiedRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPostsByCategories(filterPostsRequest.categories);
-      const activePosts = this.filterInactiveUserPosts(posts);
-      return this.filterBlockedUserPosts(activePosts, user);
-    });
-  }
-
-  public async filterPostsByPrice(user: UserModel, filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<PostModel[]> {
-    return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPostsByPrice(filterPostsByPriceRequest.lowerBound, filterPostsByPriceRequest.upperBound)
-      const activePosts = this.filterInactiveUserPosts(posts);
-      return this.filterBlockedUserPosts(activePosts, user);
-    })
-  }
-
-  public async filterPriceHighToLow(user: UserModel): Promise<PostModel[]> {
-    return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPriceHighToLow();
-      const activePosts = this.filterInactiveUserPosts(posts);
-      return this.filterBlockedUserPosts(activePosts, user);
-    });
-  }
-  
-  public async filterPriceLowToHigh(user: UserModel): Promise<PostModel[]> {
-    return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPriceLowToHigh();
-      const activePosts = this.filterInactiveUserPosts(posts);
-      return this.filterBlockedUserPosts(activePosts, user);
-    });
-  }
-
-  public async filterNewlyListed(user: UserModel): Promise<PostModel[]> {
-    return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterNewlyListed();
-      const activePosts = this.filterInactiveUserPosts(posts);
-      return this.filterBlockedUserPosts(activePosts, user);
-    });
-  }
-
-  public async filterByCondition(user: UserModel, filterPostsByConditionRequest: FilterPostsByConditionRequest): Promise<PostModel[]> {
-    return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterByCondition(filterPostsByConditionRequest.condition);
+      const posts = await postRepository.filterPostsUnified(filterPostsUnifiedRequest);
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
