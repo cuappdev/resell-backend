@@ -32,19 +32,44 @@ export class AddCategoryTable1743028223060 implements MigrationInterface {
         CREATE INDEX "IDX_1860e6d8b1a47e00c8c0ea937b" ON "post_categories" ("categories")
       `);
   
+        // Insert unique categories into the new Category table
+  await queryRunner.query(`
+    INSERT INTO "Category" ("name")
+    SELECT "category"
+    FROM "Post"
+    WHERE "category" IS NOT NULL
+  `);
+
+  // Create post-category relations
+  await queryRunner.query(`
+    INSERT INTO "post_categories" ("posts", "categories")
+    SELECT "Post"."id", "Category"."id"
+    FROM "Post"
+    JOIN "Category" ON "Post"."category" = "Category"."name"
+    WHERE "Post"."category" IS NOT NULL
+  `);
    
-      await queryRunner.query(`
-        ALTER TABLE "Post" DROP COLUMN "category"
-      `);
+      // await queryRunner.query(`
+      //   ALTER TABLE "Post" DROP COLUMN "category"
+      // `);
 
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
 
-    await queryRunner.query(`
-        ALTER TABLE "Post" ADD "category" character varying NOT NULL
+    // await queryRunner.query(`
+    //     ALTER TABLE "Post" ADD "category" character varying NOT NULL
+    //   `);
+      await queryRunner.query(`
+        UPDATE "Post"
+        SET "category" = subquery."name"
+        FROM (
+          SELECT pc."posts" as post_id, c."name"
+          FROM "post_categories" pc
+          JOIN "Category" c ON pc."categories" = c."id"
+        ) AS subquery
+        WHERE "Post"."id" = subquery."post_id"
       `);
-  
 
       await queryRunner.query(`
         DROP INDEX "IDX_1860e6d8b1a47e00c8c0ea937b"
