@@ -181,7 +181,6 @@ export class ChatController {
         read: true
       });
 
-      
     }
     return {"read":true}
   }
