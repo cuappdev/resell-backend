@@ -23,8 +23,10 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .where("post.archive = false")
+      .orderBy("post.created", "DESC")
       .skip(skip)               // Skip previous pages
     .take(limit)
+   
       .getMany();
   }
 
