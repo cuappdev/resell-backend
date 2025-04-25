@@ -35,7 +35,7 @@ export class AddCategoryTable1743028223060 implements MigrationInterface {
         // Insert unique categories into the new Category table
   await queryRunner.query(`
     INSERT INTO "Category" ("name")
-    SELECT "category"
+    SELECT DISTINCT "category"
     FROM "Post"
     WHERE "category" IS NOT NULL
   `);
