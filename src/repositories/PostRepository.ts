@@ -193,10 +193,10 @@ export class PostRepository extends AbstractRepository<PostModel> {
       }
     }
 
-    // Conditions
-    if (filterPostsUnifiedRequest.conditions && filterPostsUnifiedRequest.conditions.length > 0) {
-      qb.andWhere("post.condition IN (:...conditions)", {
-        conditions: filterPostsUnifiedRequest.conditions,
+    // Condition
+    if (filterPostsUnifiedRequest.condition) {
+      qb.andWhere("post.condition = :condition", {
+        condition: filterPostsUnifiedRequest.condition,
       });
     }
 

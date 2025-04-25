@@ -72,7 +72,7 @@ export interface FilterPostsUnifiedRequest {
   sortField?: PostSortField;
   price?: { lowerBound?: number; upperBound?: number };
   categories?: string[];
-  conditions?: string[];
+  condition?: string;
 }
 
 export interface CreatePostRequest {
