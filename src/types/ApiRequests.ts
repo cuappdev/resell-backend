@@ -66,6 +66,15 @@ export interface UnblockUserRequest {
 
 // POST
 
+export type PostSortField = 'any' | 'priceLowToHigh' | 'priceHighToLow' | 'newlyListed';
+
+export interface FilterPostsUnifiedRequest {
+  sortField?: PostSortField;
+  price?: { lowerBound?: number; upperBound?: number };
+  categories?: string[];
+  condition?: string;
+}
+
 export interface CreatePostRequest {
     title: string;
     description: string;
@@ -108,6 +117,7 @@ export interface FilterPostsByPriceRequest {
 export interface FilterPostsByConditionRequest {
     condition: string[];
 }
+
 
 // GENERAL IMAGES
 

@@ -8,7 +8,7 @@ import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest } from '../types';
+import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest, FilterPostsUnifiedRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 import { getLoadedModel } from '../utils/SentenceEncoder';
 import { PostRepository } from 'src/repositories/PostRepository';
@@ -139,6 +139,15 @@ export class PostService {
     });
   }
 
+  public async filterPostsUnified(user: UserModel, filterPostsUnifiedRequest: FilterPostsUnifiedRequest): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const posts = await postRepository.filterPostsUnified(filterPostsUnifiedRequest);
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
+  }
+
 
   public async filterPostsByCategories(user: UserModel, filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
@@ -193,6 +202,7 @@ export class PostService {
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }
+
 
   public async getArchivedPosts(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
