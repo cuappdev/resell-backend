@@ -2440,6 +2440,34 @@
       }
     }
     ,
+    "/chat/proposal/cancel/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Cancel a proposal chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateProposalChat" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelProposalResponse" 
+                  
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
     "/chat/{chatId}/message/{messageId}": {
       "post": {
@@ -3317,7 +3345,20 @@
       "endDate": { "type": "string", "format": "date-time" }
     }
   }
-,
+,"CancelProposalResponse": {
+    "type": "object",
+    "required": ["type", "senderID", "timestamp", "startDate", "endDate"],
+    "properties": {
+      "type": { "type": "string" },
+      "senderID": { "type": "string", "format": "uuid" },
+      "timestamp": { "type": "string", "format": "date-time" },
+      "cancellation": { 
+        "type": "boolean"
+      },
+      "startDate": { "type": "string", "format": "date-time" },
+      "endDate": { "type": "string", "format": "date-time" }
+    }
+  },
 "ReadResponse": {
     "type": "object",
     "required": ["read"],

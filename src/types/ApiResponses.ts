@@ -224,6 +224,16 @@ export interface ProposalResponse {
 
 }
 
+export interface CancelProposalResponse {
+  type: string,
+  senderID: Uuid,
+  timestamp: Date,
+  startDate:Date,
+  endDate:Date,
+  cancellation:boolean
+
+}
+
 export interface ChatReadResponse {
   read:boolean
 
