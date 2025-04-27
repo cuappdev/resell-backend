@@ -11,6 +11,7 @@ export class FcmTokenRepository extends AbstractRepository<FcmTokenModel> {
       .createQueryBuilder("fcmToken")
       .leftJoinAndSelect("fcmToken.user", "user")
       .where("user.firebaseUid = :userId", { userId })
+      .groupBy("fcmToken.fcmToken")
       .getMany();
   }
 
