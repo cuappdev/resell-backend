@@ -19,7 +19,7 @@ export class RequestModel {
   @Column({ default: false })
   archive: boolean;
 
-  @ManyToOne(() => UserModel, user => user.requests)
+  @ManyToOne(() => UserModel, user => user.requests, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user' })
   user: UserModel
 
