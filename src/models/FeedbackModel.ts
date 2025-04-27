@@ -15,7 +15,7 @@ export class FeedbackModel {
   @Column("text", { array: true })
   images: string[];
 
-  @ManyToOne(() => UserModel, user => user.feedbacks)
+  @ManyToOne(() => UserModel, user => user.feedbacks, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user' })
   user: UserModel
   

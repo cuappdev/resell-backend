@@ -47,7 +47,7 @@ export class PostModel {
   @Column({ default: false })
   archive: boolean;
 
-  @ManyToOne(() => UserModel, (user) => user.posts)
+  @ManyToOne(() => UserModel, (user) => user.posts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "user" })
   user: UserModel;
 
