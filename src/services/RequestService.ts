@@ -62,7 +62,7 @@ export class RequestService {
         const embeddingTensor = await model.embed(sentences);
         const embeddings = await embeddingTensor.array();
         // Convert the embedding to SQL vector format using pgvector.toSql
-        embedding = pgvector.toSql(embeddings[0]);
+        embedding = embeddings[0];
       } catch (error) {
         console.error("Error computing embedding:", error);
       }

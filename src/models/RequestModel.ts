@@ -3,6 +3,7 @@ import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColu
 import { Request, Uuid } from '../types';
 import { PostModel } from './PostModel';
 import { UserModel } from './UserModel';
+import pgvector from 'pgvector';
 
 @Entity('Request')
 export class RequestModel {
@@ -19,8 +20,8 @@ export class RequestModel {
   @Column({ default: false })
   archive: boolean;
 
-  @Column({ nullable: true })
-  embedding: string;
+  @Column("float", { array: true, nullable: true })
+  embedding: number[];
 
   @ManyToOne(() => UserModel, user => user.requests, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user' })
@@ -35,6 +36,7 @@ export class RequestModel {
       title: this.title,
       description: this.description,
       archive: this.archive,
+      embedding: this.embedding,
       user: this.user,
       matches: this.matches,
     };

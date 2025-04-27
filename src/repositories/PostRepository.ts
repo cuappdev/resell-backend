@@ -67,7 +67,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     price: number,
     images: string[],
     user: UserModel,
-    embedding: string,
+    embedding: number[],
   ): Promise<PostModel> {
     const post = new PostModel();
     post.title = title;
@@ -284,11 +284,12 @@ export class PostRepository extends AbstractRepository<PostModel> {
   }
 
   public async getSimilarPosts(queryEmbedding: number[], excludePostId: string): Promise<PostModel[]> {
+    const lit = `[${queryEmbedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where("post.id != :excludePostId", { excludePostId })
-      .orderBy("embedding <-> CAST(:embedding AS vector(512))")
+      .orderBy(`embedding::vector <-> CAST('${lit}' AS vector(512))`)
       .setParameters({ embedding: pgvector.toSql(queryEmbedding) })
       .limit(10)
       .getMany();

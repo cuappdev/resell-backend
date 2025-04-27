@@ -81,7 +81,7 @@ export interface Post {
   matched: Request[];
   categories: Category[];
   sold: boolean;
-  embedding: string;
+  embedding: number[];
 }
 
 export interface GetPostsResponse {
@@ -141,6 +141,7 @@ export interface Request {
   title: string;
   description: string;
   archive: boolean;
+  embedding: number[];
   user: PrivateProfile;
   matches: PostModel[];
 }
