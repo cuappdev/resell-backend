@@ -11,6 +11,7 @@ import Repositories, { TransactionsManager } from '../repositories';
 import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest, FilterPostsUnifiedRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 // import { encoder } from '../app';
+// import { encoder } from '../app';
 import { PostRepository } from 'src/repositories/PostRepository';
 import { CategoryRepository } from 'src/repositories/CategoryRepository';
 import { FindTokensRequest } from '../types';
@@ -102,6 +103,8 @@ export class PostService {
           await requestRepository.addMatchToRequest(request, freshPost);
         }
       }
+  
+      return freshPost;
   
       return freshPost;
     });

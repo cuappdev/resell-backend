@@ -80,6 +80,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.archive = false;
     post.user = user;
     post.embedding = embedding;
+    post.embedding = embedding;
     return await this.repository.save(post);
   }
 
