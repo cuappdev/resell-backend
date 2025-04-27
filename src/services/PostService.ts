@@ -10,11 +10,12 @@ import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
-import { getLoadedModel } from '../utils/SentenceEncoder';
+// import { encoder } from '../app';
 import { PostRepository } from 'src/repositories/PostRepository';
 import { FindTokensRequest } from '../types';
 import { NotifService } from './NotifService';
 import pgvector from 'pgvector'
+import { getLoadedModel } from '../utils/SentenceEncoder';
 //require('@tensorflow-models/universal-sentence-encoder')
 
 @Service() 
@@ -82,12 +83,12 @@ export class PostService {
         const sentences = [sentence];
         const embeddingTensor = await model.embed(sentences);
         const embeddingArray = await embeddingTensor.array();
-        embedding = pgvector.toSql(embeddingArray[0]);
+        embedding = embeddingArray[0];
       } catch (error) {
         console.error("Error computing embedding:", error);
       }
-
       const freshPost = await postRepository.createPost(post.title, post.description, post.category, post.condition, post.original_price, images, user, embedding);
+      console.log("Post created");
       if (embedding) {
         const requestRepository = Repositories.request(transactionalEntityManager);
         // TODO: how many should we get?
@@ -351,7 +352,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
-      const embedding = this.parseEmbedding(post.embedding)
+      const embedding = post.embedding
       const similarPosts = await postRepository.getSimilarPosts(embedding, post.id);
       const activePosts = this.filterInactiveUserPosts(similarPosts);
       return this.filterBlockedUserPosts(activePosts, user);

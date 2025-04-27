@@ -33,7 +33,7 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     description: string,
     archive: boolean,
     user: UserModel,
-    embedding: string
+    embedding: number[]
   ): Promise<RequestModel> {
     const request = this.repository.create({
       title,
@@ -87,10 +87,11 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     return this.repository.save(request);
   }
 
-  public async findSimilarRequests(embedding: string, limit: number = 10): Promise<RequestModel[]> {
+  public async findSimilarRequests(embedding: number[], limit: number = 10): Promise<RequestModel[]> {
+    const lit = `[${embedding.join(",")}]`;
     return await this.repository.createQueryBuilder("request")
       .where("request.embedding IS NOT NULL")
-      .orderBy("request.embedding <-> CAST(:embedding AS vector(512))")
+      .orderBy(`request.embedding::vector <-> CAST('${lit}' AS vector(512))`)
       .setParameter("embedding", embedding)
       .limit(limit)
       .getMany();

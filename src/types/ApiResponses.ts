@@ -70,7 +70,7 @@ export interface Post {
   savers: PrivateProfile[];
   matched: Request[];
   sold: boolean;
-  embedding: string;
+  embedding: number[];
 }
 
 export interface GetPostsResponse {
@@ -143,6 +143,7 @@ export interface Request {
   title: string;
   description: string;
   archive: boolean;
+  embedding: number[];
   user: PrivateProfile;
   matches: PostModel[];
 }

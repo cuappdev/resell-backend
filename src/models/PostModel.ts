@@ -49,8 +49,8 @@ export class PostModel {
   @Column({ default: false })
   archive: boolean;
 
-  @Column({ nullable: true })
-  embedding: string;
+  @Column("float", { array: true, nullable: true })
+  embedding: number[];
 
   @ManyToOne(() => UserModel, (user) => user.posts)
   @JoinColumn({ name: "user" })
