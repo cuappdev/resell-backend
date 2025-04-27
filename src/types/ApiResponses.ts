@@ -81,6 +81,7 @@ export interface Post {
   matched: Request[];
   categories: Category[];
   sold: boolean;
+  embedding: string;
 }
 
 export interface GetPostsResponse {

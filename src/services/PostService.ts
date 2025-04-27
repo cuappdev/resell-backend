@@ -16,6 +16,7 @@ import { CategoryRepository } from 'src/repositories/CategoryRepository';
 import { FindTokensRequest } from '../types';
 import { NotifService } from './NotifService';
 import { SearchService } from './SearchService'; // Import SearchService
+import pgvector from 'pgvector'
 //require('@tensorflow-models/universal-sentence-encoder')
 
 @Service() 
@@ -24,6 +25,15 @@ export class PostService {
   
   constructor(@InjectManager() entityManager: EntityManager) {
     this.transactions = new TransactionsManager(entityManager);
+  }
+
+  public parseEmbedding(embeddingStr: string): number[] {
+    try {
+      return JSON.parse(embeddingStr);
+    } catch (error) {
+      console.error("Error parsing embedding:", error);
+      return [];
+    }
   }
 
   public async getAllPosts(user: UserModel, page: number, limit: number): Promise<PostModel[]> {
@@ -70,26 +80,29 @@ export class PostService {
       }
       const categoryRepository = Repositories.category(transactionalEntityManager);
       const categories = await categoryRepository.findOrCreateByNames(post.categories);
-      const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user);
-      const requestRepository = Repositories.request(transactionalEntityManager);
-      const requests = await requestRepository.getAllRequest();
-      for (const request of requests) {
+      let embedding = null;
+      try {
         const model = await getLoadedModel();
-        const sentences = [
-          post.title,
-          request.title
-        ];
-        await model.embed(sentences).then(async (embeddings: any) => {
-          embeddings = embeddings.arraySync()
-          const a = embeddings[0];
-          const b = embeddings[1];
-
-          if (this.similarity(a, b) >= 0.5) {
-            await requestRepository.addMatchToRequest(request, freshPost);
-          }
-        });
+        const sentence = `${post.title} ${post.description}`;
+        const sentences = [sentence];
+        const embeddingTensor = await model.embed(sentences);
+        const embeddingArray = await embeddingTensor.array();
+        embedding = pgvector.toSql(embeddingArray[0]);
+      } catch (error) {
+        console.error("Error computing embedding:", error);
       }
-      return freshPost
+
+      const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user, embedding);
+      if (embedding) {
+        const requestRepository = Repositories.request(transactionalEntityManager);
+        // TODO: how many should we get?
+        const similarRequests = await requestRepository.findSimilarRequests(embedding, 10);
+        for (const request of similarRequests) {
+          await requestRepository.addMatchToRequest(request, freshPost);
+        }
+      }
+  
+      return freshPost;
     });
   }
 
@@ -385,26 +398,9 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
-      const allPosts = await postRepository.getAllPosts();
-      let posts: PostModel[] = []
-      const model = await getLoadedModel();
-      for (const p of allPosts) {
-        if (post.id != p.id) {
-          const sentences = [
-            post.title,
-            p.title
-          ];
-          await model.embed(sentences).then(async (embeddings: any) => {
-            embeddings = embeddings.arraySync()
-            const a = embeddings[0];
-            const b = embeddings[1];
-            if (this.similarity(a, b) >= 0.5) {
-              posts.push(p)
-            }
-          });
-        }
-      }
-      const activePosts = this.filterInactiveUserPosts(posts);
+      const embedding = this.parseEmbedding(post.embedding)
+      const similarPosts = await postRepository.getSimilarPosts(embedding, post.id);
+      const activePosts = this.filterInactiveUserPosts(similarPosts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }

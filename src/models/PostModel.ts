@@ -47,6 +47,9 @@ export class PostModel {
   @Column({ default: false })
   archive: boolean;
 
+  @Column({ nullable: true })
+  embedding: string;
+
   @ManyToOne(() => UserModel, (user) => user.posts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "user" })
   user: UserModel;
@@ -93,6 +96,7 @@ export class PostModel {
       created: this.created,
       location: this.location,
       archive: this.archive,
+      embedding: this.embedding,
       user: this.user.getUserProfile(),
       savers: this.savers?.map((user) => user.getUserProfile()),
       matched: this.matched?.map((request) => request.getRequestInfo()),
