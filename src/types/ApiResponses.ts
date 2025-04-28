@@ -245,3 +245,7 @@ export interface ChatReadResponse {
 export interface AuthTokenResponse{
   token:string
 }
+
+export interface UIDResponse{
+  uid:string
+}
