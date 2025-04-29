@@ -11,6 +11,7 @@ module.exports = {
       'src/models/*.ts',
    ],
    synchronize: false,
+   migrationsRun: true,
    // namingStrategy: new SnakeNamingStrategy(),
    migrations: [
       'src/migrations/*.ts',
