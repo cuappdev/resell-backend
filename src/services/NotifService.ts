@@ -1,6 +1,6 @@
 import { NotFoundError} from 'routing-controllers';
 import { Service } from 'typedi';
-import { NotificationData, FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from '../types';
+import { NotificationData, FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest, TokenWrapper } from '../types';
 import Repositories, { TransactionsManager } from '../repositories';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
@@ -21,7 +21,7 @@ export class NotifService {
     public sendFCMNotifs = async (notifs: NotificationData[], userId: string) => {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
             const notifRepository = Repositories.notification(transactionalEntityManager);
-            
+            console.log(notifs);
             for (let notif of notifs) {
                 const msg: Message = {
                     notification: {
@@ -45,15 +45,18 @@ export class NotifService {
                         read: false
                     });
                 } catch (error) {
-                    console.error(
-                        `Error sending notification for title "${notif.title}" to token ${notif.to[0]}:`,
-                        error
-                    );
-                    throw error;
+                    console.warn(
+                        `Skipping invalid token for notification "${notif.title}": ${error.message}`
+                      );
+                      // Do NOT throw, just skip
+                      continue;
                 }
             }
         });
     }
+
+  
+
 
     public async sendNotifs(request: FindTokensRequest) {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
@@ -66,12 +69,14 @@ export class NotifService {
             const allDeviceTokens = [];
             const alltokens = await fcmTokenRepository.getTokensByUserId(user.firebaseUid);
             for (var token of alltokens) {
-                if (token.fcmToken) {
-                    allDeviceTokens.push(token.fcmToken);
-                }
+       
+                allDeviceTokens.push(token);
+                
             }
+            console.log(allDeviceTokens);
+        
             let notif: NotificationData = {
-                to: allDeviceTokens,
+                to: allDeviceTokens.map(tokenObj => tokenObj.token),
                 sound: 'default',
                 title: request.title,
                 body: request.body,
@@ -115,13 +120,14 @@ export class NotifService {
             const allDeviceTokens = [];
             const allTokens = await fcmTokenRepository.getTokensByUserId(user.firebaseUid);
             for (var token of allTokens) {
-                if (token.fcmToken) {
-                    allDeviceTokens.push(token.fcmToken);
-                }
+       
+                allDeviceTokens.push(token);
+                
             }
+            console.log(allDeviceTokens);
 
             let notif: NotificationData = {
-                to: allDeviceTokens,
+                to: allDeviceTokens.map(tokenObj => tokenObj.token),
                 sound: 'default',
                 title: "Price Drop Alert!",
                 body: `${post.title} is now available at $${request.newPrice}!`,
@@ -178,13 +184,13 @@ export class NotifService {
             const allDeviceTokens = [];
             const allTokens = await fcmTokenRepository.getTokensByUserId(user.firebaseUid);
             for (var token of allTokens) {
-                if (token.fcmToken) {
-                    allDeviceTokens.push(token.fcmToken);
-                }
+       
+                allDeviceTokens.push(token);
+                
             }
 
             let notif: NotificationData = {
-                to: allDeviceTokens,
+                to: allDeviceTokens.map(tokenObj => tokenObj.token),
                 sound: 'default',
                 title: "Request Match Found!",
                 body: `We found a match for your request: ${post.title}`,
