@@ -28,15 +28,6 @@ export class PostService {
     this.transactions = new TransactionsManager(entityManager);
   }
 
-  public parseEmbedding(embeddingStr: string): number[] {
-    try {
-      return JSON.parse(embeddingStr);
-    } catch (error) {
-      console.error("Error parsing embedding:", error);
-      return [];
-    }
-  }
-
   public async getAllPosts(user: UserModel, page: number, limit: number): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
@@ -93,16 +84,14 @@ export class PostService {
         console.error("Error computing embedding:", error);
       }
       const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user, embedding);
-      console.log("Post created");
       if (embedding) {
         const requestRepository = Repositories.request(transactionalEntityManager);
         // TODO: how many should we get?
-        const similarRequests = await requestRepository.findSimilarRequests(embedding, 10);
+        const similarRequests = await requestRepository.findSimilarRequests(embedding, user.firebaseUid, 10);
         for (const request of similarRequests) {
           await requestRepository.addMatchToRequest(request, freshPost);
         }
       }
-  
       return freshPost;
     });
   }
@@ -378,29 +367,17 @@ export class PostService {
     });
   }
 
-  public similarity(a: Array<number>, b: Array<number>): number {
-    var magnitudeA = Math.sqrt(this.dotProduct(a, a));
-    var magnitudeB = Math.sqrt(this.dotProduct(b, b));
-    if (magnitudeA && magnitudeB)
-      return this.dotProduct(a, b) / (magnitudeA * magnitudeB);
-    else return 0;
-  }
-
-  public dotProduct(a: Array<number>, b: Array<number>) {
-    const result = a.reduce((acc, cur, index)=>{
-      acc += (cur * b[index]);
-      return acc;
-    }, 0);
-    return result;
-  }
-
   public async similarPosts(user: UserModel, params: UuidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
       const embedding = post.embedding
-      const similarPosts = await postRepository.getSimilarPosts(embedding, post.id);
+      if (embedding == null) {
+        // TODO: after writing migration, throw new NotFoundError('Post does not have embedding!');
+        return [];
+      }
+      const similarPosts = await postRepository.getSimilarPosts(embedding, post.id, user.firebaseUid);
       const activePosts = this.filterInactiveUserPosts(similarPosts);
       return this.filterBlockedUserPosts(activePosts, user);
     });

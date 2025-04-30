@@ -10,7 +10,6 @@ import { RequestModel } from '../models/RequestModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { CreateRequestRequest } from '../types';
 import { getLoadedModel } from '../utils/SentenceEncoder';
-import pgvector from 'pgvector'
 
 @Service()
 export class RequestService {
@@ -51,23 +50,29 @@ export class RequestService {
       const user = await userRepository.getUserById(request.userId);
       if (!user) throw new NotFoundError('User not found!');
       const requestRepository = Repositories.request(transactionalEntityManager);
-      
-      // compute embedding of request
       let embedding = null
       try {
         const model = await getLoadedModel();
-        // Combine title and description
         const sentence = `${request.title} ${request.description}`;
         const sentences = [sentence];
         const embeddingTensor = await model.embed(sentences);
         const embeddings = await embeddingTensor.array();
-        // Convert the embedding to SQL vector format using pgvector.toSql
         embedding = embeddings[0];
       } catch (error) {
         console.error("Error computing embedding:", error);
       }
-
-      return await requestRepository.createRequest(request.title, request.description, request.archive, user, embedding);
+      const freshRequest = await requestRepository.createRequest(request.title, request.description, request.archive, user, embedding);
+      if (embedding) {
+        const postRepository = Repositories.post(transactionalEntityManager);
+        // TODO: How many similar posts do we want to fetch?
+        console.log(user.firebaseUid)
+        const similarPosts = await postRepository.findSimilarPosts(embedding, user.firebaseUid, 10);
+        for (const post of similarPosts) {
+          console.log("post", post);
+          await requestRepository.addMatchToRequest(freshRequest, post);
+        }
+      }
+      return freshRequest;
     });
   }
 
