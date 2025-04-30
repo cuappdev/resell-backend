@@ -161,9 +161,16 @@ export class NotifService {
                     });
                 });
                 await this.sendFCMNotifs(notifs, user.firebaseUid);
-            
+                return {
+                    message: "Notification sent successfully",
+                    httpCode: 200
+                  };
             } catch (err) {
                 console.log(err);
+                return {
+                    message: "Notification not sent",
+                    httpCode: 500
+                  };
             }
         });
     }
@@ -226,8 +233,16 @@ export class NotifService {
                     });
                 });
                 await this.sendFCMNotifs(notifs, request.userId);
+                return {
+                    message: "Notification sent successfully",
+                    httpCode: 200
+                  };
             } catch (err) {
                 console.log(err);
+                return {
+                    message: "Notification not sent",
+                    httpCode: 500
+                  };
             }
         });
     }
