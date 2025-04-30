@@ -283,18 +283,38 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getOne();
   }
 
-  public async getSimilarPosts(queryEmbedding: number[], excludePostId: string): Promise<PostModel[]> {
+  /*
+  This method is for getting similar posts for a given post query embedding.
+  */
+  public async getSimilarPosts(queryEmbedding: number[], excludePostId: string, excludeUserId: string): Promise<PostModel[]> {
     const lit = `[${queryEmbedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where("post.id != :excludePostId", { excludePostId })
+      .andWhere("post.user != :excludeUserId", { excludeUserId })
       .orderBy(`embedding::vector <-> CAST('${lit}' AS vector(512))`)
-      .setParameters({ embedding: pgvector.toSql(queryEmbedding) })
+      .setParameters({ embedding: queryEmbedding })
       .limit(10)
       .getMany();
   }  
-  
+
+  /*
+  This method is for getting similar posts given a request embedding.
+  */
+  public async findSimilarPosts(embedding: number[], excludeUserId: string, limit: number = 10): Promise<PostModel[]> {
+    const lit = `[${embedding.join(",")}]`;
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.embedding IS NOT NULL")
+      .andWhere("post.user != :excludeUserId", { excludeUserId })
+      .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
+      .setParameter("embedding", embedding)
+      .limit(limit)
+      .getMany();
+  }
+
   public async getSuggestedPosts(
     userId: string,
     limit: number = 10
