@@ -157,6 +157,10 @@ export interface NotificationData {
     data: JSON;
 }
 
+export interface TokenWrapper {
+    token: string;
+  }
+
 export interface SaveTokenRequest {
     token: string;
     userId: Uuid;
