@@ -153,4 +153,12 @@ export class PostController {
   ): Promise<GetPostsResponse> {
     return { posts: await this.postService.getSuggestedPosts(user, limit) };
   }
+
+  @Get('searchSuggestions/:searchIndex/:postCount/')
+  async getSearchSuggestions(
+    @Params() params: { searchIndex: string; postCount: number }
+  ): Promise<{ postIds: string[] }> {
+    const postIds = await this.postService.getSearchSuggestions(params.searchIndex, Number(params.postCount));
+    return { postIds };
+  }
 }
