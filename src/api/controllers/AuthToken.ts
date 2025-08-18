@@ -1,9 +1,21 @@
-import { Body, Get, JsonController } from 'routing-controllers';
+import { Body, Get, JsonController, Post } from 'routing-controllers';
 import { getAuth } from "firebase-admin/auth";
-import { AuthTokenResponse, FcmTokenRequest } from '../../types';
+import { AuthTokenResponse, emailAndPass, FcmTokenRequest, UIDResponse } from '../../types';
 
 @JsonController('authToken/')
 export class AuthTokenController {
+
+  @Post('create/') async createAccount(@Body() info:emailAndPass): Promise<UIDResponse>{
+    const userCredential = await getAuth().createUser({
+      email: info.email,
+      password: info.password
+    });
+
+    // Firebase automatically generates a UID for this user!
+    const uid = userCredential.uid;
+    console.log("New user's UID:", uid);
+    return {uid:uid}
+  }
 
   @Get() async authorize(@Body() fcmToken: FcmTokenRequest): Promise<AuthTokenResponse> {
   try {

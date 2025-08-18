@@ -8,14 +8,16 @@ import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
-import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest } from '../types';
+import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest, FilterPostsUnifiedRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
-import { getLoadedModel } from '../utils/SentenceEncoder';
+// import { encoder } from '../app';
 import { PostRepository } from 'src/repositories/PostRepository';
 import { CategoryRepository } from 'src/repositories/CategoryRepository';
 import { FindTokensRequest } from '../types';
 import { NotifService } from './NotifService';
 import { SearchService } from './SearchService'; // Import SearchService
+import pgvector from 'pgvector'
+import { getLoadedModel } from '../utils/SentenceEncoder';
 //require('@tensorflow-models/universal-sentence-encoder')
 
 @Service() 
@@ -70,26 +72,27 @@ export class PostService {
       }
       const categoryRepository = Repositories.category(transactionalEntityManager);
       const categories = await categoryRepository.findOrCreateByNames(post.categories);
-      const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user);
-      const requestRepository = Repositories.request(transactionalEntityManager);
-      const requests = await requestRepository.getAllRequest();
-      for (const request of requests) {
+      let embedding = null;
+      try {
         const model = await getLoadedModel();
-        const sentences = [
-          post.title,
-          request.title
-        ];
-        await model.embed(sentences).then(async (embeddings: any) => {
-          embeddings = embeddings.arraySync()
-          const a = embeddings[0];
-          const b = embeddings[1];
-
-          if (this.similarity(a, b) >= 0.5) {
-            await requestRepository.addMatchToRequest(request, freshPost);
-          }
-        });
+        const sentence = `${post.title} ${post.description}`;
+        const sentences = [sentence];
+        const embeddingTensor = await model.embed(sentences);
+        const embeddingArray = await embeddingTensor.array();
+        embedding = embeddingArray[0];
+      } catch (error) {
+        console.error("Error computing embedding:", error);
       }
-      return freshPost
+      const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user, embedding);
+      if (embedding) {
+        const requestRepository = Repositories.request(transactionalEntityManager);
+        // TODO: how many should we get?
+        const similarRequests = await requestRepository.findSimilarRequests(embedding, user.firebaseUid, 10);
+        for (const request of similarRequests) {
+          await requestRepository.addMatchToRequest(request, freshPost);
+        }
+      }
+      return freshPost;
     });
   }
 
@@ -135,6 +138,15 @@ export class PostService {
         }
       });
       let activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
+  }
+
+  public async filterPostsUnified(user: UserModel, filterPostsUnifiedRequest: FilterPostsUnifiedRequest): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const posts = await postRepository.filterPostsUnified(filterPostsUnifiedRequest);
+      const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }
@@ -193,6 +205,7 @@ export class PostService {
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }
+
 
   public async getArchivedPosts(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
@@ -354,47 +367,18 @@ export class PostService {
     });
   }
 
-  public similarity(a: Array<number>, b: Array<number>): number {
-    var magnitudeA = Math.sqrt(this.dotProduct(a, a));
-    var magnitudeB = Math.sqrt(this.dotProduct(b, b));
-    if (magnitudeA && magnitudeB)
-      return this.dotProduct(a, b) / (magnitudeA * magnitudeB);
-    else return 0;
-  }
-
-  public dotProduct(a: Array<number>, b: Array<number>) {
-    const result = a.reduce((acc, cur, index)=>{
-      acc += (cur * b[index]);
-      return acc;
-    }, 0);
-    return result;
-  }
-
   public async similarPosts(user: UserModel, params: UuidParam): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError('Post not found!');
-      const allPosts = await postRepository.getAllPosts();
-      let posts: PostModel[] = []
-      const model = await getLoadedModel();
-      for (const p of allPosts) {
-        if (post.id != p.id) {
-          const sentences = [
-            post.title,
-            p.title
-          ];
-          await model.embed(sentences).then(async (embeddings: any) => {
-            embeddings = embeddings.arraySync()
-            const a = embeddings[0];
-            const b = embeddings[1];
-            if (this.similarity(a, b) >= 0.5) {
-              posts.push(p)
-            }
-          });
-        }
+      const embedding = post.embedding
+      if (embedding == null) {
+        // TODO: after writing migration, throw new NotFoundError('Post does not have embedding!');
+        return [];
       }
-      const activePosts = this.filterInactiveUserPosts(posts);
+      const similarPosts = await postRepository.getSimilarPosts(embedding, post.id, user.firebaseUid);
+      const activePosts = this.filterInactiveUserPosts(similarPosts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }

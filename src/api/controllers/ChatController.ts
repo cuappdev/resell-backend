@@ -1,7 +1,7 @@
 import { Body, CurrentUser, ForbiddenError, JsonController, Params, Post } from 'routing-controllers';
 import { getFirestore } from 'firebase-admin/firestore';
 import { ChatParam, ChatReadParam } from '../validators/GenericRequests';
-import { CreateChatMessage,CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ProposalResponse, ChatReadResponse } from '../../types';
+import { CreateChatMessage,CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ProposalResponse, ChatReadResponse, CancelProposalResponse } from '../../types';
 import { UserModel } from '../../models/UserModel';
 
 const db = getFirestore();
@@ -159,6 +159,30 @@ export class ChatController {
     return message;
   }
 
+  @Post('proposal/cancel/:id')
+  async cancelProposal(@CurrentUser() user: UserModel,@Params() params: ChatParam,@Body() chatBody: CreateProposalChat): Promise<CancelProposalResponse>{
+    const chatId = params.id;
+    const doc = await chatsRef.doc(chatId).get();
+    const now = new Date();
+    const message = { 
+      "type": "proposal",
+      "senderID": chatBody.senderId,
+      "timestamp": now,
+      "cancellation": true,
+      "startDate":chatBody.startDate,
+      "endDate":chatBody.endDate,
+    }
+    if (doc.exists){
+      const userCheck = await checkUsers(chatId,user.firebaseUid);
+      if (!userCheck){
+        throw new ForbiddenError("This user is not part of this chat");
+      }
+      
+    }
+    updateFirestore(chatId,doc.exists,chatBody,message,chatsRef,"");
+    return message;
+  }
+
 
   @Post(':chatId/message/:messageId')
   async markAsRead(@CurrentUser() user: UserModel,@Params() params: ChatReadParam): Promise<ChatReadResponse>{
@@ -184,6 +208,8 @@ export class ChatController {
     }
     return {"read":true}
   }
+
+  
   
 }
 

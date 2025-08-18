@@ -32,13 +32,15 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     title: string,
     description: string,
     archive: boolean,
-    user: UserModel
+    user: UserModel,
+    embedding: number[]
   ): Promise<RequestModel> {
     const request = this.repository.create({
       title,
       description,
       archive,
       user,
+      embedding,
     });
     await this.repository.save(request);
     return request;
@@ -80,8 +82,28 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
   }
 
   public async addMatchToRequest(request: RequestModel, post: PostModel): Promise<RequestModel> {
+    // check if they don't have the same user
+    if (request.user.firebaseUid === post.user.firebaseUid) {
+      // User is the same, don't match
+      // Throw error maybe?
+      return request;
+    }
+    
     if (request.matches === undefined) { request.matches = [post]; }
     else { request.matches.push(post); }
     return this.repository.save(request);
   }
+
+  public async findSimilarRequests(embedding: number[], excludeUserId: string, limit: number = 10): Promise<RequestModel[]> {
+    const lit = `[${embedding.join(",")}]`;
+    return await this.repository
+      .createQueryBuilder("request")
+      .where("request.embedding IS NOT NULL")
+      .andWhere("request.user != :excludeUserId", { excludeUserId })
+      .orderBy(`request.embedding::vector <-> CAST('${lit}' AS vector(512))`)
+      .setParameter("embedding", embedding)
+      .limit(limit)
+      .getMany();
+  }
+  
 }

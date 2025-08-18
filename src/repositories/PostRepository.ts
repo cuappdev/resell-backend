@@ -3,7 +3,9 @@ import { AbstractRepository, EntityRepository } from 'typeorm';
 import { PostModel } from '../models/PostModel';
 import { UserModel } from '../models/UserModel';
 import { CategoryModel } from '../models/CategoryModel';
-import { Uuid } from '../types';
+import { FilterPostsUnifiedRequest, Uuid } from '../types';
+import Repositories from '.';
+import pgvector from 'pgvector';
 
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
@@ -76,6 +78,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     price: number,
     images: string[],
     user: UserModel,
+    embedding: number[],
   ): Promise<PostModel> {
     const post = new PostModel();
     post.title = title;
@@ -87,6 +90,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.images = images;
     post.archive = false;
     post.user = user;
+    post.embedding = embedding;
     return await this.repository.save(post);
   }
 
@@ -175,6 +179,68 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
+    public async filterPostsUnified(filterPostsUnifiedRequest: FilterPostsUnifiedRequest): Promise<PostModel[]> {
+    const qb = this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .where("post.archive = false");
+
+    // Categories
+    if (filterPostsUnifiedRequest.categories && filterPostsUnifiedRequest.categories.length > 0) {
+      qb.innerJoin("post.categories", "catFilter", "catFilter.name IN (:...categories)", {
+        categories: filterPostsUnifiedRequest.categories,
+      });
+    }
+
+    // Pricing
+    if (filterPostsUnifiedRequest.price) {
+      if (filterPostsUnifiedRequest.price.lowerBound !== undefined) {
+        qb.andWhere(
+          "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END) >= :lowerBound",
+          { lowerBound: filterPostsUnifiedRequest.price.lowerBound }
+        );
+      }
+      if (filterPostsUnifiedRequest.price.upperBound !== undefined) {
+        qb.andWhere(
+          "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END) <= :upperBound",
+          { upperBound: filterPostsUnifiedRequest.price.upperBound }
+        );
+      }
+    }
+
+    // Condition
+    if (filterPostsUnifiedRequest.condition) {
+      qb.andWhere("post.condition = :condition", {
+        condition: filterPostsUnifiedRequest.condition,
+      });
+    }
+
+    // Sorting
+    if (filterPostsUnifiedRequest.sortField && filterPostsUnifiedRequest.sortField !== "any") {
+      switch (filterPostsUnifiedRequest.sortField) {
+        case "priceLowToHigh":
+          qb.orderBy(
+            "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END)",
+            "ASC"
+          );
+          break;
+        case "priceHighToLow":
+          qb.orderBy(
+            "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END)",
+            "DESC"
+          );
+          break;
+        case "newlyListed":
+          qb.orderBy("post.created", "DESC");
+          break;
+      }
+    }
+
+    return await qb.getMany();
+  }
+  
+
   public async getArchivedPosts(): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
@@ -226,6 +292,38 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.categories", "categories") // Load the categories relationship
       .where("post.id = :id", { id })
       .getOne();
+  }
+
+  /*
+  This method is for getting similar posts for a given post query embedding.
+  */
+  public async getSimilarPosts(queryEmbedding: number[], excludePostId: string, excludeUserId: string): Promise<PostModel[]> {
+    const lit = `[${queryEmbedding.join(",")}]`;
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.id != :excludePostId", { excludePostId })
+      .andWhere("post.user != :excludeUserId", { excludeUserId })
+      .orderBy(`embedding::vector <-> CAST('${lit}' AS vector(512))`)
+      .setParameters({ embedding: queryEmbedding })
+      .limit(10)
+      .getMany();
+  }  
+
+  /*
+  This method is for getting similar posts given a request embedding.
+  */
+  public async findSimilarPosts(embedding: number[], excludeUserId: string, limit: number = 10): Promise<PostModel[]> {
+    const lit = `[${embedding.join(",")}]`;
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.embedding IS NOT NULL")
+      .andWhere("post.user != :excludeUserId", { excludeUserId })
+      .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
+      .setParameter("embedding", embedding)
+      .limit(limit)
+      .getMany();
   }
 
   public async getSuggestedPosts(
