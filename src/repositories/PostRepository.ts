@@ -18,16 +18,27 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async getAllPostsPaginated(skip:number,limit:number): Promise<PostModel[]> {
+  public async getAllPostsPaginated(skip: number, limit: number): Promise<PostModel[]> {
+    // Step 1: Get paginated post IDs
+    const postIds = await this.repository
+      .createQueryBuilder("post")
+      .select("post.id")
+      .where("post.archive = false")
+      .orderBy("post.createdAt", "DESC")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+  
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+  
+    // Step 2: Fetch full posts with relations
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("post.archive = false")
-      .orderBy("post.created", "DESC")
-      .skip(skip)               // Skip previous pages
-    .take(limit)
-   
+      .where("post.id IN (:...ids)", { ids })
+      .orderBy("post.createdAt", "DESC")
       .getMany();
   }
 
