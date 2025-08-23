@@ -51,7 +51,6 @@ export class UserFactory {
          */
         const fakeUser = new UserModel();
         fakeUser.firebaseUid = 'c6f0a14a-48ae-4b1c-bd6f-5f3b7e8c2b99';
-        fakeUser.id = fakeUser.firebaseUid; // Add deprecated id during refactor
         fakeUser.givenName = 'Tony';
         fakeUser.familyName = 'Matchev';
         fakeUser.username = 'tmatchev';
@@ -80,7 +79,6 @@ export class UserFactory {
 
         const fakeUser = new UserModel();
         fakeUser.firebaseUid = faker.datatype.uuid();
-        fakeUser.id = fakeUser.firebaseUid; // Add deprecated id during refactor
         fakeUser.givenName = firstName;
         fakeUser.familyName = lastName;
         fakeUser.username = faker.internet.userName(firstName, lastName);
