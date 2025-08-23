@@ -34,7 +34,7 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
       .leftJoinAndSelect("transaction.buyer", "buyer")
       .leftJoinAndSelect("transaction.seller", "seller")
       .leftJoinAndSelect("transaction.post", "post")
-      .where("buyer.id = :buyerId", { buyerId })
+      .where("buyer.firebaseUid = :buyerId", { buyerId })
       .getMany();
   }
 
@@ -45,7 +45,7 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
       .leftJoinAndSelect("transaction.buyer", "buyer")
       .leftJoinAndSelect("transaction.seller", "seller")
       .leftJoinAndSelect("transaction.post", "post")
-      .where("seller.id = :sellerId", { sellerId })
+      .where("seller.firebaseUid = :sellerId", { sellerId })
       .getMany();
   }
 

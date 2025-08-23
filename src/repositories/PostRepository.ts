@@ -24,7 +24,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .select("post.id")
       .where("post.archive = false")
-      .orderBy("post.createdAt", "DESC")
+      .orderBy("post.created", "DESC")
       .skip(skip)
       .take(limit)
       .getMany();
@@ -38,7 +38,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .where("post.id IN (:...ids)", { ids })
-      .orderBy("post.createdAt", "DESC")
+      .orderBy("post.created", "DESC")
       .getMany();
   }
 
