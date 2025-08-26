@@ -169,11 +169,21 @@ describe('post tests', () => {
       userId: user.firebaseUid,
     };
 
-    const getPostResponse = await postController.createPost(newPost);
+    const getPostResponse = await postController.createPost(user, newPost);
     const getPostsResponse = await postController.getPosts(user);
 
     expect(getPostResponse.post.title).toEqual('Mateo\'s Kombucha');
     expect(getPostsResponse.posts).toHaveLength(1);
+
+    // Test with inactive user should throw error
+    const inactiveUser = UserFactory.fakeTemplate();
+    inactiveUser.isActive = false;
+    
+    await new DataFactory()
+      .createUsers(inactiveUser)
+      .write();
+    
+    await expect(postController.createPost(inactiveUser, newPost)).rejects.toThrow('User is not active!');
   });
 
   test('delete post by id', async () => {
