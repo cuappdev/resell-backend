@@ -8,7 +8,7 @@ export class EmailParam {
 }
 
 export class UuidParam {
-  @IsUUID()
+  @IsString()
   id: Uuid;
 }
 

@@ -2,16 +2,18 @@ import { UserModel } from 'src/models/UserModel';
 import { AbstractRepository, DeleteResult, EntityRepository } from 'typeorm';
 
 import { FcmTokenModel } from '../models/FcmTokenModel';
-import { Uuid } from '../types';
+import { TokenWrapper, Uuid } from '../types';
 
 @EntityRepository(FcmTokenModel)
 export class FcmTokenRepository extends AbstractRepository<FcmTokenModel> {
-  public async getTokensByUserId(userId: string): Promise<FcmTokenModel[]> {
+  public async getTokensByUserId(userId: string): Promise<TokenWrapper[]> {
     return await this.repository
-      .createQueryBuilder("fcmToken")
-      .leftJoinAndSelect("fcmToken.user", "user")
-      .where("user.firebaseUid = :userId", { userId })
-      .getMany();
+    .createQueryBuilder("fcmToken")
+    .select("fcmToken.fcmToken", "token")
+    .leftJoin("fcmToken.user", "user")
+    .where("user.firebaseUid = :userId", { userId })
+    .groupBy("fcmToken.fcmToken")
+    .getRawMany();
   }
 
   public async createFcmToken (

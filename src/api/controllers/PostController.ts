@@ -9,6 +9,7 @@ import {
   FilterPostsRequest,
   FilterPostsByPriceRequest,
   FilterPostsByConditionRequest,
+  FilterPostsUnifiedRequest,
   GetPostResponse,
   GetPostsResponse,
   GetSearchedPostsRequest,
@@ -85,6 +86,14 @@ export class PostController {
   @Post('filterByCondition/')
   async filterByCondition(@CurrentUser() user: UserModel, @Body() filterPostsByConditionRequest: FilterPostsByConditionRequest): Promise<GetPostsResponse> {
     return { posts: await this.postService.filterByCondition(user, filterPostsByConditionRequest) };
+  }
+
+  @Post('filter/')
+  async filterPosts(
+    @CurrentUser() user: UserModel,
+    @Body() filterPostsUnifiedRequest: FilterPostsUnifiedRequest
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPostsUnified(user, filterPostsUnifiedRequest) };
   }
 
   @Get('archive/')

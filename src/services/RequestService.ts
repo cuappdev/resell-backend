@@ -9,6 +9,7 @@ import { PostModel } from 'src/models/PostModel';
 import { RequestModel } from '../models/RequestModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { CreateRequestRequest } from '../types';
+import { getLoadedModel } from '../utils/SentenceEncoder';
 
 @Service()
 export class RequestService {
@@ -49,7 +50,29 @@ export class RequestService {
       const user = await userRepository.getUserById(request.userId);
       if (!user) throw new NotFoundError('User not found!');
       const requestRepository = Repositories.request(transactionalEntityManager);
-      return await requestRepository.createRequest(request.title, request.description, request.archive, user);
+      let embedding = null
+      try {
+        const model = await getLoadedModel();
+        const sentence = `${request.title} ${request.description}`;
+        const sentences = [sentence];
+        const embeddingTensor = await model.embed(sentences);
+        const embeddings = await embeddingTensor.array();
+        embedding = embeddings[0];
+      } catch (error) {
+        console.error("Error computing embedding:", error);
+      }
+      const freshRequest = await requestRepository.createRequest(request.title, request.description, request.archive, user, embedding);
+      if (embedding) {
+        const postRepository = Repositories.post(transactionalEntityManager);
+        // TODO: How many similar posts do we want to fetch?
+        console.log(user.firebaseUid)
+        const similarPosts = await postRepository.findSimilarPosts(embedding, user.firebaseUid, 10);
+        for (const post of similarPosts) {
+          console.log("post", post);
+          await requestRepository.addMatchToRequest(freshRequest, post);
+        }
+      }
+      return freshRequest;
     });
   }
 

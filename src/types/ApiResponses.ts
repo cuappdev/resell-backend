@@ -81,6 +81,7 @@ export interface Post {
   matched: Request[];
   categories: Category[];
   sold: boolean;
+  embedding: number[];
 }
 
 export interface GetPostsResponse {
@@ -140,6 +141,7 @@ export interface Request {
   title: string;
   description: string;
   archive: boolean;
+  embedding: number[];
   user: PrivateProfile;
   matches: PostModel[];
 }
@@ -224,6 +226,16 @@ export interface ProposalResponse {
 
 }
 
+export interface CancelProposalResponse {
+  type: string,
+  senderID: Uuid,
+  timestamp: Date,
+  startDate:Date,
+  endDate:Date,
+  cancellation:boolean
+
+}
+
 export interface ChatReadResponse {
   read:boolean
 
@@ -232,4 +244,8 @@ export interface ChatReadResponse {
 
 export interface AuthTokenResponse{
   token:string
+}
+
+export interface UIDResponse{
+  uid:string
 }

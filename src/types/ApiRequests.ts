@@ -10,6 +10,11 @@ export interface FcmTokenRequest {
     token: string;
 }
 
+export interface emailAndPass {
+    email: string;
+    password:string;
+}
+
 export interface GoogleLoginUser {
     id: string;
     email: string;
@@ -66,6 +71,15 @@ export interface UnblockUserRequest {
 
 // POST
 
+export type PostSortField = 'any' | 'priceLowToHigh' | 'priceHighToLow' | 'newlyListed';
+
+export interface FilterPostsUnifiedRequest {
+  sortField?: PostSortField;
+  price?: { lowerBound?: number; upperBound?: number };
+  categories?: string[];
+  condition?: string;
+}
+
 export interface CreatePostRequest {
     title: string;
     description: string;
@@ -109,6 +123,7 @@ export interface FilterPostsByConditionRequest {
     condition: string[];
 }
 
+
 // GENERAL IMAGES
 
 export interface UploadImageRequest {
@@ -141,6 +156,10 @@ export interface NotificationData {
     body: string;
     data: JSON;
 }
+
+export interface TokenWrapper {
+    token: string;
+  }
 
 export interface SaveTokenRequest {
     token: string;

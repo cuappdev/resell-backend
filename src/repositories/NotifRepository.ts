@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, MoreThan } from 'typeorm';
 import { NotifModel } from '../models/NotifModel';
 
 @EntityRepository(NotifModel)
@@ -27,5 +27,32 @@ export class NotifRepository extends Repository<NotifModel> {
             return this.save(notification);
         }
         return undefined;
+    }
+
+    /** unread (i.e. “new”) notifications */
+    async getUnread(userId: string): Promise<NotifModel[]> {
+        return this.find({
+          where: { userId, read: false },
+          order: { createdAt: 'DESC' },
+          relations: ['user']
+        });
+    }
+
+    async getFromLastDays(userId: string, days: number): Promise<NotifModel[]> {
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - days);
+    
+        return this.find({
+          where: {
+            userId,
+            createdAt: MoreThan(cutoff)
+          },
+          order: { createdAt: 'DESC' },
+          relations: ['user']
+        });
+    }
+
+    async deleteNotification(notif: NotifModel): Promise<NotifModel> {
+        return await this.remove(notif);
     }
 }

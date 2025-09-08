@@ -279,6 +279,28 @@
           },
           "404": {
             "description": "Search not found"
+             } 
+           }
+         }
+       }
+     }
+   }
+ },
+    "/post/filter": {
+      "post": {
+        "summary": "Filter posts (all filters) ",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -2466,6 +2488,34 @@
       }
     }
     ,
+    "/chat/proposal/cancel/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Cancel a proposal chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateProposalChat" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelProposalResponse" 
+                  
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
     "/chat/{chatId}/message/{messageId}": {
       "post": {
@@ -2660,6 +2710,10 @@
               "id": { "type": "string" },
               "title": { "type": "string" },
               "description": { "type": "string" },
+              "categories": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
               "category": { "type": "string" },
               "condition": { "type": "string" },
               "originalPrice": { "type": "number" },
@@ -2696,6 +2750,10 @@
                 "id": { "type": "string" },
                 "title": { "type": "string" },
                 "description": { "type": "string" },
+                "categories":{
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
                 "category": { "type": "string" },
                 "condition": { "type": "string" },
                 "originalPrice": { "type": "number" },
@@ -3037,6 +3095,29 @@
           }
         }
       },
+      "FilterPostsUnifiedRequest": {
+        "type": "object",
+        "properties": {
+          "sortField": {
+            "type": "string",
+            "enum": ["any", "priceLowToHigh", "priceHighToLow", "newlyListed"]
+          },
+          "price": {
+            "type": "object",
+            "properties": {
+              "lowerBound": { "type": "number" },
+              "upperBound": { "type": "number" }
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "condition": {
+            "type": "string"
+          }
+        }
+      },
       "FilterPostsByPriceRequest": {
         "type": "object",
         "required": ["lowerBound", "upperBound"],
@@ -3312,7 +3393,20 @@
       "endDate": { "type": "string", "format": "date-time" }
     }
   }
-,
+,"CancelProposalResponse": {
+    "type": "object",
+    "required": ["type", "senderID", "timestamp", "startDate", "endDate"],
+    "properties": {
+      "type": { "type": "string" },
+      "senderID": { "type": "string", "format": "uuid" },
+      "timestamp": { "type": "string", "format": "date-time" },
+      "cancellation": { 
+        "type": "boolean"
+      },
+      "startDate": { "type": "string", "format": "date-time" },
+      "endDate": { "type": "string", "format": "date-time" }
+    }
+  },
 "ReadResponse": {
     "type": "object",
     "required": ["read"],

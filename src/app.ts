@@ -43,7 +43,12 @@ import { ReportService } from './services/ReportService';
 import { ReportRepository } from './repositories/ReportRepository';
 import { reportToString } from './utils/Requests';
 import { CurrentUserChecker } from 'routing-controllers/types/CurrentUserChecker';
+// import { getLoadedModel } from './utils/SentenceEncoder';
 
+dotenv.config();
+
+// TODO: Figure out how to load the model when running app.ts
+// export const encoder = await getLoadedModel();
 
 async function main() {
   routingUseContainer(Container);
