@@ -90,4 +90,16 @@ export class SearchRepository extends AbstractRepository<SearchModel> {
       .where("firebaseUid = :firebaseUid", { firebaseUid })
       .execute();
   }
+
+  public async searchSuggestions(
+    searchText: string,
+    limit: number = 5
+  ): Promise<SearchModel[]> {
+    return await this.repository
+      .createQueryBuilder("search")
+      .leftJoinAndSelect("search.user", "user")
+      .where("search.searchText ILIKE :searchText", { searchText: `%${searchText}%` })
+      .limit(limit)
+      .getMany();
+  }
 }
