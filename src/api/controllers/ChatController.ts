@@ -92,11 +92,27 @@ export class ChatController {
     const chatId = params.id;
     const doc = await chatsRef.doc(chatId).get();
     const now = new Date();
+    
+    const processedAvailabilities = chatBody.availabilities.map(availability => ({
+      startDate: new Date(availability.startDate).toISOString(),
+      endDate: new Date(availability.endDate).toISOString()
+    }));
+    
     const message = {
       "type": "availability",
       "senderID": chatBody.senderId,
       "timestamp": now,
-      "availabilities":chatBody.availabilities,
+      "availabilities": processedAvailabilities,
+    }
+    
+    const responseMessage: AvailabilityResponse = {
+      type: "availability",
+      senderID: chatBody.senderId,
+      timestamp: now,
+      availabilities: chatBody.availabilities.map(availability => ({
+        startDate: new Date(availability.startDate),
+        endDate: new Date(availability.endDate)
+      })),
     }
     if (doc.exists){
       const userCheck = await checkUsers(chatId,user.firebaseUid);
@@ -107,7 +123,7 @@ export class ChatController {
     }
     updateFirestore(chatId,doc.exists,chatBody,message,chatsRef,"");
 
-    return message;
+    return responseMessage;
   }
 
   @Post('proposal/initial/:id')
