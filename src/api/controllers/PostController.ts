@@ -43,7 +43,7 @@ export class PostController {
   }
 
   @Post()
-  async createPost(@Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) createPostRequest: CreatePostRequest): Promise<GetPostResponse> {
+  async createPost(@CurrentUser() user: UserModel, @Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) createPostRequest: CreatePostRequest): Promise<GetPostResponse> {
     return { post: await this.postService.createPost(createPostRequest) };
   }
 
@@ -145,11 +145,12 @@ export class PostController {
     return { posts: await this.postService.getSuggestedPosts(user, limit) };
   }
 
-  @Get('searchSuggestions/:searchIndex/:postCount/')
+  @Get('searchSuggestions/:searchIndex/')
   async getSearchSuggestions(
-    @Params() params: { searchIndex: string; postCount: number }
+    @Params() params: { searchIndex: string },
+    @QueryParam('count', { required: false }) count: number = 5
   ): Promise<{ postIds: string[] }> {
-    const postIds = await this.postService.getSearchSuggestions(params.searchIndex, Number(params.postCount));
+    const postIds = await this.postService.getSearchSuggestions(params.searchIndex, count);
     return { postIds };
   }
 }

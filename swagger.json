@@ -238,7 +238,7 @@
         }
       }
     },
-    "/post/searchSuggestions/{searchIndex}/{postCount}": {
+    "/post/searchSuggestions/{searchIndex}": {
       "get": {
         "summary": "Get post search suggestions by vector similarity",
         "tags": ["Post"],
@@ -251,10 +251,10 @@
             "schema": { "type": "string" }
           },
           {
-            "name": "postCount",
-            "in": "path",
+            "name": "count",
+            "in": "query",
             "description": "The number of post suggestions to return",
-            "required": true,
+            "required": false,
             "schema": { "type": "integer", "default": 5 }
           }
         ],
