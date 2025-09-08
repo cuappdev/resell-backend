@@ -89,27 +89,27 @@
         "tags": ["Post"],
         "security": [{ "bearerAuth": [] }],
         "parameters": [
-      {
-        "name": "page",
-        "in": "query",
-        "description": "Page number",
-        "required": false,
-        "schema": {
-          "type": "integer",
-          "default": 1
-        }
-      },
-      {
-        "name": "limit",
-        "in": "query",
-        "description": "Number of posts per page",
-        "required": false,
-        "schema": {
-          "type": "integer",
-          "default": 10
-        }
-      }
-    ],
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of posts per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Posts retrieved successfully",
@@ -238,6 +238,54 @@
         }
       }
     },
+    "/post/searchSuggestions/{searchIndex}": {
+      "get": {
+        "summary": "Get post search suggestions by vector similarity",
+        "tags": ["Post"],
+        "parameters": [
+          {
+            "name": "searchIndex",
+            "in": "path",
+            "description": "The ID of the SearchModel to use as the query vector",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "description": "The number of post suggestions to return",
+            "required": false,
+            "schema": { "type": "integer", "default": 5 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of post IDs ranked by vector similarity to the search query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "postIds": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Array of post IDs, most similar first"
+                    }
+                  },
+                  "required": ["postIds"]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Search not found"
+             } 
+           }
+         }
+       }
+     }
+   }
+ },
     "/post/filter": {
       "post": {
         "summary": "Filter posts (all filters) ",

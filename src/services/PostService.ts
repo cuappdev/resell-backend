@@ -1,4 +1,3 @@
-import { Tensor2D } from '@tensorflow/tfjs';
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
@@ -412,4 +411,35 @@ export class PostService {
       });
     });
   }
+
+  /**
+   * Get search suggestions based on vector similarity to a search's embedding
+   * Returns only post IDs, not full post data.
+   */
+  public async getSearchSuggestions(searchIndex: string, postCount: number): Promise<string[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const searchRepository = Repositories.search(transactionalEntityManager);
+      const postRepository = Repositories.post(transactionalEntityManager);
+      // Get the search by ID
+      const search = await searchRepository.getSearchById(searchIndex);
+        if (!search) throw new NotFoundError('Search not found!');
+        // Parse vector
+        const searchVector: number[] = JSON.parse(search.searchVector);
+        // Get active, unarchived posts
+        const allPosts = await postRepository.getAllPosts();
+        const model = await getLoadedModel();
+        // For each post, generate embedding from the title
+        const postEmbeddings = await model.embed(allPosts.map(p => p.title));
+        const embeddingsArray = postEmbeddings.arraySync();
+        // Find similarity
+        const scoredPosts = allPosts.map((post, idx) => ({
+          id: post.id,
+          similarity: this.similarity(searchVector, embeddingsArray[idx])
+        }));
+        // Sort by similarity (descending order) and choose top N
+        const topPosts = scoredPosts.sort((a, b) => b.similarity - a.similarity).slice(0, postCount);
+        return topPosts.map(p => p.id);
+    });
+  }
+  
 }
