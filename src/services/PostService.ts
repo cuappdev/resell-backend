@@ -220,7 +220,7 @@ export class PostService {
   public async getArchivedPosts(user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.getArchivedPosts();
+      const posts = await postRepository.getAllArchivedPosts();
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });

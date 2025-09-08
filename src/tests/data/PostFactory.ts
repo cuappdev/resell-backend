@@ -25,13 +25,13 @@ export class PostFactory {
          */
 
         const category1 = new CategoryModel();
-        category1.id = 'f4c9ad85-9015-45b1-b52f-5d7402313887';
-        category1.name = 'HANDMADE';
+        category1.id = 'a2b2c3d4-e5f6-7890-abcd-1234567890ef';
+        category1.name = 'CLOTHING';
         category1.posts = [];
 
         const category2 = new CategoryModel();
-        category2.id = 'a2b2c3d4-e5f6-7890-abcd-1234567890ef';
-        category2.name = 'CLOTHING';
+        category2.id = 'f4c9ad85-9015-45b1-b52f-5d7402313887';
+        category2.name = 'HANDMADE';
         category2.posts = [];
 
         const fakePost = new PostModel();

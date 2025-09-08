@@ -15,6 +15,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .where("post.archive = false")
+      .orderBy("categories.name", "ASC")
       .getMany();
   }
 
@@ -42,12 +43,13 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async getPostById(id: Uuid): Promise<PostModel | undefined> {
+  public async getPostById(id: string): Promise<PostModel | undefined> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .where("post.id = :id", { id })
+      .orderBy("categories.name", "ASC")
       .getOne();
   }
 
@@ -58,6 +60,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.categories", "categories")
       .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = false")
+      .orderBy("categories.name", "ASC")
       .getMany();
   }
 
@@ -105,6 +108,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.categories", "categories")
       .where("LOWER(post.title) like LOWER(:keywords)", { keywords: `%${keywords}%` })
       .andWhere("post.archive = false")
+      .orderBy("categories.name", "ASC")
       .getMany();
   }
 
@@ -115,6 +119,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.categories", "categories")
       .where("LOWER(post.description) like LOWER(:keywords)", { keywords: `%${keywords}%` })
       .andWhere("post.archive = false")
+      .orderBy("categories.name", "ASC")
       .getMany();
   }
 
@@ -136,6 +141,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .where("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END >= :lowerBound", { lowerBound: lowerBound })
       .andWhere("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END <= :upperBound", { upperBound: upperBound })
       .andWhere("post.archive = false")
+      .orderBy("categories.name", "ASC")
       .getMany();
   }
 
@@ -146,6 +152,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.categories", "categories")
       .where("post.archive = false")
       .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "DESC")
+      .addOrderBy("categories.name", "ASC")
       .getMany();
   }
   
@@ -156,6 +163,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.categories", "categories")
       .where("post.archive = false")
       .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "ASC")
+      .addOrderBy("categories.name", "ASC")
       .getMany();
   }
 
@@ -169,6 +177,17 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
+  public async filterDateNewToOld(): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .where("post.archive = false")
+      .orderBy("post.created", "DESC")
+      .addOrderBy("categories.name", "ASC")
+      .getMany();
+  }
+
   public async filterByCondition(conditions: string[]): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
@@ -176,6 +195,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.categories", "categories")
       .where("post.condition IN (:...conditions)", { conditions })
       .andWhere("post.archive = false")
+      .orderBy("categories.name", "ASC")
       .getMany();
   }
 
@@ -241,12 +261,13 @@ export class PostRepository extends AbstractRepository<PostModel> {
   }
   
 
-  public async getArchivedPosts(): Promise<PostModel[]> {
+  public async getAllArchivedPosts(): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .andWhere("post.archive = true")
+      .orderBy("categories.name", "ASC")
       .getMany();
   }
 
@@ -257,6 +278,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.categories", "categories")
       .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = true")
+      .orderBy("categories.name", "ASC")
       .getMany();
   }
 
