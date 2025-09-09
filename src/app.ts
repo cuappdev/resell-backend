@@ -89,8 +89,11 @@ async function main() {
         let user = await manager.findOne(UserModel, { firebaseUid: userId }, 
           { relations: ["posts", "saved", "feedbacks", "requests"] });
         if (!user) {
-          // Check if this is the user creation route
-          const isUserCreateRoute = action.request.path === '/api/user/create' || action.request.path === 'api/authorize';
+          // Check if this is the user creation route or authorization route
+          const isUserCreateRoute = action.request.path === '/api/user/create/' || 
+                                   action.request.path === '/api/user/create' || 
+                                   action.request.path === '/api/authorize' ||
+                                   action.request.path === 'api/authorize';
           if (!isUserCreateRoute) {
             throw new ForbiddenError('User not found. Please create an account first.');
           }

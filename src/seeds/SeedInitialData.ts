@@ -7,6 +7,7 @@ import { ReportModel } from '../models/ReportModel';
 import { RequestModel } from '../models/RequestModel';
 import { TransactionModel } from '../models/TransactionModel';
 import { TransactionReviewModel } from '../models/TransactionReviewModel';
+import { CategoryModel } from '../models/CategoryModel';
 import { getRepository } from 'typeorm';
 import { NotifModel } from '../models/NotifModel'
 
@@ -26,6 +27,7 @@ export default class SeedInitialData implements Seeder {
     const requestRepository = getRepository(RequestModel);
     const transactionRepository = getRepository(TransactionModel);
     const transactionReviewRepository = getRepository(TransactionReviewModel);
+    const categoryRepository = getRepository(CategoryModel);
     const notifRepository = getRepository(NotifModel)
 
     await transactionReviewRepository.delete({});
@@ -36,10 +38,19 @@ export default class SeedInitialData implements Seeder {
     await feedbackRepository.delete({});
     await notifRepository.delete({});
     await postRepository.delete({});
+    await categoryRepository.delete({});
     await userRepository.delete({});
     console.log(
       ' - Deleted all existing users, posts, feedback, reviews, reports, requests, transactions, and transaction reviews'
     );
+
+    // Create categories first
+    const categories = [];
+    const categoryNames = ['HANDMADE', 'ELECTRONICS', 'CLOTHING', 'BOOKS', 'FURNITURE'];
+    for (const categoryName of categoryNames) {
+      const category = await factory(CategoryModel)({ name: categoryName }).create();
+      categories.push(category);
+    }
 
     // Create users, posts, feedback, reviews, reports, and requests
     const users = [];
@@ -52,7 +63,8 @@ export default class SeedInitialData implements Seeder {
       // Create posts for users with an odd index
       if (i % 2 !== 0) {
         for (let j = 1; j <= 2; j++) {
-          const post = await factory(PostModel)({ index: j, user }).create();
+          const selectedCategories = [categories[0]];
+          const post = await factory(PostModel)({ index: j, user, categories: selectedCategories }).create();
           posts.push(post);
         }
       }

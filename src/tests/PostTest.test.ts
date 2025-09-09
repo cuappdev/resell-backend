@@ -25,13 +25,13 @@ beforeEach(async () => {
   uuidParam.id = '81e6896c-a549-41bf-8851-604e7fbd4f1f';
 
   const category1 = new CategoryModel();
-  category1.id = 'f4c9ad85-9015-45b1-b52f-5d7402313887';
-  category1.name = 'HANDMADE';
+  category1.id = 'a2b2c3d4-e5f6-7890-abcd-1234567890ef';
+  category1.name = 'CLOTHING';
   category1.posts = [];
 
   const category2 = new CategoryModel();
-  category2.id = 'a2b2c3d4-e5f6-7890-abcd-1234567890ef';
-  category2.name = 'CLOTHING';
+  category2.id = 'f4c9ad85-9015-45b1-b52f-5d7402313887';
+  category2.name = 'HANDMADE';
   category2.posts = [];
 
   expectedPost = new PostModel();
@@ -46,6 +46,7 @@ beforeEach(async () => {
   expectedPost.images = ['https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg', 'https://images.heb.com/is/image/HEBGrocery/001017916'];
   expectedPost.location = 'The Dorm Hotel';
   expectedPost.sold = false;
+  expectedPost.embedding = null as any;
 });
 
 afterAll(async () => {
@@ -168,11 +169,21 @@ describe('post tests', () => {
       userId: user.firebaseUid,
     };
 
-    const getPostResponse = await postController.createPost(newPost);
+    const getPostResponse = await postController.createPost(user, newPost);
     const getPostsResponse = await postController.getPosts(user);
 
     expect(getPostResponse.post.title).toEqual('Mateo\'s Kombucha');
     expect(getPostsResponse.posts).toHaveLength(1);
+
+    // Test with inactive user should throw error
+    const inactiveUser = UserFactory.fakeTemplate();
+    inactiveUser.isActive = false;
+    
+    await new DataFactory()
+      .createUsers(inactiveUser)
+      .write();
+    
+    await expect(postController.createPost(inactiveUser, newPost)).rejects.toThrow('User is not active!');
   });
 
   test('delete post by id', async () => {

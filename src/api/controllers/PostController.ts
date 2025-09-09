@@ -45,7 +45,7 @@ export class PostController {
 
   @Post()
   async createPost(@CurrentUser() user: UserModel, @Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) createPostRequest: CreatePostRequest): Promise<GetPostResponse> {
-    return { post: await this.postService.createPost(createPostRequest) };
+    return { post: (await this.postService.createPost(createPostRequest, user)).getPostInfo() };
   }
 
   @Delete('id/:id/')

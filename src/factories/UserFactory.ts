@@ -7,6 +7,7 @@ define(UserModel, (_, context?: { index?: number }) => {
   const user = new UserModel();
   const index = context?.index ?? 1; // Default to 1 if context or index is undefined
 
+  user.firebaseUid = `firebase_uid_${index}`;
   user.username = `user${index}`;
   user.netid = `netid${index}`;
   user.givenName = `GivenName${index}`;

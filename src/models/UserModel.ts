@@ -20,10 +20,6 @@ export class UserModel {
   @PrimaryColumn({ name: "firebaseUid" })
   firebaseUid: string;
 
-  /** @deprecated This column will be removed after the AuthorizationRefactor migration */
-  @Column({ nullable: true })
-  id: string;
-
   @Column({ unique: true })
   username: string;
 
