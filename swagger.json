@@ -279,13 +279,10 @@
           },
           "404": {
             "description": "Search not found"
-             } 
-           }
-         }
-       }
-     }
-   }
- },
+          }
+        }
+      }
+    },
     "/post/filter": {
       "post": {
         "summary": "Filter posts (all filters) ",
