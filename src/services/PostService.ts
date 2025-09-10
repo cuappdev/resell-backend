@@ -396,6 +396,34 @@ export class PostService {
     return posts.filter((post) => post.user?.isActive);
   }
 
+  /**
+   * Calculate cosine similarity between two vectors
+   */
+  private similarity(vectorA: number[], vectorB: number[]): number {
+    if (vectorA.length !== vectorB.length) {
+      throw new Error('Vectors must have the same length');
+    }
+    
+    let dotProduct = 0;
+    let normA = 0;
+    let normB = 0;
+    
+    for (let i = 0; i < vectorA.length; i++) {
+      dotProduct += vectorA[i] * vectorB[i];
+      normA += vectorA[i] * vectorA[i];
+      normB += vectorB[i] * vectorB[i];
+    }
+    
+    normA = Math.sqrt(normA);
+    normB = Math.sqrt(normB);
+    
+    if (normA === 0 || normB === 0) {
+      return 0; // Handle zero vectors
+    }
+    
+    return dotProduct / (normA * normB);
+  }
+
   public async filterBlockedUserPosts(posts: PostModel[], user: UserModel): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
