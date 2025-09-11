@@ -164,6 +164,13 @@ export class PostService {
   public async filterPostsByCategories(user: UserModel, filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
+
+      // checking null and undefined, should return empty array if so
+      if (!filterPostsRequest.categories || 
+        filterPostsRequest.categories.length === 0 ||
+        !filterPostsRequest.categories.every(cat => typeof cat === 'string' && cat.trim().length > 0)) {
+        return [];
+      }
       const posts = await postRepository.filterPostsByCategories(filterPostsRequest.categories);
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
@@ -393,6 +400,9 @@ export class PostService {
   }
 
   public filterInactiveUserPosts(posts: PostModel[]): PostModel[] {
+    if (!posts || !Array.isArray(posts)) {
+      return [];
+    }
     return posts.filter((post) => post.user?.isActive);
   }
 
@@ -429,6 +439,12 @@ export class PostService {
       const userRepository = Repositories.user(transactionalEntityManager);
       const userWithBlockedInfo = await userRepository.getUserWithBlockedInfo(user.firebaseUid);
       const blockedUsers = userWithBlockedInfo?.blocking;
+
+      // checking null and undefined, should return empty array
+      if (!posts || !Array.isArray(posts)) {
+        return [];
+      }
+
       return posts.filter((post) => {
         if (blockedUsers) {
           for (const blockedUser of blockedUsers) {
