@@ -94,8 +94,8 @@ export class ChatController {
     const now = new Date();
     
     const processedAvailabilities = chatBody.availabilities.map(availability => ({
-      startDate: new Date(availability.startDate).toISOString(),
-      endDate: new Date(availability.endDate).toISOString()
+      startDate: new Date(availability.startDate),
+      endDate: new Date(availability.endDate)
     }));
     
     const message = {
@@ -109,10 +109,7 @@ export class ChatController {
       type: "availability",
       senderID: chatBody.senderId,
       timestamp: now,
-      availabilities: chatBody.availabilities.map(availability => ({
-        startDate: new Date(availability.startDate),
-        endDate: new Date(availability.endDate)
-      })),
+      availabilities: processedAvailabilities,
     }
     if (doc.exists){
       const userCheck = await checkUsers(chatId,user.firebaseUid);
