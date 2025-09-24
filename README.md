@@ -190,11 +190,58 @@ If you are encountering any migrations errors, use this as a last resort!
 
 ---
 
-## Seeding Data for Development Environment (in process of changing)
+## Database Setup for Local Development
+
+### Option 1: Import Dev Database (Recommended)
+
+To work with the same data as the dev environment, you can import a copy of the dev database into your local setup. This works with both Docker and native postgres installations.
+
+#### Step 1: Create Database Dump from Dev Environment
+
+First, update the dev database connection details in `scripts/dump-dev-db.sh`:
+```bash
+DEV_DB_HOST="localhost"
+DEV_DB_NAME="resell-dev"
+DEV_DB_USERNAME="postgres"
+```
+
+Then create the dump:
+```bash
+./scripts/dump-dev-db.sh
+```
+
+#### Step 2: Import into Local Database
+
+The import script automatically detects your postgres setup (Docker or native) and imports accordingly:
+```bash
+./scripts/import-dev-data.sh
+```
+
+**What these commands do:**
+
+The first command will:
+- Detect your `my_postgres` Docker container
+- Create a dump from your `resell-dev` database
+- Save it to `dumps/dev_db_dump_[timestamp].sql`
+
+The second command will:
+- Find the dump file you just created
+- Import it into your `resell-test` database
+- Show you a summary of imported data
+
+**Manual Override Options:**
+- Force Docker: `FORCE_DOCKER=1 ./scripts/import-dev-data.sh`
+- Force Native: `FORCE_NATIVE=1 ./scripts/import-dev-data.sh`
+
+**Supported Setups:**
+- Docker containers (like `my_postgres`)
+- Native PostgreSQL installations (Homebrew, apt, etc.)
+- Custom PostgreSQL setups on localhost:5432
+
+### Option 2: Use Data Seeder (Alternative)
 
 This project includes a mechanism for seeding consistent data for the dev environment using TypeORM and typeorm-seeding. 
 The seeders generate users, posts, feedback, reviews, reports, and requests, making sure all devs work with the same data set.
-This however is in the process of being updated to include the actual data in the dev environment.
 
 ### Running the Seeder
 
