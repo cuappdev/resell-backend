@@ -25,6 +25,10 @@
       "description": "Post management endpoints"
     },
     {
+      "name": "Search",
+      "description": "Search management endpoints"
+    },
+    {
       "name": "Notification",
       "description": "Notification management endpoints"
     },
