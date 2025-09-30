@@ -88,6 +88,11 @@ export interface GetPostsResponse {
   posts: Post[];
 }
 
+export interface GetSearchedPostsResponse {
+  posts: Post[];
+  searchId: string;
+}
+
 export interface GetPostResponse {
   post: Post;
 }

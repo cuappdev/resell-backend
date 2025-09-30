@@ -13,6 +13,7 @@ import {
   GetPostResponse,
   GetPostsResponse,
   GetSearchedPostsRequest,
+  GetSearchedPostsResponse,
   IsSavedPostResponse,
 } from '../../types';
 import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
@@ -54,8 +55,9 @@ export class PostController {
   }
 
   @Post('search/')
-  async searchPosts(@CurrentUser() user: UserModel, @Body() getSearchedPostsRequest: GetSearchedPostsRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.searchPosts(user, getSearchedPostsRequest) };
+  async searchPosts(@CurrentUser() user: UserModel, @Body() getSearchedPostsRequest: GetSearchedPostsRequest): Promise<GetSearchedPostsResponse> {
+    const result = await this.postService.searchPosts(user, getSearchedPostsRequest);
+    return { posts: result.posts, searchId: result.searchId };
   }
 
   @Post('filterByCategories/')

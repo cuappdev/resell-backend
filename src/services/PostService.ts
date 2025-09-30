@@ -115,19 +115,20 @@ export class PostService {
     });
   }
 
-  public async searchPosts(user: UserModel, getSearchedPostsRequest: GetSearchedPostsRequest): Promise<PostModel[]> {
+  public async searchPosts(user: UserModel, getSearchedPostsRequest: GetSearchedPostsRequest): Promise<{ posts: PostModel[], searchId: string }> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       
-      // Record the search in the searches table
+      // Record the search and get the search ID
       const searchService = new SearchService();
+      let searchId = '';
       try {
-        // Store the search asynchronously to not block the search results
-        searchService.createSearch(getSearchedPostsRequest.keywords, user.firebaseUid)
-          .catch(error => console.error("Error recording search:", error));
+        // Store the search and get the ID
+        const search = await searchService.createSearch(getSearchedPostsRequest.keywords, user.firebaseUid);
+        searchId = search.id;
       } catch (error) {
         // Log error but don't fail the search operation
-        console.error("Error initiating search recording:", error);
+        console.error("Error recording search:", error);
       }
       
       const postsByTitle = await postRepository.searchPostsByTitle(getSearchedPostsRequest.keywords);
@@ -147,7 +148,9 @@ export class PostService {
         }
       });
       let activePosts = this.filterInactiveUserPosts(posts);
-      return this.filterBlockedUserPosts(activePosts, user);
+      const filteredPosts = await this.filterBlockedUserPosts(activePosts, user);
+      
+      return { posts: filteredPosts, searchId };
     });
   }
 

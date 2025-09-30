@@ -25,6 +25,10 @@
       "description": "Post management endpoints"
     },
     {
+      "name": "Search",
+      "description": "Search management endpoints"
+    },
+    {
       "name": "Notification",
       "description": "Notification management endpoints"
     },
@@ -279,6 +283,64 @@
           },
           "404": {
             "description": "Search not found"
+          }
+        }
+      }
+    },
+    "/search": {
+      "get": {
+        "summary": "Get user's search history",
+        "tags": ["Search"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Maximum number of searches to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search history retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSearchesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new search record",
+        "tags": ["Search"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSearchResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3511,6 +3573,49 @@
           "posts": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/Post" }
+          }
+        }
+      },
+      "GetSearchedPostsResponse": {
+        "type": "object",
+        "required": ["posts", "searchId"],
+        "properties": {
+          "posts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Post" }
+          },
+          "searchId": { "type": "string" }
+        }
+      },
+      "CreateSearchRequest": {
+        "type": "object",
+        "required": ["searchText"],
+        "properties": {
+          "searchText": { "type": "string" }
+        }
+      },
+      "CreateSearchResponse": {
+        "type": "object",
+        "required": ["searchId", "searchText"],
+        "properties": {
+          "searchId": { "type": "string" },
+          "searchText": { "type": "string" }
+        }
+      },
+      "GetSearchesResponse": {
+        "type": "object",
+        "required": ["searches"],
+        "properties": {
+          "searches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "searchText": { "type": "string" },
+                "createdAt": { "type": "string", "format": "date-time" }
+              }
+            }
           }
         }
       }
