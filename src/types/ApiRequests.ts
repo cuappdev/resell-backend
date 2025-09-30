@@ -42,7 +42,7 @@ export interface CreateUserRequest {
     netid: string;
     givenName: string;
     familyName: string;
-    photoUrl: string;
+    photoUrl?: string; 
     venmoHandle: string;
     email: string;
     googleId: string;

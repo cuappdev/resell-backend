@@ -20,27 +20,29 @@ export class UserService {
   public async createUser(user: UserModel, createUserRequest: CreateUserRequest): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
+      // Use placeholder
+      const photoUrl = createUserRequest.photoUrl || 'https://via.placeholder.com/150x150?text=User';
       const makeUser = await userRepository.createUser(
         user.firebaseUid,
         createUserRequest.username,
         createUserRequest.netid,
         createUserRequest.givenName,
         createUserRequest.familyName,
-        createUserRequest.photoUrl,
+        photoUrl,
         createUserRequest.venmoHandle,
         createUserRequest.email,
         createUserRequest.googleId,
         createUserRequest.bio
       );
-        const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
-        const token = await fcmRepository.createFcmToken(
-          createUserRequest.fcmToken,
-          true,
-          new Date(),
-          makeUser
-        );
-        makeUser.tokens = [token];
-        return makeUser;
+      const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
+      const token = await fcmRepository.createFcmToken(
+        createUserRequest.fcmToken,
+        true,
+        new Date(),
+        makeUser
+      );
+      makeUser.tokens = [token];
+      return makeUser;
     });
   }
 

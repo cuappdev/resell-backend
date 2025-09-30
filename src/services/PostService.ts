@@ -62,10 +62,16 @@ export class PostService {
       if (!user.isActive) throw new NotFoundError('User is not active!');
       const postRepository = Repositories.post(transactionalEntityManager);
       const images: string[] = [];
-      for (const imageBase64 of post.imagesBase64) {
-        const image = await uploadImage(imageBase64);
-        const imageUrl = image.data;
-        images.push(imageUrl);
+      if (post.imagesBase64 && post.imagesBase64.length > 0) {
+        for (const imageBase64 of post.imagesBase64) {
+          try {
+            const image = await uploadImage(imageBase64);
+            const imageUrl = image.data;
+            images.push(imageUrl);
+          } catch (error) {
+            console.warn('Upload service failed for image, skipping:', error);
+          }
+        }
       }
       const categoryRepository = Repositories.category(transactionalEntityManager);
       const categories = await categoryRepository.findOrCreateByNames(post.categories);
