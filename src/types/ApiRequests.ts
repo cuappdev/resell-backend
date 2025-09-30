@@ -12,7 +12,7 @@ export interface FcmTokenRequest {
 
 export interface emailAndPass {
     email: string;
-    password:string;
+    password: string;
 }
 
 export interface GoogleLoginUser {
@@ -74,10 +74,10 @@ export interface UnblockUserRequest {
 export type PostSortField = 'any' | 'priceLowToHigh' | 'priceHighToLow' | 'newlyListed';
 
 export interface FilterPostsUnifiedRequest {
-  sortField?: PostSortField;
-  price?: { lowerBound?: number; upperBound?: number };
-  categories?: string[];
-  condition?: string;
+    sortField?: PostSortField;
+    price?: { lowerBound?: number; upperBound?: number };
+    categories?: string[];
+    condition?: string[];
 }
 
 export interface CreatePostRequest {
@@ -99,7 +99,7 @@ export interface EditPostPriceRequest {
 }
 
 // FEEDBACK
-  
+
 export interface CreateFeedbackRequest {
     description: string;
     images: string[];
@@ -159,7 +159,7 @@ export interface NotificationData {
 
 export interface TokenWrapper {
     token: string;
-  }
+}
 
 export interface SaveTokenRequest {
     token: string;
@@ -192,12 +192,12 @@ export interface ReportPostRequest {
     post: Uuid;
     reason: string;
 }
-  
+
 export interface ReportProfileRequest {
     reported: Uuid;
     reason: string;
 }
-  
+
 export interface ReportMessageRequest {
     reported: Uuid;
     message: MessageModel;
@@ -231,7 +231,7 @@ export interface CreateChatMessage {
     sellerId: Uuid;
     senderId: Uuid;
     text: string;
-    images:string[]
+    images: string[]
 }
 
 export interface CreateAvailabilityChat {
@@ -240,14 +240,14 @@ export interface CreateAvailabilityChat {
     buyerId: Uuid;
     sellerId: Uuid;
     senderId: Uuid,
-    availabilities:AvailabilityList[] //TODO: not sure if this works
+    availabilities: AvailabilityList[] //TODO: not sure if this works
 }
 
 export interface AvailabilityList {
     startDate: Date;
     endDate: Date;
 }
-  
+
 export interface CreateProposalChat {
     type: string;
     listingId: Uuid;
@@ -268,4 +268,3 @@ export interface RespondProposalChat {
     endDate: Date;
     accepted: boolean
 }
-  
