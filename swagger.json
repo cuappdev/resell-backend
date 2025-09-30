@@ -3111,7 +3111,8 @@
             "items": { "type": "string" }
           },
           "condition": {
-            "type": "string"
+            "type": "array",
+            "items": { "type": "string" }
           }
         }
       },

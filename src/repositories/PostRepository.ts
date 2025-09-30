@@ -29,10 +29,10 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .skip(skip)
       .take(limit)
       .getMany();
-  
+
     const ids = postIds.map(post => post.id);
     if (ids.length === 0) return [];
-  
+
     // Step 2: Fetch full posts with relations
     return await this.repository
       .createQueryBuilder("post")
@@ -155,7 +155,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .addOrderBy("categories.name", "ASC")
       .getMany();
   }
-  
+
   public async filterPriceLowToHigh(): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
@@ -199,7 +199,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-    public async filterPostsUnified(filterPostsUnifiedRequest: FilterPostsUnifiedRequest): Promise<PostModel[]> {
+  public async filterPostsUnified(filterPostsUnifiedRequest: FilterPostsUnifiedRequest): Promise<PostModel[]> {
     const qb = this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
@@ -230,9 +230,9 @@ export class PostRepository extends AbstractRepository<PostModel> {
     }
 
     // Condition
-    if (filterPostsUnifiedRequest.condition) {
-      qb.andWhere("post.condition = :condition", {
-        condition: filterPostsUnifiedRequest.condition,
+    if (filterPostsUnifiedRequest.condition && filterPostsUnifiedRequest.condition.length > 0) {
+      qb.andWhere("post.condition IN (:...conditions)", {
+        conditions: filterPostsUnifiedRequest.condition,
       });
     }
 
@@ -259,7 +259,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
 
     return await qb.getMany();
   }
-  
+
 
   public async getAllArchivedPosts(): Promise<PostModel[]> {
     return await this.repository
@@ -330,7 +330,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .setParameters({ embedding: queryEmbedding })
       .limit(10)
       .getMany();
-  }  
+  }
 
   /*
   This method is for getting similar posts given a request embedding.
@@ -428,7 +428,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       ORDER BY cs.total_score DESC, p.created DESC
       LIMIT $2;
     `, [userId, limit]);
-    
+
     // Convert query res to PostModel entities
     return await Promise.all(
       posts.map(async (post: any) => {
