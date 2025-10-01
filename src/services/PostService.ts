@@ -488,5 +488,67 @@ export class PostService {
         return topPosts.map(p => p.id);
     });
   }
+
+  /**
+   * Get purchase suggestions based on vector similarity to user's purchase history
+   * Returns only post IDs, not full post data.
+   */
+  public async getPurchaseSuggestions(user: UserModel, limit: number = 10): Promise<string[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const transactionRepository = Repositories.transaction(transactionalEntityManager);
+      const postRepository = Repositories.post(transactionalEntityManager);
+
+      // Get user's purchase history (completed transactions where user is buyer)
+      const userTransactions = await transactionRepository.getTransactionsByBuyerId(user.firebaseUid);
+      const completedTransactions = userTransactions.filter(t => t.completed);
+
+      // If user hasn't bought anything, return empty array
+      if (completedTransactions.length === 0) {
+        return [];
+      }
+
+      // Extract posts from completed transactions and create embeddings
+      const purchasedPosts = completedTransactions.map(t => t.post).filter(p => p != null);
+      if (purchasedPosts.length === 0) {
+        return [];
+      }
+
+      const model = await getLoadedModel();
+      // Create embeddings from purchased post titles and descriptions
+      const purchaseTexts = purchasedPosts.map(p => `${p.title} ${p.description}`);
+      const purchaseEmbeddings = await model.embed(purchaseTexts);
+      const purchaseEmbeddingsArray = purchaseEmbeddings.arraySync();
+
+      // Calculate average embedding vector from all purchases
+      const avgEmbedding = new Array(purchaseEmbeddingsArray[0].length).fill(0);
+      for (const embedding of purchaseEmbeddingsArray) {
+        for (let i = 0; i < embedding.length; i++) {
+          avgEmbedding[i] += embedding[i];
+        }
+      }
+      for (let i = 0; i < avgEmbedding.length; i++) {
+        avgEmbedding[i] /= purchaseEmbeddingsArray.length;
+      }
+
+      // Get all active, unarchived posts (excluding user's own posts)
+      const allPosts = await postRepository.getAllPosts();
+      const filteredPosts = allPosts.filter(p => p.user?.firebaseUid !== user.firebaseUid);
+
+      // Create embeddings for all posts
+      const postTexts = filteredPosts.map(p => `${p.title} ${p.description}`);
+      const postEmbeddings = await model.embed(postTexts);
+      const postEmbeddingsArray = postEmbeddings.arraySync();
+
+      // Calculate similarity scores
+      const scoredPosts = filteredPosts.map((post, idx) => ({
+        id: post.id,
+        similarity: this.similarity(avgEmbedding, postEmbeddingsArray[idx])
+      }));
+
+      // Sort by similarity (descending order) and choose top N
+      const topPosts = scoredPosts.sort((a, b) => b.similarity - a.similarity).slice(0, limit);
+      return topPosts.map(p => p.id);
+    });
+  }
   
 }

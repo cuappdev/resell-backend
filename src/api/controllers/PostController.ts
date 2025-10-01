@@ -164,4 +164,13 @@ export class PostController {
     const postIds = await this.postService.getSearchSuggestions(params.searchIndex, count);
     return { postIds };
   }
+
+  @Get('purchaseSuggestions/')
+  async getPurchaseSuggestions(
+    @CurrentUser() user: UserModel,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<{ postIds: string[] }> {
+    const postIds = await this.postService.getPurchaseSuggestions(user, limit);
+    return { postIds };
+  }
 }
