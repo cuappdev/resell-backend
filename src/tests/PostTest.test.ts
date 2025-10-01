@@ -1024,10 +1024,12 @@ describe('post tests', () => {
     post1.user = seller;
     post1.title = 'Electronics Device';
     post1.description = 'A great electronic gadget';
+    post1.embedding = new Array(512).fill(0.1); // Mock embedding
 
     post2.user = seller;
     post2.title = 'Similar Electronic Item';
     post2.description = 'Another electronic device';
+    post2.embedding = new Array(512).fill(0.12); // Similar mock embedding
 
     // Create a completed transaction (purchase history)
     const transaction = TransactionFactory.fakeTemplate();
@@ -1046,6 +1048,9 @@ describe('post tests', () => {
 
     expect(response).toHaveProperty('postIds');
     expect(Array.isArray(response.postIds)).toBe(true);
+    expect(response.postIds.length).toBeGreaterThan(0);
+    // Should include post2 since it's similar to purchased post1
+    expect(response.postIds).toContain(post2.id);
   });
 
   test('get purchase suggestions - custom limit parameter', async () => {
@@ -1054,6 +1059,7 @@ describe('post tests', () => {
     const post = PostFactory.fake();
 
     post.user = seller;
+    post.embedding = new Array(512).fill(0.1); // Mock embedding
 
     // Create a completed transaction
     const transaction = TransactionFactory.fakeTemplate();
@@ -1080,6 +1086,7 @@ describe('post tests', () => {
     const post = PostFactory.fake();
 
     post.user = seller;
+    post.embedding = new Array(512).fill(0.1); // Mock embedding
 
     // Create an incomplete transaction (should not affect suggestions)
     const transaction = TransactionFactory.fakeTemplate();
@@ -1105,35 +1112,54 @@ describe('post tests', () => {
     const seller2 = UserFactory.fake();
     const seller3 = UserFactory.fake();
 
+    // Create embeddings that represent semantic similarity
+    // Gaming/electronics posts will have similar embeddings (high values in first half)
+    const gamingEmbedding = new Array(512).fill(0);
+    for (let i = 0; i < 256; i++) gamingEmbedding[i] = 0.8; // Electronics features
+
+    const verySimilarEmbedding = new Array(512).fill(0);
+    for (let i = 0; i < 256; i++) verySimilarEmbedding[i] = 0.75; // Very similar to gaming
+
+    const somewhatSimilarEmbedding = new Array(512).fill(0);
+    for (let i = 0; i < 256; i++) somewhatSimilarEmbedding[i] = 0.5; // Somewhat similar
+
+    const differentEmbedding = new Array(512).fill(0);
+    for (let i = 256; i < 512; i++) differentEmbedding[i] = 0.8; // Different features (food/organic)
+
     // User's purchased post (electronics)
     const purchasedPost = PostFactory.fake();
     purchasedPost.user = seller1;
     purchasedPost.title = 'Gaming Laptop';
     purchasedPost.description = 'High performance gaming laptop with RTX graphics card';
+    purchasedPost.embedding = gamingEmbedding;
 
     // User's own post (should be excluded)
     const ownPost = PostFactory.fake();
     ownPost.user = buyer;
     ownPost.title = 'My Gaming Setup';
     ownPost.description = 'My personal gaming computer setup';
+    ownPost.embedding = gamingEmbedding.slice(); // Copy of gaming embedding
 
     // Very similar post (should rank highest)
     const verySimilarPost = PostFactory.fake();
     verySimilarPost.user = seller2;
     verySimilarPost.title = 'Gaming Computer';
     verySimilarPost.description = 'Powerful gaming computer with high-end graphics card for gaming';
+    verySimilarPost.embedding = verySimilarEmbedding;
 
     // Somewhat similar post (should rank lower)
     const somewhatSimilarPost = PostFactory.fake();
     somewhatSimilarPost.user = seller3;
     somewhatSimilarPost.title = 'Electronics Device';
     somewhatSimilarPost.description = 'Electronic gadget for tech enthusiasts';
+    somewhatSimilarPost.embedding = somewhatSimilarEmbedding;
 
     // Completely different post (should rank lowest)
     const differentPost = PostFactory.fake();
     differentPost.user = seller3;
     differentPost.title = 'Organic Vegetables';
     differentPost.description = 'Fresh organic vegetables from local farm';
+    differentPost.embedding = differentEmbedding;
 
     // Create a completed transaction (purchase history)
     const transaction = TransactionFactory.fakeTemplate();
@@ -1174,32 +1200,57 @@ describe('post tests', () => {
     const seller2 = UserFactory.fake();
     const seller3 = UserFactory.fake();
 
+    // Create embeddings for electronics (high in first third)
+    const electronicsEmbedding = new Array(512).fill(0);
+    for (let i = 0; i < 170; i++) electronicsEmbedding[i] = 0.8;
+
+    // Create embeddings for books (high in middle third)
+    const bookEmbedding = new Array(512).fill(0);
+    for (let i = 170; i < 340; i++) bookEmbedding[i] = 0.8;
+
+    // Electronics recommendation (similar to electronics)
+    const electronicsRecEmbedding = new Array(512).fill(0);
+    for (let i = 0; i < 170; i++) electronicsRecEmbedding[i] = 0.75;
+
+    // Book recommendation (similar to books)
+    const bookRecEmbedding = new Array(512).fill(0);
+    for (let i = 170; i < 340; i++) bookRecEmbedding[i] = 0.75;
+
+    // Unrelated (high in last third)
+    const unrelatedEmbedding = new Array(512).fill(0);
+    for (let i = 340; i < 512; i++) unrelatedEmbedding[i] = 0.8;
+
     // User's purchase history: electronics and books
     const electronicsPost = PostFactory.fake();
     electronicsPost.user = seller1;
     electronicsPost.title = 'Smartphone Device';
     electronicsPost.description = 'Latest smartphone with advanced features';
+    electronicsPost.embedding = electronicsEmbedding;
 
     const bookPost = PostFactory.fake();
     bookPost.user = seller1;
     bookPost.title = 'Programming Book';
     bookPost.description = 'Computer science textbook for learning programming';
+    bookPost.embedding = bookEmbedding;
 
     // Available posts for recommendation
     const electronicsRecommendation = PostFactory.fake();
     electronicsRecommendation.user = seller2;
     electronicsRecommendation.title = 'Tablet Computer';
     electronicsRecommendation.description = 'Portable tablet device with touchscreen';
+    electronicsRecommendation.embedding = electronicsRecEmbedding;
 
     const bookRecommendation = PostFactory.fake();
     bookRecommendation.user = seller2;
     bookRecommendation.title = 'Software Engineering';
     bookRecommendation.description = 'Textbook about software development and programming';
+    bookRecommendation.embedding = bookRecEmbedding;
 
     const unrelatedPost = PostFactory.fake();
     unrelatedPost.user = seller3;
     unrelatedPost.title = 'Kitchen Utensils';
     unrelatedPost.description = 'Set of cooking tools and kitchen equipment';
+    unrelatedPost.embedding = unrelatedEmbedding;
 
     // Create completed transactions (purchase history)
     const transaction1 = TransactionFactory.fake();

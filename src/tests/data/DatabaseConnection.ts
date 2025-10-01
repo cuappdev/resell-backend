@@ -18,6 +18,8 @@ export class DatabaseConnection {
         type: 'postgres',
         username: 'postgres',
       });
+      // Ensure pgvector extension is installed for tests
+      await DatabaseConnection.conn.query('CREATE EXTENSION IF NOT EXISTS vector');
     }
     return DatabaseConnection.conn;
   }
