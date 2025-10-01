@@ -1,5 +1,4 @@
 import fetch from 'node-fetch';
-import FormData from 'form-data';
 import { GetReportsResponse } from 'src/types/ApiResponses';
 
 export async function externalRequest(url: string, method: string, body={}): Promise<any> {
@@ -14,26 +13,14 @@ export async function externalRequest(url: string, method: string, body={}): Pro
 }
 
 export async function uploadImage(imageBase64: string): Promise<any> {
-  if (!process.env.IMAGE_UPLOAD_URL) {
+  const requestBody = {
+    bucket: process.env.UPLOAD_BUCKET_NAME,
+    image: imageBase64
+  }
+  if (process.env.IMAGE_UPLOAD_URL === undefined) {
     throw new Error('IMAGE_UPLOAD_URL is not defined');
   }
-
-  // Convert base64 to buffer
-  const imageBuffer = Buffer.from(imageBase64, 'base64');
-  const form = new FormData();
-  form.append('image', imageBuffer, { filename: 'image.jpg' });
-  
-  if (process.env.UPLOAD_BUCKET_NAME) {
-    form.append('bucket', process.env.UPLOAD_BUCKET_NAME);
-  }
-  const response = await fetch(process.env.IMAGE_UPLOAD_URL, {
-    method: 'POST',
-    body: form,
-  });
-  if (!response.ok) {
-    throw new Error(`Upload failed: ${response.statusText}`);
-  }
-  return await response.json();
+  return await externalRequest(process.env.IMAGE_UPLOAD_URL, 'POST', requestBody);
 }
 
 export function reportToString(reports: GetReportsResponse): string {
