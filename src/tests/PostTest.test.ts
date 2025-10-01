@@ -5,7 +5,7 @@ import { UuidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
 import { CategoryModel } from '../models/CategoryModel';
 import { ControllerFactory } from './controllers';
-import { DatabaseConnection, DataFactory, PostFactory, UserFactory } from './data';
+import { DatabaseConnection, DataFactory, PostFactory, UserFactory, TransactionFactory } from './data';
 
 let uuidParam: UuidParam;
 let expectedPost: PostModel;
@@ -1000,6 +1000,249 @@ describe('post tests', () => {
       await postController.getPostById(UserFactory.fake(), uuidParam);
     } catch (error) {
       expect(error.message).toEqual('User is not active!');
+    }
+  });
+
+  test('get purchase suggestions - user with no purchase history', async () => {
+    const user = UserFactory.fakeTemplate();
+
+    await new DataFactory()
+      .createUsers(user)
+      .write();
+
+    const response = await postController.getPurchaseSuggestions(user);
+
+    expect(response.postIds).toEqual([]);
+  });
+
+  test('get purchase suggestions - user with purchase history', async () => {
+    const buyer = UserFactory.fakeTemplate();
+    const seller = UserFactory.fake();
+    const post1 = PostFactory.fake();
+    const post2 = PostFactory.fake();
+
+    post1.user = seller;
+    post1.title = 'Electronics Device';
+    post1.description = 'A great electronic gadget';
+
+    post2.user = seller;
+    post2.title = 'Similar Electronic Item';
+    post2.description = 'Another electronic device';
+
+    // Create a completed transaction (purchase history)
+    const transaction = TransactionFactory.fakeTemplate();
+    transaction.buyer = buyer;
+    transaction.seller = seller;
+    transaction.post = post1;
+    transaction.completed = true;
+
+    await new DataFactory()
+      .createUsers(buyer, seller)
+      .createPosts(post1, post2)
+      .createTransactions(transaction)
+      .write();
+
+    const response = await postController.getPurchaseSuggestions(buyer, 10);
+
+    expect(response).toHaveProperty('postIds');
+    expect(Array.isArray(response.postIds)).toBe(true);
+  });
+
+  test('get purchase suggestions - custom limit parameter', async () => {
+    const buyer = UserFactory.fakeTemplate();
+    const seller = UserFactory.fake();
+    const post = PostFactory.fake();
+
+    post.user = seller;
+
+    // Create a completed transaction
+    const transaction = TransactionFactory.fakeTemplate();
+    transaction.buyer = buyer;
+    transaction.seller = seller;
+    transaction.post = post;
+    transaction.completed = true;
+
+    await new DataFactory()
+      .createUsers(buyer, seller)
+      .createPosts(post)
+      .createTransactions(transaction)
+      .write();
+
+    const response = await postController.getPurchaseSuggestions(buyer, 5);
+
+    expect(response).toHaveProperty('postIds');
+    expect(Array.isArray(response.postIds)).toBe(true);
+  });
+
+  test('get purchase suggestions - user with incomplete transactions', async () => {
+    const buyer = UserFactory.fakeTemplate();
+    const seller = UserFactory.fake();
+    const post = PostFactory.fake();
+
+    post.user = seller;
+
+    // Create an incomplete transaction (should not affect suggestions)
+    const transaction = TransactionFactory.fakeTemplate();
+    transaction.buyer = buyer;
+    transaction.seller = seller;
+    transaction.post = post;
+    transaction.completed = false;
+
+    await new DataFactory()
+      .createUsers(buyer, seller)
+      .createPosts(post)
+      .createTransactions(transaction)
+      .write();
+
+    const response = await postController.getPurchaseSuggestions(buyer);
+
+    expect(response.postIds).toEqual([]);
+  });
+
+  test('get purchase suggestions - excludes user own posts and ranks by similarity', async () => {
+    const buyer = UserFactory.fakeTemplate();
+    const seller1 = UserFactory.fake();
+    const seller2 = UserFactory.fake();
+    const seller3 = UserFactory.fake();
+
+    // User's purchased post (electronics)
+    const purchasedPost = PostFactory.fake();
+    purchasedPost.user = seller1;
+    purchasedPost.title = 'Gaming Laptop';
+    purchasedPost.description = 'High performance gaming laptop with RTX graphics card';
+
+    // User's own post (should be excluded)
+    const ownPost = PostFactory.fake();
+    ownPost.user = buyer;
+    ownPost.title = 'My Gaming Setup';
+    ownPost.description = 'My personal gaming computer setup';
+
+    // Very similar post (should rank highest)
+    const verySimilarPost = PostFactory.fake();
+    verySimilarPost.user = seller2;
+    verySimilarPost.title = 'Gaming Computer';
+    verySimilarPost.description = 'Powerful gaming computer with high-end graphics card for gaming';
+
+    // Somewhat similar post (should rank lower)
+    const somewhatSimilarPost = PostFactory.fake();
+    somewhatSimilarPost.user = seller3;
+    somewhatSimilarPost.title = 'Electronics Device';
+    somewhatSimilarPost.description = 'Electronic gadget for tech enthusiasts';
+
+    // Completely different post (should rank lowest)
+    const differentPost = PostFactory.fake();
+    differentPost.user = seller3;
+    differentPost.title = 'Organic Vegetables';
+    differentPost.description = 'Fresh organic vegetables from local farm';
+
+    // Create a completed transaction (purchase history)
+    const transaction = TransactionFactory.fakeTemplate();
+    transaction.buyer = buyer;
+    transaction.seller = seller1;
+    transaction.post = purchasedPost;
+    transaction.completed = true;
+
+    await new DataFactory()
+      .createUsers(buyer, seller1, seller2, seller3)
+      .createPosts(purchasedPost, ownPost, verySimilarPost, somewhatSimilarPost, differentPost)
+      .createTransactions(transaction)
+      .write();
+
+    const response = await postController.getPurchaseSuggestions(buyer, 10);
+
+    // Should not include user's own posts in suggestions
+    expect(response.postIds).not.toContain(ownPost.id);
+
+    // Should have suggestions
+    expect(response.postIds.length).toBeGreaterThan(0);
+
+    // Very similar post should be ranked higher than completely different post
+    const verySimilarIndex = response.postIds.indexOf(verySimilarPost.id);
+    const differentIndex = response.postIds.indexOf(differentPost.id);
+
+    if (verySimilarIndex !== -1 && differentIndex !== -1) {
+      expect(verySimilarIndex).toBeLessThan(differentIndex);
+    }
+
+    // Should include the very similar post in suggestions
+    expect(response.postIds).toContain(verySimilarPost.id);
+  });
+
+  test('get purchase suggestions - multiple purchase history creates averaged preferences', async () => {
+    const buyer = UserFactory.fakeTemplate();
+    const seller1 = UserFactory.fake();
+    const seller2 = UserFactory.fake();
+    const seller3 = UserFactory.fake();
+
+    // User's purchase history: electronics and books
+    const electronicsPost = PostFactory.fake();
+    electronicsPost.user = seller1;
+    electronicsPost.title = 'Smartphone Device';
+    electronicsPost.description = 'Latest smartphone with advanced features';
+
+    const bookPost = PostFactory.fake();
+    bookPost.user = seller1;
+    bookPost.title = 'Programming Book';
+    bookPost.description = 'Computer science textbook for learning programming';
+
+    // Available posts for recommendation
+    const electronicsRecommendation = PostFactory.fake();
+    electronicsRecommendation.user = seller2;
+    electronicsRecommendation.title = 'Tablet Computer';
+    electronicsRecommendation.description = 'Portable tablet device with touchscreen';
+
+    const bookRecommendation = PostFactory.fake();
+    bookRecommendation.user = seller2;
+    bookRecommendation.title = 'Software Engineering';
+    bookRecommendation.description = 'Textbook about software development and programming';
+
+    const unrelatedPost = PostFactory.fake();
+    unrelatedPost.user = seller3;
+    unrelatedPost.title = 'Kitchen Utensils';
+    unrelatedPost.description = 'Set of cooking tools and kitchen equipment';
+
+    // Create completed transactions (purchase history)
+    const transaction1 = TransactionFactory.fake();
+    transaction1.buyer = buyer;
+    transaction1.seller = seller1;
+    transaction1.post = electronicsPost;
+    transaction1.completed = true;
+
+    const transaction2 = TransactionFactory.fake();
+    transaction2.buyer = buyer;
+    transaction2.seller = seller1;
+    transaction2.post = bookPost;
+    transaction2.completed = true;
+
+    await new DataFactory()
+      .createUsers(buyer, seller1, seller2, seller3)
+      .createPosts(electronicsPost, bookPost, electronicsRecommendation, bookRecommendation, unrelatedPost)
+      .createTransactions(transaction1, transaction2)
+      .write();
+
+    const response = await postController.getPurchaseSuggestions(buyer, 10);
+
+    // Should have suggestions based on multiple purchase history
+    expect(response.postIds.length).toBeGreaterThan(0);
+
+    // Should include recommendations related to purchase history
+    const hasElectronicsRec = response.postIds.includes(electronicsRecommendation.id);
+    const hasBookRec = response.postIds.includes(bookRecommendation.id);
+
+    // At least one of the related recommendations should be present
+    expect(hasElectronicsRec || hasBookRec).toBe(true);
+
+    // Unrelated post should rank lower if present
+    const unrelatedIndex = response.postIds.indexOf(unrelatedPost.id);
+    if (unrelatedIndex !== -1) {
+      if (hasElectronicsRec) {
+        const electronicsIndex = response.postIds.indexOf(electronicsRecommendation.id);
+        expect(electronicsIndex).toBeLessThan(unrelatedIndex);
+      }
+      if (hasBookRec) {
+        const bookIndex = response.postIds.indexOf(bookRecommendation.id);
+        expect(bookIndex).toBeLessThan(unrelatedIndex);
+      }
     }
   });
 });
