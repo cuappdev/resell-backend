@@ -60,6 +60,7 @@ export class PostService {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const user = authenticatedUser;
       if (!user.isActive) throw new NotFoundError('User is not active!');
+      if (!user.firebaseUid) throw new NotFoundError('User firebaseUid missing!');
       const postRepository = Repositories.post(transactionalEntityManager);
       const images: string[] = [];
       for (const imageBase64 of post.imagesBase64) {
