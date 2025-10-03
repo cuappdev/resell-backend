@@ -230,11 +230,11 @@
         },
         "responses": {
           "200": {
-            "description": "Posts retrieved successfully",
+            "description": "Posts retrieved successfully with search ID",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetPostsResponse"
+                  "$ref": "#/components/schemas/GetSearchedPostsResponse"
                 }
               }
             }
@@ -311,33 +311,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GetSearchesResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Create a new search record",
-        "tags": ["Search"],
-        "security": [{ "bearerAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateSearchRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Search created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateSearchResponse"
                 }
               }
             }
@@ -3587,21 +3560,6 @@
           "searchId": { "type": "string" }
         }
       },
-      "CreateSearchRequest": {
-        "type": "object",
-        "required": ["searchText"],
-        "properties": {
-          "searchText": { "type": "string" }
-        }
-      },
-      "CreateSearchResponse": {
-        "type": "object",
-        "required": ["searchId", "searchText"],
-        "properties": {
-          "searchId": { "type": "string" },
-          "searchText": { "type": "string" }
-        }
-      },
       "GetSearchesResponse": {
         "type": "object",
         "required": ["searches"],
@@ -3610,10 +3568,21 @@
             "type": "array",
             "items": {
               "type": "object",
+              "required": ["id", "searchText", "createdAt"],
               "properties": {
-                "id": { "type": "string" },
-                "searchText": { "type": "string" },
-                "createdAt": { "type": "string", "format": "date-time" }
+                "id": { 
+                  "type": "string",
+                  "description": "Unique search ID to use with searchSuggestions endpoint"
+                },
+                "searchText": { 
+                  "type": "string",
+                  "description": "The search query text"
+                },
+                "createdAt": { 
+                  "type": "string", 
+                  "format": "date-time",
+                  "description": "When the search was created"
+                }
               }
             }
           }
