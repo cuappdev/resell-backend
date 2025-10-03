@@ -94,6 +94,7 @@ async function main() {
                                    action.request.path === '/api/user/create' || 
                                    action.request.path === '/api/authorize' ||
                                    action.request.path === 'api/authorize';
+          console.log(`User not found for path: ${action.request.path}, isUserCreateRoute: ${isUserCreateRoute}`);
           if (!isUserCreateRoute) {
             throw new ForbiddenError('User not found. Please create an account first.');
           }
@@ -101,9 +102,15 @@ async function main() {
           const tempUser = new UserModel();
           tempUser.googleId = email;
           tempUser.firebaseUid = decodedToken.uid;
+          tempUser.email = email;
+          tempUser.isActive = true;
+          tempUser.admin = false;
           tempUser.isNewUser = true; 
           return tempUser;
         } 
+        if (!user) {
+          throw new ForbiddenError('User authentication failed');
+        }
         return user;
       } catch (error) {
         console.log(error); //TODO delete this console.log later
