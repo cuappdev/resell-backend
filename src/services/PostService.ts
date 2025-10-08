@@ -104,9 +104,10 @@ export class PostService {
         }
       } catch (error) {
         console.error("Error computing embedding:", error);
+        embedding = null;
       }
       const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user, embedding);
-      if (embedding) {
+      if (embedding && Array.isArray(embedding) && embedding.length > 0) {
         const requestRepository = Repositories.request(transactionalEntityManager);
         // TODO: how many should we get?
         const similarRequests = await requestRepository.findSimilarRequests(embedding, user.firebaseUid, 10);
