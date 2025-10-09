@@ -3,7 +3,7 @@ import { models } from '../models';
 
 export default async function resellConnection(): Promise<Connection> {
   return await createConnection({
-    database: process.env.DB_NAME,
+    database: process.env.DB_NAME || 'resell-test',
     entities: models,
     host: process.env.DB_HOST,
     logging: (process.env.LOGGING?.toLowerCase() === "true"), //set to true to help with debugging

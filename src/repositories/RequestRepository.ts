@@ -109,7 +109,7 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     .where("request.embedding IS NOT NULL")
     .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
     .orderBy(`request.embedding::vector <-> CAST('${lit}' AS vector(512))`)
-    .setParameter("excludeUserId", excludeUserId)
+    // .setParameter("excludeUserId", excludeUserId)
     .take(limit)
     .getMany();
   }
