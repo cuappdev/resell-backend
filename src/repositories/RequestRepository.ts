@@ -82,6 +82,12 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
   }
 
   public async addMatchToRequest(request: RequestModel, post: PostModel): Promise<RequestModel> {
+
+    if (!request.user || !post.user) {
+      console.warn("Skipping match: request or post user is null");
+      return request;
+    }
+
     // check if they don't have the same user
     if (request.user.firebaseUid === post.user.firebaseUid) {
       // User is the same, don't match
@@ -96,14 +102,16 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
 
   public async findSimilarRequests(embedding: number[], excludeUserId: string, limit: number = 10): Promise<RequestModel[]> {
     const lit = `[${embedding.join(",")}]`;
-    return await this.repository
-      .createQueryBuilder("request")
-      .where("request.embedding IS NOT NULL")
-      .andWhere("request.user != :excludeUserId", { excludeUserId })
-      .orderBy(`request.embedding::vector <-> CAST('${lit}' AS vector(512))`)
-      .setParameter("embedding", embedding)
-      .limit(limit)
-      .getMany();
+    // create post failing due to the request.user and post.user relation not loading on dev
+   return await this.repository
+    .createQueryBuilder("request")
+    .leftJoinAndSelect("request.user", "user")
+    .where("request.embedding IS NOT NULL")
+    .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
+    .orderBy(`request.embedding::vector <-> CAST('${lit}' AS vector(512))`)
+    .setParameter("excludeUserId", excludeUserId)
+    .take(limit)
+    .getMany();
   }
   
 }
