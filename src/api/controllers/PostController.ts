@@ -46,6 +46,12 @@ export class PostController {
 
   @Post()
   async createPost(@CurrentUser() user: UserModel, @Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) createPostRequest: CreatePostRequest): Promise<GetPostResponse> {
+    console.log('=== POST CONTROLLER DEBUG ===');
+    console.log('user from @CurrentUser():', user);
+    console.log('user type:', typeof user);
+    console.log('user === null:', user === null);
+    console.log('user === undefined:', user === undefined);
+    console.log('==============================');
     return { post: (await this.postService.createPost(createPostRequest, user)).getPostInfo() };
   }
 

@@ -57,8 +57,20 @@ export class PostService {
   }
 
   public async createPost(post: CreatePostRequest, authenticatedUser: UserModel): Promise<PostModel> {
+    console.log('=== CREATE POST DEBUG ===');
+    console.log('authenticatedUser:', authenticatedUser);
+    console.log('authenticatedUser type:', typeof authenticatedUser);
+    console.log('authenticatedUser === null:', authenticatedUser === null);
+    console.log('authenticatedUser === undefined:', authenticatedUser === undefined);
+    if (authenticatedUser) {
+      console.log('user.firebaseUid:', authenticatedUser.firebaseUid);
+      console.log('user.isActive:', authenticatedUser.isActive);
+    }
+    console.log('========================');
+    
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const user = authenticatedUser;
+      if (!user) throw new NotFoundError('User is null or undefined!');
       if (!user.isActive) throw new NotFoundError('User is not active!');
       if (!user.firebaseUid) throw new NotFoundError('User firebaseUid missing!');
       const postRepository = Repositories.post(transactionalEntityManager);
@@ -92,9 +104,10 @@ export class PostService {
         }
       } catch (error) {
         console.error("Error computing embedding:", error);
+        embedding = null;
       }
       const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user, embedding);
-      if (embedding) {
+      if (embedding && Array.isArray(embedding) && embedding.length > 0) {
         const requestRepository = Repositories.request(transactionalEntityManager);
         // TODO: how many should we get?
         const similarRequests = await requestRepository.findSimilarRequests(embedding, user.firebaseUid, 10);

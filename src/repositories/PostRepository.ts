@@ -383,9 +383,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
           p.id,
           2 AS purchase_score
         FROM "Post" p
+        JOIN "post_categories" pc ON pc.posts = p.id
         JOIN "Transaction" t ON t.buyer_id = $1
         JOIN "Post" bought_post ON t.post_id = bought_post.id
-        WHERE p.category = bought_post.category 
+        JOIN "post_categories" bought_pc ON bought_pc.posts = bought_post.id
+        WHERE pc.categories = bought_pc.categories
           AND p.archive = false 
           AND p.sold = false
       ),
