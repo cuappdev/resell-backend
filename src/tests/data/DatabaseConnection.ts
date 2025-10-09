@@ -32,6 +32,7 @@ export class DatabaseConnection {
         'Transaction',
         'Feedback',
         'notifications', // Add notifications table before User since it has a fk to User
+        'Report', // Add Report table before Post since it has a fk to Post
         'Post',
         'FCMToken',
         'Request',
