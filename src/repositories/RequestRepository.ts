@@ -57,7 +57,8 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
 
   public async archiveAllRequestsByUserId(userId: Uuid): Promise<void> {
     await this.repository
-      .createQueryBuilder()
+      .createQueryBuilder("request")
+      .leftJoin("request.user", "user")
       .update(RequestModel)
       .set({ archive: true })
       .where("user.firebaseUid = :userId", { userId })

@@ -289,7 +289,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
 
   public async archiveAllPostsByUserId(userId: string): Promise<void> {
     await this.repository
-      .createQueryBuilder()
+      .createQueryBuilder("post")
+      .leftJoin("post.user", "user")
       .update(PostModel)
       .set({ archive: true })
       .where("user.firebaseUid = :userId", { userId })
@@ -325,7 +326,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where("post.id != :excludePostId", { excludePostId })
-      .andWhere("post.user != :excludeUserId", { excludeUserId })
+      .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
       .orderBy(`embedding::vector <-> CAST('${lit}' AS vector(512))`)
       .setParameters({ embedding: queryEmbedding })
       .limit(10)
@@ -341,9 +342,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where("post.embedding IS NOT NULL")
-      .andWhere("post.user != :excludeUserId", { excludeUserId })
+      .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
       .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
-      .setParameter("embedding", embedding)
       .limit(limit)
       .getMany();
   }
