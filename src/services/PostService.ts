@@ -168,17 +168,18 @@ export class PostService {
     });
   }
 
-  public async filterPostsUnified(user: UserModel, filterPostsUnifiedRequest: FilterPostsUnifiedRequest): Promise<PostModel[]> {
+  public async filterPostsUnified(user: UserModel, filterPostsUnifiedRequest: FilterPostsUnifiedRequest, page: number = 1, limit: number = 10): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPostsUnified(filterPostsUnifiedRequest);
+      const skip = (page - 1) * limit;
+      const posts = await postRepository.filterPostsUnified(filterPostsUnifiedRequest, skip, limit);
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
 
-  public async filterPostsByCategories(user: UserModel, filterPostsRequest: FilterPostsRequest): Promise<PostModel[]> {
+  public async filterPostsByCategories(user: UserModel, filterPostsRequest: FilterPostsRequest, page: number = 1, limit: number = 10): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
 
@@ -188,52 +189,58 @@ export class PostService {
         !filterPostsRequest.categories.every(cat => typeof cat === 'string' && cat.trim().length > 0)) {
         return [];
       }
-      const posts = await postRepository.filterPostsByCategories(filterPostsRequest.categories);
+      const skip = (page - 1) * limit;
+      const posts = await postRepository.filterPostsByCategories(filterPostsRequest.categories, skip, limit);
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
-  public async filterPostsByPrice(user: UserModel, filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<PostModel[]> {
+  public async filterPostsByPrice(user: UserModel, filterPostsByPriceRequest: FilterPostsByPriceRequest, page: number = 1, limit: number = 10): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPostsByPrice(filterPostsByPriceRequest.lowerBound, filterPostsByPriceRequest.upperBound)
+      const skip = (page - 1) * limit;
+      const posts = await postRepository.filterPostsByPrice(filterPostsByPriceRequest.lowerBound, filterPostsByPriceRequest.upperBound, skip, limit)
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     })
   }
 
-  public async filterPriceHighToLow(user: UserModel): Promise<PostModel[]> {
+  public async filterPriceHighToLow(user: UserModel, page: number = 1, limit: number = 10): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPriceHighToLow();
+      const skip = (page - 1) * limit;
+      const posts = await postRepository.filterPriceHighToLow(skip, limit);
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }
   
-  public async filterPriceLowToHigh(user: UserModel): Promise<PostModel[]> {
+  public async filterPriceLowToHigh(user: UserModel, page: number = 1, limit: number = 10): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterPriceLowToHigh();
+      const skip = (page - 1) * limit;
+      const posts = await postRepository.filterPriceLowToHigh(skip, limit);
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
-  public async filterNewlyListed(user: UserModel): Promise<PostModel[]> {
+  public async filterNewlyListed(user: UserModel, page: number = 1, limit: number = 10): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterNewlyListed();
+      const skip = (page - 1) * limit;
+      const posts = await postRepository.filterNewlyListed(skip, limit);
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
   }
 
-  public async filterByCondition(user: UserModel, filterPostsByConditionRequest: FilterPostsByConditionRequest): Promise<PostModel[]> {
+  public async filterByCondition(user: UserModel, filterPostsByConditionRequest: FilterPostsByConditionRequest, page: number = 1, limit: number = 10): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const posts = await postRepository.filterByCondition(filterPostsByConditionRequest.condition);
+      const skip = (page - 1) * limit;
+      const posts = await postRepository.filterByCondition(filterPostsByConditionRequest.condition, skip, limit);
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
