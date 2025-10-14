@@ -123,56 +123,115 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async filterPostsByCategories(categories: string[]): Promise<PostModel[]> {
-    return await this.repository
+  public async filterPostsByCategories(categories: string[], skip: number, limit: number): Promise<PostModel[]> {
+    const postIds = await this.repository
       .createQueryBuilder("post")
-      .leftJoinAndSelect("post.user", "user")
+      .select("post.id")
       .innerJoin("post.categories", "category")
       .where("category.name IN (:...categories)", { categories })
       .andWhere("post.archive = false")
+      .skip(skip)
+      .take(limit)
       .getMany();
-  }
 
-  public async filterPostsByPrice(lowerBound: number, upperBound: number): Promise<PostModel[]> {
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .where("post.id IN (:...ids)", { ids })
+      .getMany();
+  }
+
+  public async filterPostsByPrice(lowerBound: number, upperBound: number, skip: number, limit: number): Promise<PostModel[]> {
+    const postIds = await this.repository
+      .createQueryBuilder("post")
+      .select("post.id")
       .where("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END >= :lowerBound", { lowerBound: lowerBound })
       .andWhere("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END <= :upperBound", { upperBound: upperBound })
       .andWhere("post.archive = false")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .where("post.id IN (:...ids)", { ids })
       .orderBy("categories.name", "ASC")
       .getMany();
   }
 
-  public async filterPriceHighToLow(): Promise<PostModel[]> {
+  public async filterPriceHighToLow(skip: number, limit: number): Promise<PostModel[]> {
+    const postIds = await this.repository
+      .createQueryBuilder("post")
+      .select("post.id")
+      .where("post.archive = false")
+      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "DESC")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("post.archive = false")
+      .where("post.id IN (:...ids)", { ids })
       .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "DESC")
       .addOrderBy("categories.name", "ASC")
       .getMany();
   }
 
-  public async filterPriceLowToHigh(): Promise<PostModel[]> {
+  public async filterPriceLowToHigh(skip: number, limit: number): Promise<PostModel[]> {
+    const postIds = await this.repository
+      .createQueryBuilder("post")
+      .select("post.id")
+      .where("post.archive = false")
+      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "ASC")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("post.archive = false")
+      .where("post.id IN (:...ids)", { ids })
       .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "ASC")
       .addOrderBy("categories.name", "ASC")
       .getMany();
   }
 
-  public async filterNewlyListed(): Promise<PostModel[]> {
+  public async filterNewlyListed(skip: number, limit: number): Promise<PostModel[]> {
+    const postIds = await this.repository
+      .createQueryBuilder("post")
+      .select("post.id")
+      .where("post.archive = false")
+      .orderBy("post.created", "DESC")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("post.archive = false")
+      .where("post.id IN (:...ids)", { ids })
       .orderBy("post.created", "DESC")
       .getMany();
   }
@@ -188,22 +247,32 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async filterByCondition(conditions: string[]): Promise<PostModel[]> {
+  public async filterByCondition(conditions: string[], skip: number, limit: number): Promise<PostModel[]> {
+    const postIds = await this.repository
+      .createQueryBuilder("post")
+      .select("post.id")
+      .where("post.condition IN (:...conditions)", { conditions })
+      .andWhere("post.archive = false")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("post.condition IN (:...conditions)", { conditions })
-      .andWhere("post.archive = false")
+      .where("post.id IN (:...ids)", { ids })
       .orderBy("categories.name", "ASC")
       .getMany();
   }
 
-  public async filterPostsUnified(filterPostsUnifiedRequest: FilterPostsUnifiedRequest): Promise<PostModel[]> {
+  public async filterPostsUnified(filterPostsUnifiedRequest: FilterPostsUnifiedRequest, skip: number, limit: number): Promise<PostModel[]> {
     const qb = this.repository
       .createQueryBuilder("post")
-      .leftJoinAndSelect("post.user", "user")
-      .leftJoinAndSelect("post.categories", "categories")
+      .select("post.id")
       .where("post.archive = false");
 
     // Categories
@@ -257,7 +326,18 @@ export class PostRepository extends AbstractRepository<PostModel> {
       }
     }
 
-    return await qb.getMany();
+    qb.skip(skip).take(limit);
+
+    const postIds = await qb.getMany();
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .where("post.id IN (:...ids)", { ids })
+      .getMany();
   }
 
 
@@ -289,7 +369,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
 
   public async archiveAllPostsByUserId(userId: string): Promise<void> {
     await this.repository
-      .createQueryBuilder()
+      .createQueryBuilder("post")
+      .leftJoin("post.user", "user")
       .update(PostModel)
       .set({ archive: true })
       .where("user.firebaseUid = :userId", { userId })
@@ -325,7 +406,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where("post.id != :excludePostId", { excludePostId })
-      .andWhere("post.user != :excludeUserId", { excludeUserId })
+      .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
       .orderBy(`embedding::vector <-> CAST('${lit}' AS vector(512))`)
       .setParameters({ embedding: queryEmbedding })
       .limit(10)
@@ -341,9 +422,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where("post.embedding IS NOT NULL")
-      .andWhere("post.user != :excludeUserId", { excludeUserId })
+      .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
       .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
-      .setParameter("embedding", embedding)
       .limit(limit)
       .getMany();
   }

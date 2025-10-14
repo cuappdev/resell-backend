@@ -67,41 +67,70 @@ export class PostController {
   }
 
   @Post('filterByCategories/')
-  async filterPostsByCategories(@CurrentUser() user: UserModel, @Body() filterPostsRequest: FilterPostsRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPostsByCategories(user, filterPostsRequest) };
+  async filterPostsByCategories(
+    @CurrentUser() user: UserModel,
+    @Body() filterPostsRequest: FilterPostsRequest,
+    @QueryParam('page', { required: false }) page: number = 1,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPostsByCategories(user, filterPostsRequest, page, limit) };
   }
 
   @Post('filterByPrice/')
-  async filterPostsByPrice(@CurrentUser() user: UserModel, @Body() filterPostsByPriceRequest: FilterPostsByPriceRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPostsByPrice(user, filterPostsByPriceRequest) };
+  async filterPostsByPrice(
+    @CurrentUser() user: UserModel,
+    @Body() filterPostsByPriceRequest: FilterPostsByPriceRequest,
+    @QueryParam('page', { required: false }) page: number = 1,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPostsByPrice(user, filterPostsByPriceRequest, page, limit) };
   }
 
   @Post('filterPriceHighToLow/')
-  async filterPriceHighToLow(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPriceHighToLow(user) };
+  async filterPriceHighToLow(
+    @CurrentUser() user: UserModel,
+    @QueryParam('page', { required: false }) page: number = 1,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPriceHighToLow(user, page, limit) };
   }
 
   @Post('filterPriceLowToHigh/')
-  async filterPriceLowToHigh(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPriceLowToHigh(user) };
+  async filterPriceLowToHigh(
+    @CurrentUser() user: UserModel,
+    @QueryParam('page', { required: false }) page: number = 1,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPriceLowToHigh(user, page, limit) };
   }
 
   @Post('filterNewlyListed/')
-  async filterNewlyListed(@CurrentUser() user: UserModel): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterNewlyListed(user) };
+  async filterNewlyListed(
+    @CurrentUser() user: UserModel,
+    @QueryParam('page', { required: false }) page: number = 1,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterNewlyListed(user, page, limit) };
   }
 
   @Post('filterByCondition/')
-  async filterByCondition(@CurrentUser() user: UserModel, @Body() filterPostsByConditionRequest: FilterPostsByConditionRequest): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterByCondition(user, filterPostsByConditionRequest) };
+  async filterByCondition(
+    @CurrentUser() user: UserModel,
+    @Body() filterPostsByConditionRequest: FilterPostsByConditionRequest,
+    @QueryParam('page', { required: false }) page: number = 1,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterByCondition(user, filterPostsByConditionRequest, page, limit) };
   }
 
   @Post('filter/')
   async filterPosts(
     @CurrentUser() user: UserModel,
-    @Body() filterPostsUnifiedRequest: FilterPostsUnifiedRequest
+    @Body() filterPostsUnifiedRequest: FilterPostsUnifiedRequest,
+    @QueryParam('page', { required: false }) page: number = 1,
+    @QueryParam('limit', { required: false }) limit: number = 10
   ): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPostsUnified(user, filterPostsUnifiedRequest) };
+    return { posts: await this.postService.filterPostsUnified(user, filterPostsUnifiedRequest, page, limit) };
   }
 
   @Get('archive/')
