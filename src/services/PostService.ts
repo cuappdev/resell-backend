@@ -509,5 +509,49 @@ export class PostService {
         return topPosts.map(p => p.id);
     });
   }
+
+  /**
+   * Get purchase suggestions based on vector similarity to user's purchase history
+   * Returns only post IDs, not full post data.
+   */
+  public async getPurchaseSuggestions(user: UserModel, limit: number = 10): Promise<string[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const transactionRepository = Repositories.transaction(transactionalEntityManager);
+      const postRepository = Repositories.post(transactionalEntityManager);
+
+      // Get user's purchase history (completed transactions where user is buyer)
+      const userTransactions = await transactionRepository.getTransactionsByBuyerId(user.firebaseUid);
+      const completedTransactions = userTransactions.filter(t => t.completed);
+
+      // If user hasn't bought anything, return empty array
+      if (completedTransactions.length === 0) {
+        return [];
+      }
+
+      // Extract posts from completed transactions
+      const purchasedPosts = completedTransactions.map(t => t.post).filter(p => p != null && p.embedding != null);
+      if (purchasedPosts.length === 0) {
+        return [];
+      }
+
+      // Use existing embeddings from purchased posts
+      const purchaseEmbeddings = purchasedPosts.map(p => p.embedding as number[]);
+
+      // Calculate average embedding vector from all purchases
+      const avgEmbedding = new Array(purchaseEmbeddings[0].length).fill(0);
+      for (const embedding of purchaseEmbeddings) {
+        for (let i = 0; i < embedding.length; i++) {
+          avgEmbedding[i] += embedding[i];
+        }
+      }
+      for (let i = 0; i < avgEmbedding.length; i++) {
+        avgEmbedding[i] /= purchaseEmbeddings.length;
+      }
+
+      // Use database vector similarity search
+      const similarPosts = await postRepository.getPurchaseSuggestions(avgEmbedding, user.firebaseUid, limit);
+      return similarPosts.map(p => p.id);
+    });
+  }
   
 }

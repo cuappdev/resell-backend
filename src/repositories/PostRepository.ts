@@ -519,4 +519,22 @@ export class PostRepository extends AbstractRepository<PostModel> {
       })
     );
   }
+
+  /*
+  Get purchase suggestions based on vector similarity to average of user's purchase history.
+  Uses pgvector's cosine distance operator to find similar posts efficiently.
+  */
+  public async getPurchaseSuggestions(avgEmbedding: number[], excludeUserId: string, limit: number = 10): Promise<PostModel[]> {
+    const lit = `[${avgEmbedding.join(",")}]`;
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.embedding IS NOT NULL")
+      .andWhere("post.archive = false")
+      .andWhere("post.sold = false")
+      .andWhere("post.user != :excludeUserId", { excludeUserId })
+      .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
+      .limit(limit)
+      .getMany();
+  }
 }
