@@ -1,8 +1,10 @@
+import { Service } from "typedi";
 import { getCustomRepository } from "typeorm";
 import { SearchRepository } from "../repositories/SearchRepository";
 import { getLoadedModel } from "../utils/SentenceEncoder";
 import { SearchModel } from "../models/SearchModel";
 
+@Service()
 export class SearchService {
   private searchRepository: SearchRepository;
 
