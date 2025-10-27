@@ -107,6 +107,10 @@ export class PostService {
         embedding = null;
       }
       const freshPost = await postRepository.createPost(post.title, post.description, categories, post.condition, post.original_price, images, user, embedding);
+      
+      // Manually set user relation on freshPost making sure it loads
+      freshPost.user = user;
+      
       if (embedding && Array.isArray(embedding) && embedding.length > 0) {
         const requestRepository = Repositories.request(transactionalEntityManager);
         // TODO: how many should we get?
