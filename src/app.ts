@@ -106,6 +106,7 @@ async function main() {
           tempUser.googleId = email;
           tempUser.firebaseUid = decodedToken.uid;
           tempUser.email = email;
+          tempUser.username = `temp_${decodedToken.uid}`;
           tempUser.isActive = true;
           tempUser.admin = false;
           tempUser.isNewUser = true; 
