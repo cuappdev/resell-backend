@@ -532,7 +532,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .where("post.embedding IS NOT NULL")
       .andWhere("post.archive = false")
       .andWhere("post.sold = false")
-      .andWhere("post.user != :excludeUserId", { excludeUserId })
+      .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
       .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
       .limit(limit)
       .getMany();
