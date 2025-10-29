@@ -10,6 +10,9 @@ import {
   FilterPostsByPriceRequest,
   FilterPostsByConditionRequest,
   FilterPostsUnifiedRequest,
+  FilterPostsByEventTagsRequest,
+  AddEventTagsToPostRequest,
+  RemoveEventTagsFromPostRequest,
   GetPostResponse,
   GetPostsResponse,
   GetSearchedPostsRequest,
@@ -74,6 +77,34 @@ export class PostController {
     @QueryParam('limit', { required: false }) limit: number = 10
   ): Promise<GetPostsResponse> {
     return { posts: await this.postService.filterPostsByCategories(user, filterPostsRequest, page, limit) };
+  }
+
+  @Post('filterByEventTags/')
+  async filterPostsByEventTags(
+    @CurrentUser() user: UserModel,
+    @Body() filterPostsByEventTagsRequest: FilterPostsByEventTagsRequest,
+    @QueryParam('page', { required: false }) page: number = 1,
+    @QueryParam('limit', { required: false }) limit: number = 10
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.filterPostsByEventTags(user, filterPostsByEventTagsRequest, page, limit) };
+  }
+
+  @Post('event-tags/add/:id/')
+  async addEventTagsToPost(
+    @CurrentUser() user: UserModel,
+    @Params() params: UuidParam,
+    @Body() addEventTagsRequest: AddEventTagsToPostRequest
+  ): Promise<GetPostResponse> {
+    return { post: (await this.postService.addEventTagsToPost(user, params, addEventTagsRequest)).getPostInfo() };
+  }
+
+  @Delete('event-tags/remove/:id/')
+  async removeEventTagsFromPost(
+    @CurrentUser() user: UserModel,
+    @Params() params: UuidParam,
+    @Body() removeEventTagsRequest: RemoveEventTagsFromPostRequest
+  ): Promise<GetPostResponse> {
+    return { post: (await this.postService.removeEventTagsFromPost(user, params, removeEventTagsRequest)).getPostInfo() };
   }
 
   @Post('filterByPrice/')

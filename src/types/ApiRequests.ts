@@ -84,6 +84,7 @@ export interface CreatePostRequest {
     title: string;
     description: string;
     categories: string[];
+    eventTags?: string[];
     condition: string;
     original_price: number;
     imagesBase64: string[];
@@ -121,6 +122,18 @@ export interface FilterPostsByPriceRequest {
 
 export interface FilterPostsByConditionRequest {
     condition: string[];
+}
+
+export interface AddEventTagsToPostRequest {
+    eventTags: string[];
+}
+
+export interface RemoveEventTagsFromPostRequest {
+    eventTags: string[];
+}
+
+export interface FilterPostsByEventTagsRequest {
+    eventTags: string[];
 }
 
 

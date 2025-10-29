@@ -8,6 +8,7 @@ import { RequestModel } from '../models/RequestModel';
 import { TransactionModel } from '../models/TransactionModel';
 import { TransactionReviewModel } from '../models/TransactionReviewModel';
 import { CategoryModel } from '../models/CategoryModel';
+import { EventTagModel } from '../models/EventTagModel';
 import { getRepository } from 'typeorm';
 import { NotifModel } from '../models/NotifModel'
 
@@ -28,6 +29,7 @@ export default class SeedInitialData implements Seeder {
     const transactionRepository = getRepository(TransactionModel);
     const transactionReviewRepository = getRepository(TransactionReviewModel);
     const categoryRepository = getRepository(CategoryModel);
+    const eventTagRepository = getRepository(EventTagModel);
     const notifRepository = getRepository(NotifModel)
 
     await transactionReviewRepository.delete({});
@@ -39,6 +41,7 @@ export default class SeedInitialData implements Seeder {
     await notifRepository.delete({});
     await postRepository.delete({});
     await categoryRepository.delete({});
+    await eventTagRepository.delete({});
     await userRepository.delete({});
     console.log(
       ' - Deleted all existing users, posts, feedback, reviews, reports, requests, transactions, and transaction reviews'
@@ -50,6 +53,14 @@ export default class SeedInitialData implements Seeder {
     for (const categoryName of categoryNames) {
       const category = await factory(CategoryModel)({ name: categoryName }).create();
       categories.push(category);
+    }
+
+    // Create event tags
+    const eventTags = [];
+    const eventTagNames = ['start_of_semester', 'end_of_semester', 'homecoming', 'halloween', 'holiday_season', 'st_patricks_day', 'slope_day'];
+    for (const eventTagName of eventTagNames) {
+      const eventTag = await factory(EventTagModel)({ name: eventTagName }).create();
+      eventTags.push(eventTag);
     }
 
     // Create users, posts, feedback, reviews, reports, and requests
