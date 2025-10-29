@@ -341,6 +341,13 @@ To seed the database for dev, use the following command:
 npm run db:seed
 ```
 
+Seeding script for hardcoded events in db
+
+```
+source .envrc
+ts-node src/seeds/SeedInitialData.ts
+```
+
 The seeding script checks the environment to ensure it only runs in the dev environment. If the environment variable `IS_PROD` is set to `"true"`, the seeding process will be skipped to prevent accidental execution in prod.
 
 ### Configuration

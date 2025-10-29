@@ -889,6 +889,133 @@
         }
       }
     },
+    "/post/filterByEventTags": {
+      "post": {
+        "summary": "Filter all posts by multiple event tags",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilterPostsByEventTagsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/event-tags/add/{id}": {
+      "post": {
+        "summary": "Add event tags to a post",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Post ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddEventTagsToPostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event tags added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/event-tags/remove/{id}": {
+      "delete": {
+        "summary": "Remove event tags from a post",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Post ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveEventTagsFromPostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event tags removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/post/filterByPrice": {
       "post": {
         "summary": "Filter posts by price range",
@@ -3529,6 +3656,45 @@
           "categories": {
             "type": "array",
             "items": { "type": "string" }
+          }
+        }
+      },
+      "FilterPostsByEventTagsRequest": {
+        "type": "object",
+        "required": ["eventTags"],
+        "properties": {
+          "eventTags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["start_of_semester", "end_of_semester", "homecoming", "halloween", "holiday_season", "st_patricks_day", "slope_day"]
+            }
+          }
+        }
+      },
+      "AddEventTagsToPostRequest": {
+        "type": "object",
+        "required": ["eventTags"],
+        "properties": {
+          "eventTags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["start_of_semester", "end_of_semester", "homecoming", "halloween", "holiday_season", "st_patricks_day", "slope_day"]
+            }
+          }
+        }
+      },
+      "RemoveEventTagsFromPostRequest": {
+        "type": "object",
+        "required": ["eventTags"],
+        "properties": {
+          "eventTags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["start_of_semester", "end_of_semester", "homecoming", "halloween", "holiday_season", "st_patricks_day", "slope_day"]
+            }
           }
         }
       },

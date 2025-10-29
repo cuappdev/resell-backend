@@ -1,15 +1,16 @@
-import { Factory, Seeder } from "typeorm-seeding";
-import { UserModel } from "../models/UserModel";
-import { PostModel } from "../models/PostModel";
-import { FeedbackModel } from "../models/FeedbackModel";
-import { UserReviewModel } from "../models/UserReviewModel";
-import { ReportModel } from "../models/ReportModel";
-import { RequestModel } from "../models/RequestModel";
-import { TransactionModel } from "../models/TransactionModel";
-import { TransactionReviewModel } from "../models/TransactionReviewModel";
-import { CategoryModel } from "../models/CategoryModel";
-import { getRepository } from "typeorm";
-import { NotifModel } from "../models/NotifModel";
+import { Factory, Seeder } from 'typeorm-seeding';
+import { UserModel } from '../models/UserModel';
+import { PostModel } from '../models/PostModel';
+import { FeedbackModel } from '../models/FeedbackModel';
+import { UserReviewModel } from '../models/UserReviewModel';
+import { ReportModel } from '../models/ReportModel';
+import { RequestModel } from '../models/RequestModel';
+import { TransactionModel } from '../models/TransactionModel';
+import { TransactionReviewModel } from '../models/TransactionReviewModel';
+import { CategoryModel } from '../models/CategoryModel';
+import { EventTagModel } from '../models/EventTagModel';
+import { getRepository } from 'typeorm';
+import { NotifModel } from '../models/NotifModel'
 
 export default class SeedInitialData implements Seeder {
   public async run(factory: Factory): Promise<void> {
@@ -28,7 +29,8 @@ export default class SeedInitialData implements Seeder {
     const transactionRepository = getRepository(TransactionModel);
     const transactionReviewRepository = getRepository(TransactionReviewModel);
     const categoryRepository = getRepository(CategoryModel);
-    const notifRepository = getRepository(NotifModel);
+    const eventTagRepository = getRepository(EventTagModel);
+    const notifRepository = getRepository(NotifModel)
 
     await transactionReviewRepository.delete({});
     await transactionRepository.delete({});
@@ -39,6 +41,7 @@ export default class SeedInitialData implements Seeder {
     await notifRepository.delete({});
     await postRepository.delete({});
     await categoryRepository.delete({});
+    await eventTagRepository.delete({});
     await userRepository.delete({});
     console.log(
       " - Deleted all existing users, posts, feedback, reviews, reports, requests, transactions, and transaction reviews",
@@ -58,6 +61,14 @@ export default class SeedInitialData implements Seeder {
         name: categoryName,
       }).create();
       categories.push(category);
+    }
+
+    // Create event tags
+    const eventTags = [];
+    const eventTagNames = ['start_of_semester', 'end_of_semester', 'homecoming', 'halloween', 'holiday_season', 'st_patricks_day', 'slope_day'];
+    for (const eventTagName of eventTagNames) {
+      const eventTag = await factory(EventTagModel)({ name: eventTagName }).create();
+      eventTags.push(eventTag);
     }
 
     // Create users, posts, feedback, reviews, reports, and requests

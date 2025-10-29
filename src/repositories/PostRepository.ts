@@ -1,11 +1,12 @@
 import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { PostModel } from "../models/PostModel";
-import { UserModel } from "../models/UserModel";
-import { CategoryModel } from "../models/CategoryModel";
-import { FilterPostsUnifiedRequest, Uuid } from "../types";
-import Repositories from ".";
-import pgvector from "pgvector";
+import { PostModel } from '../models/PostModel';
+import { UserModel } from '../models/UserModel';
+import { CategoryModel } from '../models/CategoryModel';
+import { EventTagModel } from '../models/EventTagModel';
+import { FilterPostsUnifiedRequest, Uuid } from '../types';
+import Repositories from '.';
+import pgvector from 'pgvector';
 
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
@@ -14,6 +15,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.archive = false")
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -41,6 +43,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy("post.created", "DESC")
       .getMany();
@@ -51,6 +54,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id = :id", { id })
       .orderBy("categories.name", "ASC")
       .getOne();
@@ -61,6 +65,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = false")
       .orderBy("categories.name", "ASC")
@@ -80,6 +85,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     title: string,
     description: string,
     categories: CategoryModel[],
+    eventTags: EventTagModel[],
     condition: string,
     price: number,
     images: string[],
@@ -90,6 +96,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.title = title;
     post.description = description;
     post.categories = categories;
+    post.eventTags = eventTags;
     post.condition = condition;
     post.original_price = price;
     post.altered_price = price;
@@ -109,9 +116,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("LOWER(post.title) like LOWER(:keywords)", {
-        keywords: `%${keywords}%`,
-      })
+      .leftJoinAndSelect("post.eventTags", "eventTags")
+      .where("LOWER(post.title) like LOWER(:keywords)", { keywords: `%${keywords}%` })
       .andWhere("post.archive = false")
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -124,9 +130,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("LOWER(post.description) like LOWER(:keywords)", {
-        keywords: `%${keywords}%`,
-      })
+      .leftJoinAndSelect("post.eventTags", "eventTags")
+      .where("LOWER(post.description) like LOWER(:keywords)", { keywords: `%${keywords}%` })
       .andWhere("post.archive = false")
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -154,6 +159,30 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
+      .where("post.id IN (:...ids)", { ids })
+      .getMany();
+  }
+
+  public async filterPostsByEventTags(eventTags: string[], skip: number, limit: number): Promise<PostModel[]> {
+    const postIds = await this.repository
+      .createQueryBuilder("post")
+      .select("post.id")
+      .innerJoin("post.eventTags", "eventTag")
+      .where("eventTag.name IN (:...eventTags)", { eventTags })
+      .andWhere("post.archive = false")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .getMany();
   }
@@ -187,6 +216,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -215,6 +245,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy(
         "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
@@ -247,6 +278,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy(
         "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
@@ -276,6 +308,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy("post.created", "DESC")
       .getMany();
@@ -286,6 +319,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.archive = false")
       .orderBy("post.created", "DESC")
       .addOrderBy("categories.name", "ASC")
@@ -313,6 +347,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -403,6 +438,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .getMany();
   }
@@ -412,6 +448,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .andWhere("post.archive = true")
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -422,6 +459,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = true")
       .orderBy("categories.name", "ASC")
@@ -462,6 +500,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.user", "user") // Load the post's user
       .leftJoinAndSelect("post.savers", "savers") // Load the savers relationship
       .leftJoinAndSelect("post.categories", "categories") // Load the categories relationship
+      .leftJoinAndSelect("post.eventTags", "eventTags") // Load the event tags relationship
       .where("post.id = :id", { id })
       .getOne();
   }

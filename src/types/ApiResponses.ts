@@ -66,6 +66,14 @@ export interface GetCategoryResponse {
   categories: Category;
 }
 
+// EVENT TAG
+
+export interface EventTag {
+  id: Uuid;
+  name: string;
+  posts: PostModel[];
+}
+
 // POST
 
 export interface Post {
@@ -83,6 +91,7 @@ export interface Post {
   savers: PrivateProfile[];
   matched: Request[];
   categories: Category[];
+  eventTags: EventTag[];
   sold: boolean;
   embedding: number[];
 }
