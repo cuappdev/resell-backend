@@ -7,8 +7,8 @@ import { UserModel } from '../../models/UserModel';
 export class NotifController {
     private notifService: NotifService;
 
-    constructor(notifService: NotifService) {
-      this.notifService = notifService;
+    constructor() {
+      this.notifService = new NotifService();
     }
 
     @Get('recent')

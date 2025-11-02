@@ -12,8 +12,8 @@ import { UuidParam } from '../validators/GenericRequests';
 export class UserReviewController {
     private userReviewService: UserReviewService;
 
-    constructor(userReviewService: UserReviewService) {
-        this.userReviewService = userReviewService;
+    constructor() {
+        this.userReviewService = new UserReviewService();
     }
 
     @Get()

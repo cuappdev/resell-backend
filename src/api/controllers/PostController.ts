@@ -22,8 +22,8 @@ import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 export class PostController {
   private postService: PostService;
 
-  constructor(postService: PostService) {
-    this.postService = postService;
+  constructor() {
+    this.postService = new PostService();
   }
 
   @Get()

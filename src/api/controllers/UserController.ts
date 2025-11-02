@@ -9,12 +9,19 @@ import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 export class UserController {
   private userService: UserService;
 
-  constructor(userService: UserService) {
-    this.userService = userService;
+  constructor() {
+    this.userService = new UserService();
   }
 
   @Post('create/')
   async createUser(@CurrentUser() user: UserModel, @Body() createUserRequest: CreateUserRequest): Promise<UserModel> {
+    console.log('=== CREATE USER REQUEST ===');
+    console.log('Current user from middleware:', {
+      firebaseUid: user?.firebaseUid,
+      email: user?.email,
+      isNewUser: user?.isNewUser
+    });
+    console.log('CreateUserRequest body:', JSON.stringify(createUserRequest, null, 2));
     return await this.userService.createUser(user, createUserRequest);
   }
 

@@ -1,6 +1,5 @@
 import { Service } from "typedi";
-import { EntityManager, Not } from "typeorm";
-import { InjectManager } from "typeorm-typedi-extensions";
+import { EntityManager, getManager, Not } from "typeorm";
 import { UserModel } from "../models/UserModel";
 import { PostModel } from "../models/PostModel";
 import { MessageModel } from "../models/MessageModel";
@@ -15,8 +14,9 @@ import { NotFoundError, ForbiddenError, UnauthorizedError } from "routing-contro
 export class ReportService {
   private transactions: TransactionsManager;
 
-  constructor(@InjectManager() entityManager: EntityManager) {
-    this.transactions = new TransactionsManager(entityManager);
+  constructor(entityManager?: EntityManager) {
+    const manager = entityManager || getManager();
+    this.transactions = new TransactionsManager(manager);
   }
 
   public async getAllReports(user: UserModel): Promise<ReportModel[]> {

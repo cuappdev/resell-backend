@@ -1,6 +1,5 @@
 import { Service } from 'typedi';
-import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
+import { EntityManager, getManager } from 'typeorm';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { NotFoundError } from 'routing-controllers';
@@ -10,17 +9,18 @@ import { NotFoundError } from 'routing-controllers';
 export class AuthService {
   private transactions: TransactionsManager;
 
-  constructor(@InjectManager() entityManager: EntityManager) {
-    this.transactions = new TransactionsManager(entityManager);
+  constructor(entityManager?: EntityManager) {
+    const manager = entityManager || getManager();
+    this.transactions = new TransactionsManager(manager);
   }
 
-  public async authorize(user: UserModel, fcmToken: string): Promise<UserModel | null> { 
+  public async authorize(user: UserModel, fcmToken: string): Promise<UserModel | null> {
     if (user.isNewUser) {
       return null;
     }
-    return this.transactions.readOnly(async (transactionalEntityManager) => {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
       const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
-      const token = await fcmRepository.createFcmToken(
+      await fcmRepository.createFcmToken(
         fcmToken,
         true,
         new Date(),

@@ -1,7 +1,7 @@
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
-import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
+import { EntityManager, getManager } from 'typeorm';
+// import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { CreateTransactionReviewRequest } from '../types';
 import Repositories, { TransactionsManager } from '../repositories';
@@ -13,8 +13,10 @@ import { TransactionModel } from '../models/TransactionModel';
 export class TransactionReviewService {
   private transactions: TransactionsManager;
 
-  constructor(@InjectManager() entityManager: EntityManager) {
-    this.transactions = new TransactionsManager(entityManager);
+  constructor(entityManager?: EntityManager) {
+    const manager = entityManager || getManager();
+    
+    this.transactions = new TransactionsManager(manager);
   }
 
   // Get all transaction reviews

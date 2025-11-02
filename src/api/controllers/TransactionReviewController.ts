@@ -8,8 +8,8 @@ import { UuidParam } from '../validators/GenericRequests';
 export class TransactionReviewController {
     private transactionReviewService: TransactionReviewService;
 
-    constructor(transactionReviewService: TransactionReviewService) {
-        this.transactionReviewService = transactionReviewService;
+    constructor() {
+        this.transactionReviewService = new TransactionReviewService();
     }
 
     @Get()

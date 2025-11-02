@@ -1,6 +1,5 @@
 import { Service } from "typedi";
-import { EntityManager } from "typeorm";
-import { InjectManager } from "typeorm-typedi-extensions";
+import { EntityManager, getManager } from "typeorm";
 import { UuidParam } from "../api/validators/GenericRequests";
 import { TransactionModel } from "../models/TransactionModel";
 import { UserModel } from "../models/UserModel";
@@ -15,8 +14,9 @@ import { NotifService } from "./NotifService";
 export class TransactionService {
   private transactions: TransactionsManager;
 
-  constructor(@InjectManager() entityManager: EntityManager) {
-    this.transactions = new TransactionsManager(entityManager);
+  constructor(entityManager?: EntityManager) {
+    const manager = entityManager || getManager();
+    this.transactions = new TransactionsManager(manager);
   }
 
   // Get all transactions

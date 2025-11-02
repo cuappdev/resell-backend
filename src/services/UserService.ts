@@ -1,7 +1,6 @@
 import { NotFoundError, UnauthorizedError } from 'routing-controllers';
 import { Service } from 'typedi';
-import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
+import { EntityManager, getManager } from 'typeorm';
 
 import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
@@ -13,24 +12,39 @@ import { uploadImage } from '../utils/Requests';
 export class UserService {
   private transactions: TransactionsManager;
 
-  constructor(@InjectManager() entityManager: EntityManager) {
-    this.transactions = new TransactionsManager(entityManager);
+  constructor(entityManager?: EntityManager) {
+    const manager = entityManager || getManager();
+    this.transactions = new TransactionsManager(manager);
   }
 
   public async createUser(user: UserModel, createUserRequest: CreateUserRequest): Promise<UserModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
+      // Validate required fields
+      if (!createUserRequest.username || createUserRequest.username.trim() === '') {
+        throw new Error('Username is required and cannot be empty');
+      }
+      if (!createUserRequest.netid || createUserRequest.netid.trim() === '') {
+        throw new Error('NetID is required and cannot be empty');
+      }
+      if (!createUserRequest.email || createUserRequest.email.trim() === '') {
+        throw new Error('Email is required and cannot be empty');
+      }
+      if (!createUserRequest.fcmToken || createUserRequest.fcmToken.trim() === '') {
+        throw new Error('FCM token is required and cannot be empty');
+      }
+
       const userRepository = Repositories.user(transactionalEntityManager);
       const makeUser = await userRepository.createUser(
         user.firebaseUid,
-        createUserRequest.username,
-        createUserRequest.netid,
-        createUserRequest.givenName,
-        createUserRequest.familyName,
-        createUserRequest.photoUrl,
-        createUserRequest.venmoHandle,
-        createUserRequest.email,
-        createUserRequest.googleId,
-        createUserRequest.bio
+        createUserRequest.username.trim(),
+        createUserRequest.netid.trim(),
+        createUserRequest.givenName || '',
+        createUserRequest.familyName || '',
+        createUserRequest.photoUrl || '',
+        createUserRequest.venmoHandle || '',
+        createUserRequest.email.trim(),
+        createUserRequest.googleId || user.firebaseUid,
+        createUserRequest.bio || ''
       );
         const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
         const token = await fcmRepository.createFcmToken(

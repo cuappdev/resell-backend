@@ -11,8 +11,8 @@ import { UuidParam } from "../validators/GenericRequests";
 export class ReportController {
   private reportService: ReportService;
 
-  constructor(reportService: ReportService) {
-    this.reportService = reportService;
+  constructor() {
+    this.reportService = new ReportService();
   }
 
   @Get("admin/all/")

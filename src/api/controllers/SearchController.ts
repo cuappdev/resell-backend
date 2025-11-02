@@ -25,8 +25,8 @@ export interface GetSearchesResponse {
 export class SearchController {
   private searchService: SearchService;
 
-  constructor(searchService: SearchService) {
-    this.searchService = searchService;
+  constructor() {
+    this.searchService = new SearchService();
   }
 
   /**

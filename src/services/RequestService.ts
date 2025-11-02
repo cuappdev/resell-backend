@@ -1,7 +1,7 @@
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
-import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
+import { EntityManager, getManager } from 'typeorm';
+// import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { UserModel } from '../models/UserModel';
 import { TimeParam, UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
@@ -15,8 +15,10 @@ import { getLoadedModel } from '../utils/SentenceEncoder';
 export class RequestService {
   private transactions: TransactionsManager;
 
-  constructor(@InjectManager() entityManager: EntityManager) {
-    this.transactions = new TransactionsManager(entityManager);
+  constructor(entityManager?: EntityManager) {
+    const manager = entityManager || getManager();
+    
+    this.transactions = new TransactionsManager(manager);
   }
 
   public async getAllRequest(): Promise<RequestModel[]> {

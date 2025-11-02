@@ -12,8 +12,8 @@ import { UuidParam } from "../validators/GenericRequests";
 export class TransactionController {
   private transactionService: TransactionService;
 
-  constructor(transactionService: TransactionService) {
-    this.transactionService = transactionService;
+  constructor() {
+    this.transactionService = new TransactionService();
   }
 
   @Get()

@@ -8,8 +8,8 @@ import { FcmTokenRequest } from '../../types';
 export class AuthController {
   private authService: AuthService;
 
-  constructor(authService: AuthService) {
-    this.authService = authService;
+  constructor() {
+    this.authService = new AuthService();
   }
 
   @Post()

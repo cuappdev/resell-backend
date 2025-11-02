@@ -1,7 +1,6 @@
 import { ForbiddenError, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
-import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
+import { EntityManager, getManager } from 'typeorm';
 
 import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { PostModel } from '../models/PostModel';
@@ -19,12 +18,13 @@ import pgvector from 'pgvector'
 import { getLoadedModel } from '../utils/SentenceEncoder';
 //require('@tensorflow-models/universal-sentence-encoder')
 
-@Service() 
+@Service()
 export class PostService {
   private transactions: TransactionsManager;
-  
-  constructor(@InjectManager() entityManager: EntityManager) {
-    this.transactions = new TransactionsManager(entityManager);
+
+  constructor(entityManager?: EntityManager) {
+    const manager = entityManager || getManager();
+    this.transactions = new TransactionsManager(manager);
   }
 
   public async getAllPosts(user: UserModel, page: number, limit: number): Promise<PostModel[]> {

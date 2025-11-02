@@ -6,7 +6,7 @@ import 'dotenv/config';
 import dotenv from 'dotenv';
 import { createExpressServer, ForbiddenError, UnauthorizedError, useContainer as routingUseContainer, HttpError } from 'routing-controllers';
 
-import { EntityManager, getManager, useContainer } from 'typeorm';
+import { getManager, useContainer } from 'typeorm';
 import { Container } from 'typeorm-typedi-extensions';
 import { Express } from 'express';
 import * as swaggerUi from 'swagger-ui-express';
@@ -35,14 +35,9 @@ export { admin };  // Export the admin instance
 import { controllers } from './api/controllers';
 import { middlewares } from './api/middlewares';
 import { UserModel } from './models/UserModel';
-import { ReportPostRequest, ReportProfileRequest, ReportMessageRequest } from './types';
-import { GetReportsResponse, Report } from './types/ApiResponses';
 import { ReportController } from './api/controllers/ReportController';
 import resellConnection from './utils/DB';
-import { ReportService } from './services/ReportService';
-import { ReportRepository } from './repositories/ReportRepository';
 import { reportToString } from './utils/Requests';
-import { CurrentUserChecker } from 'routing-controllers/types/CurrentUserChecker';
 // import { getLoadedModel } from './utils/SentenceEncoder';
 
 dotenv.config();
@@ -149,9 +144,7 @@ async function main() {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   console.log(`Swagger documentation available at http://${host}:${port}/api-docs`);
   
-  const entityManager = getManager();
-  const reportService = new ReportService(entityManager);
-  const reportController = new ReportController(reportService);
+  const reportController = new ReportController();
 
   app.set('view engine', 'pug')
 

@@ -1,7 +1,7 @@
 import { NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
-import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
+import { EntityManager, getManager } from 'typeorm';
+// import { InjectManager } from 'typeorm-typedi-extensions';
 
 import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { FeedbackModel } from '../models/FeedbackModel';
@@ -12,8 +12,10 @@ import { CreateFeedbackRequest, GetSearchedFeedbackRequest } from '../types';
 export class FeedbackService {
   private transactions: TransactionsManager;
 
-  constructor(@InjectManager() entityManager: EntityManager) {
-    this.transactions = new TransactionsManager(entityManager);
+  constructor(entityManager?: EntityManager) {
+    const manager = entityManager || getManager();
+    
+    this.transactions = new TransactionsManager(manager);
   }
 
   public async getAllFeedback(): Promise<FeedbackModel[]> {

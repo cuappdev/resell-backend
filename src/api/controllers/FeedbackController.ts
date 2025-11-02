@@ -8,8 +8,8 @@ import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 export class FeedbackController {
   private feedbackService: FeedbackService;
 
-  constructor(feedbackService: FeedbackService) {
-    this.feedbackService = feedbackService;
+  constructor() {
+    this.feedbackService = new FeedbackService();
   }
 
   @Get()

@@ -9,8 +9,8 @@ import { TimeParam, UuidParam, FirebaseUidParam } from '../validators/GenericReq
 export class RequestController {
   private requestService: RequestService;
 
-  constructor(requestService: RequestService) {
-    this.requestService = requestService;
+  constructor() {
+    this.requestService = new RequestService();
   }
 
   @Get()

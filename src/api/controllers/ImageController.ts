@@ -7,8 +7,8 @@ import { ImageUrlResponse, UploadImageRequest } from '../../types';
 export class ImageController {
   private imageService: ImageService;
 
-  constructor(imageService: ImageService) {
-    this.imageService = imageService;
+  constructor() {
+    this.imageService = new ImageService();
   }
 
   @Post()

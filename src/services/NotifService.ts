@@ -2,8 +2,7 @@ import { NotFoundError} from 'routing-controllers';
 import { Service } from 'typedi';
 import { NotificationData, FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest, TokenWrapper } from '../types';
 import Repositories, { TransactionsManager } from '../repositories';
-import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
+import { EntityManager, getManager } from 'typeorm';
 // var accessToken = process.env['EXPO_ACCESS_TOKEN']
 // const expoServer = new Expo({ accessToken: accessToken });
 // import * as admin from 'firebase-admin';
@@ -14,8 +13,9 @@ import { admin } from '../app';
 export class NotifService {
     private transactions: TransactionsManager;
 
-    constructor(@InjectManager() entityManager: EntityManager) {
-        this.transactions = new TransactionsManager(entityManager);
+    constructor(entityManager?: EntityManager) {
+        const manager = entityManager || getManager();
+        this.transactions = new TransactionsManager(manager);
     }
 
     public sendFCMNotifs = async (notifs: NotificationData[], userId: string) => {
