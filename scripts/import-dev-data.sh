@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Script to import dev db dump into local postgres (Docker or native)
+# Script to import dev db dump into LOCAL resell-dev database (Docker or native)
 # Use like this --> ./scripts/import-dev-data.sh [dump-file]
 
 CONTAINER_NAME="my_postgres"
-DB_NAME="resell-test"
+DB_NAME="resell-dev"  # This is the LOCAL resell-dev db (the actual dev db in digital ocean hsa the same name)
 DB_USER="postgres"
 DB_HOST="localhost"
 DB_PORT="5432"
@@ -26,9 +26,22 @@ if [ ! -f "$DUMP_FILE" ]; then
     exit 1
 fi
 
-echo "Importing db dump into local postgres..."
-echo "Database: $DB_NAME"
+echo "=========================================="
+echo "Importing to LOCAL resell-dev database"
+echo "=========================================="
+echo "Target Database: $DB_NAME"
 echo "Dump file: $DUMP_FILE"
+echo "File size: $(du -h "$DUMP_FILE" | cut -f1)"
+echo ""
+
+echo "WARNING: This will replace ALL data in your local $DB_NAME database!"
+read -p "Continue? (y/N) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Import cancelled."
+    exit 0
+fi
+echo ""
 
 # import using docker
 import_via_docker() {
@@ -56,9 +69,11 @@ import_via_docker() {
     docker exec -i "$CONTAINER_NAME" psql -U "$DB_USER" -d "$DB_NAME" -f /tmp/dump.sql
 
     if [ $? -eq 0 ]; then
-        echo "db import completed successfully!"
+        echo ""
+        echo "✅ Database import completed successfully!"
         docker exec "$CONTAINER_NAME" rm /tmp/dump.sql
-        echo "db import summary:"
+        echo ""
+        echo "Import summary:"
         docker exec "$CONTAINER_NAME" psql -U "$DB_USER" -d "$DB_NAME" -c "
             SELECT 
                 schemaname,
@@ -69,7 +84,8 @@ import_via_docker() {
             ORDER BY n_tup_ins DESC;
         "
     else
-        echo "db import failed"
+        echo ""
+        echo "Database import failed"
         exit 1
     fi
 }
@@ -91,8 +107,10 @@ import_via_native() {
     psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f "$DUMP_FILE"
 
     if [ $? -eq 0 ]; then
-        echo "db import completed successfully!"
-        echo "db import summary:"
+        echo ""
+        echo "✅ Database import completed successfully!"
+        echo ""
+        echo "Import summary:"
         psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
             SELECT 
                 schemaname,
@@ -103,7 +121,8 @@ import_via_native() {
             ORDER BY n_tup_ins DESC;
         "
     else
-        echo "db import failed"
+        echo ""
+        echo "Database import failed"
         exit 1
     fi
 }

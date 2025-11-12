@@ -192,42 +192,98 @@ If you are encountering any migrations errors, use this as a last resort!
 
 ## Database Setup for Local Development
 
-### Option 1: Import Dev Database (Recommended)
+### Option 1: Import Dev Database (Rec)
 
 To work with the same data as the dev environment, you can import a copy of the dev database into your local setup. This works with both Docker and native postgres installations.
 
+#### Step 0: Set Up Remote Dev Database Connection in pgAdmin (First Time Only)
+
+Before you can dump from the remote dev server, you need to configure the connection in pgAdmin:
+
+1. **Get Database Connection Details from DigitalOcean**
+   - Go to DigitalOcean → **Databases**
+   - Scroll down to **Database Connection Details** (you'll need these for pgAdmin)
+
+2. **Add Your IP Address to Allowlist**
+   - In DigitalOcean database settings, add your IP address to the trusted sources
+   - (You may have already done this)
+
+3. **Download CA Certificate**
+   - In DigitalOcean, download the **CA certificate**
+   - Save it somewhere safe (e.g., same folder as your `resell.pem` file, like in an `appdev` folder)
+
+4. **Register Server in pgAdmin**
+   - Open pgAdmin
+   - Right-click **Servers** → **Register** → **Server**
+
+5. **Configure Connection Details**
+   - **General tab**: Give it a name (e.g., "appdev-postgres")
+   - **Connection tab**: Fill in all the details from DigitalOcean:
+     - Host name/address
+     - Port
+     - Database name
+     - Username
+     - Password
+   
+6. **Configure SSL Settings**
+   - Go to the **Parameters** tab
+   - Find `sslmode` and set it to **required**
+   - Click **Add** (plus icon) to add a new parameter
+   - Set parameter name: `root certificate`
+   - Set value: Full path to the CA certificate you downloaded
+   - Example: `/Users/yourname/appdev/ca-certificate.crt`
+
+7. **Save and Connect**
+   - Click **Save**
+   - pgAdmin should now connect to the remote dev database
+
 #### Step 1: Create Database Dump from Dev Environment
 
-First, update the dev database connection details in `scripts/dump-dev-db.sh`:
+**Option A: Dump from Remote Server (Recommended)**
+
+Once you have the remote dev server configured in pgAdmin (see Step 0), use those connection details to dump:
 ```bash
-DEV_DB_HOST="localhost"
-DEV_DB_NAME="resell-dev"
-DEV_DB_USERNAME="postgres"
+REMOTE_DB_HOST=your-dev-server-host \
+REMOTE_DB_PORT=your-port \
+REMOTE_DB_USER=your-username \
+REMOTE_DB_NAME=resell-dev \
+PGPASSWORD=your-password \
+FORCE_DOCKER=1 \
+./scripts/dump-dev-db.sh
 ```
 
-Then create the dump:
+Replace the values with your actual DigitalOcean connection details from pgAdmin. The `FORCE_DOCKER=1` flag tells the script to use your Docker container's `pg_dump` tool.
+
+**Option B: Dump from Local Database**
+
+If your dev database is local, simply run:
 ```bash
 ./scripts/dump-dev-db.sh
 ```
 
-#### Step 2: Import into Local Database
+This automatically detects your Docker container or native postgres installation.
+
+#### Step 2: Import into Local resell-dev Database
 
 The import script automatically detects your postgres setup (Docker or native) and imports accordingly:
 ```bash
 ./scripts/import-dev-data.sh
 ```
+**WARNING: This will replace all data in your local resell-dev database!** You'll be prompted to confirm.
 
 **What these commands do:**
 
-The first command will:
-- Detect your `my_postgres` Docker container
-- Create a dump from your `resell-dev` database
-- Save it to `dumps/dev_db_dump_[timestamp].sql`
+The first command (dump):
+- Connects to the **remote DigitalOcean hosted dev database** (appdev-postgres)
+- Reads the `resell-dev` database from DigitalOcean (READ ONLY - no changes to remote!)
+- Saves a copy to `dumps/dev_db_dump_[timestamp].sql` on your machine
 
-The second command will:
-- Find the dump file you just created
-- Import it into your `resell-test` database
-- Show you a summary of imported data
+The second command (import):
+- Finds the dump file you just created
+- Imports it into your **local `resell-dev`** database (in postgres-docker)
+- Shows a summary of imported tables and row counts
+
+**Important Note:** Both the remote DigitalOcean database and your local database are named `resell-dev`, but they are completely SEPARATE. The dump script only reads from DigitalOcean and never modifies it.
 
 **Manual Override Options:**
 - Force Docker: `FORCE_DOCKER=1 ./scripts/import-dev-data.sh`
