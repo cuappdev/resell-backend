@@ -1,6 +1,6 @@
 import { Connection, createConnection } from 'typeorm';
 
-import { models } from '../../models';
+// import { models } from '../../models';
 
 export class DatabaseConnection {
   private static conn: Connection | null = null;
@@ -9,7 +9,7 @@ export class DatabaseConnection {
     if (!DatabaseConnection.conn) {
       DatabaseConnection.conn = await createConnection({
         database: 'resell-test',
-        entities: models,
+        entities: [__dirname + '/../models/*.ts'],
         host: 'localhost',
         logging: false,
         password: 'postgres',
