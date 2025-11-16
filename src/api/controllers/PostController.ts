@@ -52,7 +52,22 @@ export class PostController {
     console.log('user === null:', user === null);
     console.log('user === undefined:', user === undefined);
     console.log('==============================');
-    return { post: (await this.postService.createPost(createPostRequest, user)).getPostInfo() };
+    try {
+    
+    const newPost = await this.postService.createPost(createPostRequest, user);
+    return { post: newPost.getPostInfo() };
+
+  } catch (error) {
+    
+    // THIS IS THE MOST IMPORTANT PART
+    console.error('--- 🛑 A CATCH BLOCK IN THE CONTROLLER FINALLY CAUGHT THE REAL ERROR 🛑 ---');
+    console.error(error); // This will log the REAL database error
+    console.error('--- END OF THE REAL ERROR ---');
+
+    // Re-throw the error so the app still reports a failure
+    throw error;
+    
+  }
   }
 
   @Delete('id/:id/')
