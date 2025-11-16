@@ -19,10 +19,13 @@ export class CategoryRepository extends AbstractRepository<CategoryModel> {
       .getMany();
   
     const existingNames = new Set(existing.map((c) => c.name));
+
+    const newNames = [
+      ...new Set(names.filter((name) => !existingNames.has(name))),
+    ];
   
-    const newCategories = names
-      .filter((name) => !existingNames.has(name))
-      .map((name) => this.repository.create({ name }));
+    // Create in-memory entities (not saving them)
+    const newCategories = newNames.map((name) => this.repository.create({ name }));
   
     if (newCategories.length > 0) {
       await this.repository.save(newCategories);

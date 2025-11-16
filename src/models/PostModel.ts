@@ -70,7 +70,9 @@ export class PostModel {
   })
   matched: RequestModel[];
 
-  @ManyToMany(() => CategoryModel, (category) => category.posts)
+  @ManyToMany(() => CategoryModel, (category) => category.posts, {
+    cascade: true,
+  })
   @JoinTable({
     name: "post_categories",
     joinColumn: { name: "posts", referencedColumnName: "id" },
