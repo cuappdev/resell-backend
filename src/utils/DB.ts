@@ -2,9 +2,10 @@ import { Connection, createConnection } from 'typeorm';
 // import { models } from '../models';
 
 export default async function resellConnection(): Promise<Connection> {
+  const entitiesPath = __dirname + '/../models/*Model.ts';
   return await createConnection({
     database: process.env.DB_NAME || 'resell-test',
-    entities: [__dirname + '/../models/*.ts'],
+    entities: [entitiesPath],
     host: process.env.DB_HOST,
     logging: (process.env.LOGGING?.toLowerCase() === "true"), //set to true to help with debugging
     password: process.env.DB_PASSWORD,
