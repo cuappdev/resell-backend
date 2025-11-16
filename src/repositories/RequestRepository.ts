@@ -101,18 +101,35 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     return this.repository.save(request);
   }
 
+  // public async findSimilarRequests(embedding: number[], excludeUserId: string, limit: number = 10): Promise<RequestModel[]> {
+  //   const lit = `[${embedding.join(",")}]`;
+  //   // create post failing due to the request.user and post.user relation not loading on dev
+  //  return await this.repository
+  //   .createQueryBuilder("request")
+  //   .leftJoinAndSelect("request.user", "user")
+  //   .where("request.embedding IS NOT NULL")
+  //   .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
+  //   .orderBy(`request.embedding::vector <-> CAST('${lit}' AS vector(512))`)
+  //   // .setParameter("excludeUserId", excludeUserId)
+  //   .take(limit)
+  //   .getMany();
+  // }
   public async findSimilarRequests(embedding: number[], excludeUserId: string, limit: number = 10): Promise<RequestModel[]> {
-    const lit = `[${embedding.join(",")}]`;
-    // create post failing due to the request.user and post.user relation not loading on dev
-   return await this.repository
-    .createQueryBuilder("request")
-    .leftJoinAndSelect("request.user", "user")
-    .where("request.embedding IS NOT NULL")
-    .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
-    .orderBy(`request.embedding::vector <-> CAST('${lit}' AS vector(512))`)
-    // .setParameter("excludeUserId", excludeUserId)
-    .take(limit)
-    .getMany();
-  }
+    // 1. Create the string representation of the vector for the parameter
+    const embeddingString = `[${embedding.join(",")}]`;
+    return await this.repository
+      .createQueryBuilder("request")
+      .leftJoinAndSelect("request.user", "user")
+      // 2. Calculate the distance and select it as a new column named "distance"
+      .addSelect(`request.embedding::vector <-> CAST(:embedding AS vector(512))`, "distance")
+      .where("request.embedding IS NOT NULL")
+      .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
+      // 3. Safely pass the embedding string as a parameter
+      .setParameter("embedding", embeddingString)
+      // 4. Order by the simple alias "distance". ASC means "smallest distance" (most similar).
+      .orderBy("distance", "ASC")
+      .take(limit)
+      .getMany();
+}
   
 }
