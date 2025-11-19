@@ -112,7 +112,8 @@ export class TransactionService {
             transactionId: transaction.id,
             sellerId: transaction.seller.firebaseUid,
             sellerUsername: transaction.seller.username,
-            price: transaction.amount
+            price: transaction.amount,
+            images: post.images
           } as unknown as JSON
         };
         await notifService.sendNotifs(buyerNotifRequest);
@@ -131,7 +132,8 @@ export class TransactionService {
             transactionId: transaction.id,
             buyerId: transaction.buyer.firebaseUid,
             buyerUsername: transaction.buyer.username,
-            price: transaction.amount
+            price: transaction.amount,
+            images: post.images
           } as unknown as JSON
         };
         await notifService.sendNotifs(sellerNotifRequest);
@@ -156,7 +158,8 @@ export class TransactionService {
                 sellerId: transaction.seller.firebaseUid,
                 sellerUsername: transaction.seller.username,
                 buyerId: transaction.buyer.firebaseUid,
-                buyerUsername: transaction.buyer.username
+                buyerUsername: transaction.buyer.username,
+                images: post.images
               } as unknown as JSON
             };
             await notifService.sendNotifs(postSoldNotifRequest);

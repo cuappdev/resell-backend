@@ -353,7 +353,8 @@ export class PostService {
           postId: post.id,
           postTitle: post.title,
           bookmarkedBy: user.firebaseUid,
-          bookmarkedByUsername: user.username
+          bookmarkedByUsername: user.username,
+          images: post.images
         } as unknown as JSON
       }
       const notifService = new NotifService(transactionalEntityManager);
