@@ -3117,6 +3117,54 @@
           "body": { "type": "string" },
           "data": {
             "type": "object",
+            "description": "Notification payload data. Common fields include: postId, postTitle, images (array of image URLs), transactionId, and user identifiers (buyerId, sellerId, bookmarkedBy). Available fields vary by notification type.",
+            "properties": {
+              "postId": {
+                "type": "string",
+                "description": "UUID of the post/listing"
+              },
+              "postTitle": {
+                "type": "string",
+                "description": "Title of the post/listing"
+              },
+              "images": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Array of image URLs for the post/listing"
+              },
+              "transactionId": {
+                "type": "string",
+                "description": "UUID of the transaction (for Item Sold notifications)"
+              },
+              "bookmarkedBy": {
+                "type": "string",
+                "description": "Firebase UID of user who bookmarked (for Bookmark notifications)"
+              },
+              "bookmarkedByUsername": {
+                "type": "string",
+                "description": "Username of user who bookmarked (for Bookmark notifications)"
+              },
+              "sellerId": {
+                "type": "string",
+                "description": "Firebase UID of the seller"
+              },
+              "sellerUsername": {
+                "type": "string",
+                "description": "Username of the seller"
+              },
+              "buyerId": {
+                "type": "string",
+                "description": "Firebase UID of the buyer"
+              },
+              "buyerUsername": {
+                "type": "string",
+                "description": "Username of the buyer"
+              },
+              "price": {
+                "type": "number",
+                "description": "Transaction price (for Item Sold notifications)"
+              }
+            },
             "additionalProperties": true
           }
         }
