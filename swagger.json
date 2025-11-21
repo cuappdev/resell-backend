@@ -1462,6 +1462,38 @@
         }
       }
     },
+    "/notif/markAsRead/id/{id}": {
+      "post": {
+        "summary": "Mark notification as read",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Notification ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification marked as read successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Notification" }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        }
+      }
+    },
     "/request": {
       "get": {
         "tags": ["Request"],
