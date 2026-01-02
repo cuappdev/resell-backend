@@ -23,6 +23,9 @@ export interface PublicProfile {
   familyName: string;
   stars: number;
   numReviews: number;
+  following: PublicProfile[];
+  followers: PublicProfile[];
+  soldPosts: number;
   photoUrl: string;
   venmoHandle: string;
   bio: string;

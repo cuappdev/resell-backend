@@ -46,6 +46,26 @@ export class UserModel {
   @Column({ type: "integer", default: 0 })
   numReviews: number;
 
+  @ManyToMany(() => UserModel, (user) => user.followers)
+  @JoinTable({
+    name: "user_following_users",
+    joinColumn: {
+      name: "follower_id",
+      referencedColumnName: "firebaseUid",
+    },
+    inverseJoinColumn: {
+      name: "following_id",
+      referencedColumnName: "firebaseUid",
+    },
+  })
+  following: UserModel[];
+
+  @ManyToMany(() => UserModel, (user) => user.following)
+  followers: UserModel[];
+
+  @Column({ type: "integer", default: 0 })
+  soldPosts: number;
+
   @Column({ nullable: true })
   photoUrl: string;
 
@@ -105,7 +125,7 @@ export class UserModel {
   reviewsWritten: UserReviewModel[];
 
   @OneToMany(() => UserReviewModel, (review) => review.seller)
-  reviewsReceived: UserReviewModel[]; 
+  reviewsReceived: UserReviewModel[];
 
   public getUserProfile(): PrivateProfile {
     return {
@@ -117,6 +137,9 @@ export class UserModel {
       admin: this.admin,
       stars: this.stars,
       numReviews: this.numReviews,
+      following: this.following,
+      followers: this.followers,
+      soldPosts: this.soldPosts,
       photoUrl: this.photoUrl,
       venmoHandle: this.venmoHandle,
       email: this.email,

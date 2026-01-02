@@ -69,6 +69,14 @@ export interface UnblockUserRequest {
     unblocked: Uuid;
 }
 
+export interface FollowUserRequest {
+    userId: string;
+}
+
+export interface UnfollowUserRequest {
+    userId: string;
+}
+
 // POST
 
 export type PostSortField = 'any' | 'priceLowToHigh' | 'priceHighToLow' | 'newlyListed';
