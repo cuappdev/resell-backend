@@ -279,12 +279,10 @@ export interface RespondProposalChat {
 
 // AVAILABILITY REQUESTS
 
-export interface CreateAvailabilityRequest {
-    schedule: AvailabilitySlotRequest[];
-}
-
+/** Request to update availability - only send days that changed */
 export interface UpdateAvailabilityRequest {
-    schedule: AvailabilitySlotRequest[];
+    /** Day-keyed schedule: { "2026-01-23": [slots], "2026-01-24": [slots] } */
+    schedule: Record<string, AvailabilitySlotRequest[]>;
 }
 
 export interface AvailabilitySlotRequest {

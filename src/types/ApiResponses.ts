@@ -228,9 +228,9 @@ export interface ProposalResponse {
   type: string,
   senderID: Uuid,
   timestamp: Date,
-  accepted:boolean|null,
-  startDate:Date,
-  endDate:Date
+  accepted: boolean | null,
+  startDate: Date,
+  endDate: Date
 
 }
 
@@ -238,24 +238,24 @@ export interface CancelProposalResponse {
   type: string,
   senderID: Uuid,
   timestamp: Date,
-  startDate:Date,
-  endDate:Date,
-  cancellation:boolean
+  startDate: Date,
+  endDate: Date,
+  cancellation: boolean
 
 }
 
 export interface ChatReadResponse {
-  read:boolean
+  read: boolean
 
 }
 
 
-export interface AuthTokenResponse{
-  token:string
+export interface AuthTokenResponse {
+  token: string
 }
 
-export interface UIDResponse{
-  uid:string
+export interface UIDResponse {
+  uid: string
 }
 
 // AVAILABILITY RESPONSES
@@ -267,7 +267,8 @@ export interface GetAvailabilityResponse {
 export interface UserAvailabilityResponse {
   id: string;
   userId: string;
-  schedule: AvailabilitySlotResponse[];
+  /** Day-keyed schedule: { "2026-01-23": [slots], "2026-01-24": [slots] } */
+  schedule: Record<string, AvailabilitySlotResponse[]>;
   updatedAt: Date;
 }
 

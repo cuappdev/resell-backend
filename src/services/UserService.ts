@@ -2,12 +2,16 @@ import { NotFoundError, UnauthorizedError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
+import { getFirestore } from 'firebase-admin/firestore';
 
 import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';
 import Repositories, { TransactionsManager } from '../repositories';
 import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest, CreateUserRequest, FcmTokenRequest, FollowUserRequest, UnfollowUserRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
+
+const db = getFirestore();
+const availabilityRef = db.collection('availability');
 
 @Service()
 export class UserService {
@@ -32,6 +36,19 @@ export class UserService {
         createUserRequest.googleId,
         createUserRequest.bio
       );
+
+      // Create empty availability in Firestore for new user
+      const now = new Date();
+      const availabilityDoc = await availabilityRef.add({
+        userId: user.firebaseUid,
+        schedule: {},  // Empty day-keyed object
+        updatedAt: now
+      });
+
+      // Link availability to user
+      await userRepository.updateAvailabilityId(user.firebaseUid, availabilityDoc.id);
+      makeUser.availabilityId = availabilityDoc.id;
+
       const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
       const token = await fcmRepository.createFcmToken(
         createUserRequest.fcmToken,
