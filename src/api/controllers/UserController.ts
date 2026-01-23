@@ -1,4 +1,4 @@
-import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete} from 'routing-controllers';
+import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete } from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
@@ -96,7 +96,7 @@ export class UserController {
   async deleteUser(@CurrentUser() user: UserModel): Promise<UserModel> {
     return await this.userService.deleteUser(user);
   }
-  
+
   @Delete('id/:id/')
   async deleteUserByOtherUser(@Params() params: FirebaseUidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
     return { user: await this.userService.deleteUserByOtherUser(user, params) };

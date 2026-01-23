@@ -235,4 +235,16 @@ export class UserRepository extends AbstractRepository<UserModel> {
     user.isActive = false;
     return this.repository.save(user);
   }
+
+  public async updateAvailabilityId(
+    userId: string,
+    availabilityId: string | null
+  ): Promise<void> {
+    await this.repository
+      .createQueryBuilder()
+      .update(UserModel)
+      .set({ availabilityId: availabilityId ?? undefined })
+      .where("firebaseUid = :userId", { userId })
+      .execute();
+  }
 }

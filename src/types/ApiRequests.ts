@@ -276,3 +276,18 @@ export interface RespondProposalChat {
     endDate: Date;
     accepted: boolean
 }
+
+// AVAILABILITY REQUESTS
+
+export interface CreateAvailabilityRequest {
+    schedule: AvailabilitySlotRequest[];
+}
+
+export interface UpdateAvailabilityRequest {
+    schedule: AvailabilitySlotRequest[];
+}
+
+export interface AvailabilitySlotRequest {
+    startDate: string;  // ISO date string from client
+    endDate: string;    // ISO date string from client
+}

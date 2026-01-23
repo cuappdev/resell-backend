@@ -81,6 +81,9 @@ export class UserModel {
   @Column({ type: "text", default: "" })
   bio: string;
 
+  @Column({ nullable: true })
+  availabilityId: string;
+
   @ManyToMany(() => UserModel, (user) => user.blockers)
   @JoinTable({
     name: "user_blocking_users",

@@ -257,3 +257,21 @@ export interface AuthTokenResponse{
 export interface UIDResponse{
   uid:string
 }
+
+// AVAILABILITY RESPONSES
+
+export interface GetAvailabilityResponse {
+  availability: UserAvailabilityResponse | null;
+}
+
+export interface UserAvailabilityResponse {
+  id: string;
+  userId: string;
+  schedule: AvailabilitySlotResponse[];
+  updatedAt: Date;
+}
+
+export interface AvailabilitySlotResponse {
+  startDate: Date;
+  endDate: Date;
+}
