@@ -261,7 +261,7 @@ export interface UIDResponse {
 // AVAILABILITY RESPONSES
 
 export interface GetAvailabilityResponse {
-  availability: UserAvailabilityResponse | null;
+  availability: UserAvailabilityResponse;
 }
 
 export interface UserAvailabilityResponse {
