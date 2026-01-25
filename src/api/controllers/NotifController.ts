@@ -1,4 +1,4 @@
-import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, Delete, Get, JsonController, Param, Params, Post } from 'routing-controllers';
 import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from 'src/types';
 import { NotifService } from '../../services/NotifService';
 import { UserModel } from '../../models/UserModel';
@@ -49,5 +49,30 @@ export class NotifController {
     @Delete('id/:id')
     async deleteNotification(@CurrentUser() user: UserModel, @Params() params: { id: string }) {
         return this.notifService.deleteNotification(user.firebaseUid, params.id);
+    }
+
+    /**
+     * TEST ENDPOINT: Create test notifications for the current user
+     * POST /notif/test/:type
+     * Types: messages, requests, bookmarks, transactions
+     */
+    @Post('test/:type')
+    async createTestNotification(
+        @CurrentUser() user: UserModel,
+        @Param('type') type: string
+    ) {
+        return this.notifService.createTestNotification(user.firebaseUid, type);
+    }
+
+    /**
+     * Mark a notification as read
+     * POST /notif/read/:id
+     */
+    @Post('read/:id')
+    async markAsRead(
+        @CurrentUser() user: UserModel,
+        @Param('id') notifId: string
+    ) {
+        return this.notifService.markAsRead(user.firebaseUid, notifId);
     }
 }
