@@ -4,7 +4,20 @@ An open-sourced backend service for Resell.
 
 ## Setup
 
-Make sure that `npm` installed (`nvm` is recomended to manage node versions.)  
+Make sure that `npm` installed (`nvm` is recomended to manage node versions.)
+
+For this project, we use **Node v20**. Even if you have a newer Node version installed, we downgrade to v20 to avoid compatibility issues (especially with TensorFlow).
+
+1. Install `nvm` (Node Version Manager).
+2. Install Node 20:
+    ```
+    nvm install 20
+    ```
+3. Use Node 20:
+    ```
+    nvm use 20
+    ```
+
 Depending on preference, either run `yarn install` or `npm install` to ensure
 all required dependencies are installed. Copy the `.env_template` to either a
 `.env` file , and update with necessary credentials. Sourcing the file is not
