@@ -20,7 +20,7 @@ function handleError(error: Error,
     error: message,
     httpCode: httpCode,
   };
-  console.log(message);
+  console.error(`[${httpCode}] ${message}`);
   response.status(httpCode).json(errorResponse);
   next();
 }

@@ -20,10 +20,6 @@ import * as admin from "firebase-admin";
 
 dotenv.config();
 
-console.log(
-  "FIREBASE_SERVICE_ACCOUNT_PATH:",
-  process.env.FIREBASE_SERVICE_ACCOUNT_PATH,
-);
 var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
 const serviceAccount = require(serviceAccountPath);
 
@@ -78,7 +74,6 @@ async function main() {
     controllers: controllers,
     middlewares: middlewares,
     currentUserChecker: async (action: any) => {
-      console.log("AUTH MIDDLEWARE CALLED for path:", action.request.path);
       const authHeader = action.request.headers["authorization"];
       if (!authHeader) {
         throw new ForbiddenError("No authorization token provided");
@@ -94,9 +89,7 @@ async function main() {
         const email = decodedToken.email;
         const userId = decodedToken.uid;
         action.request.email = email;
-        console.log("uid");
         action.request.firebaseUid = userId;
-        console.log("here");
         if (!email || !email.endsWith("@cornell.edu")) {
           throw new ForbiddenError("Only Cornell email addresses are allowed");
         }

@@ -21,7 +21,6 @@ export class NotifService {
     public sendFCMNotifs = async (notifs: NotificationData[], userId: string) => {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
             const notifRepository = Repositories.notification(transactionalEntityManager);
-            console.log(notifs);
             for (let notif of notifs) {
                 const msg: Message = {
                     notification: {
@@ -73,8 +72,6 @@ export class NotifService {
                 allDeviceTokens.push(token);
                 
             }
-            console.log(allDeviceTokens);
-        
             let notif: NotificationData = {
                 to: allDeviceTokens.map(tokenObj => tokenObj.token),
                 sound: 'default',
@@ -100,7 +97,7 @@ export class NotifService {
                     httpCode: 200
                   };
             } catch (err) {
-                console.log(err)
+                console.error('Failed to send notification:', err);
                 return {
                     message: "Notification not sent",
                     httpCode: 500
@@ -132,8 +129,6 @@ export class NotifService {
                 allDeviceTokens.push(token);
                 
             }
-            console.log(allDeviceTokens);
-
             let notif: NotificationData = {
                 to: allDeviceTokens.map(tokenObj => tokenObj.token),
                 sound: 'default',
@@ -166,7 +161,7 @@ export class NotifService {
                     httpCode: 200
                   };
             } catch (err) {
-                console.log(err);
+                console.error('Failed to send discount notification:', err);
                 return {
                     message: "Notification not sent",
                     httpCode: 500
@@ -238,7 +233,7 @@ export class NotifService {
                     httpCode: 200
                   };
             } catch (err) {
-                console.log(err);
+                console.error('Failed to send request match notification:', err);
                 return {
                     message: "Notification not sent",
                     httpCode: 500
