@@ -1,4 +1,11 @@
-import {Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Uuid } from "../types";
 import { UserModel } from "./UserModel";
 import { PostModel } from "./PostModel";
@@ -24,10 +31,10 @@ export class ReportModel {
   })
   message?: MessageModel;
 
-  @Column({nullable: false})
+  @Column({ nullable: false })
   reason: string;
 
-  @Column({nullable: false})
+  @Column({ nullable: false })
   type: "post" | "profile" | "message";
 
   @Column()

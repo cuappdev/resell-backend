@@ -1,14 +1,15 @@
-import { PostModel } from 'src/models/PostModel';
-import { UserModel } from 'src/models/UserModel';
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { PostModel } from "src/models/PostModel";
+import { UserModel } from "src/models/UserModel";
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { RequestModel } from '../models/RequestModel';
-import { Uuid } from '../types';
+import { RequestModel } from "../models/RequestModel";
+import { Uuid } from "../types";
 
 @EntityRepository(RequestModel)
 export class RequestRepository extends AbstractRepository<RequestModel> {
   public async getAllRequest(): Promise<RequestModel[]> {
-    return await this.repository.createQueryBuilder("request")
+    return await this.repository
+      .createQueryBuilder("request")
       .leftJoinAndSelect("request.user", "user")
       .getMany();
   }
@@ -33,7 +34,7 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     description: string,
     archive: boolean,
     user: UserModel,
-    embedding: number[]
+    embedding: number[],
   ): Promise<RequestModel> {
     const request = this.repository.create({
       title,
@@ -65,7 +66,9 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .execute();
   }
 
-  public async getAllMatchesByRequestId(id: Uuid): Promise<RequestModel | undefined> {
+  public async getAllMatchesByRequestId(
+    id: Uuid,
+  ): Promise<RequestModel | undefined> {
     return await this.repository
       .createQueryBuilder("request")
       .where("request.id = :id", { id })
@@ -73,7 +76,10 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .getOne();
   }
 
-  public async getTimedMatchesByRequestId(id: Uuid, time: Date): Promise<RequestModel | undefined> {
+  public async getTimedMatchesByRequestId(
+    id: Uuid,
+    time: Date,
+  ): Promise<RequestModel | undefined> {
     return await this.repository
       .createQueryBuilder("request")
       .where("request.id = :id", { id })
@@ -82,8 +88,10 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .getOne();
   }
 
-  public async addMatchToRequest(request: RequestModel, post: PostModel): Promise<RequestModel> {
-
+  public async addMatchToRequest(
+    request: RequestModel,
+    post: PostModel,
+  ): Promise<RequestModel> {
     if (!request.user || !post.user) {
       console.warn("Skipping match: request or post user is null");
       return request;
@@ -95,33 +103,30 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       // Throw error maybe?
       return request;
     }
-    
-    if (request.matches === undefined) { request.matches = [post]; }
-    else { request.matches.push(post); }
+
+    if (request.matches === undefined) {
+      request.matches = [post];
+    } else {
+      request.matches.push(post);
+    }
     return this.repository.save(request);
   }
 
-  // public async findSimilarRequests(embedding: number[], excludeUserId: string, limit: number = 10): Promise<RequestModel[]> {
-  //   const lit = `[${embedding.join(",")}]`;
-  //   // create post failing due to the request.user and post.user relation not loading on dev
-  //  return await this.repository
-  //   .createQueryBuilder("request")
-  //   .leftJoinAndSelect("request.user", "user")
-  //   .where("request.embedding IS NOT NULL")
-  //   .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
-  //   .orderBy(`request.embedding::vector <-> CAST('${lit}' AS vector(512))`)
-  //   // .setParameter("excludeUserId", excludeUserId)
-  //   .take(limit)
-  //   .getMany();
-  // }
-  public async findSimilarRequests(embedding: number[], excludeUserId: string, limit: number = 10): Promise<RequestModel[]> {
+  public async findSimilarRequests(
+    embedding: number[],
+    excludeUserId: string,
+    limit = 10,
+  ): Promise<RequestModel[]> {
     // 1. Create the string representation of the vector for the parameter
     const embeddingString = `[${embedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("request")
       .leftJoinAndSelect("request.user", "user")
       // 2. Calculate the distance and select it as a new column named "distance"
-      .addSelect(`request.embedding::vector <-> CAST(:embedding AS vector(512))`, "distance")
+      .addSelect(
+        `request.embedding::vector <-> CAST(:embedding AS vector(512))`,
+        "distance",
+      )
       .where("request.embedding IS NOT NULL")
       .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
       // 3. Safely pass the embedding string as a parameter
@@ -130,6 +135,5 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .orderBy("distance", "ASC")
       .take(limit)
       .getMany();
-}
-  
+  }
 }

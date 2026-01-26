@@ -1,14 +1,17 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class makenetidnullable1713218553306 implements MigrationInterface {
-    name = 'makenetidnullable1713218553306'
+  name = "makenetidnullable1713218553306";
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "User" ALTER COLUMN "netid" DROP NOT NULL`);
-    }
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "User" ALTER COLUMN "netid" DROP NOT NULL`,
+    );
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "User" ALTER COLUMN "netid" SET NOT NULL`);
-    }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "User" ALTER COLUMN "netid" SET NOT NULL`,
+    );
+  }
 }

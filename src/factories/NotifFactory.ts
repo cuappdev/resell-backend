@@ -1,7 +1,7 @@
 // NotifFactory.ts
-import { define } from 'typeorm-seeding';
-import { NotifModel } from '../models/NotifModel';
-import { UserModel } from '../models/UserModel';
+import { define } from "typeorm-seeding";
+import { NotifModel } from "../models/NotifModel";
+import { UserModel } from "../models/UserModel";
 
 // Define a factory for NotifModel
 define(NotifModel, (_, context?: { user?: UserModel; index?: number }) => {
@@ -11,7 +11,7 @@ define(NotifModel, (_, context?: { user?: UserModel; index?: number }) => {
   notif.title = `Notification ${index}`;
   notif.body = `This is notification ${index} for testing purposes`;
   notif.read = false;
-  
+
   if (context?.user) {
     notif.userId = context.user.firebaseUid;
     notif.user = context.user;

@@ -1,9 +1,8 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddTransactionReviewTable1732975238671 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
           CREATE TABLE "TransactionReview" (
             "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
             "stars" integer NOT NULL,
@@ -16,16 +15,17 @@ export class AddTransactionReviewTable1732975238671 implements MigrationInterfac
             CONSTRAINT "PK_TransactionReview" PRIMARY KEY ("id")
           )
         `);
-    
-        await queryRunner.query(`
+
+    await queryRunner.query(`
           ALTER TABLE "TransactionReview" 
           ADD CONSTRAINT "FK_transaction" FOREIGN KEY ("transaction_id") REFERENCES "Transaction"("id") ON DELETE CASCADE ON UPDATE NO ACTION
         `);
-      }
-    
-      public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "TransactionReview" DROP CONSTRAINT "FK_transaction"`);
-        await queryRunner.query(`DROP TABLE "TransactionReview"`);
-      }
+  }
 
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "TransactionReview" DROP CONSTRAINT "FK_transaction"`,
+    );
+    await queryRunner.query(`DROP TABLE "TransactionReview"`);
+  }
 }

@@ -105,7 +105,7 @@ export class UserModel {
   reviewsWritten: UserReviewModel[];
 
   @OneToMany(() => UserReviewModel, (review) => review.seller)
-  reviewsReceived: UserReviewModel[]; 
+  reviewsReceived: UserReviewModel[];
 
   public getUserProfile(): PrivateProfile {
     return {

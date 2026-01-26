@@ -1,11 +1,11 @@
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { PostModel } from '../models/PostModel';
-import { UserModel } from '../models/UserModel';
-import { CategoryModel } from '../models/CategoryModel';
-import { FilterPostsUnifiedRequest, Uuid } from '../types';
-import Repositories from '.';
-import pgvector from 'pgvector';
+import { PostModel } from "../models/PostModel";
+import { UserModel } from "../models/UserModel";
+import { CategoryModel } from "../models/CategoryModel";
+import { FilterPostsUnifiedRequest, Uuid } from "../types";
+import Repositories from ".";
+import pgvector from "pgvector";
 
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
@@ -19,7 +19,10 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async getAllPostsPaginated(skip: number, limit: number): Promise<PostModel[]> {
+  public async getAllPostsPaginated(
+    skip: number,
+    limit: number,
+  ): Promise<PostModel[]> {
     // Step 1: Get paginated post IDs
     const postIds = await this.repository
       .createQueryBuilder("post")
@@ -30,7 +33,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .take(limit)
       .getMany();
 
-    const ids = postIds.map(post => post.id);
+    const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
     // Step 2: Fetch full posts with relations
@@ -106,24 +109,34 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("LOWER(post.title) like LOWER(:keywords)", { keywords: `%${keywords}%` })
+      .where("LOWER(post.title) like LOWER(:keywords)", {
+        keywords: `%${keywords}%`,
+      })
       .andWhere("post.archive = false")
       .orderBy("categories.name", "ASC")
       .getMany();
   }
 
-  public async searchPostsByDescription(keywords: string): Promise<PostModel[]> {
+  public async searchPostsByDescription(
+    keywords: string,
+  ): Promise<PostModel[]> {
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("LOWER(post.description) like LOWER(:keywords)", { keywords: `%${keywords}%` })
+      .where("LOWER(post.description) like LOWER(:keywords)", {
+        keywords: `%${keywords}%`,
+      })
       .andWhere("post.archive = false")
       .orderBy("categories.name", "ASC")
       .getMany();
   }
 
-  public async filterPostsByCategories(categories: string[], skip: number, limit: number): Promise<PostModel[]> {
+  public async filterPostsByCategories(
+    categories: string[],
+    skip: number,
+    limit: number,
+  ): Promise<PostModel[]> {
     const postIds = await this.repository
       .createQueryBuilder("post")
       .select("post.id")
@@ -134,7 +147,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .take(limit)
       .getMany();
 
-    const ids = postIds.map(post => post.id);
+    const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
     return await this.repository
@@ -145,18 +158,29 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async filterPostsByPrice(lowerBound: number, upperBound: number, skip: number, limit: number): Promise<PostModel[]> {
+  public async filterPostsByPrice(
+    lowerBound: number,
+    upperBound: number,
+    skip: number,
+    limit: number,
+  ): Promise<PostModel[]> {
     const postIds = await this.repository
       .createQueryBuilder("post")
       .select("post.id")
-      .where("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END >= :lowerBound", { lowerBound: lowerBound })
-      .andWhere("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END <= :upperBound", { upperBound: upperBound })
+      .where(
+        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END >= :lowerBound",
+        { lowerBound: lowerBound },
+      )
+      .andWhere(
+        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END <= :upperBound",
+        { upperBound: upperBound },
+      )
       .andWhere("post.archive = false")
       .skip(skip)
       .take(limit)
       .getMany();
 
-    const ids = postIds.map(post => post.id);
+    const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
     return await this.repository
@@ -168,17 +192,23 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async filterPriceHighToLow(skip: number, limit: number): Promise<PostModel[]> {
+  public async filterPriceHighToLow(
+    skip: number,
+    limit: number,
+  ): Promise<PostModel[]> {
     const postIds = await this.repository
       .createQueryBuilder("post")
       .select("post.id")
       .where("post.archive = false")
-      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "DESC")
+      .orderBy(
+        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
+        "DESC",
+      )
       .skip(skip)
       .take(limit)
       .getMany();
 
-    const ids = postIds.map(post => post.id);
+    const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
     return await this.repository
@@ -186,22 +216,31 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .where("post.id IN (:...ids)", { ids })
-      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "DESC")
+      .orderBy(
+        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
+        "DESC",
+      )
       .addOrderBy("categories.name", "ASC")
       .getMany();
   }
 
-  public async filterPriceLowToHigh(skip: number, limit: number): Promise<PostModel[]> {
+  public async filterPriceLowToHigh(
+    skip: number,
+    limit: number,
+  ): Promise<PostModel[]> {
     const postIds = await this.repository
       .createQueryBuilder("post")
       .select("post.id")
       .where("post.archive = false")
-      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "ASC")
+      .orderBy(
+        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
+        "ASC",
+      )
       .skip(skip)
       .take(limit)
       .getMany();
 
-    const ids = postIds.map(post => post.id);
+    const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
     return await this.repository
@@ -209,12 +248,18 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .where("post.id IN (:...ids)", { ids })
-      .orderBy("CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END", "ASC")
+      .orderBy(
+        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
+        "ASC",
+      )
       .addOrderBy("categories.name", "ASC")
       .getMany();
   }
 
-  public async filterNewlyListed(skip: number, limit: number): Promise<PostModel[]> {
+  public async filterNewlyListed(
+    skip: number,
+    limit: number,
+  ): Promise<PostModel[]> {
     const postIds = await this.repository
       .createQueryBuilder("post")
       .select("post.id")
@@ -224,7 +269,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .take(limit)
       .getMany();
 
-    const ids = postIds.map(post => post.id);
+    const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
     return await this.repository
@@ -247,7 +292,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async filterByCondition(conditions: string[], skip: number, limit: number): Promise<PostModel[]> {
+  public async filterByCondition(
+    conditions: string[],
+    skip: number,
+    limit: number,
+  ): Promise<PostModel[]> {
     const postIds = await this.repository
       .createQueryBuilder("post")
       .select("post.id")
@@ -257,7 +306,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .take(limit)
       .getMany();
 
-    const ids = postIds.map(post => post.id);
+    const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
     return await this.repository
@@ -269,17 +318,29 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
-  public async filterPostsUnified(filterPostsUnifiedRequest: FilterPostsUnifiedRequest, skip: number, limit: number): Promise<PostModel[]> {
+  public async filterPostsUnified(
+    filterPostsUnifiedRequest: FilterPostsUnifiedRequest,
+    skip: number,
+    limit: number,
+  ): Promise<PostModel[]> {
     const qb = this.repository
       .createQueryBuilder("post")
       .select("post.id")
       .where("post.archive = false");
 
     // Categories
-    if (filterPostsUnifiedRequest.categories && filterPostsUnifiedRequest.categories.length > 0) {
-      qb.innerJoin("post.categories", "catFilter", "catFilter.name IN (:...categories)", {
-        categories: filterPostsUnifiedRequest.categories,
-      });
+    if (
+      filterPostsUnifiedRequest.categories &&
+      filterPostsUnifiedRequest.categories.length > 0
+    ) {
+      qb.innerJoin(
+        "post.categories",
+        "catFilter",
+        "catFilter.name IN (:...categories)",
+        {
+          categories: filterPostsUnifiedRequest.categories,
+        },
+      );
     }
 
     // Pricing
@@ -287,37 +348,43 @@ export class PostRepository extends AbstractRepository<PostModel> {
       if (filterPostsUnifiedRequest.price.lowerBound !== undefined) {
         qb.andWhere(
           "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END) >= :lowerBound",
-          { lowerBound: filterPostsUnifiedRequest.price.lowerBound }
+          { lowerBound: filterPostsUnifiedRequest.price.lowerBound },
         );
       }
       if (filterPostsUnifiedRequest.price.upperBound !== undefined) {
         qb.andWhere(
           "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END) <= :upperBound",
-          { upperBound: filterPostsUnifiedRequest.price.upperBound }
+          { upperBound: filterPostsUnifiedRequest.price.upperBound },
         );
       }
     }
 
     // Condition
-    if (filterPostsUnifiedRequest.condition && filterPostsUnifiedRequest.condition.length > 0) {
+    if (
+      filterPostsUnifiedRequest.condition &&
+      filterPostsUnifiedRequest.condition.length > 0
+    ) {
       qb.andWhere("post.condition IN (:...conditions)", {
         conditions: filterPostsUnifiedRequest.condition,
       });
     }
 
     // Sorting
-    if (filterPostsUnifiedRequest.sortField && filterPostsUnifiedRequest.sortField !== "any") {
+    if (
+      filterPostsUnifiedRequest.sortField &&
+      filterPostsUnifiedRequest.sortField !== "any"
+    ) {
       switch (filterPostsUnifiedRequest.sortField) {
         case "priceLowToHigh":
           qb.orderBy(
             "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END)",
-            "ASC"
+            "ASC",
           );
           break;
         case "priceHighToLow":
           qb.orderBy(
             "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END)",
-            "DESC"
+            "DESC",
           );
           break;
         case "newlyListed":
@@ -329,7 +396,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     qb.skip(skip).take(limit);
 
     const postIds = await qb.getMany();
-    const ids = postIds.map(post => post.id);
+    const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
     return await this.repository
@@ -339,7 +406,6 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .where("post.id IN (:...ids)", { ids })
       .getMany();
   }
-
 
   public async getAllArchivedPosts(): Promise<PostModel[]> {
     return await this.repository
@@ -364,7 +430,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
 
   public async archivePost(post: PostModel): Promise<PostModel> {
     post.archive = true;
-    return await this.repository.save(post)
+    return await this.repository.save(post);
   }
 
   public async archiveAllPostsByUserId(userId: string): Promise<void> {
@@ -377,14 +443,17 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .execute();
   }
 
-  public async editPostPrice(post: PostModel, new_price: number): Promise<PostModel> {
-    post.altered_price = new_price
-    return await this.repository.save(post)
+  public async editPostPrice(
+    post: PostModel,
+    new_price: number,
+  ): Promise<PostModel> {
+    post.altered_price = new_price;
+    return await this.repository.save(post);
   }
 
   public async markPostAsSold(post: PostModel): Promise<PostModel> {
     post.sold = true;
-    return await this.repository.save(post)
+    return await this.repository.save(post);
   }
 
   public async getPostWithSaversById(id: Uuid): Promise<PostModel | undefined> {
@@ -400,7 +469,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
   /*
   This method is for getting similar posts for a given post query embedding.
   */
-  public async getSimilarPosts(queryEmbedding: number[], excludePostId: string, excludeUserId: string): Promise<PostModel[]> {
+  public async getSimilarPosts(
+    queryEmbedding: number[],
+    excludePostId: string,
+    excludeUserId: string,
+  ): Promise<PostModel[]> {
     const lit = `[${queryEmbedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("post")
@@ -416,7 +489,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
   /*
   This method is for getting similar posts given a request embedding.
   */
-  public async findSimilarPosts(embedding: number[], excludeUserId: string, limit: number = 10): Promise<PostModel[]> {
+  public async findSimilarPosts(
+    embedding: number[],
+    excludeUserId: string,
+    limit = 10,
+  ): Promise<PostModel[]> {
     const lit = `[${embedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("post")
@@ -430,11 +507,12 @@ export class PostRepository extends AbstractRepository<PostModel> {
 
   public async getSuggestedPosts(
     userId: string,
-    limit: number = 10
+    limit = 10,
   ): Promise<PostModel[]> {
-    // This query implements the weighted scoring for suggested posts    
+    // This query implements the weighted scoring for suggested posts
     // Using query for weight calc
-    const posts = await this.repository.query(`
+    const posts = await this.repository.query(
+      `
       WITH 
       -- Calculate recency score using exponential decay
       recency_scores AS (
@@ -509,14 +587,21 @@ export class PostRepository extends AbstractRepository<PostModel> {
       WHERE p.archive = false AND p.sold = false
       ORDER BY cs.total_score DESC, p.created DESC
       LIMIT $2;
-    `, [userId, limit]);
+    `,
+      [userId, limit],
+    );
 
     // Convert query res to PostModel entities
     return await Promise.all(
       posts.map(async (post: any) => {
         const fullPost = await this.getPostById(post.id);
-        return fullPost!;
-      })
+        if (!fullPost) {
+          console.error(
+            `Post with ID ${post.id} found in suggestion query but could not be retrieved fully.`,
+          );
+        }
+        return fullPost;
+      }),
     );
   }
 
@@ -524,7 +609,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
   Get purchase suggestions based on vector similarity to average of user's purchase history.
   Uses pgvector's cosine distance operator to find similar posts efficiently.
   */
-  public async getPurchaseSuggestions(avgEmbedding: number[], excludeUserId: string, limit: number = 10): Promise<PostModel[]> {
+  public async getPurchaseSuggestions(
+    avgEmbedding: number[],
+    excludeUserId: string,
+    limit = 10,
+  ): Promise<PostModel[]> {
     const lit = `[${avgEmbedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("post")

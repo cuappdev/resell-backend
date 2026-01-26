@@ -1,154 +1,66 @@
 {
-
   "name": "resell-server",
-
   "version": "1.0.0",
-
   "description": "An open-sourced backend service for Resell.",
-
   "main": "src/app.ts",
-
   "scripts": {
-
     "dev": "tsc-watch --onSuccess \"ts-node src/app.ts\"",
-
     "start": "ts-node src/app.ts",
-
     "test": "jest",
-
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\"",
     "db:migrate:create": "ts-node ./node_modules/typeorm/cli.js migration:create -n",
-
     "db:migrate:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate -n",
-
     "db:migrate": "ts-node ./node_modules/typeorm/cli.js migration:run",
-
     "db:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert",
-
     "db:seed": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed"
-
   },
-
   "repository": {
-
     "type": "git",
-
     "url": "git+https://github.com/cuappdev/resell-backend.git"
-
   },
-
   "license": "ISC",
-
   "bugs": {
-
     "url": "https://github.com/cuappdev/resell-backend/issues"
-
   },
-
   "homepage": "https://github.com/cuappdev/resell-backend#readme",
-
   "devDependencies": {
-
-    "@types/body-parser": "^1.19.2",
-
     "@types/express": "^4.17.13",
-
     "@types/faker": "^5.5.5",
-
     "@types/jest": "^27.0.2",
-
-    "@types/multer": "^1.4.7",
-
     "@types/node": "^16.9.0",
-
     "@types/node-fetch": "^2.6.1",
-
     "@types/swagger-ui-express": "^4.1.7",
-
     "@typescript-eslint/eslint-plugin": "^4.31.0",
-
     "@typescript-eslint/parser": "^4.31.0",
-
     "eslint": "^7.32.0",
-
     "eslint-config-prettier": "^8.3.0",
-
     "jest": "^27.2.4",
-
-    "nodemon": "^2.0.12",
-
+    "prettier": "3.8.1",
     "ts-jest": "^27.0.5",
-
-    "ts-mockito": "^2.6.1",
-
     "tsc-watch": "^4.5.0",
-
     "typeorm-seeding": "^1.6.1",
-
     "typescript": "^4.4.2"
-
   },
-
   "dependencies": {
-
     "@tensorflow-models/universal-sentence-encoder": "^1.3.3",
-
     "@tensorflow/tfjs": "^4.2.0",
-
     "@tensorflow/tfjs-node": "^4.22.0",
-
-    "body-parser": "^1.19.1",
-
-    "class-transformer": "^0.5.1",
-
     "class-validator": "^0.14.0",
-
-    "cors": "^2.8.5",
-
+    "cors": "^2.8.6",
     "dotenv": "^10.0.0",
-
-    "expo-server-sdk": "^3.7.0",
-
     "express": "^4.17.2",
-
     "faker": "^5.5.3",
-
     "firebase-admin": "^13.1.0",
-
-    "google-auth-library": "^7.14.0",
-
-    "math.js": "^1.1.46",
-
-    "multer": "1.4.5-lts.1",
-
     "node-fetch": "^2.6.1",
-
     "pg": "^8.7.1",
-
     "pgvector": "^0.2.0",
-
-    "pug": "^3.0.2",
-
     "reflect-metadata": "^0.1.13",
-
     "routing-controllers": "0.10.2",
-
-    "string-similarity": "^4.0.4",
-
     "swagger-ui-express": "^5.0.1",
-
     "ts-node": "^10.5.0",
-
     "typedi": "^0.10.0",
-
     "typeorm": "^0.2.45",
-
-    "typeorm-naming-strategies": "^4.1.0",
-
-    "typeorm-typedi-extensions": "^0.4.1",
-
-    "xml2js": "^0.5.0"
-
+    "typeorm-typedi-extensions": "^0.4.1"
   }
-
 }
-

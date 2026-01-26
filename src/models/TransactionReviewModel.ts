@@ -1,32 +1,40 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
-import { Uuid } from '../types';
-import { TransactionModel } from './TransactionModel';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  OneToOne,
+} from "typeorm";
+import { Uuid } from "../types";
+import { TransactionModel } from "./TransactionModel";
 
-@Entity('TransactionReview')
+@Entity("TransactionReview")
 export class TransactionReviewModel {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: Uuid;
 
   @Column()
   stars: number; // Mandatory field for star ratings
 
-  @Column({ type : 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   comments: string | null; // Optional field for review comments
 
   @Column({ default: false })
   hadIssues: boolean; // Boolean flag indicating if there were issues
 
-  @Column({ type : 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   issueCategory: string | null; // Category of the issue (optional)
 
-  @Column({ type : 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   issueDetails: string | null; // Detailed explanation of the issue (optional)
 
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ type: "timestamptz" })
   createdAt: Date; // Auto-generated timestamp of when the review was created
 
-  @OneToOne(() => TransactionModel, { cascade : false })
-  @JoinColumn({ name: 'transaction_id' })
+  @OneToOne(() => TransactionModel, { cascade: false })
+  @JoinColumn({ name: "transaction_id" })
   transaction: TransactionModel; // Link to the related transaction
 
   public getTransactionReviewInfo() {
