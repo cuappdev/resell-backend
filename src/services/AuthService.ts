@@ -1,10 +1,9 @@
-import { Service } from 'typedi';
-import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
-import { UserModel } from '../models/UserModel';
-import Repositories, { TransactionsManager } from '../repositories';
-import { NotFoundError } from 'routing-controllers';
-
+import { Service } from "typedi";
+import { EntityManager } from "typeorm";
+import { InjectManager } from "typeorm-typedi-extensions";
+import { UserModel } from "../models/UserModel";
+import Repositories, { TransactionsManager } from "../repositories";
+import { NotFoundError } from "routing-controllers";
 
 @Service()
 export class AuthService {
@@ -14,7 +13,10 @@ export class AuthService {
     this.transactions = new TransactionsManager(entityManager);
   }
 
-  public async authorize(user: UserModel, fcmToken: string): Promise<UserModel | null> { 
+  public async authorize(
+    user: UserModel,
+    fcmToken: string,
+  ): Promise<UserModel | null> {
     if (user.isNewUser) {
       return null;
     }
@@ -24,7 +26,7 @@ export class AuthService {
         fcmToken,
         true,
         new Date(),
-        user
+        user,
       );
       return user;
     });

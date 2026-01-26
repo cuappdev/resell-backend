@@ -1,16 +1,18 @@
-import { NotifModel } from '../../models/NotifModel';
-import { UserFactory } from './UserFactory';
+import { NotifModel } from "../../models/NotifModel";
+import { UserFactory } from "./UserFactory";
 
 export class NotifFactory {
-  public static create(n: number = 1): NotifModel[] {
-    return Array(n).fill(null).map(() => NotifFactory.fake());
+  public static create(n = 1): NotifModel[] {
+    return Array(n)
+      .fill(null)
+      .map(() => NotifFactory.fake());
   }
 
   public static fake(): NotifModel {
     const notif = new NotifModel();
     notif.userId = UserFactory.create(1)[0].firebaseUid;
-    notif.title = 'Test notification title';
-    notif.body = 'Test notification message';
+    notif.title = "Test notification title";
+    notif.body = "Test notification message";
     notif.read = false;
     notif.createdAt = new Date();
     notif.updatedAt = new Date();
@@ -20,8 +22,8 @@ export class NotifFactory {
   public static fakeTemplate(): NotifModel {
     const notif = new NotifModel();
     notif.userId = UserFactory.create(1)[0].firebaseUid;
-    notif.title = 'Template notification title';
-    notif.body = 'Template notification message';
+    notif.title = "Template notification title";
+    notif.body = "Template notification message";
     notif.read = false;
     notif.createdAt = new Date();
     notif.updatedAt = new Date();

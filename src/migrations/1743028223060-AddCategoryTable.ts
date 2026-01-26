@@ -1,10 +1,9 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddCategoryTable1743028223060 implements MigrationInterface {
-    name = 'AddCategoryTable1743028223060'
+  name = "AddCategoryTable1743028223060";
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        
+  public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
         CREATE TABLE "Category" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -12,9 +11,8 @@ export class AddCategoryTable1743028223060 implements MigrationInterface {
           CONSTRAINT "PK_c2727780c5b9b0c564c29a4977c" PRIMARY KEY ("id")
         )
       `);
-  
-   
-      await queryRunner.query(`
+
+    await queryRunner.query(`
         CREATE TABLE "post_categories" (
           "posts" uuid NOT NULL,
           "categories" uuid NOT NULL,
@@ -23,61 +21,51 @@ export class AddCategoryTable1743028223060 implements MigrationInterface {
           CONSTRAINT "FK_category" FOREIGN KEY ("categories") REFERENCES "Category"("id") ON DELETE CASCADE
         )
       `);
-  
- 
-      await queryRunner.query(`
+
+    await queryRunner.query(`
         CREATE INDEX "IDX_623743dadf52f9b1c5ebdb0ff8" ON "post_categories" ("posts")
       `);
-      await queryRunner.query(`
+    await queryRunner.query(`
         CREATE INDEX "IDX_1860e6d8b1a47e00c8c0ea937b" ON "post_categories" ("categories")
       `);
 
-       // Insert unique categories into the new Category table
-  await queryRunner.query(`
+    // Insert unique categories into the new Category table
+    await queryRunner.query(`
     INSERT INTO "Category" ("name")
     SELECT DISTINCT "category"
     FROM "Post"
     WHERE "category" IS NOT NULL
   `);
 
-  // Create post-category relations
-  await queryRunner.query(`
+    // Create post-category relations
+    await queryRunner.query(`
     INSERT INTO "post_categories" ("posts", "categories")
     SELECT "Post"."id", "Category"."id"
     FROM "Post"
     JOIN "Category" ON "Post"."category" = "Category"."name"
     WHERE "Post"."category" IS NOT NULL
   `);
-  
-        // Insert unique categories into the new Category table
-  await queryRunner.query(`
+
+    // Insert unique categories into the new Category table
+    await queryRunner.query(`
     INSERT INTO "Category" ("name")
     SELECT DISTINCT "category"
     FROM "Post"
     WHERE "category" IS NOT NULL
   `);
 
-  // Create post-category relations
-  await queryRunner.query(`
+    // Create post-category relations
+    await queryRunner.query(`
     INSERT INTO "post_categories" ("posts", "categories")
     SELECT "Post"."id", "Category"."id"
     FROM "Post"
     JOIN "Category" ON "Post"."category" = "Category"."name"
     WHERE "Post"."category" IS NOT NULL
   `);
-   
-      // await queryRunner.query(`
-      //   ALTER TABLE "Post" DROP COLUMN "category"
-      // `);
+  }
 
-    }
-
-    public async down(queryRunner: QueryRunner): Promise<void> {
-
-    // await queryRunner.query(`
-    //     ALTER TABLE "Post" ADD "category" character varying NOT NULL
-    //   `);
-      await queryRunner.query(`
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
         UPDATE "Post"
         SET "category" = subquery."name"
         FROM (
@@ -88,22 +76,19 @@ export class AddCategoryTable1743028223060 implements MigrationInterface {
         WHERE "Post"."id" = subquery."post_id"
       `);
 
-      await queryRunner.query(`
+    await queryRunner.query(`
         DROP INDEX "IDX_1860e6d8b1a47e00c8c0ea937b"
       `);
-      await queryRunner.query(`
+    await queryRunner.query(`
         DROP INDEX "IDX_623743dadf52f9b1c5ebdb0ff8"
       `);
-  
 
-      await queryRunner.query(`
+    await queryRunner.query(`
         DROP TABLE "post_categories"
       `);
-  
 
-      await queryRunner.query(`
+    await queryRunner.query(`
         DROP TABLE "Category"
       `);
-    }
-
+  }
 }

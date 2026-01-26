@@ -1,14 +1,20 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
-import { Request, Uuid } from '../types';
-import { PostModel } from './PostModel';
-import { UserModel } from './UserModel';
-import pgvector from 'pgvector';
+import { Request, Uuid } from "../types";
+import { PostModel } from "./PostModel";
+import { UserModel } from "./UserModel";
+import pgvector from "pgvector";
 
-@Entity('Request')
+@Entity("Request")
 export class RequestModel {
-
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: Uuid;
 
   @Column()
@@ -23,11 +29,11 @@ export class RequestModel {
   @Column("float", { array: true, nullable: true })
   embedding: number[];
 
-  @ManyToOne(() => UserModel, user => user.requests, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user' })
-  user: UserModel
+  @ManyToOne(() => UserModel, (user) => user.requests, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "user" })
+  user: UserModel;
 
-  @ManyToMany(() => PostModel, post => post.matched)
+  @ManyToMany(() => PostModel, (post) => post.matched)
   matches: PostModel[];
 
   public getRequestInfo(): Request {
