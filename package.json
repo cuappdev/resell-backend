@@ -47,6 +47,7 @@
     "@tensorflow/tfjs": "^4.2.0",
     "@tensorflow/tfjs-node": "^4.22.0",
     "class-validator": "^0.14.0",
+    "cors": "^2.8.6",
     "dotenv": "^10.0.0",
     "express": "^4.17.2",
     "faker": "^5.5.3",

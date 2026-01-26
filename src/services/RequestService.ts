@@ -82,14 +82,14 @@ export class RequestService {
         request.description,
         request.archive,
         user,
-        embedding,
+        embedding as number[],
       );
       if (embedding) {
         const postRepository = Repositories.post(transactionalEntityManager);
         // TODO: How many similar posts do we want to fetch?
         console.log(user.firebaseUid);
         const similarPosts = await postRepository.findSimilarPosts(
-          embedding,
+          embedding as number[],
           user.firebaseUid,
           10,
         );

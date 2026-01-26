@@ -149,7 +149,7 @@ export class PostService {
         post.original_price,
         images,
         user,
-        embedding,
+        embedding as number[],
       );
 
       // Manually set user relation on freshPost making sure it loads
