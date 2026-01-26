@@ -63,14 +63,14 @@ export class DataFactory {
     return this;
   }
 
-  public createUserReviews(...userReviews: UserReviewModel[]) {
+  public createUserReviews(...userReviews: UserReviewModel[]): DataFactory {
     for (let i = 0; i < userReviews.length; i += 1) {
       this.userReviews.push(userReviews[i]);
     }
     return this;
   }
 
-  public createTransactions(...transactions: TransactionModel[]) {
+  public createTransactions(...transactions: TransactionModel[]): DataFactory {
     for (let i = 0; i < transactions.length; i += 1) {
       this.transactions.push(transactions[i]);
     }
@@ -79,7 +79,7 @@ export class DataFactory {
 
   public createTransactionReviews(
     ...transactionReviews: TransactionReviewModel[]
-  ) {
+  ): DataFactory {
     for (let i = 0; i < transactionReviews.length; i += 1) {
       this.transactionReviews.push(transactionReviews[i]);
     }

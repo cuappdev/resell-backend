@@ -38,7 +38,10 @@ export class FactoryUtils {
     return faker.datatype.hexaDecimal(10);
   }
 
-  public static getTimeInMilliseconds(amount: number, units: TimeUnits) {
+  public static getTimeInMilliseconds(
+    amount: number,
+    units: TimeUnits,
+  ): number {
     /**
      * Returns the amount of time in milliseconds, under the assumption that there are
      * 30 days in a month and 365 days in a year.

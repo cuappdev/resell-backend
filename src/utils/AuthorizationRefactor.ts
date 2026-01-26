@@ -11,7 +11,9 @@ function generateMockFirebaseUid(): string {
   ).join("");
 }
 
-export async function populateFirebaseUids(queryRunner: QueryRunner) {
+export async function populateFirebaseUids(
+  queryRunner: QueryRunner,
+): Promise<void> {
   // Get all users directly with SQL query
   const users = await queryRunner.query('SELECT * FROM "User"');
   console.log(`Populating Firebase UIDs for ${users.length} users`);
@@ -64,7 +66,9 @@ export async function populateFirebaseUids(queryRunner: QueryRunner) {
   console.log(`Total users with Firebase UIDs: ${updatedUsers[0].count}`);
 }
 
-export async function validateFirebaseUids(queryRunner: QueryRunner) {
+export async function validateFirebaseUids(
+  queryRunner: QueryRunner,
+): Promise<void> {
   const result = await queryRunner.query(
     'SELECT COUNT (*) FROM "User" WHERE "firebaseUid" IS NULL',
   );

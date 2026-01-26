@@ -595,7 +595,12 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await Promise.all(
       posts.map(async (post: any) => {
         const fullPost = await this.getPostById(post.id);
-        return fullPost!;
+        if (!fullPost) {
+          console.error(
+            `Post with ID ${post.id} found in suggestion query but could not be retrieved fully.`,
+          );
+        }
+        return fullPost;
       }),
     );
   }

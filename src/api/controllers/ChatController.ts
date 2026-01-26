@@ -28,9 +28,9 @@ export const updateFirestore = async (
   exists: boolean,
   chatBody: any,
   message: any,
-  chatsRef: any,
-  lastMessage: any,
-) => {
+  chatsRef: FirebaseFirestore.CollectionReference<FirebaseFirestore.DocumentData>,
+  lastMessage: string,
+): Promise<void> => {
   const now = new Date();
   if (!exists) {
     const data = {
@@ -63,7 +63,10 @@ export const updateFirestore = async (
   }
 };
 
-export const checkUsers = async (chatId: string, userId: any) => {
+export const checkUsers = async (
+  chatId: string,
+  userId: string,
+): Promise<boolean> => {
   const docRef = db.collection("chats_refactored").doc(chatId);
   const doc = await docRef.get();
   const userIDs = doc.data()?.userIDs || [];
@@ -97,7 +100,7 @@ export class ChatController {
         throw new ForbiddenError("This user is not part of this chat");
       }
     }
-    updateFirestore(
+    await updateFirestore(
       chatId,
       doc.exists,
       chatBody,
