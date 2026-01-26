@@ -17,7 +17,9 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
   }
 
   // Fetch a transaction by its ID
-  public async getTransactionById(id: Uuid): Promise<TransactionModel | undefined> {
+  public async getTransactionById(
+    id: Uuid,
+  ): Promise<TransactionModel | undefined> {
     return await this.repository
       .createQueryBuilder("transaction")
       .leftJoinAndSelect("transaction.buyer", "buyer")
@@ -28,7 +30,9 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
   }
 
   // Fetch transactions by buyer ID
-  public async getTransactionsByBuyerId(buyerId: Uuid): Promise<TransactionModel[]> {
+  public async getTransactionsByBuyerId(
+    buyerId: Uuid,
+  ): Promise<TransactionModel[]> {
     return await this.repository
       .createQueryBuilder("transaction")
       .leftJoinAndSelect("transaction.buyer", "buyer")
@@ -39,7 +43,9 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
   }
 
   // Fetch transactions by seller ID
-  public async getTransactionsBySellerId(sellerId: Uuid): Promise<TransactionModel[]> {
+  public async getTransactionsBySellerId(
+    sellerId: Uuid,
+  ): Promise<TransactionModel[]> {
     return await this.repository
       .createQueryBuilder("transaction")
       .leftJoinAndSelect("transaction.buyer", "buyer")
@@ -50,7 +56,9 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
   }
 
   // Fetch a transaction by post ID
-  public async getTransactionByPostId(postId: Uuid): Promise<TransactionModel | undefined> {
+  public async getTransactionByPostId(
+    postId: Uuid,
+  ): Promise<TransactionModel | undefined> {
     return await this.repository
       .createQueryBuilder("transaction")
       .leftJoinAndSelect("transaction.post", "post")
@@ -66,7 +74,7 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
     post: PostModel,
     buyer: UserModel,
     seller: UserModel,
-    completed = false
+    completed = false,
   ): Promise<TransactionModel> {
     const transaction = new TransactionModel();
     transaction.location = location;
@@ -81,9 +89,10 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
   }
 
   // Update a transaction's completed status
-  public async completeTransaction(transaction: TransactionModel): Promise<TransactionModel> {
+  public async completeTransaction(
+    transaction: TransactionModel,
+  ): Promise<TransactionModel> {
     transaction.completed = true;
     return await this.repository.save(transaction);
   }
-
 }

@@ -1,9 +1,21 @@
-import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
-import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from 'src/types';
-import { NotifService } from '../../services/NotifService';
-import { UserModel } from '../../models/UserModel';
+import {
+  Body,
+  CurrentUser,
+  Delete,
+  Get,
+  JsonController,
+  Params,
+  Post,
+} from "routing-controllers";
+import {
+  FindTokensRequest,
+  DiscountNotificationRequest,
+  RequestMatchNotificationRequest,
+} from "src/types";
+import { NotifService } from "../../services/NotifService";
+import { UserModel } from "../../models/UserModel";
 
-@JsonController('notif/')
+@JsonController("notif/")
 export class NotifController {
     private notifService: NotifService;
 

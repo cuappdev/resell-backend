@@ -1,279 +1,295 @@
-import { NotFoundError} from 'routing-controllers';
-import { Service } from 'typedi';
-import { NotificationData, FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest, TokenWrapper } from '../types';
-import Repositories, { TransactionsManager } from '../repositories';
-import { EntityManager } from 'typeorm';
-import { InjectManager } from 'typeorm-typedi-extensions';
-// var accessToken = process.env['EXPO_ACCESS_TOKEN']
-// const expoServer = new Expo({ accessToken: accessToken });
-// import * as admin from 'firebase-admin';
-import { getMessaging, Message } from 'firebase-admin/messaging';
-import { admin } from '../app';
+import { NotFoundError } from "routing-controllers";
+import { Service } from "typedi";
+import {
+  NotificationData,
+  FindTokensRequest,
+  DiscountNotificationRequest,
+  RequestMatchNotificationRequest,
+  TokenWrapper,
+} from "../types";
+import Repositories, { TransactionsManager } from "../repositories";
+import { EntityManager } from "typeorm";
+import { InjectManager } from "typeorm-typedi-extensions";
+import { getMessaging, Message } from "firebase-admin/messaging";
+import { admin } from "../app";
 
 @Service()
 export class NotifService {
-    private transactions: TransactionsManager;
+  private transactions: TransactionsManager;
 
-    constructor(@InjectManager() entityManager: EntityManager) {
-        this.transactions = new TransactionsManager(entityManager);
-    }
+  constructor(@InjectManager() entityManager: EntityManager) {
+    this.transactions = new TransactionsManager(entityManager);
+  }
 
-    public sendFCMNotifs = async (notifs: NotificationData[], userId: string) => {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const notifRepository = Repositories.notification(transactionalEntityManager);
-            console.log(notifs);
-            for (let notif of notifs) {
-                const msg: Message = {
-                    notification: {
-                        title: notif.title,
-                        body: notif.body,
-                    },
-                    data: notif.data as unknown as { [key: string]: string },
-                    token: notif.to[0],
-                };
-                try {
-                    // Send FCM notification
-                    const response = await getMessaging().send(msg);
-                    console.log(`Notification sent successfully: ${response}`);
-                    
-                    // Save notification to database
-                    await notifRepository.save({
-                        userId: userId,
-                        title: notif.title,
-                        body: notif.body,
-                        data: notif.data,
-                        read: false
-                    });
-                } catch (error) {
-                    console.warn(
-                        `Skipping invalid token for notification "${notif.title}": ${error.message}`
-                      );
-                      // Do NOT throw, just skip
-                      continue;
-                }
-            }
+  public sendFCMNotifs = async (notifs: NotificationData[], userId: string) => {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const notifRepository = Repositories.notification(
+        transactionalEntityManager,
+      );
+      console.log(notifs);
+      for (const notif of notifs) {
+        const msg: Message = {
+          notification: {
+            title: notif.title,
+            body: notif.body,
+          },
+          data: notif.data as unknown as { [key: string]: string },
+          token: notif.to[0],
+        };
+        try {
+          // Send FCM notification
+          const response = await getMessaging().send(msg);
+          console.log(`Notification sent successfully: ${response}`);
+
+          // Save notification to database
+          await notifRepository.save({
+            userId: userId,
+            title: notif.title,
+            body: notif.body,
+            data: notif.data,
+            read: false,
+          });
+        } catch (error) {
+          console.warn(
+            `Skipping invalid token for notification "${notif.title}": ${error.message}`,
+          );
+          // Do NOT throw, just skip
+          continue;
+        }
+      }
+    });
+  };
+
+  public async sendNotifs(request: FindTokensRequest) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const fcmTokenRepository = Repositories.fcmToken(
+        transactionalEntityManager,
+      );
+      const user = await userRepository.getUserByEmail(request.email);
+      if (!user) {
+        throw new NotFoundError("User not found!");
+      }
+      const allDeviceTokens = [];
+      const alltokens = await fcmTokenRepository.getTokensByUserId(
+        user.firebaseUid,
+      );
+      for (const token of alltokens) {
+        allDeviceTokens.push(token);
+      }
+      console.log(allDeviceTokens);
+
+      const notif: NotificationData = {
+        to: allDeviceTokens.map((tokenObj) => tokenObj.token),
+        sound: "default",
+        title: request.title,
+        body: request.body,
+        data: request.data as unknown as JSON,
+      };
+      try {
+        const notifs: NotificationData[] = [];
+        notif.to.forEach((token) => {
+          notifs.push({
+            to: [token],
+            sound: notif.sound,
+            title: notif.title,
+            body: notif.body,
+            data: notif.data,
+          });
         });
-    }
+        await this.sendFCMNotifs(notifs, user.firebaseUid);
+        return {
+          message: "Notification sent successfully",
+          httpCode: 200,
+        };
+      } catch (err) {
+        console.log(err);
+        return {
+          message: "Notification not sent",
+          httpCode: 500,
+        };
+      }
+    });
+  }
 
-  
+  public async sendDiscountNotification(request: DiscountNotificationRequest) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const fcmTokenRepository = Repositories.fcmToken(
+        transactionalEntityManager,
+      );
+      const postRepository = Repositories.post(transactionalEntityManager);
 
+      const user = await userRepository.getUserById(request.sellerId);
+      if (!user) {
+        throw new NotFoundError("User not found!");
+      }
 
-    public async sendNotifs(request: FindTokensRequest) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const userRepository = Repositories.user(transactionalEntityManager);
-            const fcmTokenRepository = Repositories.fcmToken(transactionalEntityManager);
-            let user = await userRepository.getUserByEmail(request.email);
-            if (!user) {
-                throw new NotFoundError("User not found!");
-            }
-            const allDeviceTokens = [];
-            const alltokens = await fcmTokenRepository.getTokensByUserId(user.firebaseUid);
-            for (var token of alltokens) {
-       
-                allDeviceTokens.push(token);
-                
-            }
-            console.log(allDeviceTokens);
-        
-            let notif: NotificationData = {
-                to: allDeviceTokens.map(tokenObj => tokenObj.token),
-                sound: 'default',
-                title: request.title,
-                body: request.body,
-                data: request.data as unknown as JSON
+      const post = await postRepository.getPostById(request.listingId);
+      if (!post) {
+        throw new NotFoundError("Post not found!");
+      }
 
-            }
-            try {
-                let notifs: NotificationData[] = [];
-                notif.to.forEach(token => {
-                    notifs.push({
-                        to: [token],
-                        sound: notif.sound,
-                        title: notif.title,
-                        body: notif.body,
-                        data: notif.data
-                    })
-                })
-                await this.sendFCMNotifs(notifs, user.firebaseUid)
-                return {
-                    message: "Notification sent successfully",
-                    httpCode: 200
-                  };
-            } catch (err) {
-                console.log(err)
-                return {
-                    message: "Notification not sent",
-                    httpCode: 500
-                  };
-            }
-        })
-    }
+      const allDeviceTokens = [];
+      const allTokens = await fcmTokenRepository.getTokensByUserId(
+        user.firebaseUid,
+      );
+      for (const token of allTokens) {
+        allDeviceTokens.push(token);
+      }
+      console.log(allDeviceTokens);
 
-    public async sendDiscountNotification(request: DiscountNotificationRequest) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const userRepository = Repositories.user(transactionalEntityManager);
-            const fcmTokenRepository = Repositories.fcmToken(transactionalEntityManager);
-            const postRepository = Repositories.post(transactionalEntityManager);
+      const notif: NotificationData = {
+        to: allDeviceTokens.map((tokenObj) => tokenObj.token),
+        sound: "default",
+        title: "Price Drop Alert!",
+        body: `${post.title} is now available at $${request.newPrice}!`,
+        data: {
+          postId: post.id,
+          postTitle: post.title,
+          originalPrice: request.oldPrice,
+          newPrice: request.newPrice,
+          sellerId: post.user.firebaseUid,
+          sellerUsername: post.user.username,
+        } as unknown as JSON,
+      };
 
-            let user = await userRepository.getUserById(request.sellerId);
-            if (!user) {
-                throw new NotFoundError("User not found!");
-            }
-
-            let post = await postRepository.getPostById(request.listingId);
-            if (!post) {
-                throw new NotFoundError("Post not found!");
-            }
-
-            const allDeviceTokens = [];
-            const allTokens = await fcmTokenRepository.getTokensByUserId(user.firebaseUid);
-            for (var token of allTokens) {
-       
-                allDeviceTokens.push(token);
-                
-            }
-            console.log(allDeviceTokens);
-
-            let notif: NotificationData = {
-                to: allDeviceTokens.map(tokenObj => tokenObj.token),
-                sound: 'default',
-                title: "Price Drop Alert!",
-                body: `${post.title} is now available at $${request.newPrice}!`,
-                data: {
-                    postId: post.id,
-                    postTitle: post.title,
-                    originalPrice: request.oldPrice,
-                    newPrice: request.newPrice,
-                    sellerId: post.user.firebaseUid,
-                    sellerUsername: post.user.username
-                } as unknown as JSON
-            }
-
-            try {
-                let notifs: NotificationData[] = [];
-                notif.to.forEach(token => {
-                    notifs.push({
-                        to: [token],
-                        sound: notif.sound,
-                        title: notif.title,
-                        body: notif.body,
-                        data: notif.data
-                    });
-                });
-                await this.sendFCMNotifs(notifs, user.firebaseUid);
-                return {
-                    message: "Notification sent successfully",
-                    httpCode: 200
-                  };
-            } catch (err) {
-                console.log(err);
-                return {
-                    message: "Notification not sent",
-                    httpCode: 500
-                  };
-            }
+      try {
+        const notifs: NotificationData[] = [];
+        notif.to.forEach((token) => {
+          notifs.push({
+            to: [token],
+            sound: notif.sound,
+            title: notif.title,
+            body: notif.body,
+            data: notif.data,
+          });
         });
-    }
+        await this.sendFCMNotifs(notifs, user.firebaseUid);
+        return {
+          message: "Notification sent successfully",
+          httpCode: 200,
+        };
+      } catch (err) {
+        console.log(err);
+        return {
+          message: "Notification not sent",
+          httpCode: 500,
+        };
+      }
+    });
+  }
 
-    public async sendRequestMatchNotification(request: RequestMatchNotificationRequest) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const userRepository = Repositories.user(transactionalEntityManager);
-            const fcmTokenRepository = Repositories.fcmToken(transactionalEntityManager);
-            const postRepository = Repositories.post(transactionalEntityManager);
-            const requestRepository = Repositories.request(transactionalEntityManager);
+  public async sendRequestMatchNotification(
+    request: RequestMatchNotificationRequest,
+  ) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const fcmTokenRepository = Repositories.fcmToken(
+        transactionalEntityManager,
+      );
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const requestRepository = Repositories.request(
+        transactionalEntityManager,
+      );
 
-            let user = await userRepository.getUserById(request.userId);
-            if (!user) {
-                throw new NotFoundError("User not found!");
-            }
+      const user = await userRepository.getUserById(request.userId);
+      if (!user) {
+        throw new NotFoundError("User not found!");
+      }
 
-            let post = await postRepository.getPostById(request.listingId);
-            if (!post) {
-                throw new NotFoundError("Post not found!");
-            }
+      const post = await postRepository.getPostById(request.listingId);
+      if (!post) {
+        throw new NotFoundError("Post not found!");
+      }
 
-            let userRequest = await requestRepository.getRequestById(request.requestId);
-            if (!userRequest) {
-                throw new NotFoundError("Request not found!");
-            }
+      const userRequest = await requestRepository.getRequestById(
+        request.requestId,
+      );
+      if (!userRequest) {
+        throw new NotFoundError("Request not found!");
+      }
 
-            const allDeviceTokens = [];
-            const allTokens = await fcmTokenRepository.getTokensByUserId(user.firebaseUid);
-            for (var token of allTokens) {
-       
-                allDeviceTokens.push(token);
-                
-            }
+      const allDeviceTokens = [];
+      const allTokens = await fcmTokenRepository.getTokensByUserId(
+        user.firebaseUid,
+      );
+      for (const token of allTokens) {
+        allDeviceTokens.push(token);
+      }
 
-            let notif: NotificationData = {
-                to: allDeviceTokens.map(tokenObj => tokenObj.token),
-                sound: 'default',
-                title: "Request Match Found!",
-                body: `We found a match for your request: ${post.title}`,
-                data: {
-                    postId: post.id,
-                    postTitle: post.title,
-                    price: post.altered_price > 0 ? post.altered_price : post.original_price,
-                    requestId: userRequest.id,
-                    requestTitle: userRequest.title,
-                    sellerId: post.user.firebaseUid,
-                    sellerUsername: post.user.username
-                } as unknown as JSON
-            }
+      const notif: NotificationData = {
+        to: allDeviceTokens.map((tokenObj) => tokenObj.token),
+        sound: "default",
+        title: "Request Match Found!",
+        body: `We found a match for your request: ${post.title}`,
+        data: {
+          postId: post.id,
+          postTitle: post.title,
+          price:
+            post.altered_price > 0 ? post.altered_price : post.original_price,
+          requestId: userRequest.id,
+          requestTitle: userRequest.title,
+          sellerId: post.user.firebaseUid,
+          sellerUsername: post.user.username,
+        } as unknown as JSON,
+      };
 
-            try {
-                let notifs: NotificationData[] = [];
-                notif.to.forEach(token => {
-                    notifs.push({
-                        to: [token],
-                        sound: notif.sound,
-                        title: notif.title,
-                        body: notif.body,
-                        data: notif.data
-                    });
-                });
-                await this.sendFCMNotifs(notifs, request.userId);
-                return {
-                    message: "Notification sent successfully",
-                    httpCode: 200
-                  };
-            } catch (err) {
-                console.log(err);
-                return {
-                    message: "Notification not sent",
-                    httpCode: 500
-                  };
-            }
+      try {
+        const notifs: NotificationData[] = [];
+        notif.to.forEach((token) => {
+          notifs.push({
+            to: [token],
+            sound: notif.sound,
+            title: notif.title,
+            body: notif.body,
+            data: notif.data,
+          });
         });
-    }
+        await this.sendFCMNotifs(notifs, request.userId);
+        return {
+          message: "Notification sent successfully",
+          httpCode: 200,
+        };
+      } catch (err) {
+        console.log(err);
+        return {
+          message: "Notification not sent",
+          httpCode: 500,
+        };
+      }
+    });
+  }
 
-    public async getRecentNotifications(userId: string) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const notifRepository = Repositories.notification(transactionalEntityManager);
-            return await notifRepository.getRecentNotifications(userId);
-        });
-    }
+  public async getRecentNotifications(userId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const notifRepository = Repositories.notification(
+        transactionalEntityManager,
+      );
+      return await notifRepository.getRecentNotifications(userId);
+    });
+  }
 
-    async getUnreadNotifications(userId: string) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-          const repo = Repositories.notification(transactionalEntityManager);
-          return repo.getUnread(userId);
-        });
-    }
+  async getUnreadNotifications(userId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const repo = Repositories.notification(transactionalEntityManager);
+      return repo.getUnread(userId);
+    });
+  }
 
-    async getNotificationsLast7Days(userId: string) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-          const repo = Repositories.notification(transactionalEntityManager);
-          return repo.getFromLastDays(userId, 7);
-        });
-    }
+  async getNotificationsLast7Days(userId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const repo = Repositories.notification(transactionalEntityManager);
+      return repo.getFromLastDays(userId, 7);
+    });
+  }
 
-    async getNotificationsLast30Days(userId: string) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-          const repo = Repositories.notification(transactionalEntityManager);
-          return repo.getFromLastDays(userId, 30);
-        });
-    }
+  async getNotificationsLast30Days(userId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const repo = Repositories.notification(transactionalEntityManager);
+      return repo.getFromLastDays(userId, 30);
+    });
+  }
 
     async markAsRead(userId: string, notifId: string) {
         return this.transactions.readWrite(async (transactionalEntityManager) => {

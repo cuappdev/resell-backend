@@ -1,12 +1,17 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
-import { Uuid } from '../types';
-import { UserModel } from './UserModel';
+import { Uuid } from "../types";
+import { UserModel } from "./UserModel";
 
-@Entity('FCMToken')
-export class FcmTokenModel {    
-
-  @PrimaryGeneratedColumn('uuid')
+@Entity("FCMToken")
+export class FcmTokenModel {
+  @PrimaryGeneratedColumn("uuid")
   id: Uuid;
 
   @Column()
@@ -18,8 +23,7 @@ export class FcmTokenModel {
   @Column()
   timestamp: Date;
 
-  @ManyToOne(() => UserModel, user => user.tokens)
-  @JoinColumn({ name: 'userId' })
-  user: UserModel
-
+  @ManyToOne(() => UserModel, (user) => user.tokens)
+  @JoinColumn({ name: "userId" })
+  user: UserModel;
 }

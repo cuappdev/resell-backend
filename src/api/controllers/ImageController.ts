@@ -1,9 +1,9 @@
-import { Body, JsonController, Post } from 'routing-controllers';
+import { Body, JsonController, Post } from "routing-controllers";
 
-import { ImageService } from '../../services/ImageService';
-import { ImageUrlResponse, UploadImageRequest } from '../../types';
+import { ImageService } from "../../services/ImageService";
+import { ImageUrlResponse, UploadImageRequest } from "../../types";
 
-@JsonController('image/')
+@JsonController("image/")
 export class ImageController {
   private imageService: ImageService;
 
@@ -12,7 +12,10 @@ export class ImageController {
   }
 
   @Post()
-  async uploadImage(@Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) uploadImageRequest: UploadImageRequest): Promise<ImageUrlResponse> {
+  async uploadImage(
+    @Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } })
+    uploadImageRequest: UploadImageRequest,
+  ): Promise<ImageUrlResponse> {
     return { image: await this.imageService.uploadImage(uploadImageRequest) };
   }
 }

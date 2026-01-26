@@ -15,12 +15,17 @@ export class SearchService {
   /**
    * Create a search record with vectorized text using Universal Sentence Encoder
    */
-  public async createSearch(searchText: string, firebaseUid: string): Promise<SearchModel> {
+  public async createSearch(
+    searchText: string,
+    firebaseUid: string,
+  ): Promise<SearchModel> {
     let embedding = "[]"; // Default empty embedding
-    
+
     try {
-      if (process.env.NODE_ENV === 'test') {
-        console.log("Skipping search embedding computation in test environment");
+      if (process.env.NODE_ENV === "test") {
+        console.log(
+          "Skipping search embedding computation in test environment",
+        );
       } else {
         const embeddingPromise = (async () => {
           const model = await getLoadedModel();
@@ -28,11 +33,14 @@ export class SearchService {
           const embeddingArray = embeddings.arraySync()[0];
           return JSON.stringify(embeddingArray);
         })();
-        
-        const timeoutPromise = new Promise<string>((_, reject) => 
-          setTimeout(() => reject(new Error('Search embedding computation timeout')), 10000)
+
+        const timeoutPromise = new Promise<string>((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Search embedding computation timeout")),
+            10000,
+          ),
         );
-        
+
         embedding = await Promise.race([embeddingPromise, timeoutPromise]);
       }
     } catch (error) {
@@ -43,19 +51,24 @@ export class SearchService {
     return await this.searchRepository.createSearch(
       searchText,
       embedding,
-      firebaseUid
+      firebaseUid,
     );
   }
 
   /**
    * Find similar searches based on text similarity
    */
-  public async findSimilarSearches(searchText: string, limit: number = 5): Promise<SearchModel[]> {
+  public async findSimilarSearches(
+    searchText: string,
+    limit = 5,
+  ): Promise<SearchModel[]> {
     let embedding = "[]"; // Default empty embedding
-    
+
     try {
-      if (process.env.NODE_ENV === 'test') {
-        console.log("Skipping similar search embedding computation in test environment");
+      if (process.env.NODE_ENV === "test") {
+        console.log(
+          "Skipping similar search embedding computation in test environment",
+        );
       } else {
         const embeddingPromise = (async () => {
           const model = await getLoadedModel();
@@ -63,11 +76,15 @@ export class SearchService {
           const embeddingArray = embeddings.arraySync()[0];
           return JSON.stringify(embeddingArray);
         })();
-        
-        const timeoutPromise = new Promise<string>((_, reject) => 
-          setTimeout(() => reject(new Error('Similar search embedding computation timeout')), 10000)
+
+        const timeoutPromise = new Promise<string>((_, reject) =>
+          setTimeout(
+            () =>
+              reject(new Error("Similar search embedding computation timeout")),
+            10000,
+          ),
         );
-        
+
         embedding = await Promise.race([embeddingPromise, timeoutPromise]);
       }
     } catch (error) {
@@ -88,14 +105,18 @@ export class SearchService {
   /**
    * Get searches by user ID
    */
-  public async getSearchesByUserId(firebaseUid: string): Promise<SearchModel[]> {
+  public async getSearchesByUserId(
+    firebaseUid: string,
+  ): Promise<SearchModel[]> {
     return await this.searchRepository.getSearchesByUserId(firebaseUid);
   }
 
   /**
    * Delete a search by ID
    */
-  public async deleteSearch(searchId: string): Promise<SearchModel | undefined> {
+  public async deleteSearch(
+    searchId: string,
+  ): Promise<SearchModel | undefined> {
     const search = await this.searchRepository.getSearchById(searchId);
     if (!search) {
       return undefined;

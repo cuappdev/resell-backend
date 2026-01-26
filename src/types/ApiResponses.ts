@@ -132,7 +132,6 @@ export interface GetFeedbackResponse {
   feedback: Feedback;
 }
 
-
 // IMAGES
 
 export interface ImageUrlResponse {
@@ -190,7 +189,6 @@ export interface Report {
   type: "post" | "profile" | "message";
   resolved: boolean;
   created: Date;
-
 }
 
 export interface GetReportResponse {
@@ -204,53 +202,47 @@ export interface GetReportsResponse {
 //CHATS
 
 export interface MessageResponse {
-  type: string,
-  senderID: Uuid,
-  text: string,
-  images: string[],
-  timestamp: Date,
-  read: boolean
-
+  type: string;
+  senderID: Uuid;
+  text: string;
+  images: string[];
+  timestamp: Date;
+  read: boolean;
 }
 
 export interface AvailabilityResponse {
-  type: string,
-  senderID: Uuid,
-  timestamp: Date,
-  availabilities: AvailabilityList[]
-
+  type: string;
+  senderID: Uuid;
+  timestamp: Date;
+  availabilities: AvailabilityList[];
 }
 
 export interface ProposalResponse {
-  type: string,
-  senderID: Uuid,
-  timestamp: Date,
-  accepted:boolean|null,
-  startDate:Date,
-  endDate:Date
-
+  type: string;
+  senderID: Uuid;
+  timestamp: Date;
+  accepted: boolean | null;
+  startDate: Date;
+  endDate: Date;
 }
 
 export interface CancelProposalResponse {
-  type: string,
-  senderID: Uuid,
-  timestamp: Date,
-  startDate:Date,
-  endDate:Date,
-  cancellation:boolean
-
+  type: string;
+  senderID: Uuid;
+  timestamp: Date;
+  startDate: Date;
+  endDate: Date;
+  cancellation: boolean;
 }
 
 export interface ChatReadResponse {
-  read:boolean
-
+  read: boolean;
 }
 
-
-export interface AuthTokenResponse{
-  token:string
+export interface AuthTokenResponse {
+  token: string;
 }
 
-export interface UIDResponse{
-  uid:string
+export interface UIDResponse {
+  uid: string;
 }

@@ -26,7 +26,11 @@ export class ConvertEmbeddingToVector1631740007049335 implements MigrationInterf
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Remove the vector columns
-    await queryRunner.query(`ALTER TABLE "Post"   DROP COLUMN IF EXISTS embedding;`);
-    await queryRunner.query(`ALTER TABLE "Request" DROP COLUMN IF EXISTS embedding;`);
+    await queryRunner.query(
+      `ALTER TABLE "Post"   DROP COLUMN IF EXISTS embedding;`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "Request" DROP COLUMN IF EXISTS embedding;`,
+    );
   }
 }

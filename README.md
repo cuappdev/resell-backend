@@ -4,16 +4,30 @@ An open-sourced backend service for Resell.
 
 ## Setup
 
-Make sure that `npm` installed (`nvm` is recomended to manage node versions.)  
+Make sure that `npm` installed (`nvm` is recomended to manage node versions.)
+
+For this project, we use **Node v20**. Even if you have a newer Node version installed, we downgrade to v20 to avoid compatibility issues (especially with TensorFlow).
+
+1. Install `nvm` (Node Version Manager).
+2. Install Node 20:
+    ```
+    nvm install 20
+    ```
+3. Use Node 20:
+    ```
+    nvm use 20
+    ```
+
 Depending on preference, either run `yarn install` or `npm install` to ensure
 all required dependencies are installed. Copy the `.env_template` to either a
 `.env` file , and update with necessary credentials. Sourcing the file is not
 necessary.
 
 In addition, this codebase requires these files in the project root to run:
-- `.env` → Copy from `.env_template` and fill with your database credentials, Firebase configs, and API keys 
-- `resell.pem` → Private key file required for authentication 
-- a resell firebase json file → Firebase service account key for connecting to Firebase 
+
+- `.env` → Copy from `.env_template` and fill with your database credentials, Firebase configs, and API keys
+- `resell.pem` → Private key file required for authentication
+- a resell firebase json file → Firebase service account key for connecting to Firebase
 
 ---
 
@@ -24,48 +38,48 @@ Steps to install Postgres:
 ### macOS (via Homebrew)
 
 1. Update Homebrew
-    ```
-    brew update
-    ```
+
+   ```
+   brew update
+   ```
 
 2. Install and start
-    ```
-    brew install postgresql
-    brew services start postgresql
-    ```
+
+   ```
+   brew install postgresql
+   brew services start postgresql
+   ```
 
 3. Initialize DB
-    ```
-    initdb /usr/local/var/postgres
-    ```
+
+   ```
+   initdb /usr/local/var/postgres
+   ```
 
 4. Create User  
-In order to run the create and alter commands, you must be inside psql.
-    ```
-    psql postgres
+   In order to run the create and alter commands, you must be inside psql.
+   `     psql postgres
     create user postgres with password 'postgres';
     alter user postgres with superuser;
     create database "resell-dev";
-    ```
+    `
 
 Use the \l command to see if the "resell-dev" is owned by user postgres. If
 instead it is owned by another root user, drop the database via:
-    ```
-    drop database "resell-dev";
-    ```
+`     drop database "resell-dev";
+    `
 and login to psql via
-    ```
-    psql postgres postgres
-    ```
+`     psql postgres postgres
+    `
 Then, create the database again, and it should be owned by user postgres.
 
 ---
 
 ### Windows (via Installer)
 
-1. Download PostgreSQL from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads  
-2. During install, include **Command Line Tools** and **pgAdmin 4**. Set the default password for the `postgres` user (e.g., `postgres`).  
-3. Add PostgreSQL’s bin folder to PATH:  
+1. Download PostgreSQL from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+2. During install, include **Command Line Tools** and **pgAdmin 4**. Set the default password for the `postgres` user (e.g., `postgres`).
+3. Add PostgreSQL’s bin folder to PATH:
    ```
    C:\Program Files\PostgreSQL\<version>\bin
    ```
@@ -96,27 +110,30 @@ Then, create the database again, and it should be owned by user postgres.
 In order to connect to the database, follow these steps:
 
 ### macOS
+
 1. Install Homebrew
-    ```
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    ```
+   ```
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
 2. Update Homebrew to ensure you have the latest information
-    ```
-    brew update
-    ```
+   ```
+   brew update
+   ```
 3. Install pgAdmin
-    ```
-    brew install --cask pgadmin4
-    ```
+   ```
+   brew install --cask pgadmin4
+   ```
 
 Open pgAdmin and configure the connection using the defined user and password.
 
 ### Windows
-pgAdmin is installed by default with PostgreSQL. Launch it from the Start Menu and configure a new connection with:  
-- Host: `localhost`  
-- Port: `5432`  
-- Username: `postgres`  
-- Password: `postgres`  
+
+pgAdmin is installed by default with PostgreSQL. Launch it from the Start Menu and configure a new connection with:
+
+- Host: `localhost`
+- Port: `5432`
+- Username: `postgres`
+- Password: `postgres`
 
 ---
 
@@ -125,27 +142,32 @@ pgAdmin is installed by default with PostgreSQL. Launch it from the Start Menu a
 This codebase uses the [pgvector](https://github.com/pgvector/pgvector) extension.
 
 ### macOS
+
 ```
 brew install pgvector
 psql -U postgres -d resell-dev -c "CREATE EXTENSION vector;"
 ```
 
 ### Windows (manual install)
-1. Download/build pgvector from GitHub releases.  
-2. Copy files:  
-   - `vector.control` → `C:\Program Files\PostgreSQL\<version>\share\extension\`  
-   - `vector.dll` → `C:\Program Files\PostgreSQL\<version>\lib\`  
-3. Restart PostgreSQL service.  
-4. In psql:  
+
+1. Download/build pgvector from GitHub releases.
+2. Copy files:
+   - `vector.control` → `C:\Program Files\PostgreSQL\<version>\share\extension\`
+   - `vector.dll` → `C:\Program Files\PostgreSQL\<version>\lib\`
+3. Restart PostgreSQL service.
+4. In psql:
    ```
    CREATE EXTENSION vector;
    ```
 
 ### Docker (cross-platform alternative)
+
 ```
 docker run -d --name pgvector -e POSTGRES_PASSWORD=postgres -p 5432:5432 ankane/pgvector
 ```
+
 Update `.env`:
+
 ```
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/resell-dev
 ```
@@ -155,6 +177,7 @@ DATABASE_URL=postgres://postgres:postgres@localhost:5432/resell-dev
 ## Create/Update Objects in Postgres DB
 
 To create/update the database objects, run:
+
 ```
 npm run db:migrate
 ```
@@ -166,27 +189,31 @@ npm run db:migrate
 If you are encountering any migrations errors, use this as a last resort!
 
 1. Log into psql and run
-    ```
-    drop database "resell-dev"
-    ```
-    This will delete all data in your database as well. Make sure you do not have any important data in your database.
+
+   ```
+   drop database "resell-dev"
+   ```
+
+   This will delete all data in your database as well. Make sure you do not have any important data in your database.
 
 2. Create the database again via.
-    ```
-    create database "resell-dev"
-    ```
+
+   ```
+   create database "resell-dev"
+   ```
 
 3. Delete all of the migration files in the "migrations" folder
 
 4. Create a new migration file titled "init" via.
-    ```
-    npm run db:migrate:generate init
-    ```
+
+   ```
+   npm run db:migrate:generate init
+   ```
 
 5. Run the migration
-    ```
-    npm run db:migrate
-    ```
+   ```
+   npm run db:migrate
+   ```
 
 ---
 
@@ -224,7 +251,6 @@ Before you can dump from the remote dev server, you need to configure the connec
      - Database name
      - Username
      - Password
-   
 6. **Configure SSL Settings**
    - Go to the **Parameters** tab
    - Find `sslmode` and set it to **required**
@@ -242,6 +268,7 @@ Before you can dump from the remote dev server, you need to configure the connec
 **Option A: Dump from Remote Server (Recommended)**
 
 Once you have the remote dev server configured in pgAdmin (see Step 0), use those connection details to dump:
+
 ```bash
 REMOTE_DB_HOST=your-dev-server-host \
 REMOTE_DB_PORT=your-port \
@@ -257,6 +284,7 @@ Replace the values with your actual DigitalOcean connection details from pgAdmin
 **Option B: Dump from Local Database**
 
 If your dev database is local, simply run:
+
 ```bash
 ./scripts/dump-dev-db.sh
 ```
@@ -266,19 +294,23 @@ This automatically detects your Docker container or native postgres installation
 #### Step 2: Import into Local resell-dev Database
 
 The import script automatically detects your postgres setup (Docker or native) and imports accordingly:
+
 ```bash
 ./scripts/import-dev-data.sh
 ```
+
 **WARNING: This will replace all data in your local resell-dev database!** You'll be prompted to confirm.
 
 **What these commands do:**
 
 The first command (dump):
+
 - Connects to the **remote DigitalOcean hosted dev database** (appdev-postgres)
 - Reads the `resell-dev` database from DigitalOcean (READ ONLY - no changes to remote!)
 - Saves a copy to `dumps/dev_db_dump_[timestamp].sql` on your machine
 
 The second command (import):
+
 - Finds the dump file you just created
 - Imports it into your **local `resell-dev`** database (in postgres-docker)
 - Shows a summary of imported tables and row counts
@@ -286,22 +318,25 @@ The second command (import):
 **Important Note:** Both the remote DigitalOcean database and your local database are named `resell-dev`, but they are completely SEPARATE. The dump script only reads from DigitalOcean and never modifies it.
 
 **Manual Override Options:**
+
 - Force Docker: `FORCE_DOCKER=1 ./scripts/import-dev-data.sh`
 - Force Native: `FORCE_NATIVE=1 ./scripts/import-dev-data.sh`
 
 **Supported Setups:**
+
 - Docker containers (like `my_postgres`)
 - Native PostgreSQL installations (Homebrew, apt, etc.)
 - Custom PostgreSQL setups on localhost:5432
 
 ### Option 2: Use Data Seeder (Alternative)
 
-This project includes a mechanism for seeding consistent data for the dev environment using TypeORM and typeorm-seeding. 
+This project includes a mechanism for seeding consistent data for the dev environment using TypeORM and typeorm-seeding.
 The seeders generate users, posts, feedback, reviews, reports, and requests, making sure all devs work with the same data set.
 
 ### Running the Seeder
 
 To seed the database for dev, use the following command:
+
 ```
 npm run db:seed
 ```

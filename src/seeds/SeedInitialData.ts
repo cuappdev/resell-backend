@@ -1,20 +1,20 @@
-import { Factory, Seeder } from 'typeorm-seeding';
-import { UserModel } from '../models/UserModel';
-import { PostModel } from '../models/PostModel';
-import { FeedbackModel } from '../models/FeedbackModel';
-import { UserReviewModel } from '../models/UserReviewModel';
-import { ReportModel } from '../models/ReportModel';
-import { RequestModel } from '../models/RequestModel';
-import { TransactionModel } from '../models/TransactionModel';
-import { TransactionReviewModel } from '../models/TransactionReviewModel';
-import { CategoryModel } from '../models/CategoryModel';
-import { getRepository } from 'typeorm';
-import { NotifModel } from '../models/NotifModel'
+import { Factory, Seeder } from "typeorm-seeding";
+import { UserModel } from "../models/UserModel";
+import { PostModel } from "../models/PostModel";
+import { FeedbackModel } from "../models/FeedbackModel";
+import { UserReviewModel } from "../models/UserReviewModel";
+import { ReportModel } from "../models/ReportModel";
+import { RequestModel } from "../models/RequestModel";
+import { TransactionModel } from "../models/TransactionModel";
+import { TransactionReviewModel } from "../models/TransactionReviewModel";
+import { CategoryModel } from "../models/CategoryModel";
+import { getRepository } from "typeorm";
+import { NotifModel } from "../models/NotifModel";
 
 export default class SeedInitialData implements Seeder {
   public async run(factory: Factory): Promise<void> {
     if (process.env.IS_PROD?.toLowerCase() === "true") {
-      console.log('Skipping seeding, not in development environment');
+      console.log("Skipping seeding, not in development environment");
       return;
     }
 
@@ -28,7 +28,7 @@ export default class SeedInitialData implements Seeder {
     const transactionRepository = getRepository(TransactionModel);
     const transactionReviewRepository = getRepository(TransactionReviewModel);
     const categoryRepository = getRepository(CategoryModel);
-    const notifRepository = getRepository(NotifModel)
+    const notifRepository = getRepository(NotifModel);
 
     await transactionReviewRepository.delete({});
     await transactionRepository.delete({});
@@ -41,14 +41,22 @@ export default class SeedInitialData implements Seeder {
     await categoryRepository.delete({});
     await userRepository.delete({});
     console.log(
-      ' - Deleted all existing users, posts, feedback, reviews, reports, requests, transactions, and transaction reviews'
+      " - Deleted all existing users, posts, feedback, reviews, reports, requests, transactions, and transaction reviews",
     );
 
     // Create categories first
     const categories = [];
-    const categoryNames = ['HANDMADE', 'ELECTRONICS', 'CLOTHING', 'BOOKS', 'FURNITURE'];
+    const categoryNames = [
+      "HANDMADE",
+      "ELECTRONICS",
+      "CLOTHING",
+      "BOOKS",
+      "FURNITURE",
+    ];
     for (const categoryName of categoryNames) {
-      const category = await factory(CategoryModel)({ name: categoryName }).create();
+      const category = await factory(CategoryModel)({
+        name: categoryName,
+      }).create();
       categories.push(category);
     }
 
@@ -64,7 +72,11 @@ export default class SeedInitialData implements Seeder {
       if (i % 2 !== 0) {
         for (let j = 1; j <= 2; j++) {
           const selectedCategories = [categories[0]];
-          const post = await factory(PostModel)({ index: j, user, categories: selectedCategories }).create();
+          const post = await factory(PostModel)({
+            index: j,
+            user,
+            categories: selectedCategories,
+          }).create();
           posts.push(post);
         }
       }
@@ -93,7 +105,10 @@ export default class SeedInitialData implements Seeder {
         post:
           i % 3 === 0
             ? null
-            : await factory(PostModel)({ index: 1, user: users[i - 2] }).create(),
+            : await factory(PostModel)({
+                index: 1,
+                user: users[i - 2],
+              }).create(),
         message: i % 3 !== 0 ? null : undefined,
       }).create();
     }
@@ -129,19 +144,19 @@ export default class SeedInitialData implements Seeder {
         index: i + 1,
         transaction,
         stars: 5,
-        comments: i % 2 === 0 ? 'Great transaction!' : null,
+        comments: i % 2 === 0 ? "Great transaction!" : null,
         hadIssues: i % 3 === 0,
-        issueCategory: i % 3 === 0 ? 'Late delivery' : null,
-        issueDetails: i % 3 === 0 ? 'The seller was late by 30 minutes.' : null,
+        issueCategory: i % 3 === 0 ? "Late delivery" : null,
+        issueDetails: i % 3 === 0 ? "The seller was late by 30 minutes." : null,
       }).create();
     }
 
     // Create notifications for each user
     for (const user of users) {
       for (let j = 1; j <= 3; j++) {
-        await factory(NotifModel)({ 
-          user,  
-          index: j  
+        await factory(NotifModel)({
+          user,
+          index: j,
         }).create();
       }
     }

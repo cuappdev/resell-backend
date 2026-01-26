@@ -5,11 +5,19 @@ import { UserModel } from "../models/UserModel";
 import { PostModel } from "../models/PostModel";
 import { MessageModel } from "../models/MessageModel";
 import { ReportModel } from "../models/ReportModel";
-import { ReportPostRequest, ReportProfileRequest, ReportMessageRequest } from "../types/ApiRequests";
+import {
+  ReportPostRequest,
+  ReportProfileRequest,
+  ReportMessageRequest,
+} from "../types/ApiRequests";
 import Repositories, { TransactionsManager } from "../repositories";
 import { report } from "process";
 import { UuidParam } from "../api/validators/GenericRequests";
-import { NotFoundError, ForbiddenError, UnauthorizedError } from "routing-controllers";
+import {
+  NotFoundError,
+  ForbiddenError,
+  UnauthorizedError,
+} from "routing-controllers";
 
 @Service()
 export class ReportService {
@@ -31,57 +39,92 @@ export class ReportService {
   public async getAllPostReports(user: UserModel): Promise<ReportModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       if (!user.admin) {
-        throw new Error("User does not have permission to get all post reports");
+        throw new Error(
+          "User does not have permission to get all post reports",
+        );
       }
-      return Repositories.report(transactionalEntityManager).getAllPostReports();
+      return Repositories.report(
+        transactionalEntityManager,
+      ).getAllPostReports();
     });
   }
 
   public async getAllProfileReports(user: UserModel): Promise<ReportModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       if (!user.admin) {
-        throw new Error("User does not have permission to get all profile reports");
+        throw new Error(
+          "User does not have permission to get all profile reports",
+        );
       }
-      return Repositories.report(transactionalEntityManager).getAllProfileReports();
+      return Repositories.report(
+        transactionalEntityManager,
+      ).getAllProfileReports();
     });
   }
 
   public async getAllMessageReports(user: UserModel): Promise<ReportModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       if (!user.admin) {
-        throw new Error("User does not have permission to get all message reports");
+        throw new Error(
+          "User does not have permission to get all message reports",
+        );
       }
-      return Repositories.report(transactionalEntityManager).getAllMessageReports();
+      return Repositories.report(
+        transactionalEntityManager,
+      ).getAllMessageReports();
     });
   }
 
-  public async getReportById(user: UserModel, params: UuidParam): Promise<ReportModel> {
+  public async getReportById(
+    user: UserModel,
+    params: UuidParam,
+  ): Promise<ReportModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const reportRepository = Repositories.report(transactionalEntityManager);
       const report = await reportRepository.getReportById(params.id);
       if (!report) throw new NotFoundError("Report not found");
-      if (!user.admin) throw new UnauthorizedError("User does not have permission to get report by id");
+      if (!user.admin)
+        throw new UnauthorizedError(
+          "User does not have permission to get report by id",
+        );
       return report;
     });
   }
 
-  public async getReportsByReporter(user: UserModel, params: UuidParam): Promise<ReportModel[]> {
+  public async getReportsByReporter(
+    user: UserModel,
+    params: UuidParam,
+  ): Promise<ReportModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      if (!user.admin) throw new UnauthorizedError("User does not have permission to get reports by reporter");
-      const reporter = await Repositories.user(transactionalEntityManager).getUserById(params.id);
+      if (!user.admin)
+        throw new UnauthorizedError(
+          "User does not have permission to get reports by reporter",
+        );
+      const reporter = await Repositories.user(
+        transactionalEntityManager,
+      ).getUserById(params.id);
       if (!reporter) throw new NotFoundError("Reporter not found");
-      return Repositories.report(transactionalEntityManager).getReportsByReporter(reporter);
+      return Repositories.report(
+        transactionalEntityManager,
+      ).getReportsByReporter(reporter);
     });
   }
 
-  public async reportPost(reporter: UserModel, reportPostRequest: ReportPostRequest): Promise<ReportModel> {
+  public async reportPost(
+    reporter: UserModel,
+    reportPostRequest: ReportPostRequest,
+  ): Promise<ReportModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const reportRepository = Repositories.report(transactionalEntityManager);
-      const reportedUser = await Repositories.user(transactionalEntityManager).getUserById(reportPostRequest.reported);
+      const reportedUser = await Repositories.user(
+        transactionalEntityManager,
+      ).getUserById(reportPostRequest.reported);
       if (!reportedUser) {
         throw new NotFoundError("Reported user not found");
       }
-      const reportedPost = await Repositories.post(transactionalEntityManager).getPostById(reportPostRequest.post);
+      const reportedPost = await Repositories.post(
+        transactionalEntityManager,
+      ).getPostById(reportPostRequest.post);
       if (!reportedPost) {
         throw new NotFoundError("Reported post not found");
       }
@@ -92,7 +135,9 @@ export class ReportService {
         throw new ForbiddenError("Reported user does not own the post");
       }
       if (reportPostRequest.reason === "") {
-        throw new ForbiddenError("You must have a reason for reporting a post!");
+        throw new ForbiddenError(
+          "You must have a reason for reporting a post!",
+        );
       }
       return reportRepository.createReport(
         reporter,
@@ -100,14 +145,19 @@ export class ReportService {
         reportedPost,
         undefined,
         reportPostRequest.reason,
-        "post"
+        "post",
       );
     });
   }
 
-  public async reportProfile(reporter: UserModel, reportProfileRequest: ReportProfileRequest): Promise<ReportModel> {
+  public async reportProfile(
+    reporter: UserModel,
+    reportProfileRequest: ReportProfileRequest,
+  ): Promise<ReportModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const reportedUser = await Repositories.user(transactionalEntityManager).getUserById(reportProfileRequest.reported);
+      const reportedUser = await Repositories.user(
+        transactionalEntityManager,
+      ).getUserById(reportProfileRequest.reported);
       if (!reportedUser) {
         throw new NotFoundError("Reported user not found");
       }
@@ -115,7 +165,9 @@ export class ReportService {
         throw new ForbiddenError("You cannot report your own profile");
       }
       if (reportProfileRequest.reason === "") {
-        throw new ForbiddenError("You must have a reason for reporting a profile!");
+        throw new ForbiddenError(
+          "You must have a reason for reporting a profile!",
+        );
       }
       const reportRepository = Repositories.report(transactionalEntityManager);
       return reportRepository.createReport(
@@ -124,20 +176,27 @@ export class ReportService {
         undefined,
         undefined,
         reportProfileRequest.reason,
-        "profile"
+        "profile",
       );
     });
   }
 
-  public async reportMessage(reporter: UserModel, reportMessageRequest: ReportMessageRequest): Promise<ReportModel> {
+  public async reportMessage(
+    reporter: UserModel,
+    reportMessageRequest: ReportMessageRequest,
+  ): Promise<ReportModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const reportedUser = await Repositories.user(transactionalEntityManager).getUserById(reportMessageRequest.reported);
+      const reportedUser = await Repositories.user(
+        transactionalEntityManager,
+      ).getUserById(reportMessageRequest.reported);
       if (!reportedUser) {
         throw new NotFoundError("Reported user not found");
       }
-      const message = reportMessageRequest.message
+      const message = reportMessageRequest.message;
       if (reportMessageRequest.reason === "") {
-        throw new ForbiddenError("You must have a reason for reporting a message!");
+        throw new ForbiddenError(
+          "You must have a reason for reporting a message!",
+        );
       }
       const reportRepository = Repositories.report(transactionalEntityManager);
       return reportRepository.createReport(
@@ -146,34 +205,52 @@ export class ReportService {
         undefined,
         message,
         reportMessageRequest.reason,
-        "message"
+        "message",
       );
     });
   }
 
-  public async resolveReport(user: UserModel, params: UuidParam): Promise<ReportModel> {
+  public async resolveReport(
+    user: UserModel,
+    params: UuidParam,
+  ): Promise<ReportModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const report = await Repositories.report(transactionalEntityManager).getReportById(params.id);
+      const report = await Repositories.report(
+        transactionalEntityManager,
+      ).getReportById(params.id);
       if (!report) {
         throw new NotFoundError("Report not found");
       }
       if (!user.admin) {
-        throw new UnauthorizedError("User does not have permission to resolve reports");
+        throw new UnauthorizedError(
+          "User does not have permission to resolve reports",
+        );
       }
-      return Repositories.report(transactionalEntityManager).resolveReport(report);
+      return Repositories.report(transactionalEntityManager).resolveReport(
+        report,
+      );
     });
   }
 
-  public async deleteReport(user: UserModel, params: UuidParam): Promise<ReportModel> {
+  public async deleteReport(
+    user: UserModel,
+    params: UuidParam,
+  ): Promise<ReportModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const report = await Repositories.report(transactionalEntityManager).getReportById(params.id);
+      const report = await Repositories.report(
+        transactionalEntityManager,
+      ).getReportById(params.id);
       if (!report) {
         throw new NotFoundError("Report not found");
       }
       if (!user.admin && report.reporter.firebaseUid !== user.firebaseUid) {
-        throw new ForbiddenError("User does not have permission to delete reports");
+        throw new ForbiddenError(
+          "User does not have permission to delete reports",
+        );
       }
-      return Repositories.report(transactionalEntityManager).deleteReport(report);
+      return Repositories.report(transactionalEntityManager).deleteReport(
+        report,
+      );
     });
   }
 }
