@@ -1,5 +1,4 @@
 import { Connection, createConnection } from "typeorm";
-// import { models } from '../models';
 
 export default async function resellConnection(): Promise<Connection> {
   const entitiesPath = __dirname + "/../models/*Model.ts";

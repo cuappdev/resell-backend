@@ -19,11 +19,11 @@ interface NotifResult {
 
 @Service()
 export class NotifService {
-    private transactions: TransactionsManager;
+  private transactions: TransactionsManager;
 
-    constructor(@InjectManager() entityManager: EntityManager) {
-        this.transactions = new TransactionsManager(entityManager);
-    }
+  constructor(@InjectManager() entityManager: EntityManager) {
+    this.transactions = new TransactionsManager(entityManager);
+  }
 
     /**
      * fetch all FCM tokens for a user
@@ -140,7 +140,20 @@ export class NotifService {
                 }
             });
         });
-    }
+        await this.sendFCMNotifs(notifs, user.firebaseUid);
+        return {
+          message: "Notification sent successfully",
+          httpCode: 200,
+        };
+      } catch (err) {
+        console.log(err);
+        return {
+          message: "Notification not sent",
+          httpCode: 500,
+        };
+      }
+    });
+  }
 
     public async sendRequestMatchNotification(request: RequestMatchNotificationRequest): Promise<NotifResult> {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
@@ -179,47 +192,64 @@ export class NotifService {
                 }
             });
         });
-    }
+        await this.sendFCMNotifs(notifs, request.userId);
+        return {
+          message: "Notification sent successfully",
+          httpCode: 200,
+        };
+      } catch (err) {
+        console.log(err);
+        return {
+          message: "Notification not sent",
+          httpCode: 500,
+        };
+      }
+    });
+  }
 
-    public async getRecentNotifications(userId: string) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const notifRepository = Repositories.notification(transactionalEntityManager);
-            return await notifRepository.getRecentNotifications(userId);
-        });
-    }
+  public async getRecentNotifications(userId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const notifRepository = Repositories.notification(
+        transactionalEntityManager,
+      );
+      return await notifRepository.getRecentNotifications(userId);
+    });
+  }
 
-    async getUnreadNotifications(userId: string) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-          const repo = Repositories.notification(transactionalEntityManager);
-          return repo.getUnread(userId);
-        });
-    }
+  async getUnreadNotifications(userId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const repo = Repositories.notification(transactionalEntityManager);
+      return repo.getUnread(userId);
+    });
+  }
 
-    async getNotificationsLast7Days(userId: string) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-          const repo = Repositories.notification(transactionalEntityManager);
-          return repo.getFromLastDays(userId, 7);
-        });
-    }
+  async getNotificationsLast7Days(userId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const repo = Repositories.notification(transactionalEntityManager);
+      return repo.getFromLastDays(userId, 7);
+    });
+  }
 
-    async getNotificationsLast30Days(userId: string) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-          const repo = Repositories.notification(transactionalEntityManager);
-          return repo.getFromLastDays(userId, 30);
-        });
-    }
+  async getNotificationsLast30Days(userId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const repo = Repositories.notification(transactionalEntityManager);
+      return repo.getFromLastDays(userId, 30);
+    });
+  }
 
-    async deleteNotification(userId: string, notifId: string) {
-        return this.transactions.readWrite(async (transactionalEntityManager) => {
-            const notifRepository = Repositories.notification(transactionalEntityManager);
-            const notif = await notifRepository.findOne({ where: { id: notifId } });
-            if (!notif) {
-                throw new NotFoundError("Notification not found");
-            }
-            if (notif.userId !== userId) {
-                throw new NotFoundError("Notification not found");
-            }
-            return await notifRepository.deleteNotification(notif);
-        });
-    }
+  async deleteNotification(userId: string, notifId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const notifRepository = Repositories.notification(
+        transactionalEntityManager,
+      );
+      const notif = await notifRepository.findOne({ where: { id: notifId } });
+      if (!notif) {
+        throw new NotFoundError("Notification not found");
+      }
+      if (notif.userId !== userId) {
+        throw new NotFoundError("Notification not found");
+      }
+      return await notifRepository.deleteNotification(notif);
+    });
+  }
 }

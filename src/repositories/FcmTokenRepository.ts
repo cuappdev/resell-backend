@@ -1,26 +1,26 @@
-import { UserModel } from 'src/models/UserModel';
-import { AbstractRepository, DeleteResult, EntityRepository } from 'typeorm';
+import { UserModel } from "src/models/UserModel";
+import { AbstractRepository, DeleteResult, EntityRepository } from "typeorm";
 
-import { FcmTokenModel } from '../models/FcmTokenModel';
-import { TokenWrapper, Uuid } from '../types';
+import { FcmTokenModel } from "../models/FcmTokenModel";
+import { TokenWrapper, Uuid } from "../types";
 
 @EntityRepository(FcmTokenModel)
 export class FcmTokenRepository extends AbstractRepository<FcmTokenModel> {
   public async getTokensByUserId(userId: string): Promise<TokenWrapper[]> {
     return await this.repository
-    .createQueryBuilder("fcmToken")
-    .select("fcmToken.fcmToken", "token")
-    .leftJoin("fcmToken.user", "user")
-    .where("user.firebaseUid = :userId", { userId })
-    .groupBy("fcmToken.fcmToken")
-    .getRawMany();
+      .createQueryBuilder("fcmToken")
+      .select("fcmToken.fcmToken", "token")
+      .leftJoin("fcmToken.user", "user")
+      .where("user.firebaseUid = :userId", { userId })
+      .groupBy("fcmToken.fcmToken")
+      .getRawMany();
   }
 
-  public async createFcmToken (
+  public async createFcmToken(
     fcmToken: string,
     notificationsEnabled: boolean,
     timestamp: Date,
-    user: UserModel
+    user: UserModel,
   ): Promise<FcmTokenModel> {
     const token = this.repository.create({
       fcmToken,
@@ -32,7 +32,9 @@ export class FcmTokenRepository extends AbstractRepository<FcmTokenModel> {
     return token;
   }
 
-  public async getTokenByFcmToken(fcmToken: string): Promise<FcmTokenModel | undefined> {
+  public async getTokenByFcmToken(
+    fcmToken: string,
+  ): Promise<FcmTokenModel | undefined> {
     return await this.repository
       .createQueryBuilder("fcmToken")
       .where("fcmToken.fcmToken = :fcmToken", { fcmToken })
@@ -47,7 +49,10 @@ export class FcmTokenRepository extends AbstractRepository<FcmTokenModel> {
     return this.repository.delete({ user: { firebaseUid: userId } });
   }
 
-  public async updateTokenTimestamp(token: FcmTokenModel, newTimestamp: Date): Promise<FcmTokenModel> {
+  public async updateTokenTimestamp(
+    token: FcmTokenModel,
+    newTimestamp: Date,
+  ): Promise<FcmTokenModel> {
     token.timestamp = newTimestamp;
     return this.repository.save(token);
   }

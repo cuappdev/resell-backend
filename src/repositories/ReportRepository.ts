@@ -18,7 +18,8 @@ export class ReportRepository extends AbstractRepository<ReportModel> {
   }
 
   public async getAllPostReports(): Promise<ReportModel[]> {
-    return this.repository.createQueryBuilder("report")
+    return this.repository
+      .createQueryBuilder("report")
       .leftJoinAndSelect("report.reporter", "reporter")
       .leftJoinAndSelect("report.reported", "reported")
       .leftJoinAndSelect("report.post", "post")
@@ -28,7 +29,8 @@ export class ReportRepository extends AbstractRepository<ReportModel> {
   }
 
   public async getAllProfileReports(): Promise<ReportModel[]> {
-    return this.repository.createQueryBuilder("report")
+    return this.repository
+      .createQueryBuilder("report")
       .leftJoinAndSelect("report.reporter", "reporter")
       .leftJoinAndSelect("report.reported", "reported")
       .leftJoinAndSelect("report.post", "post")
@@ -38,7 +40,8 @@ export class ReportRepository extends AbstractRepository<ReportModel> {
   }
 
   public async getAllMessageReports(): Promise<ReportModel[]> {
-    return this.repository.createQueryBuilder("report")
+    return this.repository
+      .createQueryBuilder("report")
       .leftJoinAndSelect("report.reporter", "reporter")
       .leftJoinAndSelect("report.reported", "reported")
       .leftJoinAndSelect("report.post", "post")
@@ -58,7 +61,9 @@ export class ReportRepository extends AbstractRepository<ReportModel> {
       .getOne();
   }
 
-  public async getReportsByReporter(reporter: UserModel): Promise<ReportModel[]> {
+  public async getReportsByReporter(
+    reporter: UserModel,
+  ): Promise<ReportModel[]> {
     return this.repository
       .createQueryBuilder("report")
       .leftJoinAndSelect("report.reporter", "reporter")
@@ -68,14 +73,14 @@ export class ReportRepository extends AbstractRepository<ReportModel> {
       .where("report.reporter = :reporter", { reporter })
       .getMany();
   }
-  
+
   public async createReport(
     reporter: UserModel,
     reported: UserModel,
     post: PostModel | undefined,
     message: MessageModel | undefined,
     reason: string,
-    type: "post" | "profile" | "message"
+    type: "post" | "profile" | "message",
   ): Promise<ReportModel> {
     const report = new ReportModel();
     report.reporter = reporter;

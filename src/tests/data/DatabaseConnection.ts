@@ -1,4 +1,4 @@
-import { Connection, createConnection } from 'typeorm';
+import { Connection, createConnection } from "typeorm";
 
 // import { models } from '../../models';
 
@@ -6,21 +6,23 @@ export class DatabaseConnection {
   private static conn: Connection | null = null;
 
   public static async connect(): Promise<Connection> {
-    const entitiesPath = __dirname + '/../models/*Model.ts';
+    const entitiesPath = __dirname + "/../models/*Model.ts";
     if (!DatabaseConnection.conn) {
       DatabaseConnection.conn = await createConnection({
-        database: 'resell-test',
+        database: "resell-test",
         entities: [entitiesPath],
-        host: 'localhost',
+        host: "localhost",
         logging: false,
-        password: 'postgres',
+        password: "postgres",
         port: 5432,
         synchronize: true,
-        type: 'postgres',
-        username: 'postgres',
+        type: "postgres",
+        username: "postgres",
       });
       // Ensure pgvector extension is installed for tests
-      await DatabaseConnection.conn.query('CREATE EXTENSION IF NOT EXISTS vector');
+      await DatabaseConnection.conn.query(
+        "CREATE EXTENSION IF NOT EXISTS vector",
+      );
     }
     return DatabaseConnection.conn;
   }
@@ -31,16 +33,16 @@ export class DatabaseConnection {
       // the order of elements matters here, since this will be the order of deletion.
       // if a table (A) exists with an fkey to another table (B), make sure B is listed higher than A.
       const tableNames = [
-        'TransactionReview',
-        'Transaction',
-        'Feedback',
-        'notifications', // Add notifications table before User since it has a fk to User
-        'Report', // Add Report table before Post since it has a fk to Post
-        'Post',
-        'FCMToken',
-        'Request',
-        'UserReview',
-        'User'
+        "TransactionReview",
+        "Transaction",
+        "Feedback",
+        "notifications", // Add notifications table before User since it has a fk to User
+        "Report", // Add Report table before Post since it has a fk to Post
+        "Post",
+        "FCMToken",
+        "Request",
+        "UserReview",
+        "User",
       ];
       await Promise.all(tableNames.map((t) => txn.query(`DELETE FROM "${t}"`)));
     });

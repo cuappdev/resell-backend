@@ -1,6 +1,6 @@
 // UserFactory.ts
-import { define } from 'typeorm-seeding';
-import { UserModel } from '../models/UserModel';
+import { define } from "typeorm-seeding";
+import { UserModel } from "../models/UserModel";
 
 // Define a factory for UserModel
 define(UserModel, (_, context?: { index?: number }) => {
@@ -12,7 +12,7 @@ define(UserModel, (_, context?: { index?: number }) => {
   user.netid = `netid${index}`;
   user.givenName = `GivenName${index}`;
   user.familyName = `FamilyName${index}`;
-  user.admin = index === 1;  // Make the first user an admin
+  user.admin = index === 1; // Make the first user an admin
   user.isActive = true;
   user.stars = 0;
   user.numReviews = 0;

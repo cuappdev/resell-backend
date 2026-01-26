@@ -1,8 +1,8 @@
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { TransactionReviewModel } from '../models/TransactionReviewModel';
-import { TransactionModel } from '../models/TransactionModel';
-import { Uuid } from '../types';
+import { TransactionReviewModel } from "../models/TransactionReviewModel";
+import { TransactionModel } from "../models/TransactionModel";
+import { Uuid } from "../types";
 
 @EntityRepository(TransactionReviewModel)
 export class TransactionReviewRepository extends AbstractRepository<TransactionReviewModel> {
@@ -15,7 +15,9 @@ export class TransactionReviewRepository extends AbstractRepository<TransactionR
   }
 
   // Fetch a transaction review by ID
-  public async getTransactionReviewById(id: Uuid): Promise<TransactionReviewModel | undefined> {
+  public async getTransactionReviewById(
+    id: Uuid,
+  ): Promise<TransactionReviewModel | undefined> {
     return await this.repository
       .createQueryBuilder("review")
       .leftJoinAndSelect("review.transaction", "transaction")
@@ -24,19 +26,21 @@ export class TransactionReviewRepository extends AbstractRepository<TransactionR
   }
 
   // Fetch a transaction review by Transaction ID
-  public async getTransactionReviewByTransactionId(transactionId: Uuid): Promise<TransactionReviewModel | undefined> {
+  public async getTransactionReviewByTransactionId(
+    transactionId: Uuid,
+  ): Promise<TransactionReviewModel | undefined> {
     return await this.repository
       .createQueryBuilder("review")
       .leftJoinAndSelect("review.transaction", "transaction")
       .where("transaction.id = :transactionId", { transactionId })
       .getOne();
   }
-  
+
   // Create a new transaction review
   public async createTransactionReview(
     stars: number,
     comments: string | null,
-    transaction: TransactionModel
+    transaction: TransactionModel,
   ): Promise<TransactionReviewModel> {
     const review = new TransactionReviewModel();
     review.stars = stars;
@@ -45,7 +49,9 @@ export class TransactionReviewRepository extends AbstractRepository<TransactionR
     return await this.repository.save(review);
   }
   // Delete a transaction review
-  public async deleteTransactionReview(review: TransactionReviewModel): Promise<TransactionReviewModel> {
+  public async deleteTransactionReview(
+    review: TransactionReviewModel,
+  ): Promise<TransactionReviewModel> {
     return await this.repository.remove(review);
   }
 }

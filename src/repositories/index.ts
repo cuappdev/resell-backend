@@ -8,80 +8,84 @@ import { UserReviewRepository } from "./UserReviewRepository";
 import { ReportRepository } from "./ReportRepository";
 import { TransactionRepository } from "./TransactionRepository";
 import { TransactionReviewRepository } from "./TransactionReviewRepository";
-import { NotifRepository } from "./NotifRepository"
+import { NotifRepository } from "./NotifRepository";
 import { FcmTokenRepository } from "./FcmTokenRepository";
-import { CategoryRepository } from "./CategoryRepository"
+import { CategoryRepository } from "./CategoryRepository";
 import { SearchRepository } from "./SearchRepository";
 
 export default class Repositories {
   public static user(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): UserRepository {
     return transactionalEntityManager.getCustomRepository(UserRepository);
   }
 
   public static post(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): PostRepository {
     return transactionalEntityManager.getCustomRepository(PostRepository);
   }
 
   public static category(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): CategoryRepository {
     return transactionalEntityManager.getCustomRepository(CategoryRepository);
   }
 
   public static feedback(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): FeedbackRepository {
     return transactionalEntityManager.getCustomRepository(FeedbackRepository);
   }
 
   public static request(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): RequestRepository {
     return transactionalEntityManager.getCustomRepository(RequestRepository);
   }
 
   public static userReview(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): UserReviewRepository {
     return transactionalEntityManager.getCustomRepository(UserReviewRepository);
   }
 
   public static report(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): ReportRepository {
     return transactionalEntityManager.getCustomRepository(ReportRepository);
   }
 
   public static transaction(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): TransactionRepository {
-    return transactionalEntityManager.getCustomRepository(TransactionRepository);
+    return transactionalEntityManager.getCustomRepository(
+      TransactionRepository,
+    );
   }
 
   public static transactionReview(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): TransactionReviewRepository {
-    return transactionalEntityManager.getCustomRepository(TransactionReviewRepository);
-  }  
+    return transactionalEntityManager.getCustomRepository(
+      TransactionReviewRepository,
+    );
+  }
 
   public static notification(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): NotifRepository {
     return transactionalEntityManager.getCustomRepository(NotifRepository);
   }
 
   public static fcmToken(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): FcmTokenRepository {
     return transactionalEntityManager.getCustomRepository(FcmTokenRepository);
   }
 
   public static search(
-    transactionalEntityManager: EntityManager
+    transactionalEntityManager: EntityManager,
   ): SearchRepository {
     return transactionalEntityManager.getCustomRepository(SearchRepository);
   }
@@ -95,13 +99,13 @@ export class TransactionsManager {
   }
 
   public readOnly<T>(
-    fn: (transactionalEntityManager: EntityManager) => Promise<T>
+    fn: (transactionalEntityManager: EntityManager) => Promise<T>,
   ): Promise<T> {
     return this.transactionalEntityManager.transaction("REPEATABLE READ", fn);
   }
 
   public readWrite<T>(
-    fn: (transactionalEntityManager: EntityManager) => Promise<T>
+    fn: (transactionalEntityManager: EntityManager) => Promise<T>,
   ): Promise<T> {
     return this.transactionalEntityManager.transaction("SERIALIZABLE", fn);
   }

@@ -1,16 +1,19 @@
 import * as tf from "@tensorflow/tfjs-node";
 import * as use from "@tensorflow-models/universal-sentence-encoder";
 
-let loadedModel: any;
+let loadedModel: use.UniversalSentenceEncoder | null = null;
 
-async function loadModel() {
-    const model = await use.load();
-    loadedModel = model;
+async function loadModel(): Promise<void> {
+  const model = await use.load();
+  loadedModel = model;
 }
 
-export async function getLoadedModel() {
-    if (!loadedModel) {
-        await loadModel();
-    }
-    return loadedModel;
+export async function getLoadedModel(): Promise<use.UniversalSentenceEncoder> {
+  if (!loadedModel) {
+    await loadModel();
+  }
+  if (!loadedModel) {
+    throw new Error("Failed to load sentence encoder model");
+  }
+  return loadedModel;
 }

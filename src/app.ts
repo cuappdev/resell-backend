@@ -1,4 +1,3 @@
-// necessary immediate imports
 import "reflect-metadata";
 import "dotenv/config";
 
@@ -11,7 +10,7 @@ import {
   HttpError,
 } from "routing-controllers";
 
-import { EntityManager, getManager, useContainer } from "typeorm";
+import { getManager, useContainer } from "typeorm";
 import { Container } from "typeorm-typedi-extensions";
 import { Express } from "express";
 import * as swaggerUi from "swagger-ui-express";
@@ -20,7 +19,7 @@ import * as admin from "firebase-admin";
 
 dotenv.config();
 
-var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
+const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || "";
 const serviceAccount = require(serviceAccountPath);
 
 if (!serviceAccountPath) {
@@ -40,24 +39,12 @@ export { admin }; // Export the admin instance
 import { controllers } from "./api/controllers";
 import { middlewares } from "./api/middlewares";
 import { UserModel } from "./models/UserModel";
-import {
-  ReportPostRequest,
-  ReportProfileRequest,
-  ReportMessageRequest,
-} from "./types";
-import { GetReportsResponse, Report } from "./types/ApiResponses";
 import { ReportController } from "./api/controllers/ReportController";
 import resellConnection from "./utils/DB";
 import { ReportService } from "./services/ReportService";
-import { ReportRepository } from "./repositories/ReportRepository";
 import { reportToString } from "./utils/Requests";
-import { CurrentUserChecker } from "routing-controllers/types/CurrentUserChecker";
-// import { getLoadedModel } from './utils/SentenceEncoder';
 
 dotenv.config();
-
-// TODO: Figure out how to load the model when running app.ts
-// export const encoder = await getLoadedModel();
 
 async function main() {
   routingUseContainer(Container);
@@ -95,7 +82,7 @@ async function main() {
         }
         // Find or create user in your database using Firebase UID
         const manager = getManager();
-        let user = await manager.findOne(
+        const user = await manager.findOne(
           UserModel,
           { firebaseUid: userId },
           { relations: ["posts", "saved", "feedbacks", "requests"] },
@@ -170,8 +157,6 @@ async function main() {
   const entityManager = getManager();
   const reportService = new ReportService(entityManager);
   const reportController = new ReportController(reportService);
-
-  app.set("view engine", "pug");
 
   app.get("/api/reports/admin/", async (req: any, res: any) => {
     const userCheck = async (action: any) => {
