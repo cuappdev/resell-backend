@@ -20,6 +20,10 @@ import * as admin from "firebase-admin";
 
 dotenv.config();
 
+console.log(
+  "FIREBASE_SERVICE_ACCOUNT_PATH:",
+  process.env.FIREBASE_SERVICE_ACCOUNT_PATH,
+);
 var serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
 const serviceAccount = require(serviceAccountPath);
 
@@ -214,7 +218,7 @@ async function main() {
   });
 
   app.listen(port, () => {
-    console.log(`Resell backend bartering on ${host}:${port}`);
+    console.log(`Resell backend bartering on http://localhost:${port}`);
   });
 }
 
