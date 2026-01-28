@@ -86,4 +86,33 @@ export class TransactionRepository extends AbstractRepository<TransactionModel> 
     return await this.repository.save(transaction);
   }
 
+  /**
+   * Get transactions where meeting time has passed but not yet completed
+   * and we haven't sent a confirmation notification yet
+   */
+  public async getPendingConfirmations(): Promise<TransactionModel[]> {
+    const now = new Date();
+    return await this.repository
+      .createQueryBuilder("transaction")
+      .leftJoinAndSelect("transaction.buyer", "buyer")
+      .leftJoinAndSelect("transaction.seller", "seller")
+      .leftJoinAndSelect("transaction.post", "post")
+      .where("transaction.completed = :completed", { completed: false })
+      .andWhere("transaction.confirmationSent = :confirmationSent", { confirmationSent: false })
+      .andWhere("transaction.transactionDate < :now", { now })
+      .getMany();
+  }
+
+  /**
+   * Mark that we've sent a confirmation notification for this transaction
+   */
+  public async markConfirmationSent(transactionId: string): Promise<void> {
+    await this.repository
+      .createQueryBuilder()
+      .update()
+      .set({ confirmationSent: true })
+      .where("id = :id", { id: transactionId })
+      .execute();
+  }
+
 }

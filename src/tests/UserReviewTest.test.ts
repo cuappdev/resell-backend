@@ -38,9 +38,9 @@ afterAll(async () => {
 
 describe('user review tests', () => {
     test('get all user reviews - no user reviews', async () => {
-        const getUserReviewsResponse = await userReviewController.getUserReviews();
+        const response = await userReviewController.getUserReviews();
 
-        expect(getUserReviewsResponse.userReviews).toHaveLength(0);
+        expect(response.reviews).toHaveLength(0);
     });
 
     test('get all user reviews - one user review', async () => {
@@ -52,9 +52,9 @@ describe('user review tests', () => {
             .createUsers(userReview.buyer, userReview.seller)
             .write();
 
-        const getUserReviewsResponse = await userReviewController.getUserReviews();
+        const response = await userReviewController.getUserReviews();
 
-        expect(getUserReviewsResponse.userReviews).toHaveLength(1);
+        expect(response.reviews).toHaveLength(1);
     });
 
     test('get user review by id', async () => {
@@ -70,10 +70,10 @@ describe('user review tests', () => {
         expectedUserReview.buyer = userReview.buyer;
         expectedUserReview.seller = userReview.seller;
 
-        const getUserReviewResponse = await userReviewController.getUserReviewsById(uuidParam);
-        getUserReviewResponse.userReview.stars = Number(getUserReviewResponse.userReview.stars);
-        expectedUserReview.date = getUserReviewResponse.userReview.date;
-        expect(getUserReviewResponse.userReview).toEqual(expectedUserReview);
+        const response = await userReviewController.getUserReviewsById(uuidParam);
+        response.review.stars = Number(response.review.stars);
+        expectedUserReview.date = response.review.date;
+        expect(response.review).toEqual(expectedUserReview);
     });
 
     test('create user review', async () => {
@@ -92,11 +92,11 @@ describe('user review tests', () => {
             sellerId: seller.firebaseUid,
         };
 
-        const getUserReviewResponse = await userReviewController.createUserReview(newUserReview);
-        const getUserReviewsResponse = await userReviewController.getUserReviews();
+        const createResponse = await userReviewController.createUserReview(newUserReview);
+        const listResponse = await userReviewController.getUserReviews();
 
-        expect(getUserReviewResponse.userReview.comments).toEqual('Seller arrived late, but very friendly!');
-        expect(getUserReviewsResponse.userReviews).toHaveLength(1);
+        expect(createResponse.review.comments).toEqual('Seller arrived late, but very friendly!');
+        expect(listResponse.reviews).toHaveLength(1);
     });
 
 

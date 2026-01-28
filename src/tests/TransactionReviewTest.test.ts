@@ -27,8 +27,8 @@ afterAll(async () => {
 
 describe('transaction review tests', () => {
   test('get all transaction reviews - no reviews', async () => {
-    const transactionReviews = await transactionReviewController.getTransactionReviews();
-    expect(transactionReviews).toHaveLength(0);
+    const response = await transactionReviewController.getTransactionReviews();
+    expect(response.reviews).toHaveLength(0);
   });
 
   test('get all transaction reviews - one review', async () => {
@@ -41,8 +41,8 @@ describe('transaction review tests', () => {
       .createTransactionReviews(transactionReview)
       .write();
 
-    const transactionReviews = await transactionReviewController.getTransactionReviews();
-    expect(transactionReviews).toHaveLength(1);
+    const response = await transactionReviewController.getTransactionReviews();
+    expect(response.reviews).toHaveLength(1);
   });
 
   test('get transaction review by id', async () => {
@@ -55,9 +55,9 @@ describe('transaction review tests', () => {
       .createTransactionReviews(transactionReview)
       .write();
 
-    const retrievedReview = await transactionReviewController.getTransactionReviewById({ id: transactionReview.id });
-    expect(retrievedReview.id).toEqual(transactionReview.id);
-    expect(retrievedReview.stars).toEqual(transactionReview.stars);
+    const response = await transactionReviewController.getTransactionReviewById({ id: transactionReview.id });
+    expect(response.review.id).toEqual(transactionReview.id);
+    expect(response.review.stars).toEqual(transactionReview.stars);
   });
 
   test('create transaction review', async () => {
@@ -73,9 +73,9 @@ describe('transaction review tests', () => {
       comments: 'Great transaction!'
     };
 
-    const createdReview = await transactionReviewController.createTransactionReview(newTransactionReview);
-    expect(createdReview.stars).toEqual(newTransactionReview.stars);
-    expect(createdReview.comments).toEqual(newTransactionReview.comments);
+    const response = await transactionReviewController.createTransactionReview(newTransactionReview);
+    expect(response.review.stars).toEqual(newTransactionReview.stars);
+    expect(response.review.comments).toEqual(newTransactionReview.comments);
   });
 
   test('get transaction review by transaction id', async () => {
@@ -88,9 +88,9 @@ describe('transaction review tests', () => {
       .createTransactionReviews(transactionReview)
       .write();
 
-    const retrievedReview = await transactionReviewController.getTransactionReviewByTransactionId({ id: transaction.id });
-    expect(retrievedReview.transaction.id).toEqual(transaction.id);
-    expect(retrievedReview.stars).toEqual(transactionReview.stars);
+    const response = await transactionReviewController.getTransactionReviewByTransactionId({ id: transaction.id });
+    expect(response.review.transaction.id).toEqual(transaction.id);
+    expect(response.review.stars).toEqual(transactionReview.stars);
   });
 
   test('get all transaction reviews for multiple transactions', async () => {
@@ -105,7 +105,7 @@ describe('transaction review tests', () => {
       .createTransactionReviews(review1, review2)
       .write();
 
-    const transactionReviews = await transactionReviewController.getTransactionReviews();
-    expect(transactionReviews).toHaveLength(2);
+    const response = await transactionReviewController.getTransactionReviews();
+    expect(response.reviews).toHaveLength(2);
   });
 });

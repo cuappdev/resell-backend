@@ -1,6 +1,6 @@
 import { Body, CurrentUser, ForbiddenError, BadRequestError, JsonController, Params, Post } from 'routing-controllers';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getManager } from 'typeorm';
+import { getManager, getConnection } from 'typeorm';
 import { ChatParam, ChatReadParam } from '../validators/GenericRequests';
 import { CreateChatMessage, CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ProposalResponse, ChatReadResponse, CancelProposalResponse, FindTokensRequest } from '../../types';
 import { UserModel } from '../../models/UserModel';
@@ -208,30 +208,49 @@ export class ChatController {
 
     // If proposal is accepted, create a transaction
     let transactionId: string | undefined;
+    console.log(`[PROPOSAL] chatBody.accepted = ${chatBody.accepted}, doc.exists = ${doc.exists}`);
+    
     if (chatBody.accepted === true && doc.exists) {
       const chatData = doc.data();
+      console.log(`[PROPOSAL] Chat data:`, JSON.stringify(chatData, null, 2));
 
       if (chatData) {
         const manager = getManager();
 
         // Get buyer, seller, and post from database
+        console.log(`[PROPOSAL] Looking up: buyerID=${chatData.buyerID}, sellerID=${chatData.sellerID}, listingID=${chatData.listingID}`);
         const buyer = await manager.findOne(UserModel, { firebaseUid: chatData.buyerID });
         const seller = await manager.findOne(UserModel, { firebaseUid: chatData.sellerID });
         const post = await manager.findOne(PostModel, { id: chatData.listingID });
+        console.log(`[PROPOSAL] Found: buyer=${!!buyer}, seller=${!!seller}, post=${!!post}`);
 
         if (buyer && seller && post) {
-          // Create the transaction
-          const transaction = new TransactionModel();
-          transaction.location = "";  // Optional for now
-          transaction.amount = post.altered_price ?? post.original_price;  // Use post price
-          transaction.transactionDate = new Date(chatBody.startDate);  // Meeting time
-          transaction.post = post;
-          transaction.buyer = buyer;
-          transaction.seller = seller;
-          transaction.completed = false;
-
-          const savedTransaction = await manager.save(transaction);
-          transactionId = savedTransaction.id;
+          // Use queryRunner with explicit transaction control
+          const connection = getConnection();
+          const queryRunner = connection.createQueryRunner();
+          await queryRunner.connect();
+          await queryRunner.startTransaction();
+          
+          const amount = post.altered_price ?? post.original_price;
+          const transactionDate = new Date(chatBody.startDate);
+          
+          try {
+            const result = await queryRunner.query(`
+              INSERT INTO "Transaction" (location, amount, completed, post_id, buyer_id, seller_id, "transactionDate", "confirmationSent")
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+              RETURNING id
+            `, ["", amount, false, post.id, buyer.firebaseUid, seller.firebaseUid, transactionDate, false]);
+            
+            await queryRunner.commitTransaction();
+            transactionId = result[0].id;
+            console.log(`[PROPOSAL] Transaction COMMITTED to DB: ${transactionId}`);
+          } catch (saveError) {
+            await queryRunner.rollbackTransaction();
+            console.error(`[PROPOSAL] Failed to save transaction:`, saveError);
+            throw saveError;
+          } finally {
+            await queryRunner.release();
+          }
 
           // Add transaction ID to the message stored in Firestore
           message.transactionId = transactionId;
@@ -239,26 +258,27 @@ export class ChatController {
           console.log(`Transaction created: ${transactionId} for chat ${chatId}`);
 
           // Send notification to the buyer that their proposal was accepted
+          // NOTE: This is done AFTER transaction is saved, so notification failures won't affect transaction
           try {
-            const notifService = new NotifService(manager);
+            const notifService = new NotifService(getManager());  // Use fresh manager to avoid transaction issues
             const imageUrl = post.images && post.images.length > 0 ? post.images[0] : null;
 
-            // Notify the buyer
+            // FCM requires all data values to be STRINGS
             const buyerNotifRequest: FindTokensRequest = {
               email: buyer.email,
               title: "Meeting Confirmed!",
               body: `${seller.username} accepted your meeting proposal for "${post.title}"`,
               data: {
                 type: "messages",
-                imageUrl: imageUrl,
+                imageUrl: imageUrl || "",
                 postId: post.id,
                 postTitle: post.title,
                 transactionId: transactionId,
                 chatId: chatId,
                 sellerId: seller.firebaseUid,
                 sellerUsername: seller.username,
-                sellerPhotoUrl: seller.photoUrl,
-                meetingTime: chatBody.startDate
+                sellerPhotoUrl: seller.photoUrl || "",
+                meetingTime: String(chatBody.startDate)  // Convert to string for FCM
               } as unknown as JSON
             };
             await notifService.sendNotifs(buyerNotifRequest);

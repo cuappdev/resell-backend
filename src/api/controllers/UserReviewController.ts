@@ -1,10 +1,9 @@
 import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
 import { 
-    CreateUserReviewRequest,
-    GetUserReviewResponse,
-    GetUserReviewsResponse
+    CreateUserReviewRequest
 } from '../../types';
 import { UserModel } from '../../models/UserModel';
+import { UserReviewModel } from '../../models/UserReviewModel';
 import { UserReviewService } from '../../services/UserReviewService'
 import { UuidParam } from '../validators/GenericRequests';
 
@@ -17,22 +16,22 @@ export class UserReviewController {
     }
 
     @Get()
-    async getUserReviews(): Promise<GetUserReviewsResponse> {
-        return { userReviews: await this.userReviewService.getAllUserReviews() };
+    async getUserReviews(): Promise<{ reviews: UserReviewModel[] }> {
+        return { reviews: await this.userReviewService.getAllUserReviews() };
     }
 
     @Get('id/:id/')
-    async getUserReviewsById(@Params() params: UuidParam): Promise<GetUserReviewResponse> {
-        return { userReview: await this.userReviewService.getUserReviewById(params) };
+    async getUserReviewsById(@Params() params: UuidParam): Promise<{ review: UserReviewModel }> {
+        return { review: await this.userReviewService.getUserReviewById(params) };
     }
 
     @Post()
-    async createUserReview(@Body() createUserReviewRequest: CreateUserReviewRequest): Promise<GetUserReviewResponse> {
-        return { userReview: await this.userReviewService.createUserReview(createUserReviewRequest) };
+    async createUserReview(@Body() createUserReviewRequest: CreateUserReviewRequest): Promise<{ review: UserReviewModel }> {
+        return { review: await this.userReviewService.createUserReview(createUserReviewRequest) };
     }
 
     @Delete('id/:id/')
-    async deleteUserReview(@CurrentUser() buyer: UserModel, @Params() params: UuidParam): Promise<GetUserReviewResponse> {
-        return { userReview: await this.userReviewService.deleteUserReviewById(buyer, params) };
+    async deleteUserReview(@CurrentUser() buyer: UserModel, @Params() params: UuidParam): Promise<{ review: UserReviewModel }> {
+        return { review: await this.userReviewService.deleteUserReviewById(buyer, params) };
     }
 }

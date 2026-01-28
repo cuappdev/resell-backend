@@ -25,6 +25,9 @@ import {
   
     @Column({ default: false })
     completed: boolean; // Whether the transaction is completed
+
+    @Column({ default: false })
+    confirmationSent: boolean; // Whether we've sent a confirmation notification
   
     @ManyToOne(() => PostModel, { cascade: false })
     @JoinColumn({ name: "post_id" })

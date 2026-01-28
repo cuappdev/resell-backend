@@ -13,27 +13,27 @@ export class TransactionReviewController {
     }
 
     @Get()
-    async getTransactionReviews(): Promise<TransactionReviewModel[]> {
-        return await this.transactionReviewService.getAllTransactionReviews();
+    async getTransactionReviews(): Promise<{ reviews: TransactionReviewModel[] }> {
+        return { reviews: await this.transactionReviewService.getAllTransactionReviews() };
     }
 
     @Get('id/:id/')
-    async getTransactionReviewById(@Params() params: UuidParam): Promise<TransactionReviewModel> {
-        return await this.transactionReviewService.getTransactionReviewById(params);
+    async getTransactionReviewById(@Params() params: UuidParam): Promise<{ review: TransactionReviewModel }> {
+        return { review: await this.transactionReviewService.getTransactionReviewById(params) };
     }
 
     @Get('transactionId/:transactionId/')
-    async getTransactionReviewByTransactionId(@Params() params: UuidParam): Promise<TransactionReviewModel> {
-        return await this.transactionReviewService.getTransactionReviewByTransactionId(params);
+    async getTransactionReviewByTransactionId(@Params() params: UuidParam): Promise<{ review: TransactionReviewModel }> {
+        return { review: await this.transactionReviewService.getTransactionReviewByTransactionId(params) };
     }
 
     @Post()
-    async createTransactionReview(@Body() createTransactionReviewRequest: CreateTransactionReviewRequest): Promise<TransactionReviewModel> {
-        return await this.transactionReviewService.createTransactionReview(createTransactionReviewRequest);
+    async createTransactionReview(@Body() createTransactionReviewRequest: CreateTransactionReviewRequest): Promise<{ review: TransactionReviewModel }> {
+        return { review: await this.transactionReviewService.createTransactionReview(createTransactionReviewRequest) };
     }
 
     @Delete('id/:id/')
-    async deleteTransactionReview(@Params() params: UuidParam): Promise<TransactionReviewModel> {
-        return await this.transactionReviewService.deleteTransactionReviewById(params);
+    async deleteTransactionReview(@Params() params: UuidParam): Promise<{ review: TransactionReviewModel }> {
+        return { review: await this.transactionReviewService.deleteTransactionReviewById(params) };
     }
 }

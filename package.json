@@ -96,6 +96,8 @@
 
     "@tensorflow/tfjs-node": "^4.22.0",
 
+    "@types/node-cron": "^3.0.11",
+
     "body-parser": "^1.19.1",
 
     "class-transformer": "^0.5.1",
@@ -119,6 +121,8 @@
     "math.js": "^1.1.46",
 
     "multer": "1.4.5-lts.1",
+
+    "node-cron": "^4.2.1",
 
     "node-fetch": "^2.6.1",
 

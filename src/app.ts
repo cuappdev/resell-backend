@@ -43,6 +43,7 @@ import { ReportService } from './services/ReportService';
 import { ReportRepository } from './repositories/ReportRepository';
 import { reportToString } from './utils/Requests';
 import { CurrentUserChecker } from 'routing-controllers/types/CurrentUserChecker';
+import { startTransactionConfirmationCron } from './cron/transactionCron';
 // import { getLoadedModel } from './utils/SentenceEncoder';
 
 dotenv.config();
@@ -193,6 +194,9 @@ async function main() {
   
   app.listen(port, () => {
     console.log(`Resell backend bartering on ${host}:${port}`);
+    
+    // Start cron jobs after server is running
+    startTransactionConfirmationCron();
   });
 }
 
