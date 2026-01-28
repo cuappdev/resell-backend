@@ -7,3 +7,5 @@ yarn.lock
 *.DS_Store
 *.pem
 firebase-admin-service-account.json
+# Firebase secrets
+secrets/
