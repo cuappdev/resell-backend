@@ -1,22 +1,23 @@
-import { UserModel } from 'src/models/UserModel';
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { UserModel } from "src/models/UserModel";
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { FeedbackModel } from '../models/FeedbackModel';
-import { Uuid } from '../types';
+import { FeedbackModel } from "../models/FeedbackModel";
+import { Uuid } from "../types";
 
 @EntityRepository(FeedbackModel)
 export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
   public async getAllFeedback(): Promise<FeedbackModel[]> {
-    return await this.repository.createQueryBuilder("feedback")
-    .leftJoinAndSelect("feedback.user", "user")
-    .getMany();
+    return await this.repository
+      .createQueryBuilder("feedback")
+      .leftJoinAndSelect("feedback.user", "user")
+      .getMany();
   }
 
   public async getFeedbackById(id: Uuid): Promise<FeedbackModel | undefined> {
     return await this.repository
-    .createQueryBuilder("feedback")
-    .where("feedback.id = :id", { id })
-    .getOne();
+      .createQueryBuilder("feedback")
+      .where("feedback.id = :id", { id })
+      .getOne();
   }
 
   public async getFeedbackByUserId(userId: string): Promise<FeedbackModel[]> {
@@ -27,10 +28,10 @@ export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
       .getMany();
   }
 
-  public async createFeedback (
+  public async createFeedback(
     description: string,
     images: string[],
-    user: UserModel
+    user: UserModel,
   ): Promise<FeedbackModel> {
     const feedback = this.repository.create({
       description,
@@ -48,7 +49,9 @@ export class FeedbackRepository extends AbstractRepository<FeedbackModel> {
   public async searchFeedback(keywords: string): Promise<FeedbackModel[]> {
     return await this.repository
       .createQueryBuilder("feedback")
-      .where("feedback.description like :keywords", {keywords: `%${keywords}%`})
+      .where("feedback.description like :keywords", {
+        keywords: `%${keywords}%`,
+      })
       .getMany();
   }
 }

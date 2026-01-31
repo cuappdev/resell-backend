@@ -1,6 +1,6 @@
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { CategoryModel } from '../models/CategoryModel';
+import { CategoryModel } from "../models/CategoryModel";
 
 @EntityRepository(CategoryModel)
 export class CategoryRepository extends AbstractRepository<CategoryModel> {
@@ -11,26 +11,27 @@ export class CategoryRepository extends AbstractRepository<CategoryModel> {
       .getMany();
   }
 
-  
   public async findOrCreateByNames(names: string[]): Promise<CategoryModel[]> {
     const existing = await this.repository
       .createQueryBuilder("category")
       .where("category.name IN (:...names)", { names })
       .getMany();
-  
+
     const existingNames = new Set(existing.map((c) => c.name));
 
     const newNames = [
       ...new Set(names.filter((name) => !existingNames.has(name))),
     ];
-  
+
     // Create in-memory entities (not saving them)
-    const newCategories = newNames.map((name) => this.repository.create({ name }));
-  
+    const newCategories = newNames.map((name) =>
+      this.repository.create({ name }),
+    );
+
     if (newCategories.length > 0) {
       await this.repository.save(newCategories);
     }
-  
+
     return [...existing, ...newCategories];
   }
 

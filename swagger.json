@@ -576,7 +576,9 @@
                   "properties": {
                     "posts": {
                       "type": "array",
-                      "items": { "$ref": "#/components/schemas/GetPostResponse" }
+                      "items": {
+                        "$ref": "#/components/schemas/GetPostResponse"
+                      }
                     }
                   }
                 }
@@ -640,7 +642,9 @@
                   "properties": {
                     "posts": {
                       "type": "array",
-                      "items": { "$ref": "#/components/schemas/GetPostResponse" }
+                      "items": {
+                        "$ref": "#/components/schemas/GetPostResponse"
+                      }
                     }
                   }
                 }
@@ -853,7 +857,9 @@
                   "properties": {
                     "posts": {
                       "type": "array",
-                      "items": { "$ref": "#/components/schemas/GetPostResponse" }
+                      "items": {
+                        "$ref": "#/components/schemas/GetPostResponse"
+                      }
                     }
                   }
                 }
@@ -1069,7 +1075,7 @@
             "in": "path",
             "required": true,
             "description": "Firebase UID of the user to delete",
-            "schema": { "type": "string" }          
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -1217,7 +1223,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SetAdminByEmailRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/SetAdminByEmailRequest"
+              }
             }
           }
         },
@@ -1431,7 +1439,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/RequestMatchNotificationRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/RequestMatchNotificationRequest"
+              }
             }
           }
         },
@@ -1451,13 +1461,47 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/DiscountNotificationRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/DiscountNotificationRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Discount notification sent successfully"
+          }
+        }
+      }
+    },
+    "/notif/markAsRead/id/{id}": {
+      "post": {
+        "summary": "Mark notification as read",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Notification ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification marked as read successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Notification" }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found"
           }
         }
       }
@@ -1612,7 +1656,7 @@
             "in": "path",
             "required": true,
             "description": "Firebase UID of the user",
-            "schema": { "type": "string"}
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -2163,7 +2207,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateTransactionRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionRequest"
+              }
             }
           }
         },
@@ -2175,7 +2221,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "transaction": { "$ref": "#/components/schemas/Transaction" }
+                    "transaction": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
                   }
                 }
               }
@@ -2205,7 +2253,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "transaction": { "$ref": "#/components/schemas/Transaction" }
+                    "transaction": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
                   }
                 }
               }
@@ -2297,7 +2347,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateTransactionStatusRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTransactionStatusRequest"
+              }
             }
           }
         },
@@ -2309,7 +2361,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "transaction": { "$ref": "#/components/schemas/Transaction" }
+                    "transaction": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
                   }
                 }
               }
@@ -2339,7 +2393,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "transaction": { "$ref": "#/components/schemas/Transaction" }
+                    "transaction": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
                   }
                 }
               }
@@ -2375,7 +2431,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateTransactionReviewRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionReviewRequest"
+              }
             }
           }
         },
@@ -2490,7 +2548,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateUserReviewRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserReviewRequest"
+              }
             }
           }
         },
@@ -2579,8 +2639,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                   "$ref": "#/components/schemas/MessageResponse" 
-                  
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
             }
@@ -2597,7 +2656,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateAvailabilityChat" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateAvailabilityChat"
+              }
             }
           }
         },
@@ -2607,8 +2668,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                   "$ref": "#/components/schemas/AvailabilityResponse" 
-                  
+                  "$ref": "#/components/schemas/AvailabilityResponse"
                 }
               }
             }
@@ -2635,9 +2695,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  
-                     "$ref": "#/components/schemas/ProposalResponse" 
-                  
+                  "$ref": "#/components/schemas/ProposalResponse"
                 }
               }
             }
@@ -2664,16 +2722,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProposalResponse" 
-                  
+                  "$ref": "#/components/schemas/ProposalResponse"
                 }
               }
             }
           }
         }
       }
-    }
-    ,
+    },
     "/chat/proposal/cancel/{id}": {
       "post": {
         "tags": ["Chat"],
@@ -2693,8 +2749,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CancelProposalResponse" 
-                  
+                  "$ref": "#/components/schemas/CancelProposalResponse"
                 }
               }
             }
@@ -2714,8 +2769,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                 "$ref": "#/components/schemas/ReadResponse" 
-                  
+                  "$ref": "#/components/schemas/ReadResponse"
                 }
               }
             }
@@ -2862,19 +2916,19 @@
       "EditProfileRequest": {
         "type": "object",
         "properties": {
-          "photoUrlBase64": { 
+          "photoUrlBase64": {
             "type": "string",
             "nullable": true
           },
-          "username": { 
+          "username": {
             "type": "string",
             "nullable": true
           },
-          "venmoHandle": { 
+          "venmoHandle": {
             "type": "string",
             "nullable": true
           },
-          "bio": { 
+          "bio": {
             "type": "string",
             "nullable": true
           }
@@ -2936,7 +2990,7 @@
                 "id": { "type": "string" },
                 "title": { "type": "string" },
                 "description": { "type": "string" },
-                "categories":{
+                "categories": {
                   "type": "array",
                   "items": { "type": "string" }
                 },
@@ -3049,17 +3103,12 @@
       },
       "FindTokensRequest": {
         "type": "object",
-        "required": [
-          "email",
-          "title",
-          "body",
-          "data"
-        ],
+        "required": ["email", "title", "body", "data"],
         "properties": {
           "email": { "type": "string" },
           "title": { "type": "string" },
           "body": { "type": "string" },
-          "data": { 
+          "data": {
             "type": "object",
             "additionalProperties": true
           }
@@ -3067,11 +3116,7 @@
       },
       "RequestMatchNotificationRequest": {
         "type": "object",
-        "required": [
-          "requestId",
-          "listingId",
-          "userId"
-        ],
+        "required": ["requestId", "listingId", "userId"],
         "properties": {
           "requestId": { "type": "string" },
           "listingId": { "type": "string" },
@@ -3081,12 +3126,12 @@
       "DiscountNotificationRequest": {
         "type": "object",
         "properties": {
-          "sellerId": { 
+          "sellerId": {
             "type": "string",
             "description": "Firebase UID of the seller"
           },
-          "listingId": { 
-            "type": "string", 
+          "listingId": {
+            "type": "string",
             "format": "uuid",
             "description": "UUID of the post/listing"
           },
@@ -3097,13 +3142,7 @@
       },
       "Notification": {
         "type": "object",
-        "required": [
-          "to",
-          "sound",
-          "title",
-          "body",
-          "data"
-        ],
+        "required": ["to", "sound", "title", "body", "data"],
         "properties": {
           "to": {
             "type": "array",
@@ -3167,18 +3206,18 @@
           "id": { "type": "string" },
           "reporter": { "$ref": "#/components/schemas/PrivateProfile" },
           "reported": { "$ref": "#/components/schemas/PrivateProfile" },
-          "post": { 
+          "post": {
             "type": "object",
             "nullable": true,
             "$ref": "#/components/schemas/Post"
           },
-          "message": { 
+          "message": {
             "type": "object",
             "nullable": true,
             "$ref": "#/components/schemas/Message"
           },
           "reason": { "type": "string" },
-          "type": { 
+          "type": {
             "type": "string",
             "enum": ["post", "profile", "message"]
           },
@@ -3208,7 +3247,7 @@
         "required": ["reported", "message", "reason"],
         "properties": {
           "reported": { "type": "string" },
-          "message": { 
+          "message": {
             "$ref": "#/components/schemas/Message"
           },
           "reason": { "type": "string" }
@@ -3225,7 +3264,7 @@
       "BlockUserRequest": {
         "type": "object",
         "properties": {
-          "blocked": { 
+          "blocked": {
             "type": "string",
             "format": "uuid"
           }
@@ -3235,7 +3274,7 @@
       "UnblockUserRequest": {
         "type": "object",
         "properties": {
-          "unblocked": { 
+          "unblocked": {
             "type": "string",
             "format": "uuid"
           }
@@ -3412,7 +3451,7 @@
           "issueCategory": { "type": "string", "nullable": true },
           "issueDetails": { "type": "string", "nullable": true },
           "createdAt": { "type": "string", "format": "date-time" },
-          "transaction": { 
+          "transaction": {
             "oneOf": [
               { "$ref": "#/components/schemas/Transaction" },
               { "type": "string" }
@@ -3467,140 +3506,170 @@
           }
         }
       },
-      
-        "CreateChatMessage": {
-          "type": "object",
-          "required": ["type", "listingId", "buyerId", "sellerId", "senderId", "text", "images"],
-          "properties": {
-            "type": { "type": "string" },
-            "listingId": { "type": "string", "format": "uuid" },
-            "buyerId": { "type": "string", "format": "uuid" },
-            "sellerId": { "type": "string", "format": "uuid" },
-            "senderId": { "type": "string", "format": "uuid" },
-            "text": { "type": "string" },
-            "images": {
-              "type": "array",
-              "items": { "type": "string" }
-            }
-          }
-        },
-        "AvailabilityList": {
-          "type": "object",
-          "required": ["startDate", "endDate"],
-          "properties": {
-            "startDate": { "type": "string", "format": "date-time" },
-            "endDate": { "type": "string", "format": "date-time" }
-          }
-        },
-        "CreateAvailabilityChat": {
-          "type": "object",
-          "required": ["type", "listingId", "buyerId", "sellerId", "senderId", "availabilities"],
-          "properties": {
-            "type": { "type": "string" },
-            "listingId": { "type": "string", "format": "uuid" },
-            "buyerId": { "type": "string", "format": "uuid" },
-            "sellerId": { "type": "string", "format": "uuid" },
-            "senderId": { "type": "string", "format": "uuid" },
-            "availabilities": {
-              "type": "array",
-              "items": { "$ref": "#/components/schemas/AvailabilityList" }
-            }
-          }
-        },
-        "CreateProposalChat": {
-          "type": "object",
-          "required": ["type", "listingId", "buyerId", "sellerId", "senderId", "startDate", "endDate"],
-          "properties": {
-            "type": { "type": "string" },
-            "listingId": { "type": "string", "format": "uuid" },
-            "buyerId": { "type": "string", "format": "uuid" },
-            "sellerId": { "type": "string", "format": "uuid" },
-            "senderId": { "type": "string", "format": "uuid" },
-            "startDate": { "type": "string", "format": "date-time" },
-            "endDate": { "type": "string", "format": "date-time" }
-          }
-        },
-        "RespondProposalChat": {
-          "type": "object",
-          "required": ["type", "listingId", "buyerId", "sellerId", "senderId", "startDate", "endDate", "accepted"],
-          "properties": {
-            "type": { "type": "string" },
-            "listingId": { "type": "string", "format": "uuid" },
-            "buyerId": { "type": "string", "format": "uuid" },
-            "sellerId": { "type": "string", "format": "uuid" },
-            "senderId": { "type": "string", "format": "uuid" },
-            "startDate": { "type": "string", "format": "date-time" },
-            "endDate": { "type": "string", "format": "date-time" },
-            "accepted": { "type": "boolean" }
+
+      "CreateChatMessage": {
+        "type": "object",
+        "required": [
+          "type",
+          "listingId",
+          "buyerId",
+          "sellerId",
+          "senderId",
+          "text",
+          "images"
+        ],
+        "properties": {
+          "type": { "type": "string" },
+          "listingId": { "type": "string", "format": "uuid" },
+          "buyerId": { "type": "string", "format": "uuid" },
+          "sellerId": { "type": "string", "format": "uuid" },
+          "senderId": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
           }
         }
-      
-,
+      },
+      "AvailabilityList": {
+        "type": "object",
+        "required": ["startDate", "endDate"],
+        "properties": {
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateAvailabilityChat": {
+        "type": "object",
+        "required": [
+          "type",
+          "listingId",
+          "buyerId",
+          "sellerId",
+          "senderId",
+          "availabilities"
+        ],
+        "properties": {
+          "type": { "type": "string" },
+          "listingId": { "type": "string", "format": "uuid" },
+          "buyerId": { "type": "string", "format": "uuid" },
+          "sellerId": { "type": "string", "format": "uuid" },
+          "senderId": { "type": "string", "format": "uuid" },
+          "availabilities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AvailabilityList" }
+          }
+        }
+      },
+      "CreateProposalChat": {
+        "type": "object",
+        "required": [
+          "type",
+          "listingId",
+          "buyerId",
+          "sellerId",
+          "senderId",
+          "startDate",
+          "endDate"
+        ],
+        "properties": {
+          "type": { "type": "string" },
+          "listingId": { "type": "string", "format": "uuid" },
+          "buyerId": { "type": "string", "format": "uuid" },
+          "sellerId": { "type": "string", "format": "uuid" },
+          "senderId": { "type": "string", "format": "uuid" },
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" }
+        }
+      },
+      "RespondProposalChat": {
+        "type": "object",
+        "required": [
+          "type",
+          "listingId",
+          "buyerId",
+          "sellerId",
+          "senderId",
+          "startDate",
+          "endDate",
+          "accepted"
+        ],
+        "properties": {
+          "type": { "type": "string" },
+          "listingId": { "type": "string", "format": "uuid" },
+          "buyerId": { "type": "string", "format": "uuid" },
+          "sellerId": { "type": "string", "format": "uuid" },
+          "senderId": { "type": "string", "format": "uuid" },
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" },
+          "accepted": { "type": "boolean" }
+        }
+      },
 
-  "MessageResponse": {
-    "type": "object",
-    "required": ["type", "senderID", "text", "images", "timestamp", "read"],
-    "properties": {
-      "type": { "type": "string" },
-      "senderID": { "type": "string", "format": "uuid" },
-      "text": { "type": "string" },
-      "images": {
-        "type": "array",
-        "items": { "type": "string" }
+      "MessageResponse": {
+        "type": "object",
+        "required": ["type", "senderID", "text", "images", "timestamp", "read"],
+        "properties": {
+          "type": { "type": "string" },
+          "senderID": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "read": { "type": "boolean" }
+        }
       },
-      "timestamp": { "type": "string", "format": "date-time" },
-      "read": { "type": "boolean" }
-    }
-  },
-  "AvailabilityResponse": {
-    "type": "object",
-    "required": ["type", "senderID", "timestamp", "availabilities"],
-    "properties": {
-      "type": { "type": "string" },
-      "senderID": { "type": "string", "format": "uuid" },
-      "timestamp": { "type": "string", "format": "date-time" },
-      "availabilities": {
-        "type": "array",
-        "items": { "$ref": "#/components/schemas/AvailabilityList" }
-      }
-    }
-  },
-  "ProposalResponse": {
-    "type": "object",
-    "required": ["type", "senderID", "timestamp", "startDate", "endDate"],
-    "properties": {
-      "type": { "type": "string" },
-      "senderID": { "type": "string", "format": "uuid" },
-      "timestamp": { "type": "string", "format": "date-time" },
-      "accepted": { 
-        "type": ["boolean", "null"],
-        "nullable": true
+      "AvailabilityResponse": {
+        "type": "object",
+        "required": ["type", "senderID", "timestamp", "availabilities"],
+        "properties": {
+          "type": { "type": "string" },
+          "senderID": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "availabilities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AvailabilityList" }
+          }
+        }
       },
-      "startDate": { "type": "string", "format": "date-time" },
-      "endDate": { "type": "string", "format": "date-time" }
-    }
-  }
-,"CancelProposalResponse": {
-    "type": "object",
-    "required": ["type", "senderID", "timestamp", "startDate", "endDate"],
-    "properties": {
-      "type": { "type": "string" },
-      "senderID": { "type": "string", "format": "uuid" },
-      "timestamp": { "type": "string", "format": "date-time" },
-      "cancellation": { 
-        "type": "boolean"
+      "ProposalResponse": {
+        "type": "object",
+        "required": ["type", "senderID", "timestamp", "startDate", "endDate"],
+        "properties": {
+          "type": { "type": "string" },
+          "senderID": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "accepted": {
+            "type": ["boolean", "null"],
+            "nullable": true
+          },
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" }
+        }
       },
-      "startDate": { "type": "string", "format": "date-time" },
-      "endDate": { "type": "string", "format": "date-time" }
-    }
-  },
-"ReadResponse": {
-    "type": "object",
-    "required": ["read"],
-    "properties": {
-      "read": { "type": "boolean" }
-    }
-  },
+      "CancelProposalResponse": {
+        "type": "object",
+        "required": ["type", "senderID", "timestamp", "startDate", "endDate"],
+        "properties": {
+          "type": { "type": "string" },
+          "senderID": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "cancellation": {
+            "type": "boolean"
+          },
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ReadResponse": {
+        "type": "object",
+        "required": ["read"],
+        "properties": {
+          "read": { "type": "boolean" }
+        }
+      },
       "PrivateProfile": {
         "type": "object",
         "properties": {
@@ -3724,16 +3793,16 @@
               "type": "object",
               "required": ["id", "searchText", "createdAt"],
               "properties": {
-                "id": { 
+                "id": {
                   "type": "string",
                   "description": "Unique search ID to use with searchSuggestions endpoint"
                 },
-                "searchText": { 
+                "searchText": {
                   "type": "string",
                   "description": "The search query text"
                 },
-                "createdAt": { 
-                  "type": "string", 
+                "createdAt": {
+                  "type": "string",
                   "format": "date-time",
                   "description": "When the search was created"
                 }

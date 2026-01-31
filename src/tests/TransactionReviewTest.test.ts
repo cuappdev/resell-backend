@@ -1,10 +1,15 @@
-import { TransactionReviewController } from 'src/api/controllers/TransactionReviewController';
-import { Connection } from 'typeorm';
+import { TransactionReviewController } from "src/api/controllers/TransactionReviewController";
+import { Connection } from "typeorm";
 
-import { UuidParam } from '../api/validators/GenericRequests';
-import { ControllerFactory } from './controllers';
-import { DatabaseConnection, DataFactory, TransactionFactory, TransactionReviewFactory } from './data';
-import { CreateTransactionReviewRequest } from 'src/types';
+import { UuidParam } from "../api/validators/GenericRequests";
+import { ControllerFactory } from "./controllers";
+import {
+  DatabaseConnection,
+  DataFactory,
+  TransactionFactory,
+  TransactionReviewFactory,
+} from "./data";
+import { CreateTransactionReviewRequest } from "src/types";
 
 let uuidParam: UuidParam;
 let conn: Connection;
@@ -31,7 +36,7 @@ describe('transaction review tests', () => {
     expect(response.reviews).toHaveLength(0);
   });
 
-  test('get all transaction reviews - one review', async () => {
+  test("get all transaction reviews - one review", async () => {
     const transaction = TransactionFactory.fake();
     const transactionReview = TransactionReviewFactory.fake();
     transactionReview.transaction = transaction;
@@ -45,7 +50,7 @@ describe('transaction review tests', () => {
     expect(response.reviews).toHaveLength(1);
   });
 
-  test('get transaction review by id', async () => {
+  test("get transaction review by id", async () => {
     const transaction = TransactionFactory.fake();
     const transactionReview = TransactionReviewFactory.fake();
     transactionReview.transaction = transaction;
@@ -60,17 +65,15 @@ describe('transaction review tests', () => {
     expect(response.review.stars).toEqual(transactionReview.stars);
   });
 
-  test('create transaction review', async () => {
+  test("create transaction review", async () => {
     const transaction = TransactionFactory.fake();
 
-    await new DataFactory()
-      .createTransactions(transaction)
-      .write();
+    await new DataFactory().createTransactions(transaction).write();
 
-    const newTransactionReview : CreateTransactionReviewRequest = {
+    const newTransactionReview: CreateTransactionReviewRequest = {
       transactionId: transaction.id,
       stars: 4,
-      comments: 'Great transaction!'
+      comments: "Great transaction!",
     };
 
     const response = await transactionReviewController.createTransactionReview(newTransactionReview);
@@ -78,7 +81,7 @@ describe('transaction review tests', () => {
     expect(response.review.comments).toEqual(newTransactionReview.comments);
   });
 
-  test('get transaction review by transaction id', async () => {
+  test("get transaction review by transaction id", async () => {
     const transaction = TransactionFactory.fake();
     const transactionReview = TransactionReviewFactory.fake();
     transactionReview.transaction = transaction;
@@ -93,7 +96,7 @@ describe('transaction review tests', () => {
     expect(response.review.stars).toEqual(transactionReview.stars);
   });
 
-  test('get all transaction reviews for multiple transactions', async () => {
+  test("get all transaction reviews for multiple transactions", async () => {
     const [transaction1, transaction2] = TransactionFactory.create(2);
     const [review1, review2] = TransactionReviewFactory.create(2);
 

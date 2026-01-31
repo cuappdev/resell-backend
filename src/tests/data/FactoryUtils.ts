@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import * as faker from "faker";
 
 export enum TimeUnits {
   Seconds,
@@ -6,7 +6,7 @@ export enum TimeUnits {
   Hours,
   Days,
   Months,
-  Years
+  Years,
 }
 
 export class FactoryUtils {
@@ -25,7 +25,9 @@ export class FactoryUtils {
   }
 
   public static getRandomLetter(): string {
-    return 'abcdefghijklmnopqrstuvwxyz'.charAt(FactoryUtils.getRandomNumber(0, 25));
+    return "abcdefghijklmnopqrstuvwxyz".charAt(
+      FactoryUtils.getRandomNumber(0, 25),
+    );
   }
 
   public static getRandomBoolean(): boolean {
@@ -36,11 +38,14 @@ export class FactoryUtils {
     return faker.datatype.hexaDecimal(10);
   }
 
-  public static getTimeInMilliseconds(amount: number, units: TimeUnits) {
+  public static getTimeInMilliseconds(
+    amount: number,
+    units: TimeUnits,
+  ): number {
     /**
-     * Returns the amount of time in milliseconds, under the assumption that there are 
+     * Returns the amount of time in milliseconds, under the assumption that there are
      * 30 days in a month and 365 days in a year.
-     * 
+     *
      * @param amount The amount of time as an integer
      * @param units  The units of time (i.e. seconds, minutes) in enum
      * @returns      The amount of time in milliseconds

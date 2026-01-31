@@ -1,10 +1,10 @@
-import { PostModel } from 'src/models/PostModel';
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { PostModel } from "src/models/PostModel";
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { ConflictError } from '../errors';
-import { NotFoundError } from 'routing-controllers';
-import { UserModel } from '../models/UserModel';
-import { Uuid } from '../types';
+import { ConflictError } from "../errors";
+import { NotFoundError } from "routing-controllers";
+import { UserModel } from "../models/UserModel";
+import { Uuid } from "../types";
 
 @EntityRepository(UserModel)
 export class UserRepository extends AbstractRepository<UserModel> {
@@ -19,7 +19,9 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
-  public async getUserWithBlockedInfo(id: string): Promise<UserModel | undefined> {
+  public async getUserWithBlockedInfo(
+    id: string,
+  ): Promise<UserModel | undefined> {
     return this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
@@ -30,7 +32,9 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
   }
 
-  public async getUserByGoogleId(googleId: Uuid): Promise<UserModel | undefined> {
+  public async getUserByGoogleId(
+    googleId: Uuid,
+  ): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
       .where("user.googleId = :googleId", { googleId })
@@ -43,11 +47,14 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return post;
   }
 
-  public async unsavePost(user: UserModel, post: PostModel): Promise<PostModel> {
-    const index = user.saved.findIndex(savedPost => savedPost.id === post.id);
+  public async unsavePost(
+    user: UserModel,
+    post: PostModel,
+  ): Promise<PostModel> {
+    const index = user.saved.findIndex((savedPost) => savedPost.id === post.id);
     if (index !== -1) {
-        user.saved.splice(index, 1);
-        await this.repository.save(user);
+      user.saved.splice(index, 1);
+      await this.repository.save(user);
     }
     return post;
   }
@@ -61,7 +68,9 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return false;
   }
 
-  public async getSavedPostsByUserId(id: string): Promise<UserModel | undefined> {
+  public async getSavedPostsByUserId(
+    id: string,
+  ): Promise<UserModel | undefined> {
     return await this.repository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
@@ -72,11 +81,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
 
   public async getUsersWhoSavedPost(postId: Uuid): Promise<UserModel[]> {
     return await this.repository
-        .createQueryBuilder("user")
-        .leftJoin("user.saved", "saved_posts")
-        .where("saved_posts.id = :postId", { postId })
-        .getMany();
-}
+      .createQueryBuilder("user")
+      .leftJoin("user.saved", "saved_posts")
+      .where("saved_posts.id = :postId", { postId })
+      .getMany();
+  }
 
   public async getUserByEmail(email: string): Promise<UserModel | undefined> {
     return await this.repository
@@ -97,26 +106,24 @@ export class UserRepository extends AbstractRepository<UserModel> {
     googleId: string,
     bio: string,
   ): Promise<UserModel> {
-    let existingUser = await this.repository
-    .createQueryBuilder("user")
-    .where("user.username = :username", { username })
-    .orWhere("user.netid = :netid", { netid })
-    .orWhere("user.email = :email", { email })
-    .orWhere("user.googleId = :googleId", { googleId })
-    .getOne();
+    const existingUser = await this.repository
+      .createQueryBuilder("user")
+      .where("user.username = :username", { username })
+      .orWhere("user.netid = :netid", { netid })
+      .orWhere("user.email = :email", { email })
+      .orWhere("user.googleId = :googleId", { googleId })
+      .getOne();
     if (existingUser) {
       if (existingUser.username === username) {
-        throw new ConflictError('UserModel with same username already exists!');
-      }
-      else if (existingUser.netid === netid) 
-      {
-        throw new ConflictError('UserModel with same netid already exists!');
-      } 
-      else if (existingUser.email === email) {
-        throw new ConflictError('UserModel with same email already exists!');
-      }
-      else {
-        throw new ConflictError('UserModel with same google ID already exists!');
+        throw new ConflictError("UserModel with same username already exists!");
+      } else if (existingUser.netid === netid) {
+        throw new ConflictError("UserModel with same netid already exists!");
+      } else if (existingUser.email === email) {
+        throw new ConflictError("UserModel with same email already exists!");
+      } else {
+        throw new ConflictError(
+          "UserModel with same google ID already exists!",
+        );
       }
     }
     const adminEmails = process.env.ADMIN_EMAILS?.split(",");
@@ -150,7 +157,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .getOne();
     if (await existingUser) {
       if (username !== user.username) {
-        throw new ConflictError('UserModel with same username already exists!');
+        throw new ConflictError("UserModel with same username already exists!");
       }
     }
 
@@ -174,8 +181,11 @@ export class UserRepository extends AbstractRepository<UserModel> {
     blocker: UserModel,
     blocked: UserModel,
   ): Promise<UserModel> {
-    if (blocker.blocking === undefined) { blocker.blocking = [blocked]; }
-    else { blocker.blocking.push(blocked); }
+    if (blocker.blocking === undefined) {
+      blocker.blocking = [blocked];
+    } else {
+      blocker.blocking.push(blocked);
+    }
     return this.repository.save(blocker);
   }
 
@@ -219,14 +229,19 @@ export class UserRepository extends AbstractRepository<UserModel> {
     blocked: UserModel,
   ): Promise<UserModel> {
     if (blocker.blocking === undefined) {
-      throw new NotFoundError("User has not been blocked!")
-    }
-    else {
-      if (!blocker.blocking.find((user) => user.firebaseUid === blocked.firebaseUid)) {
-        throw new NotFoundError("User has not been blocked!")
+      throw new NotFoundError("User has not been blocked!");
+    } else {
+      if (
+        !blocker.blocking.find(
+          (user) => user.firebaseUid === blocked.firebaseUid,
+        )
+      ) {
+        throw new NotFoundError("User has not been blocked!");
       }
       // remove blocked user from blocking list
-      blocker.blocking = blocker.blocking.filter((user) => user.firebaseUid !== blocked.firebaseUid);
+      blocker.blocking = blocker.blocking.filter(
+        (user) => user.firebaseUid !== blocked.firebaseUid,
+      );
     }
     return this.repository.save(blocker);
   }

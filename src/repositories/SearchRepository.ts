@@ -1,8 +1,8 @@
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { SearchModel } from '../models/SearchModel';
-import { UserModel } from '../models/UserModel';
-import { Uuid } from '../types';
+import { SearchModel } from "../models/SearchModel";
+import { UserModel } from "../models/UserModel";
+import { Uuid } from "../types";
 
 @EntityRepository(SearchModel)
 export class SearchRepository extends AbstractRepository<SearchModel> {
@@ -30,7 +30,9 @@ export class SearchRepository extends AbstractRepository<SearchModel> {
   /**
    * Get all searches by a specific user
    */
-  public async getSearchesByUserId(firebaseUid: string): Promise<SearchModel[]> {
+  public async getSearchesByUserId(
+    firebaseUid: string,
+  ): Promise<SearchModel[]> {
     return await this.repository
       .createQueryBuilder("search")
       .leftJoinAndSelect("search.user", "user")
@@ -44,13 +46,13 @@ export class SearchRepository extends AbstractRepository<SearchModel> {
   public async createSearch(
     searchText: string,
     searchVector: string,
-    firebaseUid: string
+    firebaseUid: string,
   ): Promise<SearchModel> {
     const search = new SearchModel();
     search.searchText = searchText;
     search.searchVector = searchVector;
     search.firebaseUid = firebaseUid;
-    
+
     return await this.repository.save(search);
   }
 
@@ -60,7 +62,7 @@ export class SearchRepository extends AbstractRepository<SearchModel> {
    */
   public async findSimilarSearches(
     searchVector: string,
-    limit: number = 5
+    limit = 5,
   ): Promise<SearchModel[]> {
     // Using raw query to leverage pgvector's similarity search
     // The vector data is passed as a string and converted in the query
@@ -93,12 +95,14 @@ export class SearchRepository extends AbstractRepository<SearchModel> {
 
   public async searchSuggestions(
     searchText: string,
-    limit: number = 5
+    limit = 5,
   ): Promise<SearchModel[]> {
     return await this.repository
       .createQueryBuilder("search")
       .leftJoinAndSelect("search.user", "user")
-      .where("search.searchText ILIKE :searchText", { searchText: `%${searchText}%` })
+      .where("search.searchText ILIKE :searchText", {
+        searchText: `%${searchText}%`,
+      })
       .limit(limit)
       .getMany();
   }

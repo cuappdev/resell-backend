@@ -1,1 +1,1 @@
-export * from './ConflictError';
+export * from "./ConflictError";

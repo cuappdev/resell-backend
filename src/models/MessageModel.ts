@@ -6,7 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  PrimaryColumn
+  PrimaryColumn,
 } from "typeorm";
 import { Uuid } from "../types";
 import { UserModel } from "./UserModel";

@@ -3,7 +3,7 @@ import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificatio
 import { NotifService } from '../../services/NotifService';
 import { UserModel } from '../../models/UserModel';
 
-@JsonController('notif/')
+@JsonController("notif/")
 export class NotifController {
   private notifService: NotifService;
 
@@ -49,19 +49,6 @@ export class NotifController {
   @Delete('id/:id')
   async deleteNotification(@CurrentUser() user: UserModel, @Params() params: { id: string }) {
     return this.notifService.deleteNotification(user.firebaseUid, params.id);
-  }
-
-  /**
-   * TEST ENDPOINT: Create test notifications for the current user
-   * POST /notif/test/:type
-   * Types: messages, requests, bookmarks, transactions
-   */
-  @Post('test/:type')
-  async createTestNotification(
-    @CurrentUser() user: UserModel,
-    @Param('type') type: string
-  ) {
-    return this.notifService.createTestNotification(user.firebaseUid, type);
   }
 
   /**

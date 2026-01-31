@@ -135,7 +135,6 @@ export interface GetFeedbackResponse {
   feedback: Feedback;
 }
 
-
 // IMAGES
 
 export interface ImageUrlResponse {
@@ -193,7 +192,6 @@ export interface Report {
   type: "post" | "profile" | "message";
   resolved: boolean;
   created: Date;
-
 }
 
 export interface GetReportResponse {
@@ -207,21 +205,19 @@ export interface GetReportsResponse {
 //CHATS
 
 export interface MessageResponse {
-  type: string,
-  senderID: Uuid,
-  text: string,
-  images: string[],
-  timestamp: Date,
-  read: boolean
-
+  type: string;
+  senderID: Uuid;
+  text: string;
+  images: string[];
+  timestamp: Date;
+  read: boolean;
 }
 
 export interface AvailabilityResponse {
-  type: string,
-  senderID: Uuid,
-  timestamp: Date,
-  availabilities: AvailabilityList[]
-
+  type: string;
+  senderID: Uuid;
+  timestamp: Date;
+  availabilities: AvailabilityList[];
 }
 
 export interface ProposalResponse {

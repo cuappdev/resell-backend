@@ -1,8 +1,8 @@
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { UserReviewModel } from '../models/UserReviewModel';
-import { UserModel } from '../models/UserModel';
-import { Uuid } from '../types';
+import { UserReviewModel } from "../models/UserReviewModel";
+import { UserModel } from "../models/UserModel";
+import { Uuid } from "../types";
 
 @EntityRepository(UserReviewModel)
 export class UserReviewRepository extends AbstractRepository<UserReviewModel> {
@@ -13,7 +13,9 @@ export class UserReviewRepository extends AbstractRepository<UserReviewModel> {
       .getMany();
   }
 
-  public async getUserReviewById(id: Uuid): Promise<UserReviewModel | undefined> {
+  public async getUserReviewById(
+    id: Uuid,
+  ): Promise<UserReviewModel | undefined> {
     return await this.repository
       .createQueryBuilder("review")
       .leftJoinAndSelect("review.buyer", "user")
@@ -27,7 +29,7 @@ export class UserReviewRepository extends AbstractRepository<UserReviewModel> {
     stars: number,
     comments: string,
     buyer: UserModel,
-    seller: UserModel
+    seller: UserModel,
   ): Promise<UserReviewModel> {
     const review = new UserReviewModel();
     review.fulfilled = fulfilled;
@@ -38,7 +40,9 @@ export class UserReviewRepository extends AbstractRepository<UserReviewModel> {
     return await this.repository.save(review);
   }
 
-  public async deleteUserReview(review: UserReviewModel): Promise<UserReviewModel> {
+  public async deleteUserReview(
+    review: UserReviewModel,
+  ): Promise<UserReviewModel> {
     return await this.repository.remove(review);
   }
 }

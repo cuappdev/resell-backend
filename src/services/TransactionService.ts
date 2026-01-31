@@ -6,7 +6,12 @@ import { TransactionModel } from "../models/TransactionModel";
 import { UserModel } from "../models/UserModel";
 import { PostModel } from "../models/PostModel";
 import Repositories, { TransactionsManager } from "../repositories";
-import { CreateTransactionRequest, FindTokensRequest, UpdateTransactionStatusRequest, Uuid } from "../types";
+import {
+  CreateTransactionRequest,
+  FindTokensRequest,
+  UpdateTransactionStatusRequest,
+  Uuid,
+} from "../types";
 import { TransactionRepository } from "../repositories/TransactionRepository";
 import { NotFoundError, ForbiddenError } from "routing-controllers";
 import { NotifService } from "./NotifService";
@@ -22,43 +27,63 @@ export class TransactionService {
   // Get all transactions
   public async getAllTransactions(): Promise<TransactionModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const transactionRepository = Repositories.transaction(transactionalEntityManager);
+      const transactionRepository = Repositories.transaction(
+        transactionalEntityManager,
+      );
       return await transactionRepository.getAllTransactions();
     });
   }
 
   // Get transaction by ID
-  public async getTransactionById(params: UuidParam): Promise<TransactionModel> {
+  public async getTransactionById(
+    params: UuidParam,
+  ): Promise<TransactionModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const transactionRepository = Repositories.transaction(transactionalEntityManager);
-      const transaction = await transactionRepository.getTransactionById(params.id);
+      const transactionRepository = Repositories.transaction(
+        transactionalEntityManager,
+      );
+      const transaction = await transactionRepository.getTransactionById(
+        params.id,
+      );
       if (!transaction) throw new NotFoundError("Transaction not found!");
       return transaction;
     });
   }
 
   // Get transactions by buyer ID
-  public async getTransactionsByBuyerId(params: UuidParam): Promise<TransactionModel[]> {
+  public async getTransactionsByBuyerId(
+    params: UuidParam,
+  ): Promise<TransactionModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const transactionRepository = Repositories.transaction(transactionalEntityManager);
+      const transactionRepository = Repositories.transaction(
+        transactionalEntityManager,
+      );
       return await transactionRepository.getTransactionsByBuyerId(params.id);
     });
   }
 
   // Get transactions by seller ID
-  public async getTransactionsBySellerId(params: UuidParam): Promise<TransactionModel[]> {
+  public async getTransactionsBySellerId(
+    params: UuidParam,
+  ): Promise<TransactionModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const transactionRepository = Repositories.transaction(transactionalEntityManager);
+      const transactionRepository = Repositories.transaction(
+        transactionalEntityManager,
+      );
       return await transactionRepository.getTransactionsBySellerId(params.id);
     });
   }
 
   // Create a new transaction
-  public async createTransaction(request: CreateTransactionRequest): Promise<TransactionModel> {
+  public async createTransaction(
+    request: CreateTransactionRequest,
+  ): Promise<TransactionModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const userRepository = Repositories.user(transactionalEntityManager);
       const postRepository = Repositories.post(transactionalEntityManager);
-      const transactionRepository = Repositories.transaction(transactionalEntityManager);
+      const transactionRepository = Repositories.transaction(
+        transactionalEntityManager,
+      );
 
       const buyer = await userRepository.getUserById(request.buyerId);
       const seller = await userRepository.getUserById(request.sellerId);
@@ -67,7 +92,8 @@ export class TransactionService {
       if (!buyer) throw new NotFoundError("Buyer not found!");
       if (!seller) throw new NotFoundError("Seller not found!");
       if (!post) throw new NotFoundError("Post not found!");
-      if (!buyer.isActive || !seller.isActive) throw new ForbiddenError("User is not active!");
+      if (!buyer.isActive || !seller.isActive)
+        throw new ForbiddenError("User is not active!");
 
       return await transactionRepository.createTransaction(
         request.location,
@@ -75,18 +101,25 @@ export class TransactionService {
         request.transactionDate,
         post,
         buyer,
-        seller
+        seller,
       );
     });
   }
 
   // Update transaction status (mark as completed)
-  public async completeTransaction(params: UuidParam, request: UpdateTransactionStatusRequest): Promise<TransactionModel> {
+  public async completeTransaction(
+    params: UuidParam,
+    request: UpdateTransactionStatusRequest,
+  ): Promise<TransactionModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
-      const transactionRepository = Repositories.transaction(transactionalEntityManager);
+      const transactionRepository = Repositories.transaction(
+        transactionalEntityManager,
+      );
 
-      const transaction = await transactionRepository.getTransactionById(params.id);
+      const transaction = await transactionRepository.getTransactionById(
+        params.id,
+      );
 
       if (!transaction) throw new NotFoundError("Transaction not found!");
       transaction.completed = request.completed;
@@ -147,11 +180,13 @@ export class TransactionService {
         notifiedUserIds.add(transaction.seller.firebaseUid);
       }
 
-      const postWithSavers = await postRepository.getPostWithSaversById(post.id);
+      const postWithSavers = await postRepository.getPostWithSaversById(
+        post.id,
+      );
       if (!postWithSavers) throw new NotFoundError("Post not found!");
 
       // Notify all users who saved the post (excluding duplicates)
-      if (postWithSavers.savers){
+      if (postWithSavers.savers) {
         for (const user of postWithSavers.savers) {
           if (!notifiedUserIds.has(user.firebaseUid)) {
             const postSoldNotifRequest: FindTokensRequest = {
@@ -168,8 +203,8 @@ export class TransactionService {
                 sellerUsername: transaction.seller.username,
                 sellerPhotoUrl: transaction.seller.photoUrl,
                 buyerId: transaction.buyer.firebaseUid,
-                buyerUsername: transaction.buyer.username
-              } as unknown as JSON
+                buyerUsername: transaction.buyer.username,
+              } as unknown as JSON,
             };
             await notifService.sendNotifs(postSoldNotifRequest);
             notifiedUserIds.add(user.firebaseUid);
@@ -180,19 +215,23 @@ export class TransactionService {
       // Need to now archive the sold post from the seller's active posts
       await postRepository.archivePost(post);
 
-      
       return await transactionRepository.completeTransaction(transaction);
     });
   }
 
   // Get transaction by post ID
-  public async getTransactionByPostId(params: UuidParam): Promise<TransactionModel> {
+  public async getTransactionByPostId(
+    params: UuidParam,
+  ): Promise<TransactionModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
-      const transactionRepository = Repositories.transaction(transactionalEntityManager);
-      const transaction = await transactionRepository.getTransactionByPostId(params.id);
+      const transactionRepository = Repositories.transaction(
+        transactionalEntityManager,
+      );
+      const transaction = await transactionRepository.getTransactionByPostId(
+        params.id,
+      );
       if (!transaction) throw new NotFoundError("Transaction not found!");
       return transaction;
     });
   }
-
 }

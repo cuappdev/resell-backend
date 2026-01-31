@@ -5,11 +5,10 @@ import { ChatParam, ChatReadParam } from '../validators/GenericRequests';
 import { CreateChatMessage, CreateAvailabilityChat, CreateProposalChat, RespondProposalChat, MessageResponse, AvailabilityResponse, ProposalResponse, ChatReadResponse, CancelProposalResponse, FindTokensRequest } from '../../types';
 import { UserModel } from '../../models/UserModel';
 import { PostModel } from '../../models/PostModel';
-import { TransactionModel } from '../../models/TransactionModel';
 import { NotifService } from '../../services/NotifService';
 
 const db = getFirestore();
-const chatsRef = db.collection('chats_refactored');
+const chatsRef = db.collection("chats_refactored");
 export const updateFirestore = async (
   chatId: string,
   exists: boolean,
@@ -30,26 +29,25 @@ export const updateFirestore = async (
     }
     await chatsRef.doc(chatId).set(data);
     // Add a document to the subcollection
-    const subcollectionRef = chatsRef.doc(chatId).collection('messages');
+    const subcollectionRef = chatsRef.doc(chatId).collection("messages");
 
     await subcollectionRef.add(message);
 
     console.log('Created new chat document!');
   } else {
-    const subcollectionRef = chatsRef.doc(chatId).collection('messages');
+    const subcollectionRef = chatsRef.doc(chatId).collection("messages");
     await subcollectionRef.add(message);
     if (lastMessage && lastMessage !== '') {
       await chatsRef.doc(chatId).update({
         lastMessage: lastMessage,
-      })
+      });
     }
 
     await chatsRef.doc(chatId).update({
       updatedAt: new Date(),
     })
-
   }
-}
+};
 
 export const checkUsers = async (chatId: string,
   userId: any
@@ -60,7 +58,7 @@ export const checkUsers = async (chatId: string,
   return userIDs.includes(userId);
 }
 
-@JsonController('chat/')
+@JsonController("chat/")
 export class ChatController {
 
 
@@ -132,7 +130,6 @@ export class ChatController {
       if (!userCheck) {
         throw new ForbiddenError("This user is not part of this chat");
       }
-
     }
     updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
 
@@ -166,7 +163,6 @@ export class ChatController {
       if (!userCheck) {
         throw new ForbiddenError("This user is not part of this chat");
       }
-
     }
     updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
     return message;
@@ -209,7 +205,7 @@ export class ChatController {
     // If proposal is accepted, create a transaction
     let transactionId: string | undefined;
     console.log(`[PROPOSAL] chatBody.accepted = ${chatBody.accepted}, doc.exists = ${doc.exists}`);
-    
+
     if (chatBody.accepted === true && doc.exists) {
       const chatData = doc.data();
       console.log(`[PROPOSAL] Chat data:`, JSON.stringify(chatData, null, 2));
@@ -230,17 +226,17 @@ export class ChatController {
           const queryRunner = connection.createQueryRunner();
           await queryRunner.connect();
           await queryRunner.startTransaction();
-          
+
           const amount = post.altered_price ?? post.original_price;
           const transactionDate = new Date(chatBody.startDate);
-          
+
           try {
             const result = await queryRunner.query(`
               INSERT INTO "Transaction" (location, amount, completed, post_id, buyer_id, seller_id, "transactionDate", "confirmationSent")
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
               RETURNING id
             `, ["", amount, false, post.id, buyer.firebaseUid, seller.firebaseUid, transactionDate, false]);
-            
+
             await queryRunner.commitTransaction();
             transactionId = result[0].id;
             console.log(`[PROPOSAL] Transaction COMMITTED to DB: ${transactionId}`);
@@ -328,15 +324,16 @@ export class ChatController {
       if (!userCheck) {
         throw new ForbiddenError("This user is not part of this chat");
       }
-
     }
     updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
     return message;
   }
 
-
-  @Post(':chatId/message/:messageId')
-  async markAsRead(@CurrentUser() user: UserModel, @Params() params: ChatReadParam): Promise<ChatReadResponse> {
+  @Post(":chatId/message/:messageId")
+  async markAsRead(
+    @CurrentUser() user: UserModel,
+    @Params() params: ChatReadParam,
+  ): Promise<ChatReadResponse> {
     const chatId = params.chatId;
     const doc = await chatsRef.doc(chatId).get();
 
@@ -348,18 +345,15 @@ export class ChatController {
       if (!userCheck) {
         throw new ForbiddenError("This user is not part of this chat");
       }
-      const subDocRef = chatsRef.doc(chatId)     // Main collection document
-        .collection('messages') // Subcollection
-        .doc(params.messageId);     // Subcollection document ID
+      const subDocRef = chatsRef
+        .doc(chatId) // Main collection document
+        .collection("messages") // Subcollection
+        .doc(params.messageId); // Subcollection document ID
 
       await subDocRef.update({
-        read: true
+        read: true,
       });
-
     }
     return { "read": true }
   }
-
-
-
 }

@@ -1,12 +1,17 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
-import { Feedback, Uuid } from '../types';
-import { UserModel } from './UserModel';
+import { Feedback, Uuid } from "../types";
+import { UserModel } from "./UserModel";
 
-@Entity('Feedback')
+@Entity("Feedback")
 export class FeedbackModel {
-
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: Uuid;
 
   @Column()
@@ -15,16 +20,16 @@ export class FeedbackModel {
   @Column("text", { array: true })
   images: string[];
 
-  @ManyToOne(() => UserModel, user => user.feedbacks, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user' })
-  user: UserModel
-  
+  @ManyToOne(() => UserModel, (user) => user.feedbacks, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "user" })
+  user: UserModel;
+
   public getFeedbackInfo(): Feedback {
     return {
       id: this.id,
       description: this.description,
       images: this.images,
-      user: this.user
+      user: this.user,
     };
   }
 }

@@ -50,7 +50,7 @@ export class PostModel {
   @Column("float", { array: true, nullable: true })
   embedding: number[];
 
-  @ManyToOne(() => UserModel, (user) => user.posts, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserModel, (user) => user.posts, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user" })
   user: UserModel;
 
@@ -102,7 +102,9 @@ export class PostModel {
       user: this.user.getUserProfile(),
       savers: this.savers?.map((user) => user.getUserProfile()),
       matched: this.matched?.map((request) => request.getRequestInfo()),
-      categories: this.categories?.map((category) => category.getCategoryInfo()),
+      categories: this.categories?.map((category) =>
+        category.getCategoryInfo(),
+      ),
       sold: this.sold,
     };
   }

@@ -1,7 +1,7 @@
 export enum Condition {
   GENTLY_USED,
   USED,
-  NEVER_USED
+  NEVER_USED,
 }
 
 // Availability types for Firestore
