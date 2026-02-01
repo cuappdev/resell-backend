@@ -46,7 +46,7 @@ console.log(
 /**
  * Health check endpoint
  */
-app.get("/health", async (req: Request, res: Response) => {
+app.get("/health", async (_req: Request, res: Response) => {
   const manager = getManager();
   try {
     await manager.query("SELECT 1");
