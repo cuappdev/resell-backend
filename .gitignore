@@ -6,4 +6,5 @@ package-lock.json
 yarn.lock
 *.DS_Store
 *.pem
+dumps/
 firebase-admin-service-account.json
