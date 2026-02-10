@@ -114,7 +114,7 @@ export class PostService {
         console.error("Error computing embedding:", error);
         embedding = null;
       }
-      const freshPost = await postRepository.createPost(post.title, post.description, categories, eventTags, post.condition, post.original_price, images, user, embedding);
+      const freshPost = await postRepository.createPost(post.title, post.description, categories, eventTags, post.condition, post.original_price, images, user, (embedding ?? []) as number[]);
       if (embedding && Array.isArray(embedding) && embedding.length > 0) {
         const requestRepository = Repositories.request(
           transactionalEntityManager,
@@ -527,7 +527,7 @@ export class PostService {
       const newEventTags = eventTags.filter(tag => !existingEventTagIds.has(tag.id));
       post.eventTags = [...(post.eventTags || []), ...newEventTags];
 
-      return await postRepository.repository.save(post);
+      return await postRepository.savePost(post);
     });
   }
 
@@ -541,7 +541,7 @@ export class PostService {
       const tagsToRemove = new Set(removeEventTagsRequest.eventTags);
       post.eventTags = post.eventTags?.filter(tag => !tagsToRemove.has(tag.name)) || [];
 
-      return await postRepository.repository.save(post);
+      return await postRepository.savePost(post);
     });
   }
 

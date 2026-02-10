@@ -489,6 +489,10 @@ export class PostRepository extends AbstractRepository<PostModel> {
     return await this.repository.save(post);
   }
 
+  public async savePost(post: PostModel): Promise<PostModel> {
+    return await this.repository.save(post);
+  }
+
   public async markPostAsSold(post: PostModel): Promise<PostModel> {
     post.sold = true;
     return await this.repository.save(post);
