@@ -11,7 +11,6 @@ import Repositories, { TransactionsManager } from "../repositories";
 import { EntityManager } from "typeorm";
 import { InjectManager } from "typeorm-typedi-extensions";
 import { getMessaging, Message } from "firebase-admin/messaging";
-import { admin } from "../app";
 
 @Service()
 export class NotifService {
