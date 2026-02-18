@@ -77,24 +77,7 @@ export class PostService {
     });
   }
 
-  public async createPost(
-    post: CreatePostRequest,
-    authenticatedUser: UserModel,
-  ): Promise<PostModel> {
-    console.log("=== CREATE POST DEBUG ===");
-    console.log("authenticatedUser:", authenticatedUser);
-    console.log("authenticatedUser type:", typeof authenticatedUser);
-    console.log("authenticatedUser === null:", authenticatedUser === null);
-    console.log(
-      "authenticatedUser === undefined:",
-      authenticatedUser === undefined,
-    );
-    if (authenticatedUser) {
-      console.log("user.firebaseUid:", authenticatedUser.firebaseUid);
-      console.log("user.isActive:", authenticatedUser.isActive);
-    }
-    console.log("========================");
-
+  public async createPost(post: CreatePostRequest, authenticatedUser: UserModel): Promise<PostModel> {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const user = authenticatedUser;
       if (!user) throw new NotFoundError("User is null or undefined!");
@@ -573,17 +556,13 @@ export class PostService {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
-      if (!post) throw new NotFoundError("Post not found!");
-      const embedding = post.embedding;
-      if (embedding == null) {
-        // TODO: after writing migration, throw new NotFoundError('Post does not have embedding!');
+      if (!post) throw new NotFoundError('Post not found!');
+      
+      // Posts with no embeddings cant have similar posts, so return empty array
+      if (post.embedding == null) {
         return [];
       }
-      const similarPosts = await postRepository.getSimilarPosts(
-        embedding,
-        post.id,
-        user.firebaseUid,
-      );
+      const similarPosts = await postRepository.getSimilarPosts(post.embedding, post.id, user.firebaseUid);
       const activePosts = this.filterInactiveUserPosts(similarPosts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
@@ -664,25 +643,24 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       // Get the search by ID
       const search = await searchRepository.getSearchById(searchIndex);
-      if (!search) throw new NotFoundError("Search not found!");
-      // Parse vector
-      const searchVector: number[] = JSON.parse(search.searchVector);
-      // Get active, unarchived posts
-      const allPosts = await postRepository.getAllPosts();
-      const model = await getLoadedModel();
-      // For each post, generate embedding from the title
-      const postEmbeddings = await model.embed(allPosts.map((p) => p.title));
-      const embeddingsArray = postEmbeddings.arraySync();
-      // Find similarity
-      const scoredPosts = allPosts.map((post, idx) => ({
-        id: post.id,
-        similarity: this.similarity(searchVector, embeddingsArray[idx]),
-      }));
-      // Sort by similarity (descending order) and choose top N
-      const topPosts = scoredPosts
-        .sort((a, b) => b.similarity - a.similarity)
-        .slice(0, postCount);
-      return topPosts.map((p) => p.id);
+        if (!search) throw new NotFoundError('Search not found!');
+        // Parse search vector
+        const searchVector: number[] = JSON.parse(search.searchVector);
+        // Get active, unarchived posts
+        const allPosts = await postRepository.getAllPosts();
+      const postsWithEmbeddings = allPosts.filter(p => p.embedding != null);
+      
+      if (postsWithEmbeddings.length === 0) {
+        return [];
+      }
+      // Use precomputed embeddings from db
+      const scoredPosts = postsWithEmbeddings.map(post => ({
+          id: post.id,
+        similarity: this.similarity(searchVector, post.embedding as number[])
+        }));
+        // Sort by similarity (descending order) and choose top N
+        const topPosts = scoredPosts.sort((a, b) => b.similarity - a.similarity).slice(0, postCount);
+        return topPosts.map(p => p.id);
     });
   }
 
