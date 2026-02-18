@@ -1,28 +1,9 @@
-import {
-  Body,
-  CurrentUser,
-  Get,
-  JsonController,
-  Param,
-  Params,
-  Post,
-  Delete,
-} from "routing-controllers";
+import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete } from 'routing-controllers';
 
-import { UserModel } from "../../models/UserModel";
-import { UserService } from "../../services/UserService";
-import {
-  BlockUserRequest,
-  UnblockUserRequest,
-  EditProfileRequest,
-  GetUserByEmailRequest,
-  GetUserResponse,
-  GetUsersResponse,
-  CreateUserRequest,
-  SetAdminByEmailRequest,
-  FcmTokenRequest,
-} from "../../types";
-import { UuidParam, FirebaseUidParam } from "../validators/GenericRequests";
+import { UserModel } from '../../models/UserModel';
+import { UserService } from '../../services/UserService';
+import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, CreateUserRequest, SetAdminByEmailRequest, FcmTokenRequest, FollowUserRequest, UnfollowUserRequest } from '../../types';
+import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 
 @JsonController("user/")
 export class UserController {
@@ -111,11 +92,32 @@ export class UserController {
     };
   }
 
-  @Get("blocked/id/:id/")
-  async getBlockedUsersById(
-    @Params() params: UuidParam,
-  ): Promise<GetUsersResponse> {
-    return { users: await this.userService.getBlockedUsersById(params) };
+  @Get('blocked/id/:id/')
+  async getBlockedUsersById(@Params() params: UuidParam): Promise<GetUsersResponse> {
+    const users = await this.userService.getBlockedUsersById(params);
+    return { users: users.map((user) => user.getUserProfile()) };
+  }
+
+  @Post('follow/')
+  async followUser(@Body() followUserRequest: FollowUserRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+    return { user: await this.userService.followUser(user, followUserRequest) };
+  }
+
+  @Post('unfollow/')
+  async unfollowUser(@Body() unfollowUserRequest: UnfollowUserRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+    return { user: await this.userService.unfollowUser(user, unfollowUserRequest) };
+  }
+
+  @Get('followers/id/:id/')
+  async getFollowers(@Params() params: UuidParam): Promise<GetUsersResponse> {
+    const users = await this.userService.getFollowers(params);
+    return { users: users.map((user) => user.getUserProfile()) };
+  }
+
+  @Get('following/id/:id/')
+  async getFollowing(@Params() params: UuidParam): Promise<GetUsersResponse> {
+    const users = await this.userService.getFollowing(params);
+    return { users: users.map((user) => user.getUserProfile()) };
   }
 
   @Delete()
@@ -123,11 +125,8 @@ export class UserController {
     return await this.userService.deleteUser(user);
   }
 
-  @Delete("id/:id/")
-  async deleteUserByOtherUser(
-    @Params() params: FirebaseUidParam,
-    @CurrentUser() user: UserModel,
-  ): Promise<GetUserResponse> {
+  @Delete('id/:id/')
+  async deleteUserByOtherUser(@Params() params: FirebaseUidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
     return { user: await this.userService.deleteUserByOtherUser(user, params) };
   }
 

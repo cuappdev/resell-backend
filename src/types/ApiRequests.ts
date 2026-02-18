@@ -68,6 +68,14 @@ export interface UnblockUserRequest {
   unblocked: Uuid;
 }
 
+export interface FollowUserRequest {
+    userId: string;
+}
+
+export interface UnfollowUserRequest {
+    userId: string;
+}
+
 // POST
 
 export type PostSortField =
@@ -269,4 +277,17 @@ export interface RespondProposalChat {
   startDate: Date;
   endDate: Date;
   accepted: boolean;
+}
+
+// AVAILABILITY REQUESTS
+
+/** Request to update availability - only send days that changed */
+export interface UpdateAvailabilityRequest {
+    /** Day-keyed schedule: { "2026-01-23": [slots], "2026-01-24": [slots] } */
+    schedule: Record<string, AvailabilitySlotRequest[]>;
+}
+
+export interface AvailabilitySlotRequest {
+    startDate: string;  // ISO date string from client
+    endDate: string;    // ISO date string from client
 }

@@ -133,6 +133,9 @@ export class TransactionService {
       const notifiedUserIds = new Set<string>();
       const notifService = new NotifService(transactionalEntityManager);
 
+      // Get the first image from the post (if available)
+      const imageUrl = post.images && post.images.length > 0 ? post.images[0] : null;
+
       // Notify the buyer
       if (!notifiedUserIds.has(transaction.buyer.firebaseUid)) {
         const buyerNotifRequest: FindTokensRequest = {
@@ -140,13 +143,16 @@ export class TransactionService {
           title: "Item Sold Notification",
           body: `'${post.title}' has been sold to you!`,
           data: {
+            type: "transactions",
+            imageUrl: imageUrl,
             postId: post.id,
             postTitle: post.title,
             transactionId: transaction.id,
             sellerId: transaction.seller.firebaseUid,
             sellerUsername: transaction.seller.username,
-            price: transaction.amount,
-          } as unknown as JSON,
+            sellerPhotoUrl: transaction.seller.photoUrl,
+            price: transaction.amount
+          } as unknown as JSON
         };
         await notifService.sendNotifs(buyerNotifRequest);
         notifiedUserIds.add(transaction.buyer.firebaseUid);
@@ -159,13 +165,16 @@ export class TransactionService {
           title: "Item Sold Notification",
           body: `Your item '${post.title}' has been sold!`,
           data: {
+            type: "transactions",
+            imageUrl: imageUrl,
             postId: post.id,
             postTitle: post.title,
             transactionId: transaction.id,
             buyerId: transaction.buyer.firebaseUid,
             buyerUsername: transaction.buyer.username,
-            price: transaction.amount,
-          } as unknown as JSON,
+            buyerPhotoUrl: transaction.buyer.photoUrl,
+            price: transaction.amount
+          } as unknown as JSON
         };
         await notifService.sendNotifs(sellerNotifRequest);
         notifiedUserIds.add(transaction.seller.firebaseUid);
@@ -185,11 +194,14 @@ export class TransactionService {
               title: "Item Sold Notification",
               body: `The '${post.title}' you bookmarked has been sold.`,
               data: {
+                type: "bookmarks",
+                imageUrl: imageUrl,
                 postId: post.id,
                 postTitle: post.title,
                 transactionId: transaction.id,
                 sellerId: transaction.seller.firebaseUid,
                 sellerUsername: transaction.seller.username,
+                sellerPhotoUrl: transaction.seller.photoUrl,
                 buyerId: transaction.buyer.firebaseUid,
                 buyerUsername: transaction.buyer.username,
               } as unknown as JSON,

@@ -16,11 +16,13 @@ define(UserModel, (_, context?: { index?: number }) => {
   user.isActive = true;
   user.stars = 0;
   user.numReviews = 0;
+  user.following = [];
+  user.followers = [];
+  user.soldPosts = 0;
   user.photoUrl = `http://example.com/photo${index}.jpg`;
   user.venmoHandle = `venmo${index}`;
   user.email = `user${index}@example.com`;
   user.googleId = `googleId${index}`;
   user.bio = `This is the bio of user${index}`;
-
   return user;
 });

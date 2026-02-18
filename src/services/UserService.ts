@@ -1,21 +1,17 @@
-import { NotFoundError, UnauthorizedError } from "routing-controllers";
-import { Service } from "typedi";
-import { EntityManager } from "typeorm";
-import { InjectManager } from "typeorm-typedi-extensions";
+import { NotFoundError, UnauthorizedError } from 'routing-controllers';
+import { Service } from 'typedi';
+import { EntityManager } from 'typeorm';
+import { InjectManager } from 'typeorm-typedi-extensions';
+import { getFirestore } from 'firebase-admin/firestore';
 
-import { UuidParam, FirebaseUidParam } from "../api/validators/GenericRequests";
-import { UserModel } from "../models/UserModel";
-import Repositories, { TransactionsManager } from "../repositories";
-import {
-  EditProfileRequest,
-  SaveTokenRequest,
-  SetAdminByEmailRequest,
-  BlockUserRequest,
-  UnblockUserRequest,
-  CreateUserRequest,
-  FcmTokenRequest,
-} from "../types";
-import { uploadImage } from "../utils/Requests";
+import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
+import { UserModel } from '../models/UserModel';
+import Repositories, { TransactionsManager } from '../repositories';
+import { EditProfileRequest, SaveTokenRequest, SetAdminByEmailRequest, BlockUserRequest, UnblockUserRequest, CreateUserRequest, FcmTokenRequest, FollowUserRequest, UnfollowUserRequest } from '../types';
+import { uploadImage } from '../utils/Requests';
+
+const db = getFirestore();
+const availabilityRef = db.collection('availability');
 
 @Service()
 export class UserService {
@@ -43,12 +39,25 @@ export class UserService {
         createUserRequest.googleId,
         createUserRequest.bio,
       );
+
+      // Create empty availability in Firestore for new user
+      const now = new Date();
+      const availabilityDoc = await availabilityRef.add({
+        userId: user.firebaseUid,
+        schedule: {},  // Empty day-keyed object
+        updatedAt: now
+      });
+
+      // Link availability to user
+      await userRepository.updateAvailabilityId(user.firebaseUid, availabilityDoc.id);
+      makeUser.availabilityId = availabilityDoc.id;
+
       const fcmRepository = Repositories.fcmToken(transactionalEntityManager);
       const token = await fcmRepository.createFcmToken(
         createUserRequest.fcmToken,
         true,
         new Date(),
-        makeUser,
+        makeUser
       );
       makeUser.tokens = [token];
       return makeUser;
@@ -203,6 +212,74 @@ export class UserService {
         throw new UnauthorizedError("User is not blocked!");
       }
       return userRepository.unblockUser(joinedUser, blocked);
+    });
+  }
+
+  public async followUser(user: UserModel, followUserRequest: FollowUserRequest): Promise<UserModel> {
+    console.log(`[UserService] followUser called by ${user.firebaseUid} to follow ${followUserRequest.userId}`);
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      if (user.firebaseUid === followUserRequest.userId) {
+        throw new UnauthorizedError('User cannot follow themselves!');
+      }
+      if (!user.isActive) throw new UnauthorizedError('User is not active!');
+      const joinedUser = await userRepository.getUserWithBlockedInfo(user.firebaseUid);
+
+      if (!joinedUser) {
+        console.error(`[UserService] Current user ${user.firebaseUid} not found in DB`);
+        throw new NotFoundError('Joined user not found!');
+      }
+
+      if (joinedUser?.following?.find((followingUser) => followingUser.firebaseUid === followUserRequest.userId)) {
+        throw new UnauthorizedError('User is already following!');
+      }
+      const following = await userRepository.getUserById(followUserRequest.userId);
+      if (!following) {
+        console.error(`[UserService] Target user ${followUserRequest.userId} not found in DB`);
+        throw new NotFoundError('User to follow not found!');
+      }
+
+      return userRepository.followUser(joinedUser, following);
+    });
+  }
+
+  public async unfollowUser(user: UserModel, unfollowUserRequest: UnfollowUserRequest): Promise<UserModel> {
+    console.log(`[UserService] unfollowUser called by ${user.firebaseUid} to unfollow ${unfollowUserRequest.userId}`);
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const following = await userRepository.getUserById(unfollowUserRequest.userId);
+      if (!following) {
+        console.error(`[UserService] Target user ${unfollowUserRequest.userId} not found in DB`);
+        throw new NotFoundError('User to unfollow not found!');
+      }
+      if (user.firebaseUid === unfollowUserRequest.userId) {
+        throw new UnauthorizedError('User cannot unfollow themselves!');
+      }
+      if (!user.isActive) throw new UnauthorizedError('User is not active!');
+      const joinedUser = await userRepository.getUserWithBlockedInfo(user.firebaseUid);
+      if (!joinedUser) {
+        console.error(`[UserService] Current user ${user.firebaseUid} not found in DB`);
+        throw new NotFoundError('Joined user not found!');
+      }
+      return userRepository.unfollowUser(joinedUser, following);
+    });
+  }
+
+  public async getFollowers(params: UuidParam): Promise<UserModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const user = await userRepository.getUserById(params.id);
+      if (!user) throw new NotFoundError('User not found!');
+      return userRepository.getFollowers(user);
+    });
+  }
+
+  public async getFollowing(params: UuidParam): Promise<UserModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const userRepository = Repositories.user(transactionalEntityManager);
+      const user = await userRepository.getUserById(params.id);
+      if (!user) throw new NotFoundError('User not found!');
+      return userRepository.getFollowing(user);
     });
   }
 

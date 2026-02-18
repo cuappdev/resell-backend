@@ -13,10 +13,16 @@ import { Express, Request, Response } from "express";
 import * as swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger.json";
 
-import { controllers } from "./api/controllers";
-import { middlewares } from "./api/middlewares";
-import { FirebaseCurrentUserChecker } from "./api/middlewares/FirebaseAuth";
-import resellConnection from "./utils/DB";
+import { controllers } from './api/controllers';
+import { middlewares } from './api/middlewares';
+import { UserModel } from './models/UserModel';
+import { ReportController } from './api/controllers/ReportController';
+import resellConnection from './utils/DB';
+import { ReportService } from './services/ReportService';
+import { reportToString } from './utils/Requests';
+import { startTransactionConfirmationCron } from './cron/transactionCron';
+
+dotenv.config();
 
 const port = process.env.PORT ?? 3000;
 const app: Express = createExpressServer({
@@ -211,7 +217,10 @@ async function main() {
   });
 
   app.listen(port, () => {
+    // Start cron jobs after server is running
     console.log(`Resell backend bartering on http://localhost:${port}`);
+
+    startTransactionConfirmationCron();
   });
 }
 

@@ -23,6 +23,9 @@ export interface PublicProfile {
   familyName: string;
   stars: number;
   numReviews: number;
+  following: PublicProfile[];
+  followers: PublicProfile[];
+  soldPosts: number;
   photoUrl: string;
   venmoHandle: string;
   bio: string;
@@ -218,31 +221,54 @@ export interface AvailabilityResponse {
 }
 
 export interface ProposalResponse {
-  type: string;
-  senderID: Uuid;
-  timestamp: Date;
-  accepted: boolean | null;
-  startDate: Date;
-  endDate: Date;
+  type: string,
+  senderID: Uuid,
+  timestamp: Date,
+  accepted: boolean | null,
+  startDate: Date,
+  endDate: Date
+
 }
 
 export interface CancelProposalResponse {
-  type: string;
-  senderID: Uuid;
-  timestamp: Date;
-  startDate: Date;
-  endDate: Date;
-  cancellation: boolean;
+  type: string,
+  senderID: Uuid,
+  timestamp: Date,
+  startDate: Date,
+  endDate: Date,
+  cancellation: boolean
+
 }
 
 export interface ChatReadResponse {
-  read: boolean;
+  read: boolean
+
 }
 
+
 export interface AuthTokenResponse {
-  token: string;
+  token: string
 }
 
 export interface UIDResponse {
-  uid: string;
+  uid: string
+}
+
+// AVAILABILITY RESPONSES
+
+export interface GetAvailabilityResponse {
+  availability: UserAvailabilityResponse;
+}
+
+export interface UserAvailabilityResponse {
+  id: string;
+  userId: string;
+  /** Day-keyed schedule: { "2026-01-23": [slots], "2026-01-24": [slots] } */
+  schedule: Record<string, AvailabilitySlotResponse[]>;
+  updatedAt: Date;
+}
+
+export interface AvailabilitySlotResponse {
+  startDate: Date;
+  endDate: Date;
 }

@@ -239,9 +239,7 @@ export class NotifService {
 
   async markAsRead(userId: string, notifId: string) {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const notifRepository = Repositories.notification(
-        transactionalEntityManager,
-      );
+      const notifRepository = Repositories.notification(transactionalEntityManager);
       const notif = await notifRepository.findOne({ where: { id: notifId } });
       if (!notif) {
         throw new NotFoundError("Notification not found");
@@ -253,11 +251,118 @@ export class NotifService {
     });
   }
 
+  /**
+   * Send a transaction confirmation notification to the buyer
+   * This asks them to confirm if the meetup happened
+   */
+  async sendTransactionConfirmationNotification(transactionId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const transactionRepository = Repositories.transaction(transactionalEntityManager);
+      const fcmTokenRepository = Repositories.fcmToken(transactionalEntityManager);
+      const notifRepository = Repositories.notification(transactionalEntityManager);
+
+      const transaction = await transactionRepository.getTransactionById(transactionId);
+      if (!transaction) {
+        throw new NotFoundError("Transaction not found!");
+      }
+
+      // Don't send if already completed
+      if (transaction.completed) {
+        return { message: "Transaction already completed", sent: false };
+      }
+
+      const buyer = transaction.buyer;
+      const seller = transaction.seller;
+      const post = transaction.post;
+
+      if (!buyer || !seller || !post) {
+        throw new NotFoundError("Transaction missing buyer, seller, or post");
+      }
+
+      const imageUrl = post.images && post.images.length > 0 ? post.images[0] : null;
+
+      // Get buyer's FCM tokens
+      const tokens = await fcmTokenRepository.getTokensByUserId(buyer.firebaseUid);
+      const deviceTokens = tokens.map(t => t.token);
+
+      const notificationData = {
+        type: "transaction_confirmation",
+        transactionId: transaction.id,
+        postId: post.id,
+        postTitle: post.title,
+        sellerId: seller.firebaseUid,
+        sellerUsername: seller.username,
+        imageUrl: imageUrl
+      };
+
+      // Send FCM notification to each device
+      for (const token of deviceTokens) {
+        try {
+          const msg = {
+            notification: {
+              title: "Confirm your meetup",
+              body: `Did your meetup with ${seller.username} for '${post.title}' happen?`
+            },
+            data: notificationData as unknown as { [key: string]: string },
+            token: token
+          };
+          await getMessaging().send(msg);
+        } catch (error) {
+          console.warn(`Failed to send to token: ${error.message}`);
+        }
+      }
+
+      // Save notification to database
+      const savedNotif = await notifRepository.save({
+        userId: buyer.firebaseUid,
+        title: "Confirm your meetup",
+        body: `Did your meetup with ${seller.username} for '${post.title}' happen?`,
+        data: notificationData,
+        read: false
+      });
+
+      // Mark that we've sent the confirmation notification (so we don't spam them)
+      await transactionRepository.markConfirmationSent(transactionId);
+
+      return {
+        message: "Transaction confirmation notification sent",
+        sent: true,
+        notification: savedNotif
+      };
+    });
+  }
+
+  /**
+   * Check for transactions with past meeting times and send confirmation notifications
+   * This can be called by a cron job or manually
+   */
+  async sendPendingTransactionConfirmations() {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const transactionRepository = Repositories.transaction(transactionalEntityManager);
+
+      // Get all incomplete transactions where meeting time has passed
+      const pendingTransactions = await transactionRepository.getPendingConfirmations();
+
+      const results = [];
+      for (const transaction of pendingTransactions) {
+        try {
+          const result = await this.sendTransactionConfirmationNotification(transaction.id);
+          results.push({ transactionId: transaction.id, ...result });
+        } catch (error) {
+          results.push({ transactionId: transaction.id, error: error.message });
+        }
+      }
+
+      return {
+        message: `Processed ${pendingTransactions.length} pending transactions`,
+        results
+      };
+    });
+  }
+
   async deleteNotification(userId: string, notifId: string) {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const notifRepository = Repositories.notification(
-        transactionalEntityManager,
-      );
+      const notifRepository = Repositories.notification(transactionalEntityManager);
       const notif = await notifRepository.findOne({ where: { id: notifId } });
       if (!notif) {
         throw new NotFoundError("Notification not found");

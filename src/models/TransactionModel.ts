@@ -26,6 +26,9 @@ export class TransactionModel {
   @Column({ default: false })
   completed: boolean; // Whether the transaction is completed
 
+  @Column({ default: false })
+  confirmationSent: boolean; // Whether we've sent a confirmation notification
+
   @ManyToOne(() => PostModel, { cascade: false })
   @JoinColumn({ name: "post_id" })
   post: PostModel; // The item/listing itself
@@ -40,18 +43,4 @@ export class TransactionModel {
 
   @CreateDateColumn({ type: "timestamptz" })
   createdAt: Date; // Automatically store when the transaction record was created
-
-  public getTransactionInfo() {
-    return {
-      id: this.id,
-      location: this.location,
-      amount: this.amount,
-      transactionDate: this.transactionDate,
-      completed: this.completed,
-      post: this.post?.getPostInfo(),
-      buyer: this.buyer?.getUserProfile(),
-      seller: this.seller?.getUserProfile(),
-      createdAt: this.createdAt,
-    };
-  }
 }

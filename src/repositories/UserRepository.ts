@@ -26,6 +26,8 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
       .leftJoinAndSelect("user.blockers", "user_blocking_users.blockers")
+      .leftJoinAndSelect("user.following", "user_following_users.following")
+      .leftJoinAndSelect("user.followers", "user_following_users.followers")
       .where("user.firebaseUid = :id", { id })
       .getOne();
   }
@@ -187,6 +189,41 @@ export class UserRepository extends AbstractRepository<UserModel> {
     return this.repository.save(blocker);
   }
 
+  public async followUser(
+    follower: UserModel,
+    following: UserModel,
+  ): Promise<UserModel> {
+    if (follower.following === undefined) { follower.following = [following]; }
+    else { follower.following.push(following); }
+    return this.repository.save(follower);
+  }
+
+  public async unfollowUser(
+    follower: UserModel,
+    following: UserModel,
+  ): Promise<UserModel> {
+    if (follower.following === undefined) {
+      throw new NotFoundError("User is not following anyone!")
+    }
+    else {
+      if (!follower.following.find((user) => user.firebaseUid === following.firebaseUid)) {
+        throw new NotFoundError("User is not following this user!")
+      }
+      follower.following = follower.following.filter((user) => user.firebaseUid !== following.firebaseUid);
+    }
+    return this.repository.save(follower);
+  }
+
+  public async getFollowers(user: UserModel): Promise<UserModel[]> {
+    const userWithFollowers = await this.repository.findOne(user.firebaseUid, { relations: ["followers"] });
+    return userWithFollowers ? userWithFollowers.followers : [];
+  }
+
+  public async getFollowing(user: UserModel): Promise<UserModel[]> {
+    const userWithFollowing = await this.repository.findOne(user.firebaseUid, { relations: ["following"] });
+    return userWithFollowing ? userWithFollowing.following : [];
+  }
+
   public async unblockUser(
     blocker: UserModel,
     blocked: UserModel,
@@ -212,5 +249,17 @@ export class UserRepository extends AbstractRepository<UserModel> {
   public async softDeleteUser(user: UserModel): Promise<UserModel> {
     user.isActive = false;
     return this.repository.save(user);
+  }
+
+  public async updateAvailabilityId(
+    userId: string,
+    availabilityId: string | null
+  ): Promise<void> {
+    await this.repository
+      .createQueryBuilder()
+      .update(UserModel)
+      .set({ availabilityId: availabilityId ?? undefined })
+      .where("firebaseUid = :userId", { userId })
+      .execute();
   }
 }
