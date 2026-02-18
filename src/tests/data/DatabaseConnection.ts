@@ -6,7 +6,7 @@ export class DatabaseConnection {
   private static conn: Connection | null = null;
 
   public static async connect(): Promise<Connection> {
-    const entitiesPath = __dirname + "/../models/*Model.ts";
+    const entitiesPath = __dirname + "/../../models/*Model.ts";
     if (!DatabaseConnection.conn) {
       DatabaseConnection.conn = await createConnection({
         database: "resell-test",

@@ -86,7 +86,7 @@ export class UserModel {
 
   @ManyToMany(() => UserModel, (user) => user.blockers)
   @JoinTable({
-    name: "user_blocking_users",
+    name: "userBlockingUsers",
     joinColumn: {
       name: "blockers",
       referencedColumnName: "firebaseUid",

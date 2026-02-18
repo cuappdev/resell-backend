@@ -31,10 +31,10 @@ export class PostModel {
   condition: string;
 
   @Column("numeric", { scale: 2 })
-  original_price: number;
+  originalPrice: number;
 
   @Column("numeric", { scale: 2, default: -1 })
-  altered_price: number;
+  alteredPrice: number;
 
   @Column("text", { array: true })
   images: string[];
@@ -52,12 +52,12 @@ export class PostModel {
   embedding: number[];
 
   @ManyToOne(() => UserModel, (user) => user.posts, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "user" })
+  @JoinColumn({ name: "userId" })
   user: UserModel;
 
   @ManyToMany(() => UserModel, (user) => user.saved)
   @JoinTable({
-    name: "user_saved_posts",
+    name: "userSavedPosts",
     joinColumn: { name: "saved", referencedColumnName: "id" },
     inverseJoinColumn: { name: "savers", referencedColumnName: "firebaseUid" },
   })
@@ -65,7 +65,7 @@ export class PostModel {
 
   @ManyToMany(() => RequestModel, (request) => request.matches)
   @JoinTable({
-    name: "request_matches_posts",
+    name: "requestMatchesPosts",
     joinColumn: { name: "matches", referencedColumnName: "id" },
     inverseJoinColumn: { name: "matched", referencedColumnName: "id" },
   })
@@ -75,7 +75,7 @@ export class PostModel {
     cascade: true,
   })
   @JoinTable({
-    name: "post_categories",
+    name: "postCategories",
     joinColumn: { name: "posts", referencedColumnName: "id" },
     inverseJoinColumn: { name: "categories", referencedColumnName: "id" },
   })
@@ -83,9 +83,9 @@ export class PostModel {
 
   @ManyToMany(() => EventTagModel, (eventTag) => eventTag.posts)
   @JoinTable({
-    name: "post_event_tags",
+    name: "postEventTags",
     joinColumn: { name: "posts", referencedColumnName: "id" },
-    inverseJoinColumn: { name: "event_tags", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "eventTags", referencedColumnName: "id" },
   })
   eventTags: EventTagModel[];
 
@@ -101,8 +101,8 @@ export class PostModel {
       title: this.title,
       description: this.description,
       condition: this.condition,
-      original_price: this.original_price,
-      altered_price: this.altered_price,
+      originalPrice: this.originalPrice,
+      alteredPrice: this.alteredPrice,
       images: this.images,
       created: this.created,
       location: this.location,

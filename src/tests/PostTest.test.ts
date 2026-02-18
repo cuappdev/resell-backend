@@ -4,6 +4,7 @@ import { Connection, Not } from "typeorm";
 import { UuidParam } from "../api/validators/GenericRequests";
 import { PostModel } from "../models/PostModel";
 import { CategoryModel } from "../models/CategoryModel";
+import { EventTagModel } from "../models/EventTagModel";
 import { ControllerFactory } from "./controllers";
 import {
   DatabaseConnection,
@@ -203,6 +204,35 @@ describe("post tests", () => {
       postController.createPost(inactiveUser, newPost),
     ).rejects.toThrow("User is not active!");
   });
+
+    test("add/remove event tags to post", async () => {
+      const post = PostFactory.fakeTemplate();
+      post.user = UserFactory.fakeTemplate();
+
+      await new DataFactory().createPosts(post).createUsers(post.user).write();
+
+      const addReq = { eventTags: ["SPRING_FAIR"] };
+      const addedResp = await postController.addEventTagsToPost(
+        post.user,
+        { id: post.id } as any,
+        addReq,
+      );
+
+      expect(addedResp.post.eventTags.map((t: any) => t.name)).toContain(
+        "SPRING_FAIR",
+      );
+
+      const removeReq = { eventTags: ["SPRING_FAIR"] };
+      const removedResp = await postController.removeEventTagsFromPost(
+        post.user,
+        { id: post.id } as any,
+        removeReq,
+      );
+
+      expect(removedResp.post.eventTags.map((t: any) => t.name)).not.toContain(
+        "SPRING_FAIR",
+      );
+    });
 
   test("delete post by id", async () => {
     const post = PostFactory.fakeTemplate();

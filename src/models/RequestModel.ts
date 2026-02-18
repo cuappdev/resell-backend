@@ -30,7 +30,7 @@ export class RequestModel {
   embedding: number[];
 
   @ManyToOne(() => UserModel, (user) => user.requests, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "user" })
+  @JoinColumn({ name: "userId" })
   user: UserModel;
 
   @ManyToMany(() => PostModel, (post) => post.matched)

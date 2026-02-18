@@ -32,8 +32,8 @@ define(
     post.description = `This is a sample description for post - User ${post.user.givenName} - Index: ${index}.`;
     post.categories = context.categories || []; // Use provided categories or empty array
     post.condition = "New";
-    post.original_price = 100.0 + index;
-    post.altered_price = 80.0 + index;
+    post.originalPrice = 100.0 + index;
+    post.alteredPrice = 80.0 + index;
     post.images = [
       `http://example.com/image_${post.user.givenName}_${index}_1.jpg`,
       `http://example.com/image_${post.user.givenName}_${index}_2.jpg`,

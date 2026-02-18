@@ -30,15 +30,15 @@ export class TransactionModel {
   confirmationSent: boolean; // Whether we've sent a confirmation notification
 
   @ManyToOne(() => PostModel, { cascade: false })
-  @JoinColumn({ name: "post_id" })
+  @JoinColumn({ name: "postId" })
   post: PostModel; // The item/listing itself
 
   @ManyToOne(() => UserModel, { cascade: false })
-  @JoinColumn({ name: "buyer_id" })
+  @JoinColumn({ name: "buyerId" })
   buyer: UserModel; // The buyer
 
   @ManyToOne(() => UserModel, { cascade: false })
-  @JoinColumn({ name: "seller_id" })
+  @JoinColumn({ name: "sellerId" })
   seller: UserModel; // The seller
 
   @CreateDateColumn({ type: "timestamptz" })

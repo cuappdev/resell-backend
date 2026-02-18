@@ -81,8 +81,8 @@ export interface Post {
   title: string;
   description: string;
   condition: string;
-  original_price: number;
-  altered_price: number;
+  originalPrice: number;
+  alteredPrice: number;
   images: string[];
   created: Date;
   location: string;
