@@ -287,37 +287,6 @@
         }
       }
     },
-    "/search": {
-      "get": {
-        "summary": "Get user's search history",
-        "tags": ["Search"],
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 20
-            },
-            "description": "Maximum number of searches to return"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Search history retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetSearchesResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/post/filter": {
       "post": {
         "summary": "Filter posts (all filters) ",
@@ -971,6 +940,150 @@
         }
       }
     },
+    "/post/suggested": {
+      "get": {
+        "summary": "Get suggested posts",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Limit of posts to return",
+            "schema": { 
+              "type": "integer",
+              "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Suggested posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GetPostResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/purchaseSuggestions": {
+      "get": {
+        "summary": "Get purchase suggestions",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Limit of posts to return",
+            "schema": { 
+              "type": "integer",
+              "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase suggestions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "postIds": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Array of post IDs"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search": {
+      "get": {
+        "summary": "Get user's search history",
+        "tags": ["Search"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Maximum number of searches to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search history retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSearchesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new search record",
+        "tags": ["Search"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "searchRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The search text to be stored"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Search record successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "searchId": {
+                      "type": "string",
+                      "description": "Unique identifier for the created search record"
+                    },
+                    "searchText": {
+                      "type": "string",
+                      "description": "The search text that was stored"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/user/create": {
       "post": {
         "tags": ["User"],
@@ -1470,6 +1583,137 @@
         "responses": {
           "200": {
             "description": "Discount notification sent successfully"
+          }
+        }
+      }
+    },
+    "/notif/markAsRead/id/{id}": {
+      "post": {
+        "summary": "Mark notification as read",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Notification ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification marked as read successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Notification" }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        }
+      }
+    },
+    "/notif/new": {
+      "get": {
+        "summary": "Get unread notifications",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Unread notifications retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Notification" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - user not authenticated"
+          }
+        }
+      }
+    },
+    "/notif/last7days": {
+      "get": {
+        "summary": "Get notifications from last 7 days",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Notifications from last 7 days retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Notification" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - user not authenticated"
+          }
+        }
+      }
+    },
+    "/notif/last30days": {
+      "get": {
+        "summary": "Get notifications from last 30 days",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Notifications from last 30 days retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Notification" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - user not authenticated"
+          }
+        }
+      }
+    },
+    "/notif/id/{id}": {
+      "delete": {
+        "summary": "Delete notification",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Notification ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized - user not authenticated"
+          },
+          "404": {
+            "description": "Notification not found"
           }
         }
       }

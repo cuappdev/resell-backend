@@ -62,6 +62,14 @@ export class NotifController {
     return this.notifService.sendRequestMatchNotification(matchRequest);
   }
 
+  @Post("markAsRead/id/:id")
+  async markAsRead(
+    @CurrentUser() user: UserModel,
+    @Params() params: { id: string },
+  ) {
+    return this.notifService.markAsRead(user.firebaseUid, params.id);
+  }
+
   @Delete("id/:id")
   async deleteNotification(
     @CurrentUser() user: UserModel,

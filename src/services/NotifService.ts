@@ -237,6 +237,22 @@ export class NotifService {
     });
   }
 
+  async markAsRead(userId: string, notifId: string) {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const notifRepository = Repositories.notification(
+        transactionalEntityManager,
+      );
+      const notif = await notifRepository.findOne({ where: { id: notifId } });
+      if (!notif) {
+        throw new NotFoundError("Notification not found");
+      }
+      if (notif.userId !== userId) {
+        throw new NotFoundError("Notification not found");
+      }
+      return await notifRepository.markAsRead(notifId);
+    });
+  }
+
   async deleteNotification(userId: string, notifId: string) {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
       const notifRepository = Repositories.notification(
