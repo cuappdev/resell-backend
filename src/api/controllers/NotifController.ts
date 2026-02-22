@@ -1,5 +1,5 @@
 import { Body, CurrentUser, Delete, Get, JsonController, Param, Params, Post } from 'routing-controllers';
-import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from 'src/types';
+import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from '../../types';
 import { NotifService } from '../../services/NotifService';
 import { UserModel } from '../../models/UserModel';
 
@@ -11,10 +11,10 @@ export class NotifController {
     this.notifService = notifService;
   }
 
-  // @Get('recent')
-  // async getRecentNotifications(@CurrentUser() user: UserModel) {
-  //   return this.notifService.getRecentNotifications(user.firebaseUid);
-  // }
+  @Get('recent')
+  async getRecentNotifications(@CurrentUser() user: UserModel) {
+    return this.notifService.getRecentNotifications(user.firebaseUid);
+  }
 
   @Get('new')
   async getUnread(@CurrentUser() user: UserModel) {
