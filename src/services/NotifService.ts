@@ -140,20 +140,7 @@ export class NotifService {
                 }
             });
         });
-        await this.sendFCMNotifs(notifs, user.firebaseUid);
-        return {
-          message: "Notification sent successfully",
-          httpCode: 200,
-        };
-      } catch (err) {
-        console.log(err);
-        return {
-          message: "Notification not sent",
-          httpCode: 500,
-        };
-      }
-    });
-  }
+    }
 
     public async sendRequestMatchNotification(request: RequestMatchNotificationRequest): Promise<NotifResult> {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
@@ -192,20 +179,7 @@ export class NotifService {
                 }
             });
         });
-        await this.sendFCMNotifs(notifs, request.userId);
-        return {
-          message: "Notification sent successfully",
-          httpCode: 200,
-        };
-      } catch (err) {
-        console.log(err);
-        return {
-          message: "Notification not sent",
-          httpCode: 500,
-        };
-      }
-    });
-  }
+    }
 
   public async getRecentNotifications(userId: string) {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
