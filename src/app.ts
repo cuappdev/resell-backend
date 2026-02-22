@@ -27,8 +27,6 @@ import { ReportService } from './services/ReportService';
 import { reportToString } from './utils/Requests';
 import { startTransactionConfirmationCron } from './cron/transactionCron';
 
-dotenv.config();
-
 const port = process.env.PORT ?? 3000;
 const app: Express = createExpressServer({
   cors: true,
