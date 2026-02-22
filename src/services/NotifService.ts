@@ -4,7 +4,19 @@ import { NotificationData, FindTokensRequest, DiscountNotificationRequest, Reque
 import Repositories, { TransactionsManager } from '../repositories';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
-import { getMessaging, Message } from 'firebase-admin/messaging';
+import { firebaseAdmin } from '../firebase';
+
+const getMessaging = () => firebaseAdmin.messaging();
+
+// Message type from firebase-admin
+interface Message {
+  notification?: {
+    title?: string;
+    body?: string;
+  };
+  data?: { [key: string]: string };
+  token: string;
+}
 
 interface NotifPayload {
     title: string;
