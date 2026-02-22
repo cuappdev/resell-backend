@@ -4,7 +4,19 @@ import { NotificationData, FindTokensRequest, DiscountNotificationRequest, Reque
 import Repositories, { TransactionsManager } from '../repositories';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
-import { getMessaging, Message } from 'firebase-admin/messaging';
+import { firebaseAdmin } from '../firebase';
+
+const getMessaging = () => firebaseAdmin.messaging();
+
+// Message type from firebase-admin
+interface Message {
+  notification?: {
+    title?: string;
+    body?: string;
+  };
+  data?: { [key: string]: string };
+  token: string;
+}
 
 interface NotifPayload {
     title: string;
@@ -140,20 +152,7 @@ export class NotifService {
                 }
             });
         });
-        await this.sendFCMNotifs(notifs, user.firebaseUid);
-        return {
-          message: "Notification sent successfully",
-          httpCode: 200,
-        };
-      } catch (err) {
-        console.log(err);
-        return {
-          message: "Notification not sent",
-          httpCode: 500,
-        };
-      }
-    });
-  }
+    }
 
     public async sendRequestMatchNotification(request: RequestMatchNotificationRequest): Promise<NotifResult> {
         return this.transactions.readWrite(async (transactionalEntityManager) => {
@@ -192,20 +191,7 @@ export class NotifService {
                 }
             });
         });
-        await this.sendFCMNotifs(notifs, request.userId);
-        return {
-          message: "Notification sent successfully",
-          httpCode: 200,
-        };
-      } catch (err) {
-        console.log(err);
-        return {
-          message: "Notification not sent",
-          httpCode: 500,
-        };
-      }
-    });
-  }
+    }
 
   public async getRecentNotifications(userId: string) {
     return this.transactions.readWrite(async (transactionalEntityManager) => {
