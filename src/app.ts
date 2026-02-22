@@ -1,17 +1,22 @@
 // Load environment and Firebase configuration first
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config();
 import "./firebase";
 import "reflect-metadata";
 
 import {
   createExpressServer,
   useContainer as routingUseContainer,
+  ForbiddenError,
+  HttpError,
+  UnauthorizedError,
 } from "routing-controllers";
 import { getManager, useContainer } from "typeorm";
 import { Container } from "typeorm-typedi-extensions";
-import { Express, Request, Response } from "express";
+import { Express } from "express";
 import * as swaggerUi from "swagger-ui-express";
-import swaggerDocument from "../swagger.json";
+import * as path from "path";
+import { firebaseAdmin as admin } from "./firebase";
 
 import { controllers } from './api/controllers';
 import { middlewares } from './api/middlewares';
