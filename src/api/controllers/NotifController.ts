@@ -11,10 +11,10 @@ export class NotifController {
     this.notifService = notifService;
   }
 
-  @Get('recent')
-  async getRecentNotifications(@CurrentUser() user: UserModel) {
-    return this.notifService.getRecentNotifications(user.firebaseUid);
-  }
+  // @Get('recent')
+  // async getRecentNotifications(@CurrentUser() user: UserModel) {
+  //   return this.notifService.getRecentNotifications(user.firebaseUid);
+  // }
 
   @Get('new')
   async getUnread(@CurrentUser() user: UserModel) {
@@ -67,20 +67,20 @@ export class NotifController {
    * Send a transaction confirmation notification to the buyer
    * POST /notif/transaction-confirmation/:transactionId
    */
-  @Post('transaction-confirmation/:transactionId')
-  async sendTransactionConfirmation(
-    @Param('transactionId') transactionId: string
-  ) {
-    return this.notifService.sendTransactionConfirmationNotification(transactionId);
-  }
+  // @Post('transaction-confirmation/:transactionId')
+  // async sendTransactionConfirmation(
+  //   @Param('transactionId') transactionId: string
+  // ) {
+  //   return this.notifService.sendTransactionConfirmationNotification(transactionId);
+  // }
 
   /**
    * Check for and send all pending transaction confirmation notifications
    * This can be called by a cron job or manually for testing
    * POST /notif/check-pending-transactions
    */
-  @Post('check-pending-transactions')
-  async checkPendingTransactions() {
-    return this.notifService.sendPendingTransactionConfirmations();
-  }
+  // @Post('check-pending-transactions')
+  // async checkPendingTransactions() {
+  //   return this.notifService.sendPendingTransactionConfirmations();
+  // }
 }

@@ -1,4 +1,4 @@
-import cron from 'node-cron';
+// import cron from 'node-cron';
 import { getManager } from 'typeorm';
 import { NotifService } from '../services/NotifService';
 
@@ -17,23 +17,23 @@ export function startTransactionConfirmationCron() {
     //   *    = every month
     //   *    = every day of week
 
-    cron.schedule('*/15 * * * *', async () => {
-        console.log('[CRON] Checking for pending transaction confirmations...');
+    // cron.schedule('*/15 * * * *', async () => {
+    //     console.log('[CRON] Checking for pending transaction confirmations...');
 
-        try {
-            const entityManager = getManager();
-            const notifService = new NotifService(entityManager);
+    //     try {
+    //         const entityManager = getManager();
+    //         const notifService = new NotifService(entityManager);
 
-            const result = await notifService.sendPendingTransactionConfirmations();
-            console.log('[CRON] Transaction confirmation check complete:', result.message);
+    //         const result = await notifService.sendPendingTransactionConfirmations();
+    //         console.log('[CRON] Transaction confirmation check complete:', result.message);
 
-            if (result.results && result.results.length > 0) {
-                console.log('[CRON] Notifications sent:', result.results);
-            }
-        } catch (error) {
-            console.error('[CRON] Error checking pending transactions:', error);
-        }
-    });
+    //         if (result.results && result.results.length > 0) {
+    //             console.log('[CRON] Notifications sent:', result.results);
+    //         }
+    //     } catch (error) {
+    //         console.error('[CRON] Error checking pending transactions:', error);
+    //     }
+    // });
 
     console.log('[CRON] Transaction confirmation cron job started (runs every 15 minutes)');
 }
