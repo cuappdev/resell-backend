@@ -97,7 +97,7 @@ export interface CreatePostRequest {
     categories: string[];
     eventTags?: string[];
     condition: string;
-    original_price: number;
+    originalPrice: number;
     imagesBase64: string[];
     userId: string;
 }
@@ -107,7 +107,7 @@ export interface GetSearchedPostsRequest {
 }
 
 export interface EditPostPriceRequest {
-  new_price: number;
+  newPrice: number;
 }
 
 // FEEDBACK

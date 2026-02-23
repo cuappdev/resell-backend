@@ -175,7 +175,7 @@ export class NotifService {
                 throw new NotFoundError("Request not found!");
             }
 
-            const price = post.altered_price > 0 ? post.altered_price : post.original_price;
+            const price = post.alteredPrice > 0 ? post.alteredPrice : post.originalPrice;
 
             return this.sendNotificationToUser(transactionalEntityManager, request.userId, {
                 title: "Request Match Found!",

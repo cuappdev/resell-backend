@@ -114,7 +114,7 @@ export interface IsSavedPostResponse {
 }
 
 export interface EditPriceResponse {
-  new_price: number;
+  newPrice: number;
 }
 
 // MESSAGES

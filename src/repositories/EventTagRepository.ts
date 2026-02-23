@@ -13,6 +13,7 @@ export class EventTagRepository extends AbstractRepository<EventTagModel> {
 
 
   public async findOrCreateByNames(names: string[]): Promise<EventTagModel[]> {
+    if (names.length === 0) return [];
     const existing = await this.repository
       .createQueryBuilder("eventTag")
       .where("eventTag.name IN (:...names)", { names })

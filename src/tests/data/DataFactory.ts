@@ -26,20 +26,20 @@ export class DataFactory {
     const conn = await DatabaseConnection.connect();
     await conn.transaction(async (txn) => {
       this.users = await txn.save(this.users);
-      const allCategories = new Set<CategoryModel>();
-      const allEventTags = new Set<EventTagModel>();
+      const categoryMap = new Map<string, CategoryModel>();
+      const eventTagMap = new Map<string, EventTagModel>();
       for (const post of this.posts) {
         if (post.categories && post.categories.length > 0) {
-          post.categories.forEach((category) => allCategories.add(category));
+          post.categories.forEach((category) => categoryMap.set(category.id, category));
         }
         if (post.eventTags && post.eventTags.length > 0) {
-          post.eventTags.forEach((eventTag) => allEventTags.add(eventTag));
+          post.eventTags.forEach((eventTag) => eventTagMap.set(eventTag.id, eventTag));
         }
       }
-      this.categories.push(...Array.from(allCategories));
+      this.categories.push(...Array.from(categoryMap.values()));
       this.categories = await txn.save(this.categories);
 
-      this.eventTags.push(...Array.from(allEventTags));
+      this.eventTags.push(...Array.from(eventTagMap.values()));
       this.eventTags = await txn.save(this.eventTags);
 
       this.posts = await txn.save(this.posts);

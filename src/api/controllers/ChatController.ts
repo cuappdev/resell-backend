@@ -227,7 +227,7 @@ export class ChatController {
           await queryRunner.connect();
           await queryRunner.startTransaction();
 
-          const amount = post.altered_price ?? post.original_price;
+          const amount = post.alteredPrice ?? post.originalPrice;
           const transactionDate = new Date(chatBody.startDate);
 
           try {

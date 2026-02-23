@@ -1,16 +1,15 @@
 import { Connection, createConnection } from "typeorm";
 
-// import { models } from '../../models';
+import { models } from '../../models';
 
 export class DatabaseConnection {
   private static conn: Connection | null = null;
 
   public static async connect(): Promise<Connection> {
-    const entitiesPath = __dirname + "/../../models/*Model.ts";
     if (!DatabaseConnection.conn) {
       DatabaseConnection.conn = await createConnection({
         database: "resell-test",
-        entities: [entitiesPath],
+        entities: models,
         host: "localhost",
         logging: false,
         password: "postgres",
@@ -29,23 +28,26 @@ export class DatabaseConnection {
 
   public static async clear(): Promise<void> {
     const conn = await DatabaseConnection.connect();
-    await conn.transaction(async (txn) => {
-      // the order of elements matters here, since this will be the order of deletion.
-      // if a table (A) exists with an fkey to another table (B), make sure B is listed higher than A.
-      const tableNames = [
-        "TransactionReview",
-        "Transaction",
-        "Feedback",
-        "notifications", // Add notifications table before User since it has a fk to User
-        "Report", // Add Report table before Post since it has a fk to Post
-        "Post",
-        "FCMToken",
-        "Request",
-        "UserReview",
-        "User",
-      ];
-      await Promise.all(tableNames.map((t) => txn.query(`DELETE FROM "${t}"`)));
-    });
+    const tableNames = [
+      "TransactionReview",
+      "Transaction",
+      "Feedback",
+      "notifications",
+      "Report",
+      "postCategories",
+      "postEventTags",
+      "Post",
+      "Category",
+      "EventTag",
+      "FCMToken",
+      "Request",
+      "UserReview",
+      "searches",
+      "User",
+    ];
+    await conn.query(
+      `TRUNCATE ${tableNames.map((t) => `"${t}"`).join(", ")} CASCADE`,
+    );
   }
 
   public static async close(): Promise<void> {

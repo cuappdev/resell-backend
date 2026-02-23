@@ -310,9 +310,9 @@ export class PostController {
     @Params() params: UuidParam,
   ): Promise<EditPriceResponse> {
     return {
-      new_price: await (
+      newPrice: await (
         await this.postService.editPostPrice(user, params, editPriceRequest)
-      ).altered_price,
+      ).alteredPrice,
     };
   }
 

@@ -114,7 +114,7 @@ export class PostService {
         console.error("Error computing embedding:", error);
         embedding = null;
       }
-      const freshPost = await postRepository.createPost(post.title, post.description, categories, eventTags, post.condition, post.original_price, images, user, (embedding ?? []) as number[]);
+      const freshPost = await postRepository.createPost(post.title, post.description, categories, eventTags, post.condition, post.originalPrice, images, user, (embedding ?? []) as number[]);
       if (embedding && Array.isArray(embedding) && embedding.length > 0) {
         const requestRepository = Repositories.request(
           transactionalEntityManager,
@@ -507,7 +507,7 @@ export class PostService {
       if (!post) throw new NotFoundError("Post not found!");
       return await postRepository.editPostPrice(
         post,
-        editPostRequest.new_price,
+        editPostRequest.newPrice,
       );
     });
   }

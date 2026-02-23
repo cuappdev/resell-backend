@@ -48,14 +48,15 @@ beforeEach(async () => {
   expectedPost.archive = false;
   expectedPost.categories = [category1, category2];
   expectedPost.condition = "NEW";
-  expectedPost.original_price = 500.15;
-  expectedPost.altered_price = -1;
+  expectedPost.originalPrice = 500.15;
+  expectedPost.alteredPrice = -1;
   expectedPost.images = [
     "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Kombucha_Mature.jpg/640px-Kombucha_Mature.jpg",
     "https://images.heb.com/is/image/HEBGrocery/001017916",
   ];
   expectedPost.location = "The Dorm Hotel";
   expectedPost.sold = false;
+  expectedPost.eventTags = [];
   expectedPost.embedding = null as any;
 });
 
@@ -123,11 +124,11 @@ describe("post tests", () => {
       post.user,
       uuidParam,
     );
-    getPostResponse.post.original_price = Number(
-      getPostResponse.post.original_price,
+    getPostResponse.post.originalPrice = Number(
+      getPostResponse.post.originalPrice,
     );
-    getPostResponse.post.altered_price = Number(
-      getPostResponse.post.altered_price,
+    getPostResponse.post.alteredPrice = Number(
+      getPostResponse.post.alteredPrice,
     );
     expectedPost.created = getPostResponse.post.created;
 
@@ -152,8 +153,8 @@ describe("post tests", () => {
     const getPostsResponse = await postController.getPostsByUserId(post.user, {
       id: post.user.firebaseUid,
     });
-    getPostsResponse.posts[0].original_price = Number(
-      getPostsResponse.posts[0].original_price,
+    getPostsResponse.posts[0].originalPrice = Number(
+      getPostsResponse.posts[0].originalPrice,
     );
 
     // Update the post categories.posts to match what comes from the API
@@ -182,7 +183,7 @@ describe("post tests", () => {
         "a2b2c3d4-e5f6-7890-abcd-1234567890ef",
       ],
       condition: "NEW",
-      original_price: 500.15,
+      originalPrice: 500.15,
       imagesBase64: [],
       created: 1667192023,
       userId: user.firebaseUid,
@@ -233,6 +234,238 @@ describe("post tests", () => {
         "SPRING_FAIR",
       );
     });
+
+  test("create post with event tags", async () => {
+    const user = UserFactory.fakeTemplate();
+
+    await new DataFactory().createUsers(user).write();
+
+    const newPost = {
+      title: "Spring Sale Item",
+      description: "Selling for spring fair",
+      categories: [],
+      eventTags: ["SPRING_FAIR", "CLEARANCE"],
+      condition: "NEW",
+      originalPrice: 25.0,
+      imagesBase64: [],
+      created: 1667192023,
+      userId: user.firebaseUid,
+    };
+
+    const getPostResponse = await postController.createPost(user, newPost);
+
+    const tagNames = getPostResponse.post.eventTags.map((t: any) => t.name);
+    expect(tagNames).toContain("SPRING_FAIR");
+    expect(tagNames).toContain("CLEARANCE");
+    expect(getPostResponse.post.eventTags).toHaveLength(2);
+  });
+
+  test("add multiple event tags to post", async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+
+    await new DataFactory().createPosts(post).createUsers(post.user).write();
+
+    // Add first batch of tags
+    const addReq1 = { eventTags: ["SPRING_FAIR", "CLEARANCE"] };
+    const resp1 = await postController.addEventTagsToPost(
+      post.user,
+      { id: post.id } as any,
+      addReq1,
+    );
+
+    expect(resp1.post.eventTags).toHaveLength(2);
+    const tagNames1 = resp1.post.eventTags.map((t: any) => t.name);
+    expect(tagNames1).toContain("SPRING_FAIR");
+    expect(tagNames1).toContain("CLEARANCE");
+
+    // Add more tags (including a duplicate)
+    const addReq2 = { eventTags: ["SPRING_FAIR", "HOLIDAY_SALE"] };
+    const resp2 = await postController.addEventTagsToPost(
+      post.user,
+      { id: post.id } as any,
+      addReq2,
+    );
+
+    // Should have 3 tags (SPRING_FAIR not duplicated)
+    expect(resp2.post.eventTags).toHaveLength(3);
+    const tagNames2 = resp2.post.eventTags.map((t: any) => t.name);
+    expect(tagNames2).toContain("SPRING_FAIR");
+    expect(tagNames2).toContain("CLEARANCE");
+    expect(tagNames2).toContain("HOLIDAY_SALE");
+  });
+
+  test("remove event tags from post - partial removal", async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+
+    await new DataFactory().createPosts(post).createUsers(post.user).write();
+
+    // Add tags
+    await postController.addEventTagsToPost(
+      post.user,
+      { id: post.id } as any,
+      { eventTags: ["SPRING_FAIR", "CLEARANCE", "HOLIDAY_SALE"] },
+    );
+
+    // Remove only one tag
+    const removeReq = { eventTags: ["CLEARANCE"] };
+    const resp = await postController.removeEventTagsFromPost(
+      post.user,
+      { id: post.id } as any,
+      removeReq,
+    );
+
+    expect(resp.post.eventTags).toHaveLength(2);
+    const tagNames = resp.post.eventTags.map((t: any) => t.name);
+    expect(tagNames).toContain("SPRING_FAIR");
+    expect(tagNames).toContain("HOLIDAY_SALE");
+    expect(tagNames).not.toContain("CLEARANCE");
+  });
+
+  test("remove event tags from post - remove all tags", async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+
+    await new DataFactory().createPosts(post).createUsers(post.user).write();
+
+    await postController.addEventTagsToPost(
+      post.user,
+      { id: post.id } as any,
+      { eventTags: ["SPRING_FAIR", "CLEARANCE"] },
+    );
+
+    const resp = await postController.removeEventTagsFromPost(
+      post.user,
+      { id: post.id } as any,
+      { eventTags: ["SPRING_FAIR", "CLEARANCE"] },
+    );
+
+    expect(resp.post.eventTags).toHaveLength(0);
+  });
+
+  test("add event tags - non-owner cannot add tags", async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+    const otherUser = UserFactory.fake();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user, otherUser)
+      .write();
+
+    await expect(
+      postController.addEventTagsToPost(
+        otherUser,
+        { id: post.id } as any,
+        { eventTags: ["SPRING_FAIR"] },
+      ),
+    ).rejects.toThrow();
+  });
+
+  test("remove event tags - non-owner cannot remove tags", async () => {
+    const post = PostFactory.fakeTemplate();
+    post.user = UserFactory.fakeTemplate();
+    const otherUser = UserFactory.fake();
+
+    await new DataFactory()
+      .createPosts(post)
+      .createUsers(post.user, otherUser)
+      .write();
+
+    await postController.addEventTagsToPost(
+      post.user,
+      { id: post.id } as any,
+      { eventTags: ["SPRING_FAIR"] },
+    );
+
+    await expect(
+      postController.removeEventTagsFromPost(
+        otherUser,
+        { id: post.id } as any,
+        { eventTags: ["SPRING_FAIR"] },
+      ),
+    ).rejects.toThrow();
+  });
+
+  test("filter posts by event tags", async () => {
+    const user = UserFactory.fakeTemplate();
+
+    const post1 = PostFactory.fakeTemplate();
+    post1.id = "11111111-1111-1111-1111-111111111111";
+    post1.title = "Spring Item";
+    post1.user = user;
+
+    const post2 = PostFactory.fakeTemplate();
+    post2.id = "22222222-2222-2222-2222-222222222222";
+    post2.title = "Holiday Item";
+    post2.user = user;
+
+    const post3 = PostFactory.fakeTemplate();
+    post3.id = "33333333-3333-3333-3333-333333333333";
+    post3.title = "No Tags Item";
+    post3.user = user;
+
+    await new DataFactory()
+      .createUsers(user)
+      .createPosts(post1, post2, post3)
+      .write();
+
+    // Add different event tags to different posts
+    await postController.addEventTagsToPost(
+      user,
+      { id: post1.id } as any,
+      { eventTags: ["SPRING_FAIR"] },
+    );
+    await postController.addEventTagsToPost(
+      user,
+      { id: post2.id } as any,
+      { eventTags: ["HOLIDAY_SALE"] },
+    );
+
+    // Filter by SPRING_FAIR - should only get post1
+    const springResp = await postController.filterPostsByEventTags(
+      user,
+      { eventTags: ["SPRING_FAIR"] },
+    );
+    expect(springResp.posts).toHaveLength(1);
+    expect(springResp.posts[0].id).toEqual(post1.id);
+
+    // Filter by HOLIDAY_SALE - should only get post2
+    const holidayResp = await postController.filterPostsByEventTags(
+      user,
+      { eventTags: ["HOLIDAY_SALE"] },
+    );
+    expect(holidayResp.posts).toHaveLength(1);
+    expect(holidayResp.posts[0].id).toEqual(post2.id);
+
+    // Filter by non-existent tag - should get empty
+    const emptyResp = await postController.filterPostsByEventTags(
+      user,
+      { eventTags: ["NON_EXISTENT"] },
+    );
+    expect(emptyResp.posts).toHaveLength(0);
+  });
+
+  test("filter posts by event tags - empty request returns empty", async () => {
+    const user = UserFactory.fakeTemplate();
+    const post = PostFactory.fakeTemplate();
+    post.user = user;
+
+    await new DataFactory().createPosts(post).createUsers(user).write();
+
+    await postController.addEventTagsToPost(
+      user,
+      { id: post.id } as any,
+      { eventTags: ["SPRING_FAIR"] },
+    );
+
+    const resp = await postController.filterPostsByEventTags(
+      user,
+      { eventTags: [] },
+    );
+    expect(resp.posts).toHaveLength(0);
+  });
 
   test("delete post by id", async () => {
     const post = PostFactory.fakeTemplate();
@@ -306,11 +539,11 @@ describe("post tests", () => {
       post.user,
       search,
     );
-    getPostsResponse.posts[0].original_price = Number(
-      getPostsResponse.posts[0].original_price,
+    getPostsResponse.posts[0].originalPrice = Number(
+      getPostsResponse.posts[0].originalPrice,
     );
-    getPostsResponse.posts[0].altered_price = Number(
-      getPostsResponse.posts[0].altered_price,
+    getPostsResponse.posts[0].alteredPrice = Number(
+      getPostsResponse.posts[0].alteredPrice,
     );
     expectedPost.created = getPostsResponse.posts[0].created;
 
@@ -343,11 +576,11 @@ describe("post tests", () => {
       post.user,
       search,
     );
-    getPostsResponse.posts[0].original_price = Number(
-      getPostsResponse.posts[0].original_price,
+    getPostsResponse.posts[0].originalPrice = Number(
+      getPostsResponse.posts[0].originalPrice,
     );
-    getPostsResponse.posts[0].altered_price = Number(
-      getPostsResponse.posts[0].altered_price,
+    getPostsResponse.posts[0].alteredPrice = Number(
+      getPostsResponse.posts[0].alteredPrice,
     );
     expectedPost.created = getPostsResponse.posts[0].created;
 
@@ -380,11 +613,11 @@ describe("post tests", () => {
       post.user,
       search,
     );
-    getPostsResponse.posts[0].original_price = Number(
-      getPostsResponse.posts[0].original_price,
+    getPostsResponse.posts[0].originalPrice = Number(
+      getPostsResponse.posts[0].originalPrice,
     );
-    getPostsResponse.posts[0].altered_price = Number(
-      getPostsResponse.posts[0].altered_price,
+    getPostsResponse.posts[0].alteredPrice = Number(
+      getPostsResponse.posts[0].alteredPrice,
     );
     expectedPost.created = getPostsResponse.posts[0].created;
 
@@ -588,11 +821,11 @@ describe("post tests", () => {
       post.user,
       filter,
     );
-    getPostsResponse.posts[0].original_price = Number(
-      getPostsResponse.posts[0].original_price,
+    getPostsResponse.posts[0].originalPrice = Number(
+      getPostsResponse.posts[0].originalPrice,
     );
-    getPostsResponse.posts[0].altered_price = Number(
-      getPostsResponse.posts[0].altered_price,
+    getPostsResponse.posts[0].alteredPrice = Number(
+      getPostsResponse.posts[0].alteredPrice,
     );
     expectedPost.created = getPostsResponse.posts[0].created;
 
@@ -626,11 +859,11 @@ describe("post tests", () => {
       user,
       filter,
     );
-    getPostsResponse.posts[0].original_price = Number(
-      getPostsResponse.posts[0].original_price,
+    getPostsResponse.posts[0].originalPrice = Number(
+      getPostsResponse.posts[0].originalPrice,
     );
-    getPostsResponse.posts[0].altered_price = Number(
-      getPostsResponse.posts[0].altered_price,
+    getPostsResponse.posts[0].alteredPrice = Number(
+      getPostsResponse.posts[0].alteredPrice,
     );
     expectedPost.created = getPostsResponse.posts[0].created;
 
@@ -663,11 +896,11 @@ describe("post tests", () => {
       post.user,
       filter,
     );
-    getPostsResponse.posts[0].original_price = Number(
-      getPostsResponse.posts[0].original_price,
+    getPostsResponse.posts[0].originalPrice = Number(
+      getPostsResponse.posts[0].originalPrice,
     );
-    getPostsResponse.posts[0].altered_price = Number(
-      getPostsResponse.posts[0].altered_price,
+    getPostsResponse.posts[0].alteredPrice = Number(
+      getPostsResponse.posts[0].alteredPrice,
     );
     expectedPost.created = getPostsResponse.posts[0].created;
 
@@ -712,9 +945,9 @@ describe("post tests", () => {
     post2.user = UserFactory.fake();
     post3.user = UserFactory.fake();
 
-    post1.original_price = 1000.15;
-    post2.original_price = 500.15;
-    post3.original_price = 100.15;
+    post1.originalPrice = 1000.15;
+    post2.originalPrice = 500.15;
+    post3.originalPrice = 100.15;
 
     // Ensure categories are initialized for all posts
     if (!post1.categories) post1.categories = [];
@@ -732,19 +965,19 @@ describe("post tests", () => {
 
     // Convert prices for comparison
     getPostsResponse.posts.forEach((post) => {
-      post.original_price = Number(post.original_price);
-      post.altered_price = Number(post.altered_price);
+      post.originalPrice = Number(post.originalPrice);
+      post.alteredPrice = Number(post.alteredPrice);
     });
 
     expect(getPostsResponse.posts).toHaveLength(3);
-    expect(getPostsResponse.posts[0].original_price).toEqual(
-      post1.original_price,
+    expect(getPostsResponse.posts[0].originalPrice).toEqual(
+      post1.originalPrice,
     );
-    expect(getPostsResponse.posts[1].original_price).toEqual(
-      post2.original_price,
+    expect(getPostsResponse.posts[1].originalPrice).toEqual(
+      post2.originalPrice,
     );
-    expect(getPostsResponse.posts[2].original_price).toEqual(
-      post3.original_price,
+    expect(getPostsResponse.posts[2].originalPrice).toEqual(
+      post3.originalPrice,
     );
   });
 
@@ -757,9 +990,9 @@ describe("post tests", () => {
     post2.user = UserFactory.fake();
     post3.user = UserFactory.fake();
 
-    post1.original_price = 1000.15;
-    post2.original_price = 500.15;
-    post3.original_price = 100.15;
+    post1.originalPrice = 1000.15;
+    post2.originalPrice = 500.15;
+    post3.originalPrice = 100.15;
 
     // Ensure categories are initialized for all posts
     if (!post1.categories) post1.categories = [];
@@ -777,19 +1010,19 @@ describe("post tests", () => {
 
     // Convert prices for comparison
     getPostsResponse.posts.forEach((post) => {
-      post.original_price = Number(post.original_price);
-      post.altered_price = Number(post.altered_price);
+      post.originalPrice = Number(post.originalPrice);
+      post.alteredPrice = Number(post.alteredPrice);
     });
 
     expect(getPostsResponse.posts).toHaveLength(3);
-    expect(getPostsResponse.posts[0].original_price).toEqual(
-      post3.original_price,
+    expect(getPostsResponse.posts[0].originalPrice).toEqual(
+      post3.originalPrice,
     );
-    expect(getPostsResponse.posts[1].original_price).toEqual(
-      post2.original_price,
+    expect(getPostsResponse.posts[1].originalPrice).toEqual(
+      post2.originalPrice,
     );
-    expect(getPostsResponse.posts[2].original_price).toEqual(
-      post1.original_price,
+    expect(getPostsResponse.posts[2].originalPrice).toEqual(
+      post1.originalPrice,
     );
   });
 
@@ -1037,11 +1270,11 @@ describe("post tests", () => {
 
     const getPostsResponse =
       await postController.getArchivedPostsByUserId(uuidParam);
-    getPostsResponse.posts[0].original_price = Number(
-      getPostsResponse.posts[0].original_price,
+    getPostsResponse.posts[0].originalPrice = Number(
+      getPostsResponse.posts[0].originalPrice,
     );
-    getPostsResponse.posts[0].altered_price = Number(
-      getPostsResponse.posts[0].altered_price,
+    getPostsResponse.posts[0].alteredPrice = Number(
+      getPostsResponse.posts[0].alteredPrice,
     );
     expectedPost.created = getPostsResponse.posts[0].created;
 
@@ -1087,11 +1320,11 @@ describe("post tests", () => {
       post.user,
       uuidParam,
     );
-    getPostResponse.post.original_price = Number(
-      getPostResponse.post.original_price,
+    getPostResponse.post.originalPrice = Number(
+      getPostResponse.post.originalPrice,
     );
-    getPostResponse.post.altered_price = Number(
-      getPostResponse.post.altered_price,
+    getPostResponse.post.alteredPrice = Number(
+      getPostResponse.post.alteredPrice,
     );
     expectedPost.created = getPostResponse.post.created;
 
@@ -1108,7 +1341,7 @@ describe("post tests", () => {
     expect(getPostResponse.post).toEqual(expectedPost);
   });
 
-  test.skip("edit post price", async () => {
+  test("edit post price", async () => {
     const post = PostFactory.fakeTemplate();
     post.user = UserFactory.fake();
 
@@ -1117,7 +1350,7 @@ describe("post tests", () => {
     expectedPost.user = post.user;
 
     const edit = {
-      new_price: 20,
+      newPrice: 20,
     };
 
     const getPostsResponse = await postController.editPrice(
@@ -1125,12 +1358,7 @@ describe("post tests", () => {
       post.user,
       uuidParam,
     );
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    console.log(getPostsResponse);
-    console.log(post.altered_price);
-    expect(Number(post.altered_price)).toEqual(
-      Number(getPostsResponse.new_price),
-    );
+    expect(Number(getPostsResponse.newPrice)).toEqual(edit.newPrice);
   });
 
   test("get all posts/post by id with a user who is soft deleted", async () => {

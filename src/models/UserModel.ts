@@ -82,7 +82,7 @@ export class UserModel {
   bio: string;
 
   @Column({ nullable: true })
-  availabilityId: string;
+  availabilityId?: string;
 
   @ManyToMany(() => UserModel, (user) => user.blockers)
   @JoinTable({
