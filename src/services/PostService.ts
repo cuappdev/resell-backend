@@ -3,20 +3,12 @@ import { Service } from "typedi";
 import { EntityManager } from "typeorm";
 import { InjectManager } from "typeorm-typedi-extensions";
 
-import { UuidParam, FirebaseUidParam } from "../api/validators/GenericRequests";
-import { PostModel } from "../models/PostModel";
-import { UserModel } from "../models/UserModel";
-import Repositories, { TransactionsManager } from "../repositories";
-import {
-  CreatePostRequest,
-  FilterPostsRequest,
-  FilterPostsByPriceRequest,
-  FilterPostsByConditionRequest,
-  GetSearchedPostsRequest,
-  EditPostPriceRequest,
-  FilterPostsUnifiedRequest,
-} from "../types";
-import { uploadImage } from "../utils/Requests";
+import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
+import { PostModel } from '../models/PostModel';
+import { UserModel } from '../models/UserModel';
+import Repositories, { TransactionsManager } from '../repositories';
+import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest, FilterPostsUnifiedRequest, FilterPostsByEventTagsRequest, AddEventTagsToPostRequest, RemoveEventTagsFromPostRequest } from '../types';
+import { uploadImage } from '../utils/Requests';
 // import { encoder } from '../app';
 import { PostRepository } from "src/repositories/PostRepository";
 import { CategoryRepository } from "src/repositories/CategoryRepository";
@@ -91,12 +83,10 @@ export class PostService {
         const imageUrl = image.data;
         images.push(imageUrl);
       }
-      const categoryRepository = Repositories.category(
-        transactionalEntityManager,
-      );
-      const categories = await categoryRepository.findOrCreateByNames(
-        post.categories,
-      );
+      const categoryRepository = Repositories.category(transactionalEntityManager);
+      const categories = await categoryRepository.findOrCreateByNames(post.categories);
+      const eventTagRepository = Repositories.eventTag(transactionalEntityManager);
+      const eventTags = await eventTagRepository.findOrCreateByNames(post.eventTags || []);
       let embedding = null;
       try {
         if (process.env.NODE_ENV === "test") {
@@ -124,20 +114,7 @@ export class PostService {
         console.error("Error computing embedding:", error);
         embedding = null;
       }
-      const freshPost = await postRepository.createPost(
-        post.title,
-        post.description,
-        categories,
-        post.condition,
-        post.original_price,
-        images,
-        user,
-        embedding as number[],
-      );
-
-      // Manually set user relation on freshPost making sure it loads
-      freshPost.user = user;
-
+      const freshPost = await postRepository.createPost(post.title, post.description, categories, eventTags, post.condition, post.originalPrice, images, user, (embedding ?? []) as number[]);
       if (embedding && Array.isArray(embedding) && embedding.length > 0) {
         const requestRepository = Repositories.request(
           transactionalEntityManager,
@@ -251,8 +228,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
 
       // checking null and undefined, should return empty array if so
-      if (
-        !filterPostsRequest.categories ||
+      if (!filterPostsRequest.categories ||
         filterPostsRequest.categories.length === 0 ||
         !filterPostsRequest.categories.every(
           (cat) => typeof cat === "string" && cat.trim().length > 0,
@@ -271,12 +247,24 @@ export class PostService {
     });
   }
 
-  public async filterPostsByPrice(
-    user: UserModel,
-    filterPostsByPriceRequest: FilterPostsByPriceRequest,
-    page = 1,
-    limit = 10,
-  ): Promise<PostModel[]> {
+  public async filterPostsByEventTags(user: UserModel, filterPostsByEventTagsRequest: FilterPostsByEventTagsRequest, page: number = 1, limit: number = 10): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+
+      // checking null and undefined, should return empty array if so
+      if (!filterPostsByEventTagsRequest.eventTags ||
+        filterPostsByEventTagsRequest.eventTags.length === 0 ||
+        !filterPostsByEventTagsRequest.eventTags.every(tag => typeof tag === 'string' && tag.trim().length > 0)) {
+        return [];
+      }
+      const skip = (page - 1) * limit;
+      const posts = await postRepository.filterPostsByEventTags(filterPostsByEventTagsRequest.eventTags, skip, limit);
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
+  }
+
+  public async filterPostsByPrice(user: UserModel, filterPostsByPriceRequest: FilterPostsByPriceRequest, page: number = 1, limit: number = 10): Promise<PostModel[]> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const skip = (page - 1) * limit;
@@ -519,8 +507,41 @@ export class PostService {
       if (!post) throw new NotFoundError("Post not found!");
       return await postRepository.editPostPrice(
         post,
-        editPostRequest.new_price,
+        editPostRequest.newPrice,
       );
+    });
+  }
+
+  public async addEventTagsToPost(user: UserModel, params: UuidParam, addEventTagsRequest: AddEventTagsToPostRequest): Promise<PostModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.id);
+      if (!post) throw new NotFoundError('Post not found!');
+      if (user.firebaseUid !== post.user?.firebaseUid) throw new ForbiddenError('User is not the post owner!');
+
+      const eventTagRepository = Repositories.eventTag(transactionalEntityManager);
+      const eventTags = await eventTagRepository.findOrCreateByNames(addEventTagsRequest.eventTags);
+
+      // Add new event tags to existing ones
+      const existingEventTagIds = new Set(post.eventTags?.map(tag => tag.id) || []);
+      const newEventTags = eventTags.filter(tag => !existingEventTagIds.has(tag.id));
+      post.eventTags = [...(post.eventTags || []), ...newEventTags];
+
+      return await postRepository.savePost(post);
+    });
+  }
+
+  public async removeEventTagsFromPost(user: UserModel, params: UuidParam, removeEventTagsRequest: RemoveEventTagsFromPostRequest): Promise<PostModel> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.id);
+      if (!post) throw new NotFoundError('Post not found!');
+      if (user.firebaseUid !== post.user?.firebaseUid) throw new ForbiddenError('User is not the post owner!');
+
+      const tagsToRemove = new Set(removeEventTagsRequest.eventTags);
+      post.eventTags = post.eventTags?.filter(tag => !tagsToRemove.has(tag.name)) || [];
+
+      return await postRepository.savePost(post);
     });
   }
 

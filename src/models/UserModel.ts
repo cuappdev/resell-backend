@@ -82,11 +82,11 @@ export class UserModel {
   bio: string;
 
   @Column({ nullable: true })
-  availabilityId: string;
+  availabilityId?: string;
 
   @ManyToMany(() => UserModel, (user) => user.blockers)
   @JoinTable({
-    name: "user_blocking_users",
+    name: "userBlockingUsers",
     joinColumn: {
       name: "blockers",
       referencedColumnName: "firebaseUid",

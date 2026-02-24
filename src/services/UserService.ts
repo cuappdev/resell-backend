@@ -2,7 +2,7 @@ import { NotFoundError, UnauthorizedError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { EntityManager } from 'typeorm';
 import { InjectManager } from 'typeorm-typedi-extensions';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore } from 'firebase-admin/lib/firestore';
 
 import { UuidParam, FirebaseUidParam } from '../api/validators/GenericRequests';
 import { UserModel } from '../models/UserModel';

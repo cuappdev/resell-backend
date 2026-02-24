@@ -12,6 +12,7 @@ export class CategoryRepository extends AbstractRepository<CategoryModel> {
   }
 
   public async findOrCreateByNames(names: string[]): Promise<CategoryModel[]> {
+    if (names.length === 0) return [];
     const existing = await this.repository
       .createQueryBuilder("category")
       .where("category.name IN (:...names)", { names })

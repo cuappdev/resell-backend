@@ -55,6 +55,8 @@ beforeEach(async () => {
   expectedUser.googleId = "shungoGoogleID";
   expectedUser.bio = "";
   expectedUser.venmoHandle = "@Shungo-Najima";
+  expectedUser.availabilityId = null as any;
+  expectedUser.soldPosts = 0;
 });
 
 afterAll(async () => {
@@ -164,6 +166,7 @@ describe("user tests", () => {
     const superAdmin = UserFactory.fake();
     superAdmin.email = "appdevresell@gmail.com";
     superAdmin.admin = true;
+    process.env.ADMIN_EMAILS = superAdmin.email;
 
     await new DataFactory().createUsers(superAdmin).write();
 
@@ -203,6 +206,7 @@ describe("user tests", () => {
     const superAdmin = UserFactory.fake();
     superAdmin.email = "appdevresell@gmail.com";
     superAdmin.admin = true;
+    process.env.ADMIN_EMAILS = superAdmin.email;
 
     // Create a regular user
     const regularUser = UserFactory.fake();

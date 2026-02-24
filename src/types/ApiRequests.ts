@@ -92,13 +92,14 @@ export interface FilterPostsUnifiedRequest {
 }
 
 export interface CreatePostRequest {
-  title: string;
-  description: string;
-  categories: string[];
-  condition: string;
-  original_price: number;
-  imagesBase64: string[];
-  userId: string;
+    title: string;
+    description: string;
+    categories: string[];
+    eventTags?: string[];
+    condition: string;
+    originalPrice: number;
+    imagesBase64: string[];
+    userId: string;
 }
 
 export interface GetSearchedPostsRequest {
@@ -106,7 +107,7 @@ export interface GetSearchedPostsRequest {
 }
 
 export interface EditPostPriceRequest {
-  new_price: number;
+  newPrice: number;
 }
 
 // FEEDBACK
@@ -133,6 +134,19 @@ export interface FilterPostsByPriceRequest {
 export interface FilterPostsByConditionRequest {
   condition: string[];
 }
+
+export interface AddEventTagsToPostRequest {
+    eventTags: string[];
+}
+
+export interface RemoveEventTagsFromPostRequest {
+    eventTags: string[];
+}
+
+export interface FilterPostsByEventTagsRequest {
+    eventTags: string[];
+}
+
 
 // GENERAL IMAGES
 

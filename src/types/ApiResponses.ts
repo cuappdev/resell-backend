@@ -66,6 +66,14 @@ export interface GetCategoryResponse {
   categories: Category;
 }
 
+// EVENT TAG
+
+export interface EventTag {
+  id: Uuid;
+  name: string;
+  posts: PostModel[];
+}
+
 // POST
 
 export interface Post {
@@ -73,8 +81,8 @@ export interface Post {
   title: string;
   description: string;
   condition: string;
-  original_price: number;
-  altered_price: number;
+  originalPrice: number;
+  alteredPrice: number;
   images: string[];
   created: Date;
   location: string;
@@ -83,6 +91,7 @@ export interface Post {
   savers: PrivateProfile[];
   matched: Request[];
   categories: Category[];
+  eventTags: EventTag[];
   sold: boolean;
   embedding: number[];
 }
@@ -105,7 +114,7 @@ export interface IsSavedPostResponse {
 }
 
 export interface EditPriceResponse {
-  new_price: number;
+  newPrice: number;
 }
 
 // MESSAGES

@@ -2,6 +2,6 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   roots: ["src"],
-  maxWorkers: 4,
+  maxWorkers: 1,
   verbose: true,
 };

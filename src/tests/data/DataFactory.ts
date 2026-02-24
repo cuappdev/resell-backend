@@ -8,6 +8,7 @@ import { TransactionReviewModel } from "../../models/TransactionReviewModel";
 import { NotifModel } from "../../models/NotifModel";
 import { FcmTokenModel } from "src/models/FcmTokenModel";
 import { CategoryModel } from "../../models/CategoryModel";
+import { EventTagModel } from "../../models/EventTagModel";
 
 export class DataFactory {
   private users: UserModel[] = [];
@@ -19,19 +20,27 @@ export class DataFactory {
   private notifications: NotifModel[] = [];
   private fcmTokens: FcmTokenModel[] = [];
   private categories: CategoryModel[] = [];
+  private eventTags: EventTagModel[] = [];
 
   public async write(): Promise<void> {
     const conn = await DatabaseConnection.connect();
     await conn.transaction(async (txn) => {
       this.users = await txn.save(this.users);
-      const allCategories = new Set<CategoryModel>();
+      const categoryMap = new Map<string, CategoryModel>();
+      const eventTagMap = new Map<string, EventTagModel>();
       for (const post of this.posts) {
         if (post.categories && post.categories.length > 0) {
-          post.categories.forEach((category) => allCategories.add(category));
+          post.categories.forEach((category) => categoryMap.set(category.id, category));
+        }
+        if (post.eventTags && post.eventTags.length > 0) {
+          post.eventTags.forEach((eventTag) => eventTagMap.set(eventTag.id, eventTag));
         }
       }
-      this.categories.push(...Array.from(allCategories));
+      this.categories.push(...Array.from(categoryMap.values()));
       this.categories = await txn.save(this.categories);
+
+      this.eventTags.push(...Array.from(eventTagMap.values()));
+      this.eventTags = await txn.save(this.eventTags);
 
       this.posts = await txn.save(this.posts);
       this.requests = await txn.save(this.requests);
@@ -52,6 +61,13 @@ export class DataFactory {
   public createPosts(...posts: PostModel[]): DataFactory {
     for (let i = 0; i < posts.length; i += 1) {
       this.posts.push(posts[i]);
+    }
+    return this;
+  }
+
+  public createEventTags(...eventTags: EventTagModel[]): DataFactory {
+    for (let i = 0; i < eventTags.length; i += 1) {
+      this.eventTags.push(eventTags[i]);
     }
     return this;
   }

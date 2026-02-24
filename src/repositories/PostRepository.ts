@@ -1,11 +1,12 @@
 import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { PostModel } from "../models/PostModel";
-import { UserModel } from "../models/UserModel";
-import { CategoryModel } from "../models/CategoryModel";
-import { FilterPostsUnifiedRequest, Uuid } from "../types";
-import Repositories from ".";
-import pgvector from "pgvector";
+import { PostModel } from '../models/PostModel';
+import { UserModel } from '../models/UserModel';
+import { CategoryModel } from '../models/CategoryModel';
+import { EventTagModel } from '../models/EventTagModel';
+import { FilterPostsUnifiedRequest, Uuid } from '../types';
+import Repositories from '.';
+import pgvector from 'pgvector';
 
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
@@ -14,6 +15,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.archive = false")
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -41,6 +43,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy("post.created", "DESC")
       .getMany();
@@ -51,6 +54,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id = :id", { id })
       .orderBy("categories.name", "ASC")
       .getOne();
@@ -61,6 +65,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = false")
       .orderBy("categories.name", "ASC")
@@ -80,6 +85,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     title: string,
     description: string,
     categories: CategoryModel[],
+    eventTags: EventTagModel[],
     condition: string,
     price: number,
     images: string[],
@@ -90,9 +96,10 @@ export class PostRepository extends AbstractRepository<PostModel> {
     post.title = title;
     post.description = description;
     post.categories = categories;
+    post.eventTags = eventTags;
     post.condition = condition;
-    post.original_price = price;
-    post.altered_price = price;
+    post.originalPrice = price;
+    post.alteredPrice = price;
     post.images = images;
     post.archive = false;
     post.user = user;
@@ -109,9 +116,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("LOWER(post.title) like LOWER(:keywords)", {
-        keywords: `%${keywords}%`,
-      })
+      .leftJoinAndSelect("post.eventTags", "eventTags")
+      .where("LOWER(post.title) like LOWER(:keywords)", { keywords: `%${keywords}%` })
       .andWhere("post.archive = false")
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -124,9 +130,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
-      .where("LOWER(post.description) like LOWER(:keywords)", {
-        keywords: `%${keywords}%`,
-      })
+      .leftJoinAndSelect("post.eventTags", "eventTags")
+      .where("LOWER(post.description) like LOWER(:keywords)", { keywords: `%${keywords}%` })
       .andWhere("post.archive = false")
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -154,6 +159,30 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
+      .where("post.id IN (:...ids)", { ids })
+      .getMany();
+  }
+
+  public async filterPostsByEventTags(eventTags: string[], skip: number, limit: number): Promise<PostModel[]> {
+    const postIds = await this.repository
+      .createQueryBuilder("post")
+      .select("post.id")
+      .innerJoin("post.eventTags", "eventTag")
+      .where("eventTag.name IN (:...eventTags)", { eventTags })
+      .andWhere("post.archive = false")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+
+    const ids = postIds.map(post => post.id);
+    if (ids.length === 0) return [];
+
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .getMany();
   }
@@ -168,11 +197,11 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .select("post.id")
       .where(
-        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END >= :lowerBound",
+        "CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END >= :lowerBound",
         { lowerBound: lowerBound },
       )
       .andWhere(
-        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END <= :upperBound",
+        "CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END <= :upperBound",
         { upperBound: upperBound },
       )
       .andWhere("post.archive = false")
@@ -187,6 +216,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -201,7 +231,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .select("post.id")
       .where("post.archive = false")
       .orderBy(
-        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
+        "CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END",
         "DESC",
       )
       .skip(skip)
@@ -215,9 +245,10 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy(
-        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
+        "CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END",
         "DESC",
       )
       .addOrderBy("categories.name", "ASC")
@@ -233,7 +264,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .select("post.id")
       .where("post.archive = false")
       .orderBy(
-        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
+        "CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END",
         "ASC",
       )
       .skip(skip)
@@ -247,9 +278,10 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy(
-        "CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END",
+        "CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END",
         "ASC",
       )
       .addOrderBy("categories.name", "ASC")
@@ -276,6 +308,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy("post.created", "DESC")
       .getMany();
@@ -286,6 +319,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.archive = false")
       .orderBy("post.created", "DESC")
       .addOrderBy("categories.name", "ASC")
@@ -313,6 +347,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -347,13 +382,13 @@ export class PostRepository extends AbstractRepository<PostModel> {
     if (filterPostsUnifiedRequest.price) {
       if (filterPostsUnifiedRequest.price.lowerBound !== undefined) {
         qb.andWhere(
-          "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END) >= :lowerBound",
+          "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END) >= :lowerBound",
           { lowerBound: filterPostsUnifiedRequest.price.lowerBound },
         );
       }
       if (filterPostsUnifiedRequest.price.upperBound !== undefined) {
         qb.andWhere(
-          "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END) <= :upperBound",
+          "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END) <= :upperBound",
           { upperBound: filterPostsUnifiedRequest.price.upperBound },
         );
       }
@@ -377,13 +412,13 @@ export class PostRepository extends AbstractRepository<PostModel> {
       switch (filterPostsUnifiedRequest.sortField) {
         case "priceLowToHigh":
           qb.orderBy(
-            "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END)",
+            "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
             "ASC",
           );
           break;
         case "priceHighToLow":
           qb.orderBy(
-            "(CASE WHEN post.altered_price = -1 THEN post.original_price ELSE post.altered_price END)",
+            "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
             "DESC",
           );
           break;
@@ -403,6 +438,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .getMany();
   }
@@ -412,6 +448,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .andWhere("post.archive = true")
       .orderBy("categories.name", "ASC")
       .getMany();
@@ -422,6 +459,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("user.firebaseUid = :userId", { userId })
       .andWhere("post.archive = true")
       .orderBy("categories.name", "ASC")
@@ -445,9 +483,13 @@ export class PostRepository extends AbstractRepository<PostModel> {
 
   public async editPostPrice(
     post: PostModel,
-    new_price: number,
+    newPrice: number,
   ): Promise<PostModel> {
-    post.altered_price = new_price;
+    post.alteredPrice = newPrice;
+    return await this.repository.save(post);
+  }
+
+  public async savePost(post: PostModel): Promise<PostModel> {
     return await this.repository.save(post);
   }
 
@@ -462,6 +504,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .leftJoinAndSelect("post.user", "user") // Load the post's user
       .leftJoinAndSelect("post.savers", "savers") // Load the savers relationship
       .leftJoinAndSelect("post.categories", "categories") // Load the categories relationship
+      .leftJoinAndSelect("post.eventTags", "eventTags") // Load the event tags relationship
       .where("post.id = :id", { id })
       .getOne();
   }
@@ -541,10 +584,10 @@ export class PostRepository extends AbstractRepository<PostModel> {
           p.id,
           2 AS purchase_score
         FROM "Post" p
-        JOIN "post_categories" pc ON pc.posts = p.id
-        JOIN "Transaction" t ON t.buyer_id = $1
-        JOIN "Post" bought_post ON t.post_id = bought_post.id
-        JOIN "post_categories" bought_pc ON bought_pc.posts = bought_post.id
+        JOIN "postCategories" pc ON pc.posts = p.id
+        JOIN "Transaction" t ON t."buyerId" = $1
+        JOIN "Post" bought_post ON t."postId" = bought_post.id
+        JOIN "postCategories" bought_pc ON bought_pc.posts = bought_post.id
         WHERE pc.categories = bought_pc.categories
           AND p.archive = false 
           AND p.sold = false
@@ -556,7 +599,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
           p.id,
           3 AS bookmark_score
         FROM "Post" p
-        JOIN "user_saved_posts" usp ON usp.saved = p.id
+        JOIN "userSavedPosts" usp ON usp.saved = p.id
         WHERE usp.savers = $1 AND p.archive = false AND p.sold = false
       ),
       

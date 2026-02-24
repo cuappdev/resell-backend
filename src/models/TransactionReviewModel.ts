@@ -34,7 +34,7 @@ export class TransactionReviewModel {
   createdAt: Date; // Auto-generated timestamp of when the review was created
 
   @OneToOne(() => TransactionModel, { cascade: false })
-  @JoinColumn({ name: "transaction_id" })
+  @JoinColumn({ name: "transactionId" })
   transaction: TransactionModel; // Link to the related transaction
 
   public getTransactionReviewInfo() {

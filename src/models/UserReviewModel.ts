@@ -29,11 +29,11 @@ export class UserReviewModel {
   date: Date;
 
   @ManyToOne(() => UserModel, (buyer) => buyer.reviewsWritten)
-  @JoinColumn({ name: "buyer" })
+  @JoinColumn({ name: "buyerId" })
   buyer: UserModel;
 
   @ManyToOne(() => UserModel, (seller) => seller.reviewsReceived)
-  @JoinColumn({ name: "seller" })
+  @JoinColumn({ name: "sellerId" })
   seller: UserModel;
 
   public getReviewInfo(): UserReview {

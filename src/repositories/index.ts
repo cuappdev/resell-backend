@@ -10,7 +10,8 @@ import { TransactionRepository } from "./TransactionRepository";
 import { TransactionReviewRepository } from "./TransactionReviewRepository";
 import { NotifRepository } from "./NotifRepository";
 import { FcmTokenRepository } from "./FcmTokenRepository";
-import { CategoryRepository } from "./CategoryRepository";
+import { CategoryRepository } from "./CategoryRepository"
+import { EventTagRepository } from "./EventTagRepository";
 import { SearchRepository } from "./SearchRepository";
 
 export default class Repositories {
@@ -30,6 +31,12 @@ export default class Repositories {
     transactionalEntityManager: EntityManager,
   ): CategoryRepository {
     return transactionalEntityManager.getCustomRepository(CategoryRepository);
+  }
+
+  public static eventTag(
+    transactionalEntityManager: EntityManager
+  ): EventTagRepository {
+    return transactionalEntityManager.getCustomRepository(EventTagRepository);
   }
 
   public static feedback(
