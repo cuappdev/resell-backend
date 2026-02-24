@@ -1,40 +1,22 @@
-import "reflect-metadata";
-import "dotenv/config";
-
+// Load environment and Firebase configuration first
 import dotenv from "dotenv";
+dotenv.config();
+import "./firebase";
+import "reflect-metadata";
+
 import {
   createExpressServer,
-  ForbiddenError,
-  UnauthorizedError,
   useContainer as routingUseContainer,
+  ForbiddenError,
   HttpError,
+  UnauthorizedError,
 } from "routing-controllers";
-
 import { getManager, useContainer } from "typeorm";
 import { Container } from "typeorm-typedi-extensions";
-import { Express } from "express";
+import { Express, Request, Response } from "express";
 import * as swaggerUi from "swagger-ui-express";
 import * as path from "path";
-import * as admin from "firebase-admin";
-
-dotenv.config();
-
-const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || "";
-const serviceAccount = require(serviceAccountPath);
-
-if (!serviceAccountPath) {
-  throw new Error(
-    "FIREBASE_SERVICE_ACCOUNT_PATH environment variable is not set.",
-  );
-}
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-export { admin }; // Export the admin instance
+import { firebaseAdmin as admin } from "./firebase";
 
 import { controllers } from './api/controllers';
 import { middlewares } from './api/middlewares';
@@ -45,13 +27,14 @@ import { ReportService } from './services/ReportService';
 import { reportToString } from './utils/Requests';
 import { startTransactionConfirmationCron } from './cron/transactionCron';
 
-dotenv.config();
+// Setup dependency injection containers
+routingUseContainer(Container);
+useContainer(Container);
 
+// Initialize and start application
 async function main() {
-  routingUseContainer(Container);
-  useContainer(Container);
-
-  await resellConnection().catch((error: any) => {
+  // Initialize database connection
+  await resellConnection().catch((error: unknown) => {
     console.log(error);
     throw new Error("Connection to DB failed. Check console output");
   });
@@ -62,7 +45,6 @@ async function main() {
     controllers: controllers,
     middlewares: middlewares,
     currentUserChecker: async (action: any) => {
-      console.log("AUTH MIDDLEWARE CALLED for path:", action.request.path);
       const authHeader = action.request.headers["authorization"];
       if (!authHeader) {
         throw new ForbiddenError("No authorization token provided");
@@ -78,9 +60,7 @@ async function main() {
         const email = decodedToken.email;
         const userId = decodedToken.uid;
         action.request.email = email;
-        console.log("uid");
         action.request.firebaseUid = userId;
-        console.log("here");
         if (!email || !email.endsWith("@cornell.edu")) {
           throw new ForbiddenError("Only Cornell email addresses are allowed");
         }
@@ -157,6 +137,21 @@ async function main() {
   console.log(
     `Swagger documentation available at http://localhost:${port}/api-docs`,
   );
+
+  /**
+   * Health check endpoint
+   */
+  app.get("/health", async (_req: Request, res: Response) => {
+    const manager = getManager();
+    try {
+      await manager.query("SELECT 1");
+      res.status(200).json({ status: "healthy", database: "Connected" });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ status: "Error", database: "Not connected", error: error });
+    }
+  });
 
   const entityManager = getManager();
   const reportService = new ReportService(entityManager);

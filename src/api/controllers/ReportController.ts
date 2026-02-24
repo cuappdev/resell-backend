@@ -19,7 +19,6 @@ import {
   GetReportsResponse,
 } from "../../types/ApiResponses";
 import { ReportModel } from "../../models/ReportModel";
-import { report } from "process";
 import { UuidParam } from "../validators/GenericRequests";
 
 @JsonController("report/")

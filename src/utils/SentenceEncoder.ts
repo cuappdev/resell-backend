@@ -1,5 +1,5 @@
-import "@tensorflow/tfjs-node";
-import use = require("@tensorflow-models/universal-sentence-encoder");
+import * as tf from "@tensorflow/tfjs-node";
+import * as use from "@tensorflow-models/universal-sentence-encoder";
 
 let loadedModel: use.UniversalSentenceEncoder | null = null;
 

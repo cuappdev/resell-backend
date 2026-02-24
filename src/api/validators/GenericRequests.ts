@@ -1,4 +1,4 @@
-import { IsEmail, IsNumber, IsString, IsUUID } from "class-validator";
+import { IsEmail, IsString, IsUUID } from "class-validator";
 
 import { Uuid } from "../../types";
 

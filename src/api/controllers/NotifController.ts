@@ -1,5 +1,5 @@
 import { Body, CurrentUser, Delete, Get, JsonController, Param, Params, Post } from 'routing-controllers';
-import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from 'src/types';
+import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from '../../types';
 import { NotifService } from '../../services/NotifService';
 import { UserModel } from '../../models/UserModel';
 
@@ -67,20 +67,20 @@ export class NotifController {
    * Send a transaction confirmation notification to the buyer
    * POST /notif/transaction-confirmation/:transactionId
    */
-  @Post('transaction-confirmation/:transactionId')
-  async sendTransactionConfirmation(
-    @Param('transactionId') transactionId: string
-  ) {
-    return this.notifService.sendTransactionConfirmationNotification(transactionId);
-  }
+  // @Post('transaction-confirmation/:transactionId')
+  // async sendTransactionConfirmation(
+  //   @Param('transactionId') transactionId: string
+  // ) {
+  //   return this.notifService.sendTransactionConfirmationNotification(transactionId);
+  // }
 
   /**
    * Check for and send all pending transaction confirmation notifications
    * This can be called by a cron job or manually for testing
    * POST /notif/check-pending-transactions
    */
-  @Post('check-pending-transactions')
-  async checkPendingTransactions() {
-    return this.notifService.sendPendingTransactionConfirmations();
-  }
+  // @Post('check-pending-transactions')
+  // async checkPendingTransactions() {
+  //   return this.notifService.sendPendingTransactionConfirmations();
+  // }
 }

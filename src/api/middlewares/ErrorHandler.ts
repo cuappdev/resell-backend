@@ -13,7 +13,7 @@ export class ErrorHandler implements ExpressErrorMiddlewareInterface {
     error: Error,
     request: express.Request,
     response: express.Response,
-    next: (err?: any) => any,
+    next: (err?: unknown) => unknown,
   ): void {
     handleError(error, request, response, next);
   }
@@ -21,7 +21,7 @@ export class ErrorHandler implements ExpressErrorMiddlewareInterface {
 
 function handleError(
   error: Error,
-  request: express.Request,
+  _request: express.Request,
   response: express.Response,
   next: express.NextFunction,
 ) {
@@ -31,7 +31,7 @@ function handleError(
     error: message,
     httpCode: httpCode,
   };
-  console.log(message);
+  console.error(`[${httpCode}] ${message}`);
   response.status(httpCode).json(errorResponse);
   next();
 }
