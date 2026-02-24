@@ -566,26 +566,71 @@ export class PostService {
     });
   }
 
+  /**
+   * Returns the 4 closest similar posts by embedding (active, unsold only).
+   * If no similar posts (e.g. few posts, or only current user's posts), returns
+   * up to 4 other active posts as a fallback so the UI isn't empty.
+   */
   public async similarPosts(
     user: UserModel,
     params: UuidParam,
   ): Promise<PostModel[]> {
+    const SIMILAR_COUNT = 4;
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError("Post not found!");
       const embedding = post.embedding;
+
       if (embedding == null) {
-        // TODO: after writing migration, throw new NotFoundError('Post does not have embedding!');
-        return [];
+        let fallback = await postRepository.getSimilarPostsFallback(
+          post.id,
+          user.firebaseUid,
+          SIMILAR_COUNT,
+        );
+        if (fallback.length === 0) {
+          fallback = await postRepository.getSimilarPostsFallbackIncludeSameUser(
+            post.id,
+            SIMILAR_COUNT,
+          );
+        }
+        const active = this.filterInactiveUserPosts(fallback);
+        return (await this.filterBlockedUserPosts(active, user)).slice(
+          0,
+          SIMILAR_COUNT,
+        );
       }
+
       const similarPosts = await postRepository.getSimilarPosts(
         embedding,
         post.id,
         user.firebaseUid,
+        20,
       );
       const activePosts = this.filterInactiveUserPosts(similarPosts);
-      return this.filterBlockedUserPosts(activePosts, user);
+      const filtered = await this.filterBlockedUserPosts(activePosts, user);
+      const result = filtered.slice(0, SIMILAR_COUNT);
+
+      if (result.length === 0) {
+        let fallback = await postRepository.getSimilarPostsFallback(
+          post.id,
+          user.firebaseUid,
+          SIMILAR_COUNT,
+        );
+        if (fallback.length === 0) {
+          fallback = await postRepository.getSimilarPostsFallbackIncludeSameUser(
+            post.id,
+            SIMILAR_COUNT,
+          );
+        }
+        const active = this.filterInactiveUserPosts(fallback);
+        return (await this.filterBlockedUserPosts(active, user)).slice(
+          0,
+          SIMILAR_COUNT,
+        );
+      }
+
+      return result;
     });
   }
 

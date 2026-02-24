@@ -466,23 +466,69 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getOne();
   }
 
+  /**
+   * Fallback when no embedding-similar posts exist: returns other active posts
+   * (excluding this post, and excluding same user). Ordered by newest first.
+   */
+  public async getSimilarPostsFallback(
+    excludePostId: string,
+    excludeUserId: string,
+    limit: number,
+  ): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.id != :excludePostId", { excludePostId })
+      .andWhere("post.archive = false")
+      .andWhere("post.sold = false")
+      .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
+      .orderBy("post.created", "DESC")
+      .limit(limit)
+      .getMany();
+  }
+
+  /**
+   * Fallback when even getSimilarPostsFallback is empty (e.g. only one user has posts):
+   * returns other active posts by any user, excluding only this post.
+   */
+  public async getSimilarPostsFallbackIncludeSameUser(
+    excludePostId: string,
+    limit: number,
+  ): Promise<PostModel[]> {
+    return await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .where("post.id != :excludePostId", { excludePostId })
+      .andWhere("post.archive = false")
+      .andWhere("post.sold = false")
+      .orderBy("post.created", "DESC")
+      .limit(limit)
+      .getMany();
+  }
+
   /*
   This method is for getting similar posts for a given post query embedding.
+  Only returns active, non-archived, unsold posts with embeddings.
+  Fetches extra candidates so that after filtering (inactive users, blocked users)
+  we still have at least a few results.
   */
   public async getSimilarPosts(
     queryEmbedding: number[],
     excludePostId: string,
     excludeUserId: string,
+    limit = 20,
   ): Promise<PostModel[]> {
     const lit = `[${queryEmbedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where("post.id != :excludePostId", { excludePostId })
+      .andWhere("post.embedding IS NOT NULL")
+      .andWhere("post.archive = false")
+      .andWhere("post.sold = false")
       .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
-      .orderBy(`embedding::vector <-> CAST('${lit}' AS vector(512))`)
-      .setParameters({ embedding: queryEmbedding })
-      .limit(10)
+      .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
+      .limit(limit)
       .getMany();
   }
 
