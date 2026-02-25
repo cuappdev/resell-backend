@@ -7,5 +7,6 @@ yarn.lock
 *.DS_Store
 *.pem
 firebase-admin-service-account.json
+CLAUDE.md
 # Firebase secrets
 secrets/
