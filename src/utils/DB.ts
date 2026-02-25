@@ -9,7 +9,7 @@ export default async function resellConnection(): Promise<Connection> {
     logging: true,
     password: process.env.DB_PASSWORD,
     port: +(process.env.DB_PORT || 5432),
-    synchronize: true,
+    synchronize: false,
     type: "postgres",
     username: process.env.DB_USERNAME || "postgres",
     extra: {
