@@ -1,17 +1,24 @@
-import { Column, Entity, ManyToMany, OneToMany, JoinTable, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  JoinTable,
+  PrimaryColumn,
+} from "typeorm";
 
-import { PrivateProfile, Uuid } from '../types';
-import { FeedbackModel } from './FeedbackModel';
-import { PostModel } from './PostModel';
-import { RequestModel } from './RequestModel';
-import { UserSessionModel } from './UserSessionModel';
-import { UserReviewModel } from './UserReviewModel'
+import { PrivateProfile, Uuid } from "../types";
+import { FeedbackModel } from "./FeedbackModel";
+import { PostModel } from "./PostModel";
+import { RequestModel } from "./RequestModel";
+import { UserReviewModel } from "./UserReviewModel";
+import { ReportModel } from "./ReportModel";
+import { FcmTokenModel } from "./FcmTokenModel";
 
-@Entity('User')
+@Entity("User")
 export class UserModel {
-
-  @PrimaryGeneratedColumn('uuid')
-  id: Uuid;
+  @PrimaryColumn({ name: "firebaseUid" })
+  firebaseUid: string;
 
   @Column({ unique: true })
   username: string;
@@ -19,16 +26,18 @@ export class UserModel {
   @Column({ unique: true, nullable: true })
   netid: string;
 
-  @Column()
+  isNewUser?: boolean; // Not stored in DB, used only for auth flow
+
+  @Column({ nullable: true })
   givenName: string;
 
-  @Column()
+  @Column({ nullable: true })
   familyName: string;
 
   @Column()
   admin: boolean;
 
-  @Column({ default: true })
+  @Column({ default: true, name: "isActive" })
   isActive: boolean;
 
   @Column({ type: "numeric", default: 0 })
@@ -36,6 +45,26 @@ export class UserModel {
 
   @Column({ type: "integer", default: 0 })
   numReviews: number;
+
+  @ManyToMany(() => UserModel, (user) => user.followers)
+  @JoinTable({
+    name: "user_following_users",
+    joinColumn: {
+      name: "follower_id",
+      referencedColumnName: "firebaseUid",
+    },
+    inverseJoinColumn: {
+      name: "following_id",
+      referencedColumnName: "firebaseUid",
+    },
+  })
+  following: UserModel[];
+
+  @ManyToMany(() => UserModel, (user) => user.following)
+  followers: UserModel[];
+
+  @Column({ type: "integer", default: 0 })
+  soldPosts: number;
 
   @Column({ nullable: true })
   photoUrl: string;
@@ -46,53 +75,64 @@ export class UserModel {
   @Column({ unique: true })
   email: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   googleId: string;
 
   @Column({ type: "text", default: "" })
   bio: string;
 
+  @Column({ nullable: true })
+  availabilityId?: string;
+
   @ManyToMany(() => UserModel, (user) => user.blockers)
   @JoinTable({
-    name: "user_blocking_users",
+    name: "userBlockingUsers",
     joinColumn: {
       name: "blockers",
-      referencedColumnName: "id"
+      referencedColumnName: "firebaseUid",
     },
     inverseJoinColumn: {
       name: "blocking",
-      referencedColumnName: "id"
-    }
+      referencedColumnName: "firebaseUid",
+    },
   })
   blocking: UserModel[] | undefined;
 
   @ManyToMany(() => UserModel, (user) => user.blocking)
   blockers: UserModel[] | undefined;
 
-  @OneToMany(() => PostModel, post => post.user, { cascade: true })
+  @OneToMany(() => ReportModel, (report) => report.reporter)
+  reports: ReportModel[];
+
+  @OneToMany(() => ReportModel, (report) => report.reported)
+  reportedBy: ReportModel[];
+
+  @OneToMany(() => PostModel, (post) => post.user, { cascade: true })
   posts: PostModel[];
 
-  @ManyToMany(() => PostModel, post => post.savers)
+  @ManyToMany(() => PostModel, (post) => post.savers)
   saved: PostModel[];
 
-  @OneToMany(() => UserSessionModel, session => session.user, { cascade: true })
-  sessions: UserSessionModel[];
+  @OneToMany(() => FcmTokenModel, (token) => token.user, {
+    cascade: true,
+  })
+  tokens: FcmTokenModel[];
 
-  @OneToMany(() => FeedbackModel, feedback => feedback.user)
+  @OneToMany(() => FeedbackModel, (feedback) => feedback.user)
   feedbacks: FeedbackModel[];
 
-  @OneToMany(() => RequestModel, request => request.user)
+  @OneToMany(() => RequestModel, (request) => request.user)
   requests: RequestModel[];
 
-  @OneToMany(() => UserReviewModel, review => review.buyer)
+  @OneToMany(() => UserReviewModel, (review) => review.buyer)
   reviewsWritten: UserReviewModel[];
 
-  @OneToMany(() => UserReviewModel, review => review.seller)
+  @OneToMany(() => UserReviewModel, (review) => review.seller)
   reviewsReceived: UserReviewModel[];
 
   public getUserProfile(): PrivateProfile {
     return {
-      id: this.id,
+      firebaseUid: this.firebaseUid,
       username: this.username,
       netid: this.netid,
       givenName: this.givenName,
@@ -100,6 +140,9 @@ export class UserModel {
       admin: this.admin,
       stars: this.stars,
       numReviews: this.numReviews,
+      following: this.following,
+      followers: this.followers,
+      soldPosts: this.soldPosts,
       photoUrl: this.photoUrl,
       venmoHandle: this.venmoHandle,
       email: this.email,
@@ -108,8 +151,12 @@ export class UserModel {
       isActive: this.isActive,
       blocking: this.blocking,
       blockers: this.blockers,
+      reports: this.reports,
+      reportedBy: this.reportedBy,
       posts: this.posts,
       feedbacks: this.feedbacks,
+      // sentMessages: this.sentMessages,
+      // receivedMessages: this.receivedMessages,
     };
   }
 }

@@ -1,14 +1,14 @@
-import { IsDefined } from 'class-validator';
+import { IsDefined } from "class-validator";
 
-import { AuthRequest, GoogleLoginUser } from '../../types';
+import { AuthRequest, GoogleLoginUser } from "../../types";
 
 export class LoginRequest implements AuthRequest {
-    @IsDefined()
-    idToken: string;
+  @IsDefined()
+  idToken: string;
 
-    @IsDefined()
-    user: GoogleLoginUser;
+  @IsDefined()
+  user: GoogleLoginUser;
 
-    @IsDefined()
-    deviceToken: string;
+  @IsDefined()
+  deviceToken: string;
 }

@@ -1,16 +1,24 @@
-import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete} from 'routing-controllers';
+import { Body, CurrentUser, Get, JsonController, Param, Params, Post, Delete } from 'routing-controllers';
 
 import { UserModel } from '../../models/UserModel';
 import { UserService } from '../../services/UserService';
-import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, SaveTokenRequest, SetAdminByEmailRequest } from '../../types';
-import { UuidParam } from '../validators/GenericRequests';
+import { BlockUserRequest, UnblockUserRequest, EditProfileRequest, GetUserByEmailRequest, GetUserResponse, GetUsersResponse, CreateUserRequest, SetAdminByEmailRequest, FcmTokenRequest, FollowUserRequest, UnfollowUserRequest } from '../../types';
+import { UuidParam, FirebaseUidParam } from '../validators/GenericRequests';
 
-@JsonController('user/')
+@JsonController("user/")
 export class UserController {
   private userService: UserService;
 
   constructor(userService: UserService) {
     this.userService = userService;
+  }
+
+  @Post("create/")
+  async createUser(
+    @CurrentUser() user: UserModel,
+    @Body() createUserRequest: CreateUserRequest,
+  ): Promise<UserModel> {
+    return await this.userService.createUser(user, createUserRequest);
   }
 
   @Get()
@@ -20,57 +28,117 @@ export class UserController {
   }
 
   @Post()
-  async editProfile(@Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } }) editProfileRequest: EditProfileRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
-    return { user: await this.userService.updateUser(editProfileRequest, user) };
+  async editProfile(
+    @Body({ options: { limit: process.env.UPLOAD_SIZE_LIMIT } })
+    editProfileRequest: EditProfileRequest,
+    @CurrentUser() user: UserModel,
+  ): Promise<GetUserResponse> {
+    return {
+      user: await this.userService.updateUser(editProfileRequest, user),
+    };
   }
 
-  @Get('id/:id/')
-  async getUserById(@Params() params: UuidParam): Promise<GetUserResponse> {
+  @Get("id/:id/")
+  async getUserById(
+    @Params() params: FirebaseUidParam,
+  ): Promise<GetUserResponse> {
     return { user: await this.userService.getUserById(params) };
   }
 
-  @Get('googleId/:id/')
+  @Get("googleId/:id/")
   async getUserByGoogleId(@Param("id") id: string): Promise<GetUserResponse> {
     return { user: await this.userService.getUserByGoogleId(id) };
   }
 
-  @Get('postId/:id/')
+  @Get("postId/:id/")
   async getUserByPostId(@Params() params: UuidParam): Promise<GetUserResponse> {
     return { user: await this.userService.getUserByPostId(params) };
   }
 
-  @Post('email/')
-  async getUserByEmail(@Body() getUserByEmailRequest: GetUserByEmailRequest): Promise<GetUserResponse> {
-    return { user: await this.userService.getUserByEmail(getUserByEmailRequest.email) };
+  @Post("email/")
+  async getUserByEmail(
+    @Body() getUserByEmailRequest: GetUserByEmailRequest,
+  ): Promise<GetUserResponse> {
+    return {
+      user: await this.userService.getUserByEmail(getUserByEmailRequest.email),
+    };
   }
 
-  @Post('admin/')
-  async setAdmin(@Body() setAdminByEmailRequest: SetAdminByEmailRequest, @CurrentUser() superAdmin: UserModel): Promise<GetUserResponse> {
-    return { user: await this.userService.setAdmin(superAdmin, setAdminByEmailRequest) };
+  @Post("admin/")
+  async setAdmin(
+    @Body() setAdminByEmailRequest: SetAdminByEmailRequest,
+    @CurrentUser() superAdmin: UserModel,
+  ): Promise<GetUserResponse> {
+    return {
+      user: await this.userService.setAdmin(superAdmin, setAdminByEmailRequest),
+    };
   }
 
-  @Post('block/')
-  async blockUser(@Body() blockUserRequest: BlockUserRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
-    return { user: await this.userService.blockUser(user, blockUserRequest) }
+  @Post("block/")
+  async blockUser(
+    @Body() blockUserRequest: BlockUserRequest,
+    @CurrentUser() user: UserModel,
+  ): Promise<GetUserResponse> {
+    return { user: await this.userService.blockUser(user, blockUserRequest) };
   }
 
-  @Post('unblock/')
-  async unblockUser(@Body() unblockUserRequest: UnblockUserRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
-    return { user: await this.userService.unblockUser(user, unblockUserRequest) }
+  @Post("unblock/")
+  async unblockUser(
+    @Body() unblockUserRequest: UnblockUserRequest,
+    @CurrentUser() user: UserModel,
+  ): Promise<GetUserResponse> {
+    return {
+      user: await this.userService.unblockUser(user, unblockUserRequest),
+    };
   }
 
   @Get('blocked/id/:id/')
   async getBlockedUsersById(@Params() params: UuidParam): Promise<GetUsersResponse> {
-    return { users: await this.userService.getBlockedUsersById(params) };
+    const users = await this.userService.getBlockedUsersById(params);
+    return { users: users.map((user) => user.getUserProfile()) };
+  }
+
+  @Post('follow/')
+  async followUser(@Body() followUserRequest: FollowUserRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+    return { user: await this.userService.followUser(user, followUserRequest) };
+  }
+
+  @Post('unfollow/')
+  async unfollowUser(@Body() unfollowUserRequest: UnfollowUserRequest, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+    return { user: await this.userService.unfollowUser(user, unfollowUserRequest) };
+  }
+
+  @Get('followers/id/:id/')
+  async getFollowers(@Params() params: UuidParam): Promise<GetUsersResponse> {
+    const users = await this.userService.getFollowers(params);
+    return { users: users.map((user) => user.getUserProfile()) };
+  }
+
+  @Get('following/id/:id/')
+  async getFollowing(@Params() params: UuidParam): Promise<GetUsersResponse> {
+    const users = await this.userService.getFollowing(params);
+    return { users: users.map((user) => user.getUserProfile()) };
+  }
+
+  @Delete()
+  async deleteUser(@CurrentUser() user: UserModel): Promise<UserModel> {
+    return await this.userService.deleteUser(user);
   }
 
   @Delete('id/:id/')
-  async deleteUser(@Params() params: UuidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
-    return { user: await this.userService.deleteUser(user, params) };
+  async deleteUserByOtherUser(@Params() params: FirebaseUidParam, @CurrentUser() user: UserModel): Promise<GetUserResponse> {
+    return { user: await this.userService.deleteUserByOtherUser(user, params) };
   }
 
-  @Post('softDelete/id/:id/')
-  async softDeleteUser(@Params() params: UuidParam): Promise<GetUserResponse> {
+  @Post("softDelete/id/:id/")
+  async softDeleteUser(
+    @Params() params: FirebaseUidParam,
+  ): Promise<GetUserResponse> {
     return { user: await this.userService.softDeleteUser(params) };
+  }
+
+  @Post("logout/")
+  async logout(@Body() fcmToken: FcmTokenRequest): Promise<null> {
+    return await this.userService.logout(fcmToken);
   }
 }

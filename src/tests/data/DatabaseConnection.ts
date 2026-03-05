@@ -1,4 +1,4 @@
-import { Connection, createConnection } from 'typeorm';
+import { Connection, createConnection } from "typeorm";
 
 import { models } from '../../models';
 
@@ -8,35 +8,46 @@ export class DatabaseConnection {
   public static async connect(): Promise<Connection> {
     if (!DatabaseConnection.conn) {
       DatabaseConnection.conn = await createConnection({
-        database: 'resell-test',
+        database: "resell-test",
         entities: models,
-        host: 'localhost',
+        host: "localhost",
         logging: false,
-        password: 'postgres',
+        password: "postgres",
         port: 5432,
         synchronize: true,
-        type: 'postgres',
-        username: 'postgres',
+        type: "postgres",
+        username: "postgres",
       });
+      // Ensure pgvector extension is installed for tests
+      await DatabaseConnection.conn.query(
+        "CREATE EXTENSION IF NOT EXISTS vector",
+      );
     }
     return DatabaseConnection.conn;
   }
 
   public static async clear(): Promise<void> {
     const conn = await DatabaseConnection.connect();
-    await conn.transaction(async (txn) => {
-      // the order of elements matters here, since this will be the order of deletion.
-      // if a table (A) exists with an fkey to another table (B), make sure B is listed higher than A.
-      const tableNames = [
-        'Feedback',
-        'Post',
-        'Request',
-        'UserSession',
-        'UserReview',
-        'User'
-      ];
-      await Promise.all(tableNames.map((t) => txn.query(`DELETE FROM "${t}"`)));
-    });
+    const tableNames = [
+      "TransactionReview",
+      "Transaction",
+      "Feedback",
+      "notifications",
+      "Report",
+      "postCategories",
+      "postEventTags",
+      "Post",
+      "Category",
+      "EventTag",
+      "FCMToken",
+      "Request",
+      "UserReview",
+      "searches",
+      "User",
+    ];
+    await conn.query(
+      `TRUNCATE ${tableNames.map((t) => `"${t}"`).join(", ")} CASCADE`,
+    );
   }
 
   public static async close(): Promise<void> {

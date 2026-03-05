@@ -1,15 +1,19 @@
 module.exports = {
   root: true,
-  parser: '@typescript-eslint/parser',
+  parser: "@typescript-eslint/parser",
   parserOptions: {
     tsconfigRootDir: __dirname,
-    project: ['./tsconfig.json', '.eslintrc.js']
+    project: ["./tsconfig.json"],
   },
-  plugins: [
-    '@typescript-eslint',
+  ignorePatterns: [
+    ".eslintrc.js",
+    "jest.config.js",
+    "ormconfig.ts",
+    "swaggerDef.js",
   ],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended'
-  ],
+  plugins: ["@typescript-eslint"],
+  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  rules: {
+    "@typescript-eslint/no-unused-vars": "off", // Disable unused variable warnings since eslint cannot recognize decoraters as being used
+  },
 };

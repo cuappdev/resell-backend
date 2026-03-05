@@ -1,5 +1,3 @@
-import { ErrorHandler } from './ErrorHandler';
+import { ErrorHandler } from "./ErrorHandler";
 
-export const middlewares = [
-  ErrorHandler,
-];
+export const middlewares = [ErrorHandler];

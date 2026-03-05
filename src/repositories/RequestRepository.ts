@@ -1,14 +1,15 @@
-import { PostModel } from 'src/models/PostModel';
-import { UserModel } from 'src/models/UserModel';
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { PostModel } from "src/models/PostModel";
+import { UserModel } from "src/models/UserModel";
+import { AbstractRepository, EntityRepository } from "typeorm";
 
-import { RequestModel } from '../models/RequestModel';
-import { Uuid } from '../types';
+import { RequestModel } from "../models/RequestModel";
+import { Uuid } from "../types";
 
 @EntityRepository(RequestModel)
 export class RequestRepository extends AbstractRepository<RequestModel> {
   public async getAllRequest(): Promise<RequestModel[]> {
-    return await this.repository.createQueryBuilder("request")
+    return await this.repository
+      .createQueryBuilder("request")
       .leftJoinAndSelect("request.user", "user")
       .getMany();
   }
@@ -20,23 +21,27 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .getOne();
   }
 
-  public async getRequestByUserId(userId: Uuid): Promise<RequestModel[]> {
+  public async getRequestByUserId(userId: string): Promise<RequestModel[]> {
     return await this.repository
       .createQueryBuilder("request")
       .leftJoinAndSelect("request.user", "user")
-      .where("user.id = :userId", { userId })
+      .where("user.firebaseUid = :userId", { userId })
       .getMany();
   }
 
   public async createRequest(
     title: string,
     description: string,
-    user: UserModel
+    archive: boolean,
+    user: UserModel,
+    embedding: number[],
   ): Promise<RequestModel> {
     const request = this.repository.create({
       title,
       description,
+      archive,
       user,
+      embedding,
     });
     await this.repository.save(request);
     return request;
@@ -46,7 +51,24 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     return this.repository.remove(request);
   }
 
-  public async getAllMatchesByRequestId(id: Uuid): Promise<RequestModel | undefined> {
+  public async archiveRequest(request: RequestModel): Promise<RequestModel> {
+    request.archive = true;
+    return await this.repository.save(request);
+  }
+
+  public async archiveAllRequestsByUserId(userId: Uuid): Promise<void> {
+    await this.repository
+      .createQueryBuilder("request")
+      .leftJoin("request.user", "user")
+      .update(RequestModel)
+      .set({ archive: true })
+      .where("user.firebaseUid = :userId", { userId })
+      .execute();
+  }
+
+  public async getAllMatchesByRequestId(
+    id: Uuid,
+  ): Promise<RequestModel | undefined> {
     return await this.repository
       .createQueryBuilder("request")
       .where("request.id = :id", { id })
@@ -54,7 +76,10 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .getOne();
   }
 
-  public async getTimedMatchesByRequestId(id: Uuid, time: Date): Promise<RequestModel | undefined> {
+  public async getTimedMatchesByRequestId(
+    id: Uuid,
+    time: Date,
+  ): Promise<RequestModel | undefined> {
     return await this.repository
       .createQueryBuilder("request")
       .where("request.id = :id", { id })
@@ -63,9 +88,52 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
       .getOne();
   }
 
-  public async addMatchToRequest(request: RequestModel, post: PostModel): Promise<RequestModel> {
-    if (request.matches === undefined) { request.matches = [post]; }
-    else { request.matches.push(post); }
+  public async addMatchToRequest(
+    request: RequestModel,
+    post: PostModel,
+  ): Promise<RequestModel> {
+    if (!request.user || !post.user) {
+      console.warn("Skipping match: request or post user is null");
+      return request;
+    }
+
+    // check if they don't have the same user
+    if (request.user.firebaseUid === post.user.firebaseUid) {
+      // User is the same, don't match
+      // Throw error maybe?
+      return request;
+    }
+
+    if (request.matches === undefined) {
+      request.matches = [post];
+    } else {
+      request.matches.push(post);
+    }
     return this.repository.save(request);
+  }
+
+  public async findSimilarRequests(
+    embedding: number[],
+    excludeUserId: string,
+    limit = 10,
+  ): Promise<RequestModel[]> {
+    // 1. Create the string representation of the vector for the parameter
+    const embeddingString = `[${embedding.join(",")}]`;
+    return await this.repository
+      .createQueryBuilder("request")
+      .leftJoinAndSelect("request.user", "user")
+      // 2. Calculate the distance and select it as a new column named "distance"
+      .addSelect(
+        `request.embedding::vector <-> CAST(:embedding AS vector(512))`,
+        "distance",
+      )
+      .where("request.embedding IS NOT NULL")
+      .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
+      // 3. Safely pass the embedding string as a parameter
+      .setParameter("embedding", embeddingString)
+      // 4. Order by the simple alias "distance". ASC means "smallest distance" (most similar).
+      .orderBy("distance", "ASC")
+      .take(limit)
+      .getMany();
   }
 }

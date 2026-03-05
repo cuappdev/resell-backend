@@ -1,0 +1,4194 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Resell API",
+    "version": "1.0.0",
+    "description": "API for the resell application"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Authentication endpoints"
+    },
+    {
+      "name": "User",
+      "description": "User management endpoints"
+    },
+    {
+      "name": "Post",
+      "description": "Post management endpoints"
+    },
+    {
+      "name": "Search",
+      "description": "Search management endpoints"
+    },
+    {
+      "name": "Notification",
+      "description": "Notification management endpoints"
+    },
+    {
+      "name": "Feedback",
+      "description": "Feedback management endpoints"
+    },
+    {
+      "name": "Image",
+      "description": "Image management endpoints"
+    },
+    {
+      "name": "Report",
+      "description": "Report management endpoints"
+    },
+    {
+      "name": "Request",
+      "description": "Request management endpoints"
+    },
+    {
+      "name": "Transaction",
+      "description": "Transaction management endpoints"
+    },
+    {
+      "name": "TransactionReview",
+      "description": "Transaction review management endpoints"
+    },
+    {
+      "name": "UserReview",
+      "description": "User review management endpoints"
+    }
+  ],
+  "paths": {
+    "/auth": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Authorize user",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FcmTokenRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User authorized successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post": {
+      "get": {
+        "summary": "Get all posts",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of posts per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new post",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Post created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/id/{id}": {
+      "get": {
+        "summary": "Get post by ID",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete post by ID",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/search": {
+      "post": {
+        "summary": "Search posts",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetSearchedPostsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Posts retrieved successfully with search ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSearchedPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/searchSuggestions/{searchIndex}": {
+      "get": {
+        "summary": "Get post search suggestions by vector similarity",
+        "tags": ["Post"],
+        "parameters": [
+          {
+            "name": "searchIndex",
+            "in": "path",
+            "description": "The ID of the SearchModel to use as the query vector",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "description": "The number of post suggestions to return",
+            "required": false,
+            "schema": { "type": "integer", "default": 5 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of post IDs ranked by vector similarity to the search query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "postIds": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Array of post IDs, most similar first"
+                    }
+                  },
+                  "required": ["postIds"]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Search not found"
+          }
+        }
+      }
+    },
+    "/post/filter": {
+      "post": {
+        "summary": "Filter posts (all filters) ",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/filterPriceHighToLow": {
+      "post": {
+        "summary": "Filter posts by price high to low",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/filterPriceLowToHigh": {
+      "post": {
+        "summary": "Filter posts by price low to high",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/filterNewlyListed": {
+      "post": {
+        "summary": "Filter posts by newly listed",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/filterByCondition": {
+      "post": {
+        "summary": "Filter posts by condition",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilterPostsByConditionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/archive": {
+      "get": {
+        "summary": "Get archived posts",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Archived posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/archive/firebaseUid/{id}": {
+      "get": {
+        "summary": "Get archived posts by firebaseUid",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archived posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GetPostResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/archive/postId/{id}": {
+      "post": {
+        "summary": "Archive a post",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post archived successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/archiveAll/firebaseUid/{id}": {
+      "post": {
+        "summary": "Archive all posts by firebaseUid",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All posts archived successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GetPostResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/save": {
+      "get": {
+        "summary": "Get saved posts",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Saved posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/save/postId/{id}": {
+      "post": {
+        "summary": "Save a post",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post saved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/unsave/postId/{id}": {
+      "post": {
+        "summary": "Unsave a post",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post unsaved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/isSaved/postId/{id}": {
+      "get": {
+        "summary": "Check if post is saved",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post saved status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsSavedPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/edit/postId/{id}": {
+      "post": {
+        "summary": "Edit post price",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditPostPriceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Post price updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EditPriceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/similar/postId/{id}": {
+      "get": {
+        "summary": "Get similar posts",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Similar posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/firebaseUid/{id}": {
+      "get": {
+        "summary": "Get posts by firebaseUid",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GetPostResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/filterByCategories": {
+      "post": {
+        "summary": "Filter all posts by multiple categories",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilterPostsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/filterByEventTags": {
+      "post": {
+        "summary": "Filter all posts by multiple event tags",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilterPostsByEventTagsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/event-tags/add/{id}": {
+      "post": {
+        "summary": "Add event tags to a post",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Post ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddEventTagsToPostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event tags added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/event-tags/remove/{id}": {
+      "delete": {
+        "summary": "Remove event tags from a post",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Post ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveEventTagsFromPostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event tags removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/filterByPrice": {
+      "post": {
+        "summary": "Filter posts by price range",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilterPostsByPriceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Posts filtered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPostsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/suggested": {
+      "get": {
+        "summary": "Get suggested posts",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Limit of posts to return",
+            "schema": { 
+              "type": "integer",
+              "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Suggested posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GetPostResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/purchaseSuggestions": {
+      "get": {
+        "summary": "Get purchase suggestions",
+        "tags": ["Post"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Limit of posts to return",
+            "schema": { 
+              "type": "integer",
+              "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase suggestions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "postIds": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Array of post IDs"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search": {
+      "get": {
+        "summary": "Get user's search history",
+        "tags": ["Search"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Maximum number of searches to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search history retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSearchesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new search record",
+        "tags": ["Search"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "searchRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The search text to be stored"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Search record successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "searchId": {
+                      "type": "string",
+                      "description": "Unique identifier for the created search record"
+                    },
+                    "searchText": {
+                      "type": "string",
+                      "description": "The search text that was stored"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/create": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Create a new user",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateUserRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get all users",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of users retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/User" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["User"],
+        "summary": "Edit user profile",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EditProfileRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["User"],
+        "summary": "Delete current user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/id/{id}": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get user by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user to delete",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["User"],
+        "summary": "Delete user by other user",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user to delete",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/googleId/{id}": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get user by Google ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/postId/{id}": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get user by post ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/email": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Get user by email",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/GetUserByEmailRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/admin": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Set user as admin",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAdminByEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User admin status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/block": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Block a user",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BlockUserRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User blocked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/unblock": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Unblock a user",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UnblockUserRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User unblocked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/blocked/id/{id}": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get blocked users by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Blocked users retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/User" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/softDelete/id/{id}": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Soft delete user",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user to soft delete",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User soft deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/logout": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Logout user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FcmTokenRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logged out successfully"
+          }
+        }
+      }
+    },
+    "/notif": {
+      "post": {
+        "summary": "Send notification",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FindTokensRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification sent successfully"
+          }
+        }
+      }
+    },
+    "/notif/recent": {
+      "get": {
+        "tags": ["Notification"],
+        "summary": "Get recent notifications",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Recent notifications retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Notification" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notif/request-match": {
+      "post": {
+        "summary": "Send request match notification",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestMatchNotificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request match notification sent successfully"
+          }
+        }
+      }
+    },
+    "/notif/discount": {
+      "post": {
+        "summary": "Send discount notification",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscountNotificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Discount notification sent successfully"
+          }
+        }
+      }
+    },
+    "/notif/markAsRead/id/{id}": {
+      "post": {
+        "summary": "Mark notification as read",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Notification ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification marked as read successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Notification" }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        }
+      }
+    },
+    "/notif/new": {
+      "get": {
+        "summary": "Get unread notifications",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Unread notifications retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Notification" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - user not authenticated"
+          }
+        }
+      }
+    },
+    "/notif/last7days": {
+      "get": {
+        "summary": "Get notifications from last 7 days",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Notifications from last 7 days retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Notification" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - user not authenticated"
+          }
+        }
+      }
+    },
+    "/notif/last30days": {
+      "get": {
+        "summary": "Get notifications from last 30 days",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Notifications from last 30 days retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Notification" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - user not authenticated"
+          }
+        }
+      }
+    },
+    "/notif/id/{id}": {
+      "delete": {
+        "summary": "Delete notification",
+        "tags": ["Notification"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Notification ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized - user not authenticated"
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        }
+      }
+    },
+    "/request": {
+      "get": {
+        "tags": ["Request"],
+        "summary": "Get all requests",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of all requests",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetRequestsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Request"],
+        "summary": "Create a new request",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateRequestRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetRequestResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/request/id/{id}": {
+      "get": {
+        "tags": ["Request"],
+        "summary": "Get request by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetRequestResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Request"],
+        "summary": "Delete request by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request deleted",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetRequestResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/request/firebaseUid/{id}": {
+      "get": {
+        "tags": ["Request"],
+        "summary": "Get requests by firebaseUid",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of requests by user",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetRequestsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/request/archive/requestId/{id}": {
+      "post": {
+        "tags": ["Request"],
+        "summary": "Archive a request",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request archived",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetRequestResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/request/archiveAll/firebaseUid/{id}": {
+      "post": {
+        "tags": ["Request"],
+        "summary": "Archive all requests by firebaseUid",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All requests archived",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetRequestsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/request/matches/id/{id}/{time}": {
+      "get": {
+        "tags": ["Request"],
+        "summary": "Get matches by request ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "time",
+            "in": "path",
+            "required": false,
+            "schema": { "type": "string", "format": "date-time" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching posts",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetPostsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/admin/all": {
+      "get": {
+        "tags": ["Report"],
+        "summary": "Get all reports",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of all reports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reports": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Report" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/admin/post": {
+      "get": {
+        "tags": ["Report"],
+        "summary": "Get all post reports",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of all post reports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reports": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Report" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/admin/profile": {
+      "get": {
+        "tags": ["Report"],
+        "summary": "Get all profile reports",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of all profile reports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reports": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Report" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/admin/message": {
+      "get": {
+        "tags": ["Report"],
+        "summary": "Get all message reports",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of all message reports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reports": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Report" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/id/{id}": {
+      "get": {
+        "tags": ["Report"],
+        "summary": "Get report by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "report": { "$ref": "#/components/schemas/Report" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/reporter/id/{id}": {
+      "get": {
+        "tags": ["Report"],
+        "summary": "Get reports by reporter ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of reports by reporter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reports": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Report" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/post": {
+      "post": {
+        "tags": ["Report"],
+        "summary": "Report a post",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReportPostRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Report" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/profile": {
+      "post": {
+        "tags": ["Report"],
+        "summary": "Report a profile",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReportProfileRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Report" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/message": {
+      "post": {
+        "tags": ["Report"],
+        "summary": "Report a message",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReportMessageRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Report" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/resolve/reportId/{id}": {
+      "post": {
+        "tags": ["Report"],
+        "summary": "Resolve a report",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report resolved",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Report" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/delete/{id}": {
+      "delete": {
+        "tags": ["Report"],
+        "summary": "Delete a report",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report deleted",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Report" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feedback": {
+      "get": {
+        "summary": "Get all feedback",
+        "tags": ["Feedback"],
+        "responses": {
+          "200": {
+            "description": "Feedback retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeedbacksResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new feedback",
+        "tags": ["Feedback"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFeedbackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Feedback created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeedbackResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feedback/id/{id}": {
+      "get": {
+        "summary": "Get feedback by ID",
+        "tags": ["Feedback"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feedback retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeedbackResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete feedback by ID",
+        "tags": ["Feedback"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feedback deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeedbackResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feedback/firebaseUid/{id}": {
+      "get": {
+        "summary": "Get feedback by firebaseUid",
+        "tags": ["Feedback"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Firebase UID of the user",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feedback retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeedbacksResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feedback/search": {
+      "post": {
+        "summary": "Search feedback",
+        "tags": ["Feedback"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetSearchedFeedbackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Feedback search results retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeedbacksResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/image": {
+      "post": {
+        "summary": "Upload an image",
+        "tags": ["Image"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadImageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageUrlResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transaction": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Get all transactions",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of all transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transactions": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Transaction" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Transaction"],
+        "summary": "Create a new transaction",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transaction/id/{id}": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Get transaction by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transaction/buyerId/{id}": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Get transactions by buyer ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of transactions by buyer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transactions": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Transaction" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transaction/sellerId/{id}": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Get transactions by seller ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of transactions by seller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transactions": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Transaction" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transaction/complete/id/{id}": {
+      "post": {
+        "tags": ["Transaction"],
+        "summary": "Complete a transaction",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTransactionStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transaction/postId/{id}": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Get transaction by post ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactionReview": {
+      "get": {
+        "tags": ["TransactionReview"],
+        "summary": "Get all transaction reviews",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of all transaction reviews",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/TransactionReview" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["TransactionReview"],
+        "summary": "Create a new transaction review",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction review created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionReview" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactionReview/id/{id}": {
+      "get": {
+        "tags": ["TransactionReview"],
+        "summary": "Get transaction review by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction review details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionReview" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["TransactionReview"],
+        "summary": "Delete transaction review by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction review deleted",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionReview" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactionReview/transactionId/{transactionId}": {
+      "get": {
+        "tags": ["TransactionReview"],
+        "summary": "Get transaction review by transaction ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "transactionId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction review details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionReview" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userReview": {
+      "get": {
+        "tags": ["UserReview"],
+        "summary": "Get all user reviews",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of all user reviews",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserReviewsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UserReview"],
+        "summary": "Create a new user review",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User review created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userReview/id/{id}": {
+      "get": {
+        "tags": ["UserReview"],
+        "summary": "Get user review by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User review details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["UserReview"],
+        "summary": "Delete user review by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User review deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/message/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Create a new message chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateChatMessage" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/availability/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Create a new availability chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAvailabilityChat"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/proposal/initial/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Create an initial proposal chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateProposalChat" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/proposal/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Respond to a proposal chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RespondProposalChat" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/proposal/cancel/{id}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Cancel a proposal chat",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateProposalChat" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat message created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelProposalResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/chat/{chatId}/message/{messageId}": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Marks a message in a chat as read",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Chat message read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "GetUserResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "firebaseUid": { "type": "string" },
+              "username": { "type": "string" },
+              "netid": { "type": "string" },
+              "givenName": { "type": "string" },
+              "familyName": { "type": "string" },
+              "stars": { "type": "number" },
+              "numReviews": { "type": "number" },
+              "photoUrl": { "type": "string" },
+              "venmoHandle": { "type": "string" },
+              "bio": { "type": "string" },
+              "posts": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Post" }
+              },
+              "admin": { "type": "boolean" },
+              "email": { "type": "string" },
+              "googleId": { "type": "string" },
+              "isActive": { "type": "boolean" },
+              "feedbacks": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Feedback" }
+              },
+              "blockers": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/User" }
+              },
+              "blocking": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/User" }
+              },
+              "reports": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Report" }
+              },
+              "reportedBy": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Report" }
+              }
+            }
+          }
+        }
+      },
+      "GetUsersResponse": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "firebaseUid": { "type": "string" },
+                "username": { "type": "string" },
+                "netid": { "type": "string" },
+                "givenName": { "type": "string" },
+                "familyName": { "type": "string" },
+                "stars": { "type": "number" },
+                "numReviews": { "type": "number" },
+                "photoUrl": { "type": "string" },
+                "venmoHandle": { "type": "string" },
+                "bio": { "type": "string" },
+                "posts": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Post" }
+                },
+                "admin": { "type": "boolean" },
+                "email": { "type": "string" },
+                "googleId": { "type": "string" },
+                "isActive": { "type": "boolean" },
+                "feedbacks": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Feedback" }
+                },
+                "blockers": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
+                },
+                "blocking": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
+                },
+                "reports": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Report" }
+                },
+                "reportedBy": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Report" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "CreateUserRequest": {
+        "type": "object",
+        "required": [
+          "username",
+          "netid",
+          "givenName",
+          "familyName",
+          "photoUrl",
+          "venmoHandle",
+          "email",
+          "googleId",
+          "bio",
+          "fcmToken"
+        ],
+        "properties": {
+          "username": { "type": "string" },
+          "netid": { "type": "string" },
+          "givenName": { "type": "string" },
+          "familyName": { "type": "string" },
+          "photoUrl": { "type": "string" },
+          "venmoHandle": { "type": "string" },
+          "email": { "type": "string" },
+          "googleId": { "type": "string" },
+          "bio": { "type": "string" },
+          "fcmToken": { "type": "string" }
+        }
+      },
+      "EditProfileRequest": {
+        "type": "object",
+        "properties": {
+          "photoUrlBase64": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "venmoHandle": {
+            "type": "string",
+            "nullable": true
+          },
+          "bio": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetUserByEmailRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" }
+        },
+        "required": ["email"]
+      },
+      "GetPostResponse": {
+        "type": "object",
+        "properties": {
+          "post": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "description": { "type": "string" },
+              "categories": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "category": { "type": "string" },
+              "condition": { "type": "string" },
+              "originalPrice": { "type": "number" },
+              "alteredPrice": { "type": "number" },
+              "images": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "created": { "type": "string", "format": "date-time" },
+              "location": { "type": "string" },
+              "archive": { "type": "boolean" },
+              "user": { "$ref": "#/components/schemas/PrivateProfile" },
+              "savers": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/PrivateProfile" }
+              },
+              "matched": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Request" }
+              },
+              "sold": { "type": "boolean" }
+            }
+          }
+        }
+      },
+      "GetPostsResponse": {
+        "type": "object",
+        "properties": {
+          "posts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "categories": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "category": { "type": "string" },
+                "condition": { "type": "string" },
+                "originalPrice": { "type": "number" },
+                "alteredPrice": { "type": "number" },
+                "images": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "created": { "type": "string", "format": "date-time" },
+                "location": { "type": "string" },
+                "archive": { "type": "boolean" },
+                "user": { "$ref": "#/components/schemas/PrivateProfile" },
+                "savers": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/PrivateProfile" }
+                },
+                "matched": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Request" }
+                },
+                "sold": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      },
+      "CreatePostRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "category",
+          "condition",
+          "originalPrice",
+          "imagesBase64",
+          "userId"
+        ],
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "category": { "type": "string" },
+          "condition": { "type": "string" },
+          "originalPrice": { "type": "number" },
+          "imagesBase64": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "userId": { "type": "string" }
+        }
+      },
+      "GetSearchedPostsRequest": {
+        "type": "object",
+        "required": ["keywords"],
+        "properties": {
+          "keywords": { "type": "string" }
+        }
+      },
+      "FcmTokenRequest": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string" }
+        },
+        "required": ["token"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "firebaseUid": { "type": "string" },
+          "username": { "type": "string" },
+          "netid": { "type": "string" },
+          "givenName": { "type": "string" },
+          "familyName": { "type": "string" },
+          "stars": { "type": "number" },
+          "numReviews": { "type": "number" },
+          "photoUrl": { "type": "string" },
+          "venmoHandle": { "type": "string" },
+          "bio": { "type": "string" },
+          "posts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Post" }
+          },
+          "admin": { "type": "boolean" },
+          "email": { "type": "string" },
+          "googleId": { "type": "string" },
+          "isActive": { "type": "boolean" },
+          "feedbacks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Feedback" }
+          },
+          "blockers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/User" }
+          },
+          "blocking": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/User" }
+          },
+          "reports": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Report" }
+          },
+          "reportedBy": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Report" }
+          }
+        }
+      },
+      "FindTokensRequest": {
+        "type": "object",
+        "required": ["email", "title", "body", "data"],
+        "properties": {
+          "email": { "type": "string" },
+          "title": { "type": "string" },
+          "body": { "type": "string" },
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "RequestMatchNotificationRequest": {
+        "type": "object",
+        "required": ["requestId", "listingId", "userId"],
+        "properties": {
+          "requestId": { "type": "string" },
+          "listingId": { "type": "string" },
+          "userId": { "type": "string" }
+        }
+      },
+      "DiscountNotificationRequest": {
+        "type": "object",
+        "properties": {
+          "sellerId": {
+            "type": "string",
+            "description": "Firebase UID of the seller"
+          },
+          "listingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the post/listing"
+          },
+          "oldPrice": { "type": "number" },
+          "newPrice": { "type": "number" }
+        },
+        "required": ["sellerId", "listingId", "oldPrice", "newPrice"]
+      },
+      "Notification": {
+        "type": "object",
+        "required": ["to", "sound", "title", "body", "data"],
+        "properties": {
+          "to": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "sound": {
+            "type": "string",
+            "enum": ["default"]
+          },
+          "title": { "type": "string" },
+          "body": { "type": "string" },
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "GetRequestResponse": {
+        "type": "object",
+        "properties": {
+          "request": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "description": { "type": "string" },
+              "archive": { "type": "boolean" },
+              "user": { "$ref": "#/components/schemas/PrivateProfile" },
+              "matches": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Post" }
+              }
+            }
+          }
+        }
+      },
+      "GetRequestsResponse": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetRequestResponse"
+            }
+          }
+        }
+      },
+      "CreateRequestRequest": {
+        "type": "object",
+        "required": ["title", "description", "archive", "userId"],
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "archive": { "type": "boolean" },
+          "userId": { "type": "string" }
+        }
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "reporter": { "$ref": "#/components/schemas/PrivateProfile" },
+          "reported": { "$ref": "#/components/schemas/PrivateProfile" },
+          "post": {
+            "type": "object",
+            "nullable": true,
+            "$ref": "#/components/schemas/Post"
+          },
+          "message": {
+            "type": "object",
+            "nullable": true,
+            "$ref": "#/components/schemas/Message"
+          },
+          "reason": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["post", "profile", "message"]
+          },
+          "resolved": { "type": "boolean" },
+          "created": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ReportPostRequest": {
+        "type": "object",
+        "required": ["reported", "post", "reason"],
+        "properties": {
+          "reported": { "type": "string", "format": "uuid" },
+          "post": { "type": "string", "format": "uuid" },
+          "reason": { "type": "string" }
+        }
+      },
+      "ReportProfileRequest": {
+        "type": "object",
+        "required": ["reported", "reason"],
+        "properties": {
+          "reported": { "type": "string", "format": "uuid" },
+          "reason": { "type": "string" }
+        }
+      },
+      "ReportMessageRequest": {
+        "type": "object",
+        "required": ["reported", "message", "reason"],
+        "properties": {
+          "reported": { "type": "string" },
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          },
+          "reason": { "type": "string" }
+        }
+      },
+      "SetAdminByEmailRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "status": { "type": "boolean" }
+        },
+        "required": ["email", "status"]
+      },
+      "BlockUserRequest": {
+        "type": "object",
+        "properties": {
+          "blocked": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": ["blocked"]
+      },
+      "UnblockUserRequest": {
+        "type": "object",
+        "properties": {
+          "unblocked": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": ["unblocked"]
+      },
+      "FilterPostsByConditionRequest": {
+        "type": "object",
+        "required": ["condition"],
+        "properties": {
+          "condition": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "IsSavedPostResponse": {
+        "type": "object",
+        "properties": {
+          "isSaved": { "type": "boolean" }
+        }
+      },
+      "EditPostPriceRequest": {
+        "type": "object",
+        "required": ["new_price"],
+        "properties": {
+          "new_price": { "type": "number" }
+        }
+      },
+      "EditPriceResponse": {
+        "type": "object",
+        "properties": {
+          "new_price": { "type": "number" }
+        }
+      },
+      "FilterPostsRequest": {
+        "type": "object",
+        "required": ["categories"],
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "FilterPostsByEventTagsRequest": {
+        "type": "object",
+        "required": ["eventTags"],
+        "properties": {
+          "eventTags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["start_of_semester", "end_of_semester", "homecoming", "halloween", "holiday_season", "st_patricks_day", "slope_day"]
+            }
+          }
+        }
+      },
+      "AddEventTagsToPostRequest": {
+        "type": "object",
+        "required": ["eventTags"],
+        "properties": {
+          "eventTags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["start_of_semester", "end_of_semester", "homecoming", "halloween", "holiday_season", "st_patricks_day", "slope_day"]
+            }
+          }
+        }
+      },
+      "RemoveEventTagsFromPostRequest": {
+        "type": "object",
+        "required": ["eventTags"],
+        "properties": {
+          "eventTags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["start_of_semester", "end_of_semester", "homecoming", "halloween", "holiday_season", "st_patricks_day", "slope_day"]
+            }
+          }
+        }
+      },
+      "FilterPostsUnifiedRequest": {
+        "type": "object",
+        "properties": {
+          "sortField": {
+            "type": "string",
+            "enum": ["any", "priceLowToHigh", "priceHighToLow", "newlyListed"]
+          },
+          "price": {
+            "type": "object",
+            "properties": {
+              "lowerBound": { "type": "number" },
+              "upperBound": { "type": "number" }
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "condition": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "FilterPostsByPriceRequest": {
+        "type": "object",
+        "required": ["lowerBound", "upperBound"],
+        "properties": {
+          "lowerBound": { "type": "number" },
+          "upperBound": { "type": "number" }
+        }
+      },
+      "GetFeedbackResponse": {
+        "type": "object",
+        "properties": {
+          "feedback": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "description": { "type": "string" },
+              "images": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "user": { "$ref": "#/components/schemas/PrivateProfile" }
+            }
+          }
+        }
+      },
+      "GetFeedbacksResponse": {
+        "type": "object",
+        "properties": {
+          "feedbacks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetFeedbackResponse"
+            }
+          }
+        }
+      },
+      "CreateFeedbackRequest": {
+        "type": "object",
+        "required": ["description", "images", "userId"],
+        "properties": {
+          "description": { "type": "string" },
+          "images": { "type": "array", "items": { "type": "string" } },
+          "userId": { "type": "string" }
+        }
+      },
+      "GetSearchedFeedbackRequest": {
+        "type": "object",
+        "required": ["keywords"],
+        "properties": {
+          "keywords": { "type": "string" }
+        }
+      },
+      "UploadImageRequest": {
+        "type": "object",
+        "required": ["imageBase64"],
+        "properties": {
+          "imageBase64": { "type": "string", "format": "binary" }
+        }
+      },
+      "ImageUrlResponse": {
+        "type": "object",
+        "properties": {
+          "image": { "type": "string" }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "location": { "type": "string" },
+          "amount": { "type": "number" },
+          "transactionDate": { "type": "string", "format": "date-time" },
+          "completed": { "type": "boolean" },
+          "post": { "$ref": "#/components/schemas/Post" },
+          "buyer": { "$ref": "#/components/schemas/PrivateProfile" },
+          "seller": { "$ref": "#/components/schemas/PrivateProfile" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateTransactionRequest": {
+        "type": "object",
+        "required": ["location", "amount", "buyerId", "sellerId", "postId"],
+        "properties": {
+          "location": { "type": "string" },
+          "amount": { "type": "number" },
+          "buyerId": { "type": "string", "format": "uuid" },
+          "sellerId": { "type": "string", "format": "uuid" },
+          "postId": { "type": "string", "format": "uuid" }
+        }
+      },
+      "UpdateTransactionStatusRequest": {
+        "type": "object",
+        "required": ["completed"],
+        "properties": {
+          "completed": { "type": "boolean" }
+        }
+      },
+      "TransactionReview": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "stars": { "type": "number", "minimum": 1, "maximum": 5 },
+          "comments": { "type": "string", "nullable": true },
+          "hadIssues": { "type": "boolean" },
+          "issueCategory": { "type": "string", "nullable": true },
+          "issueDetails": { "type": "string", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "transaction": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/Transaction" },
+              { "type": "string" }
+            ]
+          }
+        }
+      },
+      "CreateTransactionReviewRequest": {
+        "type": "object",
+        "required": ["transactionId", "stars", "hadIssues"],
+        "properties": {
+          "transactionId": { "type": "string" },
+          "stars": { "type": "number", "minimum": 1, "maximum": 5 },
+          "comments": { "type": "string", "nullable": true }
+        }
+      },
+      "UserReview": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "fulfilled": { "type": "boolean" },
+          "stars": { "type": "number", "minimum": 1, "maximum": 5 },
+          "comments": { "type": "string" },
+          "date": { "type": "string", "format": "date-time" },
+          "buyer": { "$ref": "#/components/schemas/PrivateProfile" },
+          "seller": { "$ref": "#/components/schemas/PrivateProfile" }
+        }
+      },
+      "CreateUserReviewRequest": {
+        "type": "object",
+        "required": ["fulfilled", "stars", "comments", "buyerId", "sellerId"],
+        "properties": {
+          "fulfilled": { "type": "boolean" },
+          "stars": { "type": "number", "minimum": 1, "maximum": 5 },
+          "comments": { "type": "string" },
+          "buyerId": { "type": "string" },
+          "sellerId": { "type": "string" }
+        }
+      },
+      "GetUserReviewResponse": {
+        "type": "object",
+        "properties": {
+          "userReview": { "$ref": "#/components/schemas/UserReview" }
+        }
+      },
+      "GetUserReviewsResponse": {
+        "type": "object",
+        "properties": {
+          "userReviews": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserReview" }
+          }
+        }
+      },
+
+      "CreateChatMessage": {
+        "type": "object",
+        "required": [
+          "type",
+          "listingId",
+          "buyerId",
+          "sellerId",
+          "senderId",
+          "text",
+          "images"
+        ],
+        "properties": {
+          "type": { "type": "string" },
+          "listingId": { "type": "string", "format": "uuid" },
+          "buyerId": { "type": "string", "format": "uuid" },
+          "sellerId": { "type": "string", "format": "uuid" },
+          "senderId": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "AvailabilityList": {
+        "type": "object",
+        "required": ["startDate", "endDate"],
+        "properties": {
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateAvailabilityChat": {
+        "type": "object",
+        "required": [
+          "type",
+          "listingId",
+          "buyerId",
+          "sellerId",
+          "senderId",
+          "availabilities"
+        ],
+        "properties": {
+          "type": { "type": "string" },
+          "listingId": { "type": "string", "format": "uuid" },
+          "buyerId": { "type": "string", "format": "uuid" },
+          "sellerId": { "type": "string", "format": "uuid" },
+          "senderId": { "type": "string", "format": "uuid" },
+          "availabilities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AvailabilityList" }
+          }
+        }
+      },
+      "CreateProposalChat": {
+        "type": "object",
+        "required": [
+          "type",
+          "listingId",
+          "buyerId",
+          "sellerId",
+          "senderId",
+          "startDate",
+          "endDate"
+        ],
+        "properties": {
+          "type": { "type": "string" },
+          "listingId": { "type": "string", "format": "uuid" },
+          "buyerId": { "type": "string", "format": "uuid" },
+          "sellerId": { "type": "string", "format": "uuid" },
+          "senderId": { "type": "string", "format": "uuid" },
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" }
+        }
+      },
+      "RespondProposalChat": {
+        "type": "object",
+        "required": [
+          "type",
+          "listingId",
+          "buyerId",
+          "sellerId",
+          "senderId",
+          "startDate",
+          "endDate",
+          "accepted"
+        ],
+        "properties": {
+          "type": { "type": "string" },
+          "listingId": { "type": "string", "format": "uuid" },
+          "buyerId": { "type": "string", "format": "uuid" },
+          "sellerId": { "type": "string", "format": "uuid" },
+          "senderId": { "type": "string", "format": "uuid" },
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" },
+          "accepted": { "type": "boolean" }
+        }
+      },
+
+      "MessageResponse": {
+        "type": "object",
+        "required": ["type", "senderID", "text", "images", "timestamp", "read"],
+        "properties": {
+          "type": { "type": "string" },
+          "senderID": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "read": { "type": "boolean" }
+        }
+      },
+      "AvailabilityResponse": {
+        "type": "object",
+        "required": ["type", "senderID", "timestamp", "availabilities"],
+        "properties": {
+          "type": { "type": "string" },
+          "senderID": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "availabilities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AvailabilityList" }
+          }
+        }
+      },
+      "ProposalResponse": {
+        "type": "object",
+        "required": ["type", "senderID", "timestamp", "startDate", "endDate"],
+        "properties": {
+          "type": { "type": "string" },
+          "senderID": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "accepted": {
+            "type": ["boolean", "null"],
+            "nullable": true
+          },
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CancelProposalResponse": {
+        "type": "object",
+        "required": ["type", "senderID", "timestamp", "startDate", "endDate"],
+        "properties": {
+          "type": { "type": "string" },
+          "senderID": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "cancellation": {
+            "type": "boolean"
+          },
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ReadResponse": {
+        "type": "object",
+        "required": ["read"],
+        "properties": {
+          "read": { "type": "boolean" }
+        }
+      },
+      "PrivateProfile": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "firebaseUid": { "type": "string" },
+          "username": { "type": "string" },
+          "netid": { "type": "string" },
+          "givenName": { "type": "string" },
+          "familyName": { "type": "string" },
+          "photoUrl": { "type": "string" },
+          "venmoHandle": { "type": "string" },
+          "email": { "type": "string" },
+          "googleId": { "type": "string" },
+          "bio": { "type": "string" },
+          "admin": { "type": "boolean" },
+          "created": { "type": "string", "format": "date-time" },
+          "updated": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "category": { "type": "string" },
+          "condition": { "type": "string" },
+          "originalPrice": { "type": "number" },
+          "alteredPrice": { "type": "number" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "created": { "type": "string", "format": "date-time" },
+          "location": { "type": "string" },
+          "archive": { "type": "boolean" },
+          "user": { "$ref": "#/components/schemas/User" },
+          "savers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PrivateProfile" }
+          },
+          "matched": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Request" }
+          },
+          "categories": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Category" }
+          },
+          "sold": { "type": "boolean" },
+          "reports": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Report" }
+          }
+        }
+      },
+      "Feedback": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "created": { "type": "string", "format": "date-time" },
+          "user": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "content": { "type": "string" },
+          "sender": { "$ref": "#/components/schemas/PrivateProfile" },
+          "receiver": { "$ref": "#/components/schemas/PrivateProfile" },
+          "created": { "type": "string", "format": "date-time" },
+          "read": { "type": "boolean" }
+        }
+      },
+      "Request": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string" },
+          "created": { "type": "string", "format": "date-time" },
+          "updated": { "type": "string", "format": "date-time" },
+          "buyer": { "$ref": "#/components/schemas/PrivateProfile" },
+          "post": { "$ref": "#/components/schemas/Post" }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "posts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Post" }
+          }
+        }
+      },
+      "GetSearchedPostsResponse": {
+        "type": "object",
+        "required": ["posts", "searchId"],
+        "properties": {
+          "posts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Post" }
+          },
+          "searchId": { "type": "string" }
+        }
+      },
+      "GetSearchesResponse": {
+        "type": "object",
+        "required": ["searches"],
+        "properties": {
+          "searches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "searchText", "createdAt"],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique search ID to use with searchSuggestions endpoint"
+                },
+                "searchText": {
+                  "type": "string",
+                  "description": "The search query text"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the search was created"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

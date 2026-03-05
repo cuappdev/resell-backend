@@ -1,6 +1,6 @@
-import { IsEmail, IsUUID } from 'class-validator';
+import { IsEmail, IsString, IsUUID } from "class-validator";
 
-import { Uuid } from '../../types';
+import { Uuid } from "../../types";
 
 export class EmailParam {
   @IsEmail()
@@ -8,12 +8,29 @@ export class EmailParam {
 }
 
 export class UuidParam {
-  @IsUUID()
+  @IsString()
   id: Uuid;
+}
+
+export class ChatParam {
+  @IsString()
+  id: string;
+}
+
+export class ChatReadParam {
+  @IsString()
+  chatId: string;
+  @IsString()
+  messageId: string;
 }
 
 export class TimeParam {
   @IsUUID()
   id: Uuid;
-  time: Date | undefined
+  time: Date | undefined;
+}
+
+export class FirebaseUidParam {
+  @IsString()
+  id: string;
 }

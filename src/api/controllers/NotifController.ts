@@ -1,18 +1,86 @@
-import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
-import { ExpoPushMessage, PushTicket, FindTokensRequest } from 'src/types';
+import { Body, CurrentUser, Delete, Get, JsonController, Param, Params, Post } from 'routing-controllers';
+import { FindTokensRequest, DiscountNotificationRequest, RequestMatchNotificationRequest } from '../../types';
 import { NotifService } from '../../services/NotifService';
+import { UserModel } from '../../models/UserModel';
 
-@JsonController('notif/')
+@JsonController("notif/")
 export class NotifController {
-    private notifService: NotifService;
+  private notifService: NotifService;
 
-    constructor(notifService: NotifService) {
-      this.notifService = notifService;
-    }
+  constructor(notifService: NotifService) {
+    this.notifService = notifService;
+  }
 
-    @Post()
-    async sendNotif(@Body() findTokensRequest: FindTokensRequest) {
-      return this.notifService.sendNotifs(findTokensRequest);
-    }
+  @Get('recent')
+  async getRecentNotifications(@CurrentUser() user: UserModel) {
+    return this.notifService.getRecentNotifications(user.firebaseUid);
+  }
+
+  @Get('new')
+  async getUnread(@CurrentUser() user: UserModel) {
+    return this.notifService.getUnreadNotifications(user.firebaseUid);
+  }
+
+  @Get('last7days')
+  getLast7Days(@CurrentUser() user: UserModel) {
+    return this.notifService.getNotificationsLast7Days(user.firebaseUid);
+  }
+
+  @Get('last30days')
+  getLast30Days(@CurrentUser() user: UserModel) {
+    return this.notifService.getNotificationsLast30Days(user.firebaseUid);
+  }
+
+  @Post()
+  async sendNotif(@Body() findTokensRequest: FindTokensRequest) {
+    return this.notifService.sendNotifs(findTokensRequest);
+  }
+
+  @Post('discount')
+  async sendDiscountNotif(@Body() discountRequest: DiscountNotificationRequest) {
+    return this.notifService.sendDiscountNotification(discountRequest);
+  }
+
+  @Post('request-match')
+  async sendRequestMatchNotif(@Body() matchRequest: RequestMatchNotificationRequest) {
+    return this.notifService.sendRequestMatchNotification(matchRequest);
+  }
+
+  @Delete('id/:id')
+  async deleteNotification(@CurrentUser() user: UserModel, @Params() params: { id: string }) {
+    return this.notifService.deleteNotification(user.firebaseUid, params.id);
+  }
+
+  /**
+   * Mark a notification as read
+   * POST /notif/read/:id
+   */
+  @Post('read/:id')
+  async markAsRead(
+    @CurrentUser() user: UserModel,
+    @Param('id') notifId: string
+  ) {
+    return this.notifService.markAsRead(user.firebaseUid, notifId);
+  }
+
+  /**
+   * Send a transaction confirmation notification to the buyer
+   * POST /notif/transaction-confirmation/:transactionId
+   */
+  // @Post('transaction-confirmation/:transactionId')
+  // async sendTransactionConfirmation(
+  //   @Param('transactionId') transactionId: string
+  // ) {
+  //   return this.notifService.sendTransactionConfirmationNotification(transactionId);
+  // }
+
+  /**
+   * Check for and send all pending transaction confirmation notifications
+   * This can be called by a cron job or manually for testing
+   * POST /notif/check-pending-transactions
+   */
+  // @Post('check-pending-transactions')
+  // async checkPendingTransactions() {
+  //   return this.notifService.sendPendingTransactionConfirmations();
+  // }
 }
-
