@@ -115,6 +115,14 @@ export class PostService {
         embedding = null;
       }
       const freshPost = await postRepository.createPost(post.title, post.description, categories, eventTags, post.condition, post.originalPrice, images, user, (embedding ?? []) as number[]);
+
+      if (eventTags.length > 0) {
+        const eventPostRepository = Repositories.eventPost(transactionalEntityManager);
+        for (const tag of eventTags) {
+          await eventPostRepository.upsertRelationship(freshPost.id, tag.id, 'user', null);
+        }
+      }
+
       if (embedding && Array.isArray(embedding) && embedding.length > 0) {
         const requestRepository = Repositories.request(
           transactionalEntityManager,
@@ -522,11 +530,15 @@ export class PostService {
       const eventTagRepository = Repositories.eventTag(transactionalEntityManager);
       const eventTags = await eventTagRepository.findOrCreateByNames(addEventTagsRequest.eventTags);
 
-      // Add new event tags to existing ones
       const existingEventTagIds = new Set(post.eventTags?.map(tag => tag.id) || []);
       const newEventTags = eventTags.filter(tag => !existingEventTagIds.has(tag.id));
-      post.eventTags = [...(post.eventTags || []), ...newEventTags];
 
+      const eventPostRepository = Repositories.eventPost(transactionalEntityManager);
+      for (const tag of newEventTags) {
+        await eventPostRepository.upsertRelationship(post.id, tag.id, 'user', null);
+      }
+
+      post.eventTags = [...(post.eventTags || []), ...newEventTags];
       return await postRepository.savePost(post);
     });
   }
@@ -538,9 +550,15 @@ export class PostService {
       if (!post) throw new NotFoundError('Post not found!');
       if (user.firebaseUid !== post.user?.firebaseUid) throw new ForbiddenError('User is not the post owner!');
 
-      const tagsToRemove = new Set(removeEventTagsRequest.eventTags);
-      post.eventTags = post.eventTags?.filter(tag => !tagsToRemove.has(tag.name)) || [];
+      const tagsToRemoveNames = new Set(removeEventTagsRequest.eventTags);
+      const removedTags = post.eventTags?.filter(tag => tagsToRemoveNames.has(tag.name)) || [];
 
+      const eventPostRepository = Repositories.eventPost(transactionalEntityManager);
+      for (const tag of removedTags) {
+        await eventPostRepository.deleteRelationship(post.id, tag.id);
+      }
+
+      post.eventTags = post.eventTags?.filter(tag => !tagsToRemoveNames.has(tag.name)) || [];
       return await postRepository.savePost(post);
     });
   }

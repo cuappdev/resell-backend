@@ -14,7 +14,7 @@ export class EventTagModel {
 
   @Column()
   name: string;
-
+  
   @ManyToMany(() => PostModel, (post) => post.eventTags)
   posts: PostModel[];
 

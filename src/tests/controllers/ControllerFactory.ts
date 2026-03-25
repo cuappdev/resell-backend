@@ -1,6 +1,7 @@
 import { Connection } from "typeorm";
 
 import { AuthController } from "../../api/controllers/AuthController";
+import { EventController } from "../../api/controllers/EventController";
 import { PostController } from "../../api/controllers/PostController";
 import { RequestController } from "../../api/controllers/RequestController";
 import { UserController } from "../../api/controllers/UserController";
@@ -16,6 +17,7 @@ import { TransactionReviewController } from "../../api/controllers/TransactionRe
 import { TransactionReviewService } from "../../services/TransactionReviewService";
 import { NotifService } from "../../services/NotifService";
 import { NotifController } from "../../api/controllers/NotifController";
+import { EventService } from "../../services/EventService";
 
 export class ControllerFactory {
   public static user(conn: Connection): UserController {
@@ -58,5 +60,10 @@ export class ControllerFactory {
   public static notif(conn: Connection): NotifController {
     const notifService = new NotifService(conn.manager);
     return new NotifController(notifService);
+  }
+
+  public static event(conn: Connection): EventController {
+    const eventService = new EventService(conn.manager);
+    return new EventController(eventService);
   }
 }

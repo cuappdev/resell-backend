@@ -36,4 +36,11 @@ export class EventTagRepository extends AbstractRepository<EventTagModel> {
     const eventTag = this.repository.create({ name });
     return await this.repository.save(eventTag);
   }
+
+  public async getAllEventTags(): Promise<EventTagModel[]> {
+    return await this.repository
+      .createQueryBuilder("eventTag")
+      .orderBy("eventTag.name", "ASC")
+      .getMany();
+  }
 }
