@@ -271,7 +271,7 @@ describe("getEventPosts", () => {
   });
 });
 
-describe("eventPosts integration (user tagging → event feed)", () => {
+describe("eventPosts integration", () => {
   test("createPost with event tags populates event feed", async () => {
     const user = UserFactory.fakeTemplate();
     await new DataFactory().createUsers(user).write();

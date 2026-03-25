@@ -71,16 +71,22 @@ export class EventPostRepository extends AbstractRepository<EventPostModel> {
    * Ordered by layer priority: user-tagged (by post recency) first,
    * then similarity (by relevance score).
    */
+  private static readonly SOURCE_PRIORITY_EXPR =
+    `CASE "epr"."source" WHEN 'user' THEN 0 WHEN 'similarity' THEN 1 ELSE 2 END`;
+  private static readonly SCORE_OR_RECENCY_EXPR =
+    `CASE WHEN "epr"."source" = 'user' THEN EXTRACT(EPOCH FROM "post"."created") ELSE "epr"."relevanceScore" END`;
+
   public async getPostsForEvent(
     eventTagId: string,
     source?: EventPostSource,
     skip: number = 0,
     limit: number = 10,
   ): Promise<EventPostModel[]> {
-    // get ordered relationship IDs with pagination
     const qb = this.repository
       .createQueryBuilder("epr")
       .select("epr.id")
+      .addSelect(EventPostRepository.SOURCE_PRIORITY_EXPR, "source_priority")
+      .addSelect(EventPostRepository.SCORE_OR_RECENCY_EXPR, "score_or_recency")
       .innerJoin("epr.post", "post")
       .where("epr.eventTagId = :eventTagId", { eventTagId });
 
@@ -89,12 +95,8 @@ export class EventPostRepository extends AbstractRepository<EventPostModel> {
     }
 
     qb
-      .orderBy(`CASE epr.source WHEN 'user' THEN 0 WHEN 'similarity' THEN 1 ELSE 2 END`, "ASC")
-      .addOrderBy(
-        `CASE WHEN epr.source = 'user' THEN EXTRACT(EPOCH FROM post.created) ELSE epr."relevanceScore" END`,
-        "DESC",
-        "NULLS LAST",
-      )
+      .orderBy("source_priority", "ASC")
+      .addOrderBy("score_or_recency", "DESC", "NULLS LAST")
       .skip(skip)
       .take(limit);
 
@@ -102,20 +104,17 @@ export class EventPostRepository extends AbstractRepository<EventPostModel> {
     const ids = eprIds.map((e) => e.id);
     if (ids.length === 0) return [];
 
-    // fetch full objects with all post relations
     return await this.repository
       .createQueryBuilder("epr")
       .leftJoinAndSelect("epr.post", "post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .leftJoinAndSelect("post.eventTags", "eventTags")
+      .addSelect(EventPostRepository.SOURCE_PRIORITY_EXPR, "source_priority")
+      .addSelect(EventPostRepository.SCORE_OR_RECENCY_EXPR, "score_or_recency")
       .where("epr.id IN (:...ids)", { ids })
-      .orderBy(`CASE epr.source WHEN 'user' THEN 0 WHEN 'similarity' THEN 1 ELSE 2 END`, "ASC")
-      .addOrderBy(
-        `CASE WHEN epr.source = 'user' THEN EXTRACT(EPOCH FROM post.created) ELSE epr."relevanceScore" END`,
-        "DESC",
-        "NULLS LAST",
-      )
+      .orderBy("source_priority", "ASC")
+      .addOrderBy("score_or_recency", "DESC", "NULLS LAST")
       .getMany();
   }
 
