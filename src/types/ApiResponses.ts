@@ -5,6 +5,7 @@ import { PostModel } from "../models/PostModel";
 import { UserModel } from "../models/UserModel";
 import { ReportModel } from "../models/ReportModel";
 import { MessageModel } from "../models/MessageModel";
+import { EventPostSource } from "../models/EventPostModel";
 
 // RESPONSE TYPES
 
@@ -72,6 +73,22 @@ export interface EventTag {
   id: Uuid;
   name: string;
   posts: PostModel[];
+}
+
+// EVENT FEED
+
+export type { EventPostSource };
+
+export type PostWithSource = PostModel & {
+  source: EventPostSource;
+  relevanceScore: number | null;
+};
+
+export interface GetEventPostsResponse {
+  posts: PostWithSource[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 // POST

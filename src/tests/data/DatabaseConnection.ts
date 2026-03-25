@@ -36,6 +36,7 @@ export class DatabaseConnection {
       "Report",
       "postCategories",
       "postEventTags",
+      "eventPosts",
       "Post",
       "Category",
       "EventTag",

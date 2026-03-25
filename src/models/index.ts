@@ -12,6 +12,7 @@ import { FcmTokenModel } from "./FcmTokenModel";
 import { CategoryModel } from "./CategoryModel";
 import { SearchModel } from "./SearchModel";
 import { EventTagModel } from "./EventTagModel";
+import { EventPostModel } from "./EventPostModel";
 
 export const models = [
   FeedbackModel,
@@ -28,4 +29,5 @@ export const models = [
   CategoryModel,
   SearchModel,
   EventTagModel,
+  EventPostModel,
 ];

@@ -1,5 +1,6 @@
 import { AuthController } from './AuthController';
 import { AvailabilityController } from './AvailabilityController';
+import { EventController } from './EventController';
 import { FeedbackController } from './FeedbackController';
 import { ImageController } from './ImageController';
 import { PostController } from './PostController';
@@ -19,6 +20,7 @@ export const controllers = [
   AuthTokenController,
   AvailabilityController,
   ChatController,
+  EventController,
   FeedbackController,
   ImageController,
   NotifController,

@@ -26,6 +26,7 @@ import resellConnection from './utils/DB';
 import { ReportService } from './services/ReportService';
 import { reportToString } from './utils/Requests';
 import { startTransactionConfirmationCron } from './cron/transactionCron';
+import { startEventSimilarityCron } from './cron/eventSimilarityCron';
 
 // Setup dependency injection containers
 routingUseContainer(Container);
@@ -199,6 +200,7 @@ async function main() {
     console.log(`Resell backend bartering on http://localhost:${port}`);
 
     startTransactionConfirmationCron();
+    startEventSimilarityCron();
   });
 }
 

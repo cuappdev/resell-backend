@@ -548,6 +548,56 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
+  /*
+  This method is for finding posts similar to a centroid embedding for an event.
+  Returns posts with their similarity score, ordered by score descending.
+  */
+  public async findSimilarPostsForEvent(
+    centroidEmbedding: number[],
+    excludePostIds: string[],
+    threshold: number,
+    limit: number = 100,
+  ): Promise<{ post: PostModel; score: number }[]> {
+    const lit = `[${centroidEmbedding.join(",")}]`;
+    const scoreExpr = `(1 - (post.embedding::vector <=> CAST('${lit}' AS vector(512))))`;
+
+    // get IDs and scores with threshold filter + pagination
+    const qb = this.repository
+      .createQueryBuilder("post")
+      .select("post.id", "id")
+      .addSelect(scoreExpr, "score")
+      .where("post.embedding IS NOT NULL")
+      .andWhere("post.archive = false")
+      .andWhere("post.sold = false")
+      .andWhere(`${scoreExpr} >= :threshold`, { threshold });
+
+    if (excludePostIds.length > 0) {
+      qb.andWhere("post.id NOT IN (:...excludePostIds)", { excludePostIds });
+    }
+
+    qb.orderBy("score", "DESC").limit(limit);
+
+    const rawResults: { id: string; score: string }[] = await qb.getRawMany();
+    if (rawResults.length === 0) return [];
+
+    const ids = rawResults.map((r) => r.id);
+    const scoreMap = new Map(rawResults.map((r) => [r.id, Number(r.score)]));
+
+    // fetch full posts with all relations
+    const posts = await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
+      .where("post.id IN (:...ids)", { ids })
+      .getMany();
+
+    // reattach scores and restore score ordering
+    return posts
+      .map((post) => ({ post, score: scoreMap.get(post.id) ?? 0 }))
+      .sort((a, b) => b.score - a.score);
+  }
+
   public async getSuggestedPosts(
     userId: string,
     limit = 10,

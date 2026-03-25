@@ -12,6 +12,7 @@ import { NotifRepository } from "./NotifRepository";
 import { FcmTokenRepository } from "./FcmTokenRepository";
 import { CategoryRepository } from "./CategoryRepository"
 import { EventTagRepository } from "./EventTagRepository";
+import { EventPostRepository } from "./EventPostRepository";
 import { SearchRepository } from "./SearchRepository";
 
 export default class Repositories {
@@ -89,6 +90,12 @@ export default class Repositories {
     transactionalEntityManager: EntityManager,
   ): FcmTokenRepository {
     return transactionalEntityManager.getCustomRepository(FcmTokenRepository);
+  }
+
+  public static eventPost(
+    transactionalEntityManager: EntityManager,
+  ): EventPostRepository {
+    return transactionalEntityManager.getCustomRepository(EventPostRepository);
   }
 
   public static search(
