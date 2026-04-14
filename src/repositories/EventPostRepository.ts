@@ -78,6 +78,7 @@ export class EventPostRepository extends AbstractRepository<EventPostModel> {
 
   public async getPostsForEvent(
     eventTagId: string,
+    requestingUserId: string,
     source?: EventPostSource,
     skip: number = 0,
     limit: number = 10,
@@ -88,7 +89,13 @@ export class EventPostRepository extends AbstractRepository<EventPostModel> {
       .addSelect(EventPostRepository.SOURCE_PRIORITY_EXPR, "source_priority")
       .addSelect(EventPostRepository.SCORE_OR_RECENCY_EXPR, "score_or_recency")
       .innerJoin("epr.post", "post")
-      .where("epr.eventTagId = :eventTagId", { eventTagId });
+      .innerJoin("post.user", "author")
+      .where("epr.eventTagId = :eventTagId", { eventTagId })
+      .andWhere("author.isActive = true")
+      .andWhere(
+        `author.firebaseUid NOT IN (SELECT "blocking" FROM "userBlockingUsers" WHERE "blockers" = :requestingUserId)`,
+        { requestingUserId },
+      );
 
     if (source) {
       qb.andWhere("epr.source = :source", { source });
@@ -124,11 +131,19 @@ export class EventPostRepository extends AbstractRepository<EventPostModel> {
    */
   public async getPostCountForEvent(
     eventTagId: string,
+    requestingUserId: string,
     source?: EventPostSource,
   ): Promise<number> {
     const qb = this.repository
       .createQueryBuilder("epr")
-      .where("epr.eventTagId = :eventTagId", { eventTagId });
+      .innerJoin("epr.post", "post")
+      .innerJoin("post.user", "author")
+      .where("epr.eventTagId = :eventTagId", { eventTagId })
+      .andWhere("author.isActive = true")
+      .andWhere(
+        `author.firebaseUid NOT IN (SELECT "blocking" FROM "userBlockingUsers" WHERE "blockers" = :requestingUserId)`,
+        { requestingUserId },
+      );
 
     if (source) {
       qb.andWhere("epr.source = :source", { source });

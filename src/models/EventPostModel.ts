@@ -15,7 +15,8 @@ import { EventTagModel } from "./EventTagModel";
 export type EventPostSource = "user" | "similarity" | "nlp_context";
 
 @Entity("eventPosts")
-@Unique(["postId", "eventTagId"]) // Enforces one row per post per event, so ML layer can't insert another row if event already user-tagged
+// Enforces one row per post per event, so ML layer can't insert another row if event already user-tagged
+@Unique(["postId", "eventTagId"]) 
 export class EventPostModel {
   @PrimaryGeneratedColumn("uuid")
   id: Uuid;

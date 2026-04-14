@@ -32,7 +32,6 @@ export class EventService {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const eventTagRepo = Repositories.eventTag(transactionalEntityManager);
       const eventPostRepo = Repositories.eventPost(transactionalEntityManager);
-      const userRepo = Repositories.user(transactionalEntityManager);
 
       // Validate event tag exists
       const matches = await eventTagRepo.findByIds([eventTagId]);
@@ -40,25 +39,12 @@ export class EventService {
 
       const skip = (page - 1) * limit;
 
-      // Fetch paginated relationships and total count in parallel
       const [relationships, total] = await Promise.all([
-        eventPostRepo.getPostsForEvent(eventTagId, source, skip, limit),
-        eventPostRepo.getPostCountForEvent(eventTagId, source),
+        eventPostRepo.getPostsForEvent(eventTagId, user.firebaseUid, source, skip, limit),
+        eventPostRepo.getPostCountForEvent(eventTagId, user.firebaseUid, source),
       ]);
 
-      // Filter inactive and blocked users
-      const userWithBlockedInfo = await userRepo.getUserWithBlockedInfo(user.firebaseUid);
-      const blockedUids = new Set(
-        userWithBlockedInfo?.blocking?.map(u => u.firebaseUid) ?? [],
-      );
-
-      const filtered = relationships.filter(r =>
-        r.post?.user?.isActive &&
-        !blockedUids.has(r.post.user.firebaseUid),
-      );
-
-      // Attach source + relevanceScore to each post
-      const posts: PostWithSource[] = filtered.map(r =>
+      const posts: PostWithSource[] = relationships.map(r =>
         Object.assign(r.post, {
           source: r.source,
           relevanceScore: r.relevanceScore,

@@ -556,6 +556,11 @@ export class PostService {
       const eventPostRepository = Repositories.eventPost(transactionalEntityManager);
       for (const tag of removedTags) {
         await eventPostRepository.deleteRelationship(post.id, tag.id);
+
+        const remainingSeeds = await eventPostRepository.getUserTaggedPostsForEvent(tag.id);
+        if (remainingSeeds.length === 0) {
+          await eventPostRepository.deleteRelationshipsBySourceForEvent(tag.id, 'similarity');
+        }
       }
 
       post.eventTags = post.eventTags?.filter(tag => !tagsToRemoveNames.has(tag.name)) || [];
