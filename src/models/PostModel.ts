@@ -49,7 +49,7 @@ export class PostModel {
   archive: boolean;
 
   @Column("float", { array: true, nullable: true })
-  embedding: number[];
+  embedding: number[] | null;
 
   @ManyToOne(() => UserModel, (user) => user.posts, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })

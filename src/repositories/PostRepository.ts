@@ -90,7 +90,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
     price: number,
     images: string[],
     user: UserModel,
-    embedding: number[],
+    embedding: number[] | null,
   ): Promise<PostModel> {
     const post = new PostModel();
     post.title = title;
@@ -561,6 +561,9 @@ export class PostRepository extends AbstractRepository<PostModel> {
     excludeUserId: string,
     limit = 20,
   ): Promise<PostModel[]> {
+    if (!Array.isArray(queryEmbedding) || queryEmbedding.length === 0) {
+      return [];
+    }
     const lit = `[${queryEmbedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("post")
@@ -583,6 +586,9 @@ export class PostRepository extends AbstractRepository<PostModel> {
     excludeUserId: string,
     limit = 10,
   ): Promise<PostModel[]> {
+    if (!Array.isArray(embedding) || embedding.length === 0) {
+      return [];
+    }
     const lit = `[${embedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("post")
@@ -703,6 +709,9 @@ export class PostRepository extends AbstractRepository<PostModel> {
     excludeUserId: string,
     limit = 10,
   ): Promise<PostModel[]> {
+    if (!Array.isArray(avgEmbedding) || avgEmbedding.length === 0) {
+      return [];
+    }
     const lit = `[${avgEmbedding.join(",")}]`;
     return await this.repository
       .createQueryBuilder("post")
