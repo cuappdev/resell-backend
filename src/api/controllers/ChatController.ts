@@ -232,7 +232,7 @@ export class ChatController {
 
           try {
             const result = await queryRunner.query(`
-              INSERT INTO "Transaction" (location, amount, completed, post_id, buyer_id, seller_id, "transactionDate", "confirmationSent")
+              INSERT INTO "Transaction" (location, amount, completed, "postId", "buyerId", "sellerId", "transactionDate", "confirmationSent")
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
               RETURNING id
             `, ["", amount, false, post.id, buyer.firebaseUid, seller.firebaseUid, transactionDate, false]);
