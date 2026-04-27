@@ -21,8 +21,16 @@ export class TransactionReviewController {
   }
 
   @Get()
-  async getTransactionReviews(): Promise<{ reviews: TransactionReviewModel[] }> {
-    return { reviews: await this.transactionReviewService.getAllTransactionReviews() };
+  async getTransactionReviews(
+    @QueryParam("sellerId") sellerId?: string,
+  ): Promise<{ reviews: TransactionReviewModel[] }> {
+    return {
+      reviews: sellerId
+        ? await this.transactionReviewService.getTransactionReviewsBySellerId(
+            sellerId,
+          )
+        : await this.transactionReviewService.getAllTransactionReviews(),
+    };
   }
 
   @Get('id/:id/')

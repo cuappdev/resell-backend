@@ -28,11 +28,15 @@ export class UserReviewModel {
   @CreateDateColumn({ type: "timestamptz" })
   date: Date;
 
-  @ManyToOne(() => UserModel, (buyer) => buyer.reviewsWritten)
+  @ManyToOne(() => UserModel, (buyer) => buyer.reviewsWritten, {
+    nullable: false,
+  })
   @JoinColumn({ name: "buyerId" })
   buyer: UserModel;
 
-  @ManyToOne(() => UserModel, (seller) => seller.reviewsReceived)
+  @ManyToOne(() => UserModel, (seller) => seller.reviewsReceived, {
+    nullable: false,
+  })
   @JoinColumn({ name: "sellerId" })
   seller: UserModel;
 

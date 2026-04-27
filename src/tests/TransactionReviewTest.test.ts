@@ -8,6 +8,7 @@ import {
   DataFactory,
   TransactionFactory,
   TransactionReviewFactory,
+  UserFactory,
 } from "./data";
 import { CreateTransactionReviewRequest } from "src/types";
 
@@ -110,5 +111,41 @@ describe('transaction review tests', () => {
 
     const response = await transactionReviewController.getTransactionReviews();
     expect(response.reviews).toHaveLength(2);
+  });
+
+  test("get transaction reviews filtered by sellerId", async () => {
+    const seller = UserFactory.fakeTemplate2();
+    const buyer = UserFactory.fakeTemplate();
+    const otherSeller = UserFactory.fake();
+    const otherBuyer = UserFactory.fake();
+
+    const matchingTransaction = TransactionFactory.fake();
+    matchingTransaction.seller = seller;
+    matchingTransaction.buyer = buyer;
+
+    const otherTransaction = TransactionFactory.fake();
+    otherTransaction.seller = otherSeller;
+    otherTransaction.buyer = otherBuyer;
+
+    const matchingReview = TransactionReviewFactory.fake();
+    matchingReview.transaction = matchingTransaction;
+
+    const otherReview = TransactionReviewFactory.fake();
+    otherReview.transaction = otherTransaction;
+
+    await new DataFactory()
+      .createUsers(seller, buyer, otherSeller, otherBuyer)
+      .createTransactions(matchingTransaction, otherTransaction)
+      .createTransactionReviews(matchingReview, otherReview)
+      .write();
+
+    const response = await transactionReviewController.getTransactionReviews(
+      seller.firebaseUid,
+    );
+
+    expect(response.reviews).toHaveLength(1);
+    expect(response.reviews[0].transaction.seller.firebaseUid).toEqual(
+      seller.firebaseUid,
+    );
   });
 });

@@ -55,6 +55,32 @@ describe('user review tests', () => {
     const response = await userReviewController.getUserReviews();
 
     expect(response.reviews).toHaveLength(1);
+    expect(response.reviews[0].seller).toBeDefined();
+  });
+
+  test("get user reviews filtered by sellerId", async () => {
+    const seller = UserFactory.fakeTemplate2();
+    const otherSeller = UserFactory.fake();
+    const buyer = UserFactory.fakeTemplate();
+    const otherBuyer = UserFactory.fake();
+
+    const matchingReview = UserReviewFactory.fake();
+    matchingReview.buyer = buyer;
+    matchingReview.seller = seller;
+
+    const nonMatchingReview = UserReviewFactory.fake();
+    nonMatchingReview.buyer = otherBuyer;
+    nonMatchingReview.seller = otherSeller;
+
+    await new DataFactory()
+      .createUsers(buyer, otherBuyer, seller, otherSeller)
+      .createUserReviews(matchingReview, nonMatchingReview)
+      .write();
+
+    const response = await userReviewController.getUserReviews(seller.firebaseUid);
+
+    expect(response.reviews).toHaveLength(1);
+    expect(response.reviews[0].seller.firebaseUid).toEqual(seller.firebaseUid);
   });
 
   test("get user review by id", async () => {
