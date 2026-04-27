@@ -27,6 +27,19 @@ export class TransactionReviewService {
     });
   }
 
+  public async getTransactionReviewsBySellerId(
+    sellerId: string,
+  ): Promise<TransactionReviewModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const transactionReviewRepository = Repositories.transactionReview(
+        transactionalEntityManager,
+      );
+      return await transactionReviewRepository.getTransactionReviewsBySellerId(
+        sellerId,
+      );
+    });
+  }
+
   // Get a transaction review by its ID
   public async getTransactionReviewById(
     params: UuidParam,
