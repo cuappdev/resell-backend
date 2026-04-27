@@ -93,7 +93,7 @@ export interface Post {
   categories: Category[];
   eventTags: EventTag[];
   sold: boolean;
-  embedding: number[];
+  embedding: number[] | null;
 }
 
 export interface GetPostsResponse {
@@ -157,7 +157,7 @@ export interface Request {
   title: string;
   description: string;
   archive: boolean;
-  embedding: number[];
+  embedding: number[] | null;
   user: PrivateProfile;
   matches: PostModel[];
 }
