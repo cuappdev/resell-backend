@@ -11,6 +11,20 @@ export class TransactionReviewRepository extends AbstractRepository<TransactionR
     return await this.repository
       .createQueryBuilder("review")
       .leftJoinAndSelect("review.transaction", "transaction")
+      .leftJoinAndSelect("transaction.seller", "seller")
+      .leftJoinAndSelect("transaction.buyer", "buyer")
+      .getMany();
+  }
+
+  public async getTransactionReviewsBySellerId(
+    sellerId: Uuid,
+  ): Promise<TransactionReviewModel[]> {
+    return await this.repository
+      .createQueryBuilder("review")
+      .leftJoinAndSelect("review.transaction", "transaction")
+      .leftJoinAndSelect("transaction.seller", "seller")
+      .leftJoinAndSelect("transaction.buyer", "buyer")
+      .where("seller.firebaseUid = :sellerId", { sellerId })
       .getMany();
   }
 

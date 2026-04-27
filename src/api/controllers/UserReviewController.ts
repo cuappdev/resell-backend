@@ -1,4 +1,13 @@
-import { Body, CurrentUser, Delete, Get, JsonController, Params, Post } from 'routing-controllers';
+import {
+  Body,
+  CurrentUser,
+  Delete,
+  Get,
+  JsonController,
+  Params,
+  Post,
+  QueryParam,
+} from 'routing-controllers';
 import {
   CreateUserReviewRequest
 } from '../../types';
@@ -16,8 +25,14 @@ export class UserReviewController {
   }
 
   @Get()
-  async getUserReviews(): Promise<{ reviews: UserReviewModel[] }> {
-    return { reviews: await this.userReviewService.getAllUserReviews() };
+  async getUserReviews(
+    @QueryParam("sellerId") sellerId?: string,
+  ): Promise<{ reviews: UserReviewModel[] }> {
+    return {
+      reviews: sellerId
+        ? await this.userReviewService.getUserReviewsBySellerId(sellerId)
+        : await this.userReviewService.getAllUserReviews(),
+    };
   }
 
   @Get('id/:id/')

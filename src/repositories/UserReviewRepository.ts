@@ -10,6 +10,18 @@ export class UserReviewRepository extends AbstractRepository<UserReviewModel> {
     return await this.repository
       .createQueryBuilder("review")
       .leftJoinAndSelect("review.buyer", "user")
+      .leftJoinAndSelect("review.seller", "seller")
+      .getMany();
+  }
+
+  public async getUserReviewsBySellerId(
+    sellerId: Uuid,
+  ): Promise<UserReviewModel[]> {
+    return await this.repository
+      .createQueryBuilder("review")
+      .leftJoinAndSelect("review.buyer", "user")
+      .leftJoinAndSelect("review.seller", "seller")
+      .where("seller.firebaseUid = :sellerId", { sellerId })
       .getMany();
   }
 

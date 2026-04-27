@@ -26,6 +26,15 @@ export class UserReviewService {
     });
   }
 
+  public async getUserReviewsBySellerId(sellerId: string): Promise<UserReviewModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const userReviewRepository = Repositories.userReview(
+        transactionalEntityManager,
+      );
+      return await userReviewRepository.getUserReviewsBySellerId(sellerId);
+    });
+  }
+
   public async getUserReviewById(params: UuidParam): Promise<UserReviewModel> {
     return this.transactions.readOnly(async (transactionalEntityManager) => {
       const userReviewRepository = Repositories.userReview(

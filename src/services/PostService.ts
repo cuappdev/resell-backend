@@ -114,14 +114,26 @@ export class PostService {
         console.error("Error computing embedding:", error);
         embedding = null;
       }
-      const freshPost = await postRepository.createPost(post.title, post.description, categories, eventTags, post.condition, post.originalPrice, images, user, (embedding ?? []) as number[]);
-      if (embedding && Array.isArray(embedding) && embedding.length > 0) {
+      const validEmbedding =
+        Array.isArray(embedding) && embedding.length > 0 ? embedding : null;
+      const freshPost = await postRepository.createPost(
+        post.title,
+        post.description,
+        categories,
+        eventTags,
+        post.condition,
+        post.originalPrice,
+        images,
+        user,
+        validEmbedding,
+      );
+      if (validEmbedding) {
         const requestRepository = Repositories.request(
           transactionalEntityManager,
         );
         // TODO: how many should we get?
         const similarRequests = await requestRepository.findSimilarRequests(
-          embedding,
+          validEmbedding,
           user.firebaseUid,
           10,
         );
@@ -584,9 +596,12 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError("Post not found!");
-      const embedding = post.embedding;
+      const embedding =
+        Array.isArray(post.embedding) && post.embedding.length > 0
+          ? post.embedding
+          : null;
 
-      if (embedding == null) {
+      if (!embedding) {
         let fallback = await postRepository.getSimilarPostsFallback(
           post.id,
           user.firebaseUid,
