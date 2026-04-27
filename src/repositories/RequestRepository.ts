@@ -128,6 +128,7 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
         "distance",
       )
       .where("request.embedding IS NOT NULL")
+      .andWhere("CARDINALITY(request.embedding) > 0")
       .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
       // 3. Safely pass the embedding string as a parameter
       .setParameter("embedding", embeddingString)
