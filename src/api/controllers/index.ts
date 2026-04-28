@@ -13,6 +13,7 @@ import { TransactionReviewController } from './TransactionReviewController';
 import { ChatController } from './ChatController';
 import { AuthTokenController } from './AuthToken';
 import { SearchController } from './SearchController';
+import { VersionController } from './VersionController';
 
 export const controllers = [
   AuthController,
@@ -26,6 +27,7 @@ export const controllers = [
   RequestController,
   ReportController,
   SearchController,
+  VersionController,
   UserController,
   UserReviewController,
   TransactionController,
