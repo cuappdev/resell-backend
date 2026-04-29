@@ -34,3 +34,46 @@ export function isAllowedLoginEmail(
   }
   return whitelist.has(e);
 }
+
+function isProdEnv(): boolean {
+  return process.env.IS_PROD?.toLowerCase() === "true";
+}
+
+/**
+ * Human-readable token email for logs / dev error text (never throws).
+ */
+export function normalizedTokenEmailForDebug(
+  email: string | undefined,
+): string {
+  if (!email || !email.trim()) {
+    return "(no email claim on ID token)";
+  }
+  return normalizeEmail(email);
+}
+
+/**
+ * 403 message for disallowed emails. In non-prod, includes normalized token
+ * email and parsed EMAIL_WHITELIST for debugging. Prod stays generic.
+ * Always logs a line to stderr when called.
+ */
+export function buildForbiddenEmailMessage(email: string | undefined): string {
+  const base =
+    "Only Cornell email addresses or whitelisted emails are allowed.";
+  const normalizedFromToken = normalizedTokenEmailForDebug(email);
+  const whitelistEntries = Array.from(getEmailWhitelist()).sort();
+  const listText =
+    whitelistEntries.length > 0
+      ? whitelistEntries.join(", ")
+      : "(EMAIL_WHITELIST is empty)";
+
+  console.warn("[email-auth] rejected", {
+    normalizedFromToken,
+    whitelistEntryCount: whitelistEntries.length,
+    whitelistEntries: isProdEnv() ? "[redacted in prod logs]" : whitelistEntries,
+  });
+
+  if (isProdEnv()) {
+    return base;
+  }
+  return `${base} Token email (normalized): "${normalizedFromToken}". Whitelist: ${listText}.`;
+}

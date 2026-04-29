@@ -26,7 +26,10 @@ import resellConnection from './utils/DB';
 import { ReportService } from './services/ReportService';
 import { reportToString } from './utils/Requests';
 import { startTransactionConfirmationCron } from './cron/transactionCron';
-import { isAllowedLoginEmail } from './utils/allowlistedEmail';
+import {
+  buildForbiddenEmailMessage,
+  isAllowedLoginEmail,
+} from './utils/allowlistedEmail';
 
 // Setup dependency injection containers
 routingUseContainer(Container);
@@ -62,9 +65,7 @@ async function main() {
         action.request.email = email;
         action.request.firebaseUid = userId;
         if (!isAllowedLoginEmail(email)) {
-          throw new ForbiddenError(
-            "Only Cornell email addresses or allowlisted emails are allowed",
-          );
+          throw new ForbiddenError(buildForbiddenEmailMessage(email));
         }
         // Find or create user in your database using Firebase UID
         const manager = getManager();
