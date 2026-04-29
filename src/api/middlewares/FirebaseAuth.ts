@@ -7,6 +7,7 @@ import {
 import { firebaseAdmin } from "../../firebase";
 import { getManager } from "typeorm";
 import { UserModel } from "../../models/UserModel";
+import { isAllowedLoginEmail } from "../../utils/allowlistedEmail";
 
 export const FirebaseCurrentUserChecker = async (
   action: Action,
@@ -25,9 +26,10 @@ export const FirebaseCurrentUserChecker = async (
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
     const userId = decodedToken.uid;
     const email = decodedToken.email;
-    // Enforce Cornell email domain restriction
-    if (email && !email.endsWith("@cornell.edu")) {
-      throw new ForbiddenError("Only Cornell email addresses are allowed");
+    if (!isAllowedLoginEmail(email)) {
+      throw new ForbiddenError(
+        "Only Cornell email addresses or allowlisted emails are allowed",
+      );
     }
     // Fetch and return the user from the database
     const user = await getManager().findOne(UserModel, {
