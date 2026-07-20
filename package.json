@@ -45,9 +45,6 @@
     "typescript": "^4.4.2"
   },
   "dependencies": {
-    "@tensorflow-models/universal-sentence-encoder": "^1.3.3",
-    "@tensorflow/tfjs": "^4.2.0",
-    "@tensorflow/tfjs-node": "^4.22.0",
     "@types/node-cron": "^3.0.11",
     "body-parser": "^1.19.1",
     "class-transformer": "^0.5.1",
@@ -63,7 +60,6 @@
     "node-cron": "^4.2.1",
     "node-fetch": "^2.6.1",
     "pg": "^8.7.1",
-    "pgvector": "^0.2.0",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "0.10.2",
     "swagger-ui-express": "^5.0.1",

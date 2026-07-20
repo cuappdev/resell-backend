@@ -13,7 +13,7 @@ import { PostModel } from "src/models/PostModel";
 import { RequestModel } from "../models/RequestModel";
 import Repositories, { TransactionsManager } from "../repositories";
 import { CreateRequestRequest } from "../types";
-import { getLoadedModel } from "../utils/SentenceEncoder";
+import { embedText } from "../utils/EmbeddingService";
 
 @Service()
 export class RequestService {
@@ -59,47 +59,69 @@ export class RequestService {
   public async createRequest(
     request: CreateRequestRequest,
   ): Promise<RequestModel> {
-    return this.transactions.readWrite(async (transactionalEntityManager) => {
-      const userRepository = Repositories.user(transactionalEntityManager);
-      const user = await userRepository.getUserById(request.userId);
-      if (!user) throw new NotFoundError("User not found!");
-      const requestRepository = Repositories.request(
-        transactionalEntityManager,
-      );
-      let embedding = null;
-      try {
-        const model = await getLoadedModel();
-        const sentence = `${request.title} ${request.description}`;
-        const sentences = [sentence];
-        const embeddingTensor = await model.embed(sentences);
-        const embeddings = await embeddingTensor.array();
-        embedding = embeddings[0];
-      } catch (error) {
-        console.error("Error computing embedding:", error);
-      }
-      const freshRequest = await requestRepository.createRequest(
-        request.title,
-        request.description,
-        request.archive,
-        user,
-        embedding as number[],
-      );
-      if (embedding) {
+    const freshRequest = await this.transactions.readWrite(
+      async (transactionalEntityManager) => {
+        const userRepository = Repositories.user(transactionalEntityManager);
+        const user = await userRepository.getUserById(request.userId);
+        if (!user) throw new NotFoundError("User not found!");
+        const requestRepository = Repositories.request(
+          transactionalEntityManager,
+        );
+        // Embed asynchronously after respond — don't block create on OpenAI
+        return await requestRepository.createRequest(
+          request.title,
+          request.description,
+          request.archive,
+          user,
+          null,
+        );
+      },
+    );
+
+    void this.finalizeRequestEmbedding(
+      freshRequest.id,
+      `${request.title} ${request.description}`,
+      request.userId,
+    );
+
+    return freshRequest;
+  }
+
+  /**
+   * Compute embedding and post matches after create returns (fire-and-forget).
+   */
+  private async finalizeRequestEmbedding(
+    requestId: string,
+    text: string,
+    ownerUid: string,
+  ): Promise<void> {
+    try {
+      const embedding = await embedText(text);
+      if (!embedding) return;
+
+      await this.transactions.readWrite(async (transactionalEntityManager) => {
+        const requestRepository = Repositories.request(
+          transactionalEntityManager,
+        );
+        const req = await requestRepository.getRequestById(requestId);
+        if (!req) return;
+
+        req.embedding = embedding;
+        await requestRepository.saveRequest(req);
+
         const postRepository = Repositories.post(transactionalEntityManager);
-        // TODO: How many similar posts do we want to fetch?
-        console.log(user.firebaseUid);
         const similarPosts = await postRepository.findSimilarPosts(
-          embedding as number[],
-          user.firebaseUid,
+          embedding,
+          ownerUid,
           10,
         );
         for (const post of similarPosts) {
-          console.log("post", post);
-          await requestRepository.addMatchToRequest(freshRequest, post);
+          await requestRepository.addMatchToRequest(req, post);
         }
-      }
-      return freshRequest;
-    });
+      });
+    } catch (error) {
+      console.error("Error finalizing request embedding:", error);
+    }
   }
 
   public async deleteRequestById(params: UuidParam): Promise<RequestModel> {

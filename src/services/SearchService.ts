@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { getCustomRepository } from "typeorm";
 import { SearchRepository } from "../repositories/SearchRepository";
-import { getLoadedModel } from "../utils/SentenceEncoder";
+import { embedText } from "../utils/EmbeddingService";
 import { SearchModel } from "../models/SearchModel";
 
 @Service()
@@ -13,46 +13,40 @@ export class SearchService {
   }
 
   /**
-   * Create a search record with vectorized text using Universal Sentence Encoder
+   * Create a search record. Vectorization runs in the background so search
+   * results are not blocked on OpenAI.
    */
   public async createSearch(
     searchText: string,
     firebaseUid: string,
   ): Promise<SearchModel> {
-    let embedding = "[]"; // Default empty embedding
-
-    try {
-      if (process.env.NODE_ENV === "test") {
-        console.log(
-          "Skipping search embedding computation in test environment",
-        );
-      } else {
-        const embeddingPromise = (async () => {
-          const model = await getLoadedModel();
-          const embeddings = await model.embed([searchText]);
-          const embeddingArray = embeddings.arraySync()[0];
-          return JSON.stringify(embeddingArray);
-        })();
-
-        const timeoutPromise = new Promise<string>((_, reject) =>
-          setTimeout(
-            () => reject(new Error("Search embedding computation timeout")),
-            10000,
-          ),
-        );
-
-        embedding = await Promise.race([embeddingPromise, timeoutPromise]);
-      }
-    } catch (error) {
-      console.error("Error computing search embedding:", error);
-    }
-
-    // Create and save the search record
-    return await this.searchRepository.createSearch(
+    const search = await this.searchRepository.createSearch(
       searchText,
-      embedding,
+      "[]",
       firebaseUid,
     );
+
+    void this.finalizeSearchEmbedding(search.id, searchText);
+
+    return search;
+  }
+
+  private async finalizeSearchEmbedding(
+    searchId: string,
+    searchText: string,
+  ): Promise<void> {
+    try {
+      const vector = await embedText(searchText);
+      if (!vector) return;
+
+      const search = await this.searchRepository.getSearchById(searchId);
+      if (!search) return;
+
+      search.searchVector = JSON.stringify(vector);
+      await this.searchRepository.saveSearch(search);
+    } catch (error) {
+      console.error("Error finalizing search embedding:", error);
+    }
   }
 
   /**
@@ -62,36 +56,17 @@ export class SearchService {
     searchText: string,
     limit = 5,
   ): Promise<SearchModel[]> {
-    let embedding = "[]"; // Default empty embedding
+    let embedding = "[]";
 
     try {
-      if (process.env.NODE_ENV === "test") {
-        console.log(
-          "Skipping similar search embedding computation in test environment",
-        );
-      } else {
-        const embeddingPromise = (async () => {
-          const model = await getLoadedModel();
-          const embeddings = await model.embed([searchText]);
-          const embeddingArray = embeddings.arraySync()[0];
-          return JSON.stringify(embeddingArray);
-        })();
-
-        const timeoutPromise = new Promise<string>((_, reject) =>
-          setTimeout(
-            () =>
-              reject(new Error("Similar search embedding computation timeout")),
-            10000,
-          ),
-        );
-
-        embedding = await Promise.race([embeddingPromise, timeoutPromise]);
+      const vector = await embedText(searchText);
+      if (vector) {
+        embedding = JSON.stringify(vector);
       }
     } catch (error) {
       console.error("Error computing similar search embedding:", error);
     }
 
-    // Find similar searches using vector similarity
     return await this.searchRepository.findSimilarSearches(embedding, limit);
   }
 

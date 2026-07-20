@@ -3,6 +3,7 @@ import { AbstractRepository, EntityRepository } from "typeorm";
 import { SearchModel } from "../models/SearchModel";
 import { UserModel } from "../models/UserModel";
 import { Uuid } from "../types";
+import { parseEmbedding, topKByCosine } from "../utils/Knn";
 
 @EntityRepository(SearchModel)
 export class SearchRepository extends AbstractRepository<SearchModel> {
@@ -56,22 +57,36 @@ export class SearchRepository extends AbstractRepository<SearchModel> {
     return await this.repository.save(search);
   }
 
+  public async saveSearch(search: SearchModel): Promise<SearchModel> {
+    return await this.repository.save(search);
+  }
+
   /**
-   * Find similar searches based on vector similarity
-   * Note: This requires raw SQL as TypeORM doesn't natively support pgvector operations
+   * Exact KNN over search embeddings stored as JSON/float text (no pgvector).
    */
   public async findSimilarSearches(
     searchVector: string,
     limit = 5,
   ): Promise<SearchModel[]> {
-    // Using raw query to leverage pgvector's similarity search
-    // The vector data is passed as a string and converted in the query
-    return await this.repository
+    const query = parseEmbedding(searchVector);
+    if (!query) {
+      return [];
+    }
+
+    const candidates = await this.repository
       .createQueryBuilder("search")
       .leftJoinAndSelect("search.user", "user")
-      .orderBy(`search.searchVector <-> '${searchVector}'`)
-      .limit(limit)
+      .where("search.searchVector IS NOT NULL")
       .getMany();
+
+    return topKByCosine(
+      query,
+      candidates.map((search) => ({
+        embedding: parseEmbedding(search.searchVector) ?? [],
+        value: search,
+      })),
+      limit,
+    );
   }
 
   /**

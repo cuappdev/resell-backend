@@ -1,3 +1,4 @@
 import { ErrorHandler } from "./ErrorHandler";
+import { RequestTimingMiddleware } from "./RequestTimingMiddleware";
 
-export const middlewares = [ErrorHandler];
+export const middlewares = [RequestTimingMiddleware, ErrorHandler];

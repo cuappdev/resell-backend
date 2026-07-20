@@ -113,6 +113,11 @@ export interface IsSavedPostResponse {
   isSaved: boolean;
 }
 
+export interface RecordViewResponse {
+  success: true;
+  recorded: boolean;
+}
+
 export interface EditPriceResponse {
   newPrice: number;
 }

@@ -18,9 +18,12 @@ export class DatabaseConnection {
         type: "postgres",
         username: "postgres",
       });
-      // Ensure pgvector extension is installed for tests
+      // Ensure pgvector is NOT required for tests.
       await DatabaseConnection.conn.query(
-        "CREATE EXTENSION IF NOT EXISTS vector",
+        `ALTER TABLE "userSavedPosts" ADD COLUMN IF NOT EXISTS "savedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()`,
+      );
+      await DatabaseConnection.conn.query(
+        `ALTER TABLE "Post" ADD COLUMN IF NOT EXISTS "similarPostIds" uuid[]`,
       );
     }
     return DatabaseConnection.conn;
@@ -36,6 +39,8 @@ export class DatabaseConnection {
       "Report",
       "postCategories",
       "postEventTags",
+      "postViews",
+      "userSavedPosts",
       "Post",
       "Category",
       "EventTag",
