@@ -1,16 +1,33 @@
-import { Connection, ConnectionOptions, createConnection } from "typeorm";
+import { Connection, ConnectionOptions, createConnection, getConnectionManager } from "typeorm";
 
 import { models } from "../models";
 
-function usesSsl(connectionUrl?: string): boolean {
-  if (connectionUrl) {
-    return (
-      connectionUrl.includes("sslmode=") ||
-      connectionUrl.includes("neon.tech") ||
-      process.env.IS_PROD?.toLowerCase() === "true"
-    );
+/** Prefer URL sslmode; only add pg ssl when needed and not already in the URL. */
+function pgExtra(connectionUrl?: string): Record<string, unknown> {
+  const extra: Record<string, unknown> = {
+    max: Number(process.env.DB_POOL_MAX || 5),
+  };
+
+  if (!connectionUrl) {
+    if (process.env.IS_PROD?.toLowerCase() === "true") {
+      extra.ssl = { rejectUnauthorized: false };
+    }
+    return extra;
   }
-  return process.env.IS_PROD?.toLowerCase() === "true";
+
+  // Neon pooled/direct URLs already include sslmode=require — don't double-configure SSL.
+  if (connectionUrl.includes("sslmode=")) {
+    return extra;
+  }
+
+  if (
+    connectionUrl.includes("neon.tech") ||
+    process.env.IS_PROD?.toLowerCase() === "true"
+  ) {
+    extra.ssl = { rejectUnauthorized: false };
+  }
+
+  return extra;
 }
 
 /** Runtime app connection (prefer pooled Neon URL). */
@@ -32,7 +49,6 @@ export function buildConnectionOptions(
 ): ConnectionOptions {
   const url =
     (overrides as { url?: string }).url ?? getRuntimeDatabaseUrl();
-  const ssl = usesSsl(url);
 
   const base: ConnectionOptions = url
     ? {
@@ -41,10 +57,7 @@ export function buildConnectionOptions(
         entities: models,
         synchronize: false,
         logging: process.env.DB_LOGGING?.toLowerCase() === "true",
-        extra: {
-          max: Number(process.env.DB_POOL_MAX || 5),
-          ssl: ssl ? { rejectUnauthorized: true } : undefined,
-        },
+        extra: pgExtra(url),
         migrations: ["src/migrations/*.ts"],
         cli: {
           entitiesDir: "src/models/",
@@ -61,10 +74,7 @@ export function buildConnectionOptions(
         entities: models,
         synchronize: false,
         logging: process.env.DB_LOGGING?.toLowerCase() === "true",
-        extra: {
-          max: Number(process.env.DB_POOL_MAX || 5),
-          ssl: ssl ? { rejectUnauthorized: true } : undefined,
-        },
+        extra: pgExtra(undefined),
         migrations: ["src/migrations/*.ts"],
         cli: {
           entitiesDir: "src/models/",
@@ -76,6 +86,15 @@ export function buildConnectionOptions(
 }
 
 export default async function resellConnection(): Promise<Connection> {
+  const manager = getConnectionManager();
+  if (manager.has("default")) {
+    const existing = manager.get("default");
+    if (existing.isConnected) {
+      return existing;
+    }
+    return existing.connect();
+  }
+
   return await createConnection(
     buildConnectionOptions({
       logging: true,
