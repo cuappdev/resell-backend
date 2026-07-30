@@ -1,0 +1,58 @@
+name: Migrate Neon database
+
+on:
+  push:
+    branches: [main, release]
+  workflow_dispatch:
+    inputs:
+      neon_branch:
+        description: "Neon branch to migrate (production | staging | dev)"
+        required: true
+        default: "production"
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --force
+
+      - name: Resolve connection URL
+        id: db
+        env:
+          DATABASE_URL_UNPOOLED_PRODUCTION: ${{ secrets.DATABASE_URL_UNPOOLED_PRODUCTION }}
+          DATABASE_URL_UNPOOLED_STAGING: ${{ secrets.DATABASE_URL_UNPOOLED_STAGING }}
+          DATABASE_URL_UNPOOLED_DEV: ${{ secrets.DATABASE_URL_UNPOOLED_DEV }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BRANCH="${{ github.event.inputs.neon_branch }}"
+          elif [ "${{ github.ref }}" = "refs/heads/release" ]; then
+            BRANCH="production"
+          else
+            BRANCH="staging"
+          fi
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          case "$BRANCH" in
+            production) URL="$DATABASE_URL_UNPOOLED_PRODUCTION" ;;
+            staging) URL="$DATABASE_URL_UNPOOLED_STAGING" ;;
+            dev) URL="$DATABASE_URL_UNPOOLED_DEV" ;;
+            *) echo "Unknown branch: $BRANCH"; exit 1 ;;
+          esac
+          if [ -z "$URL" ]; then
+            echo "Missing secret for Neon branch: $BRANCH"
+            exit 1
+          fi
+          echo "DATABASE_URL_UNPOOLED=$URL" >> "$GITHUB_ENV"
+          echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
+
+      - name: Run migrations
+        run: npm run db:migrate

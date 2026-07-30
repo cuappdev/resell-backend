@@ -27,6 +27,7 @@ import {
   GetSearchedPostsRequest,
   GetSearchedPostsResponse,
   IsSavedPostResponse,
+  RecordViewResponse,
 } from "../../types";
 import { UuidParam, FirebaseUidParam } from "../validators/GenericRequests";
 
@@ -330,6 +331,39 @@ export class PostController {
     @QueryParam("limit", { required: false }) limit: number = 10,
   ): Promise<GetPostsResponse> {
     return { posts: await this.postService.getSuggestedPosts(user, limit) };
+  }
+
+  @Post("view/postId/:id/")
+  async recordView(
+    @CurrentUser() user: UserModel,
+    @Params() params: UuidParam,
+  ): Promise<RecordViewResponse> {
+    return await this.postService.recordView(user, params);
+  }
+
+  @Get("dailyPicks/")
+  async getDailyPicks(
+    @CurrentUser() user: UserModel,
+    @QueryParam("limit", { required: false }) limit: number = 10,
+  ): Promise<GetPostsResponse> {
+    return { posts: await this.postService.getDailyPicks(user, limit) };
+  }
+
+  @Get("trending/")
+  async getTrendingPosts(
+    @CurrentUser() user: UserModel,
+    @QueryParam("category", { required: true }) category: string,
+    @QueryParam("page", { required: false }) page: number = 1,
+    @QueryParam("limit", { required: false }) limit: number = 10,
+  ): Promise<GetPostsResponse> {
+    return {
+      posts: await this.postService.getTrendingPosts(
+        user,
+        category,
+        page,
+        limit,
+      ),
+    };
   }
 
   @Get("searchSuggestions/:searchIndex/")

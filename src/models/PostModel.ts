@@ -51,6 +51,13 @@ export class PostModel {
   @Column("float", { array: true, nullable: true })
   embedding: number[] | null;
 
+  /**
+   * Precomputed nearest-neighbor post IDs for fast similar-posts reads.
+   * Populated when embedding is finalized (or lazily on first similar request).
+   */
+  @Column("uuid", { array: true, nullable: true })
+  similarPostIds: string[] | null;
+
   @ManyToOne(() => UserModel, (user) => user.posts, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
   user: UserModel;
