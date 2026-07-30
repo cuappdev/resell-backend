@@ -3,8 +3,13 @@ require("dotenv").config();
 const url =
   process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || undefined;
 
-function pgExtra(connectionUrl) {
-  const extra = { max: Number(process.env.DB_POOL_MAX || 5) };
+function pgExtra(connectionUrl: string | undefined): {
+  max: number;
+  ssl?: { rejectUnauthorized: boolean };
+} {
+  const extra: { max: number; ssl?: { rejectUnauthorized: boolean } } = {
+    max: Number(process.env.DB_POOL_MAX || 5),
+  };
   if (!connectionUrl) {
     if (process.env.IS_PROD?.toLowerCase() === "true") {
       extra.ssl = { rejectUnauthorized: false };
