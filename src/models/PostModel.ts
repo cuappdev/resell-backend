@@ -15,6 +15,7 @@ import { UserModel } from "./UserModel";
 import { ReportModel } from "./ReportModel";
 import { CategoryModel } from "./CategoryModel";
 import { EventTagModel } from "./EventTagModel";
+import { SubCategoryModel } from "./SubCategoryModel";
 
 @Entity("Post")
 export class PostModel {
@@ -81,6 +82,17 @@ export class PostModel {
   })
   categories: CategoryModel[];
 
+  @ManyToMany(() => SubCategoryModel, (subcategory) => subcategory.posts, {
+    cascade: true,
+    nullable: true,
+  })
+  @JoinTable({
+    name: "postSubCategories",
+    joinColumn: { name: "posts", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "subcategories", referencedColumnName: "id" },
+  })
+  subcategories: SubCategoryModel[];
+
   @ManyToMany(() => EventTagModel, (eventTag) => eventTag.posts)
   @JoinTable({
     name: "postEventTags",
@@ -112,6 +124,7 @@ export class PostModel {
       savers: this.savers?.map((user) => user.getUserProfile()),
       matched: this.matched?.map((request) => request.getRequestInfo()),
       categories: this.categories?.map((category) => category.getCategoryInfo()),
+      subcategories: this.subcategories?.map((sub) => sub.getSubCategoryInfo()),
       eventTags: this.eventTags?.map((eventTag) => eventTag.getEventTagInfo()),
       sold: this.sold,
     };

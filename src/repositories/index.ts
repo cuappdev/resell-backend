@@ -11,6 +11,8 @@ import { TransactionReviewRepository } from "./TransactionReviewRepository";
 import { NotifRepository } from "./NotifRepository";
 import { FcmTokenRepository } from "./FcmTokenRepository";
 import { CategoryRepository } from "./CategoryRepository"
+import { SubCategoryRepository } from "./SubCategoryRepository";
+import { SubCategoryGroupRepository } from "./SubCategoryGroupRepository";
 import { EventTagRepository } from "./EventTagRepository";
 import { SearchRepository } from "./SearchRepository";
 
@@ -31,6 +33,18 @@ export default class Repositories {
     transactionalEntityManager: EntityManager,
   ): CategoryRepository {
     return transactionalEntityManager.getCustomRepository(CategoryRepository);
+  }
+
+  public static subCategory(
+    transactionalEntityManager: EntityManager,
+  ): SubCategoryRepository {
+    return transactionalEntityManager.getCustomRepository(SubCategoryRepository);
+  }
+
+  public static subCategoryGroup(
+    transactionalEntityManager: EntityManager,
+  ): SubCategoryGroupRepository {
+    return transactionalEntityManager.getCustomRepository(SubCategoryGroupRepository);
   }
 
   public static eventTag(

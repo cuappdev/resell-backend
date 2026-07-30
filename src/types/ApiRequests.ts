@@ -95,6 +95,7 @@ export interface CreatePostRequest {
     title: string;
     description: string;
     categories: string[];
+    subcategories?: string[];
     eventTags?: string[];
     condition: string;
     originalPrice: number;

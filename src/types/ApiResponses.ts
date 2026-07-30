@@ -60,10 +60,32 @@ export interface Category {
   id: Uuid;
   name: string;
   posts: PostModel[];
+  subcategoryGroups?: SubCategoryGroup[];
 }
 
 export interface GetCategoryResponse {
   categories: Category;
+}
+
+// SUBCATEGORY
+
+export interface SubCategoryGroup {
+  id: Uuid;
+  name: string;
+  subcategories?: SubCategoryOption[];
+}
+
+export interface SubCategoryOption {
+  id: Uuid;
+  name: string;
+}
+
+export interface SubCategory {
+  id: Uuid;
+  name: string;
+  groupId?: Uuid;
+  groupName?: string;
+  posts: PostModel[];
 }
 
 // EVENT TAG
@@ -91,6 +113,7 @@ export interface Post {
   savers: PrivateProfile[];
   matched: Request[];
   categories: Category[];
+  subcategories?: SubCategory[];
   eventTags: EventTag[];
   sold: boolean;
   embedding: number[] | null;

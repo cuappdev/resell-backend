@@ -8,6 +8,8 @@ import { RequestModel } from '../models/RequestModel';
 import { TransactionModel } from '../models/TransactionModel';
 import { TransactionReviewModel } from '../models/TransactionReviewModel';
 import { CategoryModel } from '../models/CategoryModel';
+import { SubCategoryGroupModel } from '../models/SubCategoryGroupModel';
+import { SubCategoryModel } from '../models/SubCategoryModel';
 import { EventTagModel } from '../models/EventTagModel';
 import { getRepository } from 'typeorm';
 import { NotifModel } from '../models/NotifModel'
@@ -29,6 +31,8 @@ export default class SeedInitialData implements Seeder {
     const transactionRepository = getRepository(TransactionModel);
     const transactionReviewRepository = getRepository(TransactionReviewModel);
     const categoryRepository = getRepository(CategoryModel);
+    const subcategoryGroupRepository = getRepository(SubCategoryGroupModel);
+    const subcategoryRepository = getRepository(SubCategoryModel);
     const eventTagRepository = getRepository(EventTagModel);
     const notifRepository = getRepository(NotifModel)
 
@@ -40,6 +44,8 @@ export default class SeedInitialData implements Seeder {
     await feedbackRepository.delete({});
     await notifRepository.delete({});
     await postRepository.delete({});
+    await subcategoryRepository.delete({});
+    await subcategoryGroupRepository.delete({});
     await categoryRepository.delete({});
     await eventTagRepository.delete({});
     await userRepository.delete({});
@@ -61,6 +67,48 @@ export default class SeedInitialData implements Seeder {
         name: categoryName,
       }).create();
       categories.push(category);
+    }
+
+    // Seed subcategory groups and their values per category
+    const subcategoryDefinitions: Record<string, Record<string, string[]>> = {
+      CLOTHING: {
+        Brand: ["Nike", "Adidas", "Zara", "H&M", "Uniqlo", "Levi's", "Other"],
+        Size: ["XS", "S", "M", "L", "XL", "XXL", "One Size"],
+        Type: ["T-Shirt", "Pants", "Dress", "Jacket", "Shoes", "Hoodie", "Accessories"],
+      },
+      ELECTRONICS: {
+        Type: ["Phone", "Laptop", "Tablet", "Headphones", "Camera", "Gaming", "Other"],
+        Condition: ["Brand New", "Like New", "Good", "Fair"],
+      },
+      BOOKS: {
+        Genre: ["Textbook", "Fiction", "Non-Fiction", "Science", "History", "Art", "Other"],
+        Condition: ["New", "Good", "Acceptable", "Heavily Used"],
+      },
+      FURNITURE: {
+        Type: ["Chair", "Desk", "Bed Frame", "Dresser", "Shelf", "Sofa", "Other"],
+        Material: ["Wood", "Metal", "Fabric", "Plastic", "Glass"],
+      },
+      HANDMADE: {
+        Type: ["Jewelry", "Art", "Candles", "Ceramics", "Clothing", "Home Decor", "Other"],
+      },
+    };
+
+    for (const category of categories) {
+      const groups = subcategoryDefinitions[category.name];
+      if (!groups) continue;
+
+      for (const [groupName, values] of Object.entries(groups)) {
+        const group = subcategoryGroupRepository.create({ name: groupName });
+        group.category = category;
+        await subcategoryGroupRepository.save(group);
+
+        const subs = values.map((value) => {
+          const sub = subcategoryRepository.create({ name: value });
+          sub.group = group;
+          return sub;
+        });
+        await subcategoryRepository.save(subs);
+      }
     }
 
     // Create event tags
