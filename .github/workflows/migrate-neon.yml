@@ -55,4 +55,8 @@ jobs:
           echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
 
       - name: Run migrations
+        env:
+          # Needed only if AuthorizationRefactor (or similar) still has to run.
+          # Safe when unset if that migration is already recorded as applied.
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: npm run db:migrate
