@@ -1,4 +1,5 @@
-import { Body, Get, JsonController, Post } from "routing-controllers";
+import { BadRequestError, Body, Get, JsonController, Post, UseBefore } from "routing-controllers";
+import { localAuthOnly } from "../middlewares/LocalAuthOnly";
 import { getAuth } from "firebase-admin/auth";
 import {
   AuthTokenResponse,
@@ -8,6 +9,7 @@ import {
 } from "../../types";
 
 @JsonController("authToken/")
+@UseBefore(localAuthOnly)
 export class AuthTokenController {
   @Post("create/") async createAccount(
     @Body() info: emailAndPass,
@@ -26,8 +28,23 @@ export class AuthTokenController {
   @Get() async authorize(
     @Body() fcmToken: FcmTokenRequest,
   ): Promise<AuthTokenResponse> {
+    return this.issueToken(fcmToken?.token);
+  }
+
+  @Post() async localToken(
+    @Body() body: { uid: string },
+  ): Promise<AuthTokenResponse> {
+    return this.issueToken(body?.uid);
+  }
+
+  private async issueToken(uid: string): Promise<AuthTokenResponse> {
+    if (typeof uid !== "string" || !uid.trim() || uid.length > 128) {
+      throw new BadRequestError("Provide a Firebase UID (1–128 characters)");
+    }
     try {
-      const customToken = await getAuth().createCustomToken(fcmToken.token);
+      // Require an existing test user; avoid creating users as a side effect.
+      await getAuth().getUser(uid);
+      const customToken = await getAuth().createCustomToken(uid);
 
       const response = await fetch(
         "https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=AIzaSyDoA6LS50__vx9PsHk_olqlM_CInjJnG7o",
@@ -49,7 +66,6 @@ export class AuthTokenController {
       }
 
       const res = await response.json();
-      console.log(res.idToken);
 
       const idToken = res.idToken;
       return { token: idToken };
