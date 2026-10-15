@@ -465,6 +465,44 @@ describe("post tests", () => {
       { eventTags: [] },
     );
     expect(resp.posts).toHaveLength(0);
+    expect(resp.total).toEqual(0);
+  });
+
+  test("filter posts by event tags - total counts every page with the feed's filters", async () => {
+    const [viewer, seller, blockedSeller, inactiveSeller] = UserFactory.create(4);
+    inactiveSeller.isActive = false;
+
+    const [visible1, visible2, visible3, archivedPost, blockedSellerPost, inactiveSellerPost, untaggedPost] =
+      PostFactory.create(7);
+    const visiblePosts = [visible1, visible2, visible3];
+    [...visiblePosts, archivedPost, untaggedPost].forEach((post) => (post.user = seller));
+    visiblePosts.forEach((post) => (post.archive = false));
+    archivedPost.archive = true;
+    blockedSellerPost.user = blockedSeller;
+    blockedSellerPost.archive = false;
+    inactiveSellerPost.user = inactiveSeller;
+    inactiveSellerPost.archive = false;
+
+    const taggedPosts = [...visiblePosts, archivedPost, blockedSellerPost, inactiveSellerPost];
+
+    await new DataFactory()
+      .createUsers(viewer, seller, blockedSeller, inactiveSeller)
+      .createPosts(...taggedPosts, untaggedPost)
+      .write();
+
+    const homecoming = await conn.getRepository(EventTagModel).save({ name: "HOMECOMING" });
+    for (const post of taggedPosts) {
+      await conn.createQueryBuilder().relation(PostModel, "eventTags").of(post).add(homecoming);
+    }
+    await ControllerFactory.user(conn).blockUser({ blocked: blockedSeller.firebaseUid }, viewer);
+
+    const firstPage = await postController.filterPostsByEventTags(
+      viewer,
+      { eventTags: ["HOMECOMING"] },
+      1,
+      1,
+    );
+    expect(firstPage.total).toEqual(visiblePosts.length);
   });
 
   test("delete post by id", async () => {

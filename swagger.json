@@ -932,7 +932,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetPostsResponse"
+                  "$ref": "#/components/schemas/GetEventPostsResponse"
                 }
               }
             }
@@ -3317,6 +3317,20 @@
             }
           }
         }
+      },
+      "GetEventPostsResponse": {
+        "allOf": [
+          { "$ref": "#/components/schemas/GetPostsResponse" },
+          {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "description": "Matching posts across every page, counted with the same filters as posts"
+              }
+            }
+          }
+        ]
       },
       "GetPostsResponse": {
         "type": "object",

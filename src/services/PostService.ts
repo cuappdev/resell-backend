@@ -281,9 +281,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
 
       // checking null and undefined, should return empty array if so
-      if (!filterPostsByEventTagsRequest.eventTags ||
-        filterPostsByEventTagsRequest.eventTags.length === 0 ||
-        !filterPostsByEventTagsRequest.eventTags.every(tag => typeof tag === 'string' && tag.trim().length > 0)) {
+      if (!this.hasValidEventTags(filterPostsByEventTagsRequest)) {
         return [];
       }
       const skip = (page - 1) * limit;
@@ -291,6 +289,24 @@ export class PostService {
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
+  }
+
+  /** Total number of posts `filterPostsByEventTags` returns for `user` across every page. */
+  public async countPostsByEventTags(user: UserModel, filterPostsByEventTagsRequest: FilterPostsByEventTagsRequest): Promise<number> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      if (!this.hasValidEventTags(filterPostsByEventTagsRequest)) {
+        return 0;
+      }
+      const userWithBlockedInfo = await Repositories.user(transactionalEntityManager).getUserWithBlockedInfo(user.firebaseUid);
+      const blockedSellerIds = userWithBlockedInfo?.blocking?.map((blockedUser) => blockedUser.firebaseUid) ?? [];
+      return Repositories.post(transactionalEntityManager).countPostsByEventTags(filterPostsByEventTagsRequest.eventTags, blockedSellerIds);
+    });
+  }
+
+  private hasValidEventTags(request: FilterPostsByEventTagsRequest): boolean {
+    return !!request.eventTags &&
+      request.eventTags.length > 0 &&
+      request.eventTags.every(tag => typeof tag === 'string' && tag.trim().length > 0);
   }
 
   public async filterPostsByPrice(user: UserModel, filterPostsByPriceRequest: FilterPostsByPriceRequest, page: number = 1, limit: number = 10): Promise<PostModel[]> {
