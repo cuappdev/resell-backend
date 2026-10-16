@@ -1854,6 +1854,37 @@ describe("post tests", () => {
     );
   });
 
+  test("trending - matches category names regardless of case", async () => {
+    const seller = UserFactory.fake();
+    const viewer = UserFactory.fake();
+    viewer.saved = [];
+
+    // Listings created from the app store the category as titled in the UI.
+    const electronics = new CategoryModel();
+    electronics.id = "33333333-3333-3333-3333-333333333333";
+    electronics.name = "Electronics";
+    electronics.posts = [];
+
+    const laptop = PostFactory.fake();
+    laptop.user = seller;
+    laptop.categories = [electronics];
+
+    await new DataFactory()
+      .createUsers(seller, viewer)
+      .createPosts(laptop)
+      .write();
+
+    for (const category of ["ELECTRONICS", "Electronics", "electronics"]) {
+      const response = await postController.getTrendingPosts(
+        viewer,
+        category,
+        1,
+        10,
+      );
+      expect(response.posts.map((p) => p.id)).toEqual([laptop.id]);
+    }
+  });
+
   test("dailyPicks - excludes sold and archived posts", async () => {
     const seller = UserFactory.fake();
     const viewer = UserFactory.fake();
