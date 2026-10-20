@@ -2,6 +2,7 @@ import { PostController } from "src/api/controllers/PostController";
 import { Connection, Not } from "typeorm";
 
 import { UuidParam } from "../api/validators/GenericRequests";
+import { PostSortField } from "../types";
 import { PostModel } from "../models/PostModel";
 import { CategoryModel } from "../models/CategoryModel";
 import { EventTagModel } from "../models/EventTagModel";
@@ -1888,5 +1889,125 @@ describe("post tests", () => {
     expect(ids).toContain(active.id);
     expect(ids).not.toContain(sold.id);
     expect(ids).not.toContain(archived.id);
+  });
+
+  test("unified filter - sorts posts within a category", async () => {
+    const seller = UserFactory.fake();
+
+    const other = new CategoryModel();
+    other.id = "c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1";
+    other.name = "OTHER";
+    other.posts = [];
+
+    const clothing = new CategoryModel();
+    clothing.id = "c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2";
+    clothing.name = "CLOTHING";
+    clothing.posts = [];
+
+    const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000);
+    const otherPost = (price: number, created: Date) => {
+      const post = PostFactory.fake();
+      post.user = seller;
+      post.categories = [other];
+      post.originalPrice = price;
+      post.alteredPrice = -1;
+      post.created = created;
+      return post;
+    };
+
+    const oldest = otherPost(20, daysAgo(3));
+    const newest = otherPost(30, daysAgo(1));
+    const cheapest = otherPost(10, daysAgo(2));
+    const clothingPost = PostFactory.fake();
+    clothingPost.user = seller;
+    clothingPost.categories = [clothing];
+
+    await new DataFactory()
+      .createUsers(seller)
+      .createPosts(oldest, newest, cheapest, clothingPost)
+      .write();
+
+    const idsSortedBy = async (sortField: PostSortField) =>
+      (
+        await postController.filterPosts(seller, {
+          sortField,
+          categories: ["OTHER"],
+        })
+      ).posts.map((post) => post.id);
+
+    expect(await idsSortedBy("newlyListed")).toEqual([
+      newest.id,
+      cheapest.id,
+      oldest.id,
+    ]);
+    expect(await idsSortedBy("priceLowToHigh")).toEqual([
+      cheapest.id,
+      oldest.id,
+      newest.id,
+    ]);
+    expect(await idsSortedBy("priceHighToLow")).toEqual([
+      newest.id,
+      oldest.id,
+      cheapest.id,
+    ]);
+  });
+
+  test("unified filter - matches category names regardless of case", async () => {
+    const seller = UserFactory.fake();
+
+    const other = new CategoryModel();
+    other.id = "c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1";
+    other.name = "OTHER";
+    other.posts = [];
+
+    const post = PostFactory.fake();
+    post.user = seller;
+    post.categories = [other];
+
+    await new DataFactory().createUsers(seller).createPosts(post).write();
+
+    for (const name of ["OTHER", "Other", "other"]) {
+      const response = await postController.filterPosts(seller, {
+        categories: [name],
+      });
+      expect(response.posts.map((p) => p.id)).toEqual([post.id]);
+    }
+  });
+
+  test("unified filter - pages through every match exactly once", async () => {
+    const seller = UserFactory.fake();
+
+    const other = new CategoryModel();
+    other.id = "c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1";
+    other.name = "OTHER";
+    other.posts = [];
+
+    const created = new Date();
+    const posts = Array.from({ length: 12 }, () => {
+      const post = PostFactory.fake();
+      post.user = seller;
+      post.categories = [other];
+      post.created = created;
+      return post;
+    });
+
+    await new DataFactory()
+      .createUsers(seller)
+      .createPosts(...posts)
+      .write();
+
+    const pagedIds: string[] = [];
+    for (const page of [1, 2, 3]) {
+      const response = await postController.filterPosts(
+        seller,
+        { sortField: "any", categories: ["OTHER"] },
+        page,
+        5,
+      );
+      pagedIds.push(...response.posts.map((post) => post.id));
+    }
+
+    expect(pagedIds).toHaveLength(posts.length);
+    expect(new Set(pagedIds)).toEqual(new Set(posts.map((post) => post.id)));
   });
 });
