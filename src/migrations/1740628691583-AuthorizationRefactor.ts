@@ -5,11 +5,36 @@ import {
 } from "../utils/AuthorizationRefactor";
 import * as admin from "firebase-admin";
 
-// Firebase Initialization
-const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH!;
-const serviceAccount = require(serviceAccountPath);
+/**
+ * Initialize Firebase only when this migration's `up` runs.
+ * TypeORM loads every migration module on `migration:run`; top-level
+ * `require(FIREBASE_SERVICE_ACCOUNT_PATH)` breaks CI when that env is unset.
+ */
+function ensureFirebaseApp(): void {
+  if (admin.apps.length) return;
 
-if (!admin.apps.length) {
+  const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
+  let serviceAccount: admin.ServiceAccount;
+
+  if (json) {
+    try {
+      serviceAccount = JSON.parse(json) as admin.ServiceAccount;
+    } catch {
+      const decoded = Buffer.from(json, "base64").toString("utf8");
+      serviceAccount = JSON.parse(decoded) as admin.ServiceAccount;
+    }
+  } else {
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+    if (!serviceAccountPath) {
+      throw new Error(
+        "AuthorizationRefactor migration requires FIREBASE_SERVICE_ACCOUNT_JSON " +
+          "or FIREBASE_SERVICE_ACCOUNT_PATH when this migration still needs to run.",
+      );
+    }
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    serviceAccount = require(serviceAccountPath) as admin.ServiceAccount;
+  }
+
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
@@ -17,6 +42,8 @@ if (!admin.apps.length) {
 
 export class AuthorizationRefactor1740628691583 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    ensureFirebaseApp();
+
     // Add new column as nullable initially
     await queryRunner.query(
       `ALTER TABLE "User" ADD COLUMN "firebaseUid" VARCHAR`,

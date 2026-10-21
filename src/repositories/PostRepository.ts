@@ -6,7 +6,7 @@ import { CategoryModel } from '../models/CategoryModel';
 import { EventTagModel } from '../models/EventTagModel';
 import { FilterPostsUnifiedRequest, Uuid } from '../types';
 import Repositories from '.';
-import pgvector from 'pgvector';
+import { parseEmbedding, topKByCosine } from "../utils/Knn";
 
 @EntityRepository(PostModel)
 export class PostRepository extends AbstractRepository<PostModel> {
@@ -187,6 +187,27 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
+  /**
+   * Counts the unarchived posts with any of `eventTags` from active sellers
+   * outside `excludedSellerIds` — the posts `filterPostsByEventTags` pages
+   * through once inactive and blocked sellers are dropped.
+   */
+  public async countPostsByEventTags(eventTags: string[], excludedSellerIds: string[]): Promise<number> {
+    const query = this.repository
+      .createQueryBuilder("post")
+      .innerJoin("post.eventTags", "eventTag")
+      .innerJoin("post.user", "user")
+      .where("eventTag.name IN (:...eventTags)", { eventTags })
+      .andWhere("post.archive = false")
+      .andWhere("user.isActive = true");
+
+    if (excludedSellerIds.length > 0) {
+      query.andWhere("user.firebaseUid NOT IN (:...excludedSellerIds)", { excludedSellerIds });
+    }
+
+    return query.getCount();
+  }
+
   public async filterPostsByPrice(
     lowerBound: number,
     upperBound: number,
@@ -363,17 +384,26 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .select("post.id")
       .where("post.archive = false");
 
-    // Categories
+    // Categories. Matched with EXISTS rather than a join: TypeORM paginates a
+    // joined query through a DISTINCT subquery that drops the sort columns, so
+    // combining categories with a sort failed with a query error. Names are
+    // compared case-insensitively because older listings store them uppercase
+    // ("OTHER") and newer ones as the app titles them ("Other").
     if (
       filterPostsUnifiedRequest.categories &&
       filterPostsUnifiedRequest.categories.length > 0
     ) {
-      qb.innerJoin(
-        "post.categories",
-        "catFilter",
-        "catFilter.name IN (:...categories)",
+      qb.andWhere(
+        `EXISTS (
+          SELECT 1
+          FROM "postCategories" pc
+          JOIN "Category" c ON c.id = pc.categories
+          WHERE pc.posts = post.id AND LOWER(c.name) IN (:...categories)
+        )`,
         {
-          categories: filterPostsUnifiedRequest.categories,
+          categories: filterPostsUnifiedRequest.categories.map((category) =>
+            category.toLowerCase(),
+          ),
         },
       );
     }
@@ -404,29 +434,26 @@ export class PostRepository extends AbstractRepository<PostModel> {
       });
     }
 
-    // Sorting
-    if (
-      filterPostsUnifiedRequest.sortField &&
-      filterPostsUnifiedRequest.sortField !== "any"
-    ) {
-      switch (filterPostsUnifiedRequest.sortField) {
-        case "priceLowToHigh":
-          qb.orderBy(
-            "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
-            "ASC",
-          );
-          break;
-        case "priceHighToLow":
-          qb.orderBy(
-            "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
-            "DESC",
-          );
-          break;
-        case "newlyListed":
-          qb.orderBy("post.created", "DESC");
-          break;
-      }
+    // Sorting. "any" falls back to newest first, and post.id breaks ties, so
+    // every page comes from the same total order and none repeat or skip posts.
+    switch (filterPostsUnifiedRequest.sortField) {
+      case "priceLowToHigh":
+        qb.orderBy(
+          "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
+          "ASC",
+        );
+        break;
+      case "priceHighToLow":
+        qb.orderBy(
+          "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
+          "DESC",
+        );
+        break;
+      default:
+        qb.orderBy("post.created", "DESC");
+        break;
     }
+    qb.addOrderBy("post.id", "ASC");
 
     qb.skip(skip).take(limit);
 
@@ -434,13 +461,16 @@ export class PostRepository extends AbstractRepository<PostModel> {
     const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
-    return await this.repository
+    const posts = await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .getMany();
+    // The IN lookup returns rows in no particular order; restore the sorted one.
+    const byId = new Map(posts.map((post) => [post.id, post]));
+    return ids.map((id) => byId.get(id)).filter((post): post is PostModel => !!post);
   }
 
   public async getAllArchivedPosts(): Promise<PostModel[]> {
@@ -491,6 +521,51 @@ export class PostRepository extends AbstractRepository<PostModel> {
 
   public async savePost(post: PostModel): Promise<PostModel> {
     return await this.repository.save(post);
+  }
+
+  /**
+   * Persist embedding + optional precomputed similar IDs (float[] only — no pgvector).
+   */
+  public async updateEmbeddingAndSimilar(
+    postId: string,
+    embedding: number[],
+    similarPostIds: string[] | null,
+  ): Promise<void> {
+    await this.repository.query(
+      `
+      UPDATE "Post"
+      SET
+        embedding = $2::float[],
+        "similarPostIds" = $3
+      WHERE id = $1
+      `,
+      [postId, embedding, similarPostIds],
+    );
+  }
+
+  public async setSimilarPostIds(
+    postId: string,
+    similarPostIds: string[],
+  ): Promise<void> {
+    await this.repository.query(
+      `UPDATE "Post" SET "similarPostIds" = $2 WHERE id = $1`,
+      [postId, similarPostIds],
+    );
+  }
+
+  public async getPostsByIdsPreserveOrder(ids: string[]): Promise<PostModel[]> {
+    if (!ids.length) return [];
+    const posts = await this.repository
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
+      .where("post.id IN (:...ids)", { ids })
+      .andWhere("post.archive = false")
+      .andWhere("post.sold = false")
+      .getMany();
+    const byId = new Map(posts.map((p) => [p.id, p]));
+    return ids.map((id) => byId.get(id)).filter((p): p is PostModel => !!p);
   }
 
   public async markPostAsSold(post: PostModel): Promise<PostModel> {
@@ -550,10 +625,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
   }
 
   /*
-  This method is for getting similar posts for a given post query embedding.
+  Exact KNN in TypeScript over float[] embeddings (no pgvector).
   Only returns active, non-archived, unsold posts with embeddings.
-  Fetches extra candidates so that after filtering (inactive users, blocked users)
-  we still have at least a few results.
   */
   public async getSimilarPosts(
     queryEmbedding: number[],
@@ -564,23 +637,32 @@ export class PostRepository extends AbstractRepository<PostModel> {
     if (!Array.isArray(queryEmbedding) || queryEmbedding.length === 0) {
       return [];
     }
-    const lit = `[${queryEmbedding.join(",")}]`;
-    return await this.repository
+
+    const candidates = await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id != :excludePostId", { excludePostId })
       .andWhere("post.embedding IS NOT NULL")
       .andWhere("CARDINALITY(post.embedding) > 0")
       .andWhere("post.archive = false")
       .andWhere("post.sold = false")
       .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
-      .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
-      .limit(limit)
       .getMany();
+
+    return topKByCosine(
+      queryEmbedding,
+      candidates.map((post) => ({
+        embedding: parseEmbedding(post.embedding) ?? [],
+        value: post,
+      })),
+      limit,
+    );
   }
 
   /*
-  This method is for getting similar posts given a request embedding.
+  Exact KNN for request→post matching (no pgvector).
   */
   public async findSimilarPosts(
     embedding: number[],
@@ -590,16 +672,27 @@ export class PostRepository extends AbstractRepository<PostModel> {
     if (!Array.isArray(embedding) || embedding.length === 0) {
       return [];
     }
-    const lit = `[${embedding.join(",")}]`;
-    return await this.repository
+
+    const candidates = await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.categories", "categories")
+      .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.embedding IS NOT NULL")
       .andWhere("CARDINALITY(post.embedding) > 0")
+      .andWhere("post.archive = false")
+      .andWhere("post.sold = false")
       .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
-      .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
-      .limit(limit)
       .getMany();
+
+    return topKByCosine(
+      embedding,
+      candidates.map((post) => ({
+        embedding: parseEmbedding(post.embedding) ?? [],
+        value: post,
+      })),
+      limit,
+    );
   }
 
   public async getSuggestedPosts(
@@ -703,8 +796,7 @@ export class PostRepository extends AbstractRepository<PostModel> {
   }
 
   /*
-  Get purchase suggestions based on vector similarity to average of user's purchase history.
-  Uses pgvector's cosine distance operator to find similar posts efficiently.
+  Purchase suggestions via in-process cosine KNN (no pgvector).
   */
   public async getPurchaseSuggestions(
     avgEmbedding: number[],
@@ -714,8 +806,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
     if (!Array.isArray(avgEmbedding) || avgEmbedding.length === 0) {
       return [];
     }
-    const lit = `[${avgEmbedding.join(",")}]`;
-    return await this.repository
+
+    const candidates = await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .where("post.embedding IS NOT NULL")
@@ -723,8 +815,146 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .andWhere("post.archive = false")
       .andWhere("post.sold = false")
       .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
-      .orderBy(`post.embedding::vector <-> CAST('${lit}' AS vector(512))`)
-      .limit(limit)
       .getMany();
+
+    return topKByCosine(
+      avgEmbedding,
+      candidates.map((post) => ({
+        embedding: parseEmbedding(post.embedding) ?? [],
+        value: post,
+      })),
+      limit,
+    );
+  }
+
+  /**
+   * Record a view for (post, viewer, UTC day). Idempotent — same user/post/day
+   * does not create a second row.
+   * @returns true if a new view row was inserted
+   */
+  public async recordView(postId: Uuid, viewerUid: string): Promise<boolean> {
+    const result = await this.repository.query(
+      `
+      INSERT INTO "postViews" ("postId", "viewerUid", "viewDate", "createdAt")
+      VALUES ($1, $2, (NOW() AT TIME ZONE 'UTC')::date, NOW())
+      ON CONFLICT ("postId", "viewerUid", "viewDate") DO NOTHING
+      RETURNING "postId"
+      `,
+      [postId, viewerUid],
+    );
+    return Array.isArray(result) && result.length > 0;
+  }
+
+  /**
+   * Rank posts by engagement in a time window:
+   * score = uniqueViewers * viewWeight + saves * saveWeight
+   */
+  public async getEngagementRankedPosts(options: {
+    excludeUserId: string;
+    windowHours: number;
+    viewWeight?: number;
+    saveWeight?: number;
+    category?: string;
+    skip?: number;
+    limit?: number;
+  }): Promise<PostModel[]> {
+    const viewWeight = options.viewWeight ?? 1;
+    const saveWeight = options.saveWeight ?? 3;
+    const skip = options.skip ?? 0;
+    const limit = options.limit ?? 10;
+
+    const params: unknown[] = [
+      options.excludeUserId,
+      options.windowHours,
+      viewWeight,
+      saveWeight,
+    ];
+    let categoryClause = "";
+    if (options.category) {
+      params.push(options.category);
+      categoryClause = `
+        AND EXISTS (
+          SELECT 1
+          FROM "postCategories" pc
+          JOIN "Category" c ON c.id = pc.categories
+          WHERE pc.posts = p.id AND c.name = $${params.length}
+        )
+      `;
+    }
+    params.push(limit);
+    const limitParam = `$${params.length}`;
+    params.push(skip);
+    const offsetParam = `$${params.length}`;
+
+    const rows = await this.repository.query(
+      `
+      WITH view_counts AS (
+        SELECT pv."postId" AS id, COUNT(*)::int AS view_count
+        FROM "postViews" pv
+        WHERE pv."createdAt" >= NOW() - make_interval(hours => $2::int)
+        GROUP BY pv."postId"
+      ),
+      save_counts AS (
+        SELECT usp.saved AS id, COUNT(*)::int AS save_count
+        FROM "userSavedPosts" usp
+        WHERE usp."savedAt" >= NOW() - make_interval(hours => $2::int)
+        GROUP BY usp.saved
+      ),
+      scored AS (
+        SELECT
+          p.id,
+          p.created,
+          (COALESCE(v.view_count, 0) * $3) + (COALESCE(s.save_count, 0) * $4) AS total_score
+        FROM "Post" p
+        LEFT JOIN view_counts v ON v.id = p.id
+        LEFT JOIN save_counts s ON s.id = p.id
+        WHERE p.archive = false
+          AND p.sold = false
+          AND p."userId" != $1
+          ${categoryClause}
+      )
+      SELECT id
+      FROM scored
+      ORDER BY total_score DESC, created DESC
+      LIMIT ${limitParam} OFFSET ${offsetParam}
+      `,
+      params,
+    );
+
+    const ids = (rows as { id: string }[]).map((row) => row.id);
+    if (ids.length === 0) return [];
+
+    const posts = await Promise.all(ids.map((id) => this.getPostById(id)));
+    const byId = new Map(
+      posts.filter((p): p is PostModel => p != null).map((p) => [p.id, p]),
+    );
+    // Preserve ranking order from the scored query
+    return ids.map((id) => byId.get(id)).filter((p): p is PostModel => p != null);
+  }
+
+  public async getDailyPicks(
+    excludeUserId: string,
+    limit = 10,
+  ): Promise<PostModel[]> {
+    return this.getEngagementRankedPosts({
+      excludeUserId,
+      windowHours: 24,
+      limit,
+    });
+  }
+
+  public async getTrendingPosts(
+    excludeUserId: string,
+    category: string,
+    skip: number,
+    limit: number,
+  ): Promise<PostModel[]> {
+    return this.getEngagementRankedPosts({
+      excludeUserId,
+      windowHours: 24 * 7,
+      category,
+      skip,
+      limit,
+    });
   }
 }

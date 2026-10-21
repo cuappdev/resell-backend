@@ -4,6 +4,7 @@ import { AbstractRepository, EntityRepository } from "typeorm";
 
 import { RequestModel } from "../models/RequestModel";
 import { Uuid } from "../types";
+import { parseEmbedding, topKByCosine } from "../utils/Knn";
 
 @EntityRepository(RequestModel)
 export class RequestRepository extends AbstractRepository<RequestModel> {
@@ -34,17 +35,21 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     description: string,
     archive: boolean,
     user: UserModel,
-    embedding: number[],
+    embedding: number[] | null,
   ): Promise<RequestModel> {
     const request = this.repository.create({
       title,
       description,
       archive,
       user,
-      embedding,
     });
+    request.embedding = embedding;
     await this.repository.save(request);
     return request;
+  }
+
+  public async saveRequest(request: RequestModel): Promise<RequestModel> {
+    return await this.repository.save(request);
   }
 
   public async deleteRequest(request: RequestModel): Promise<RequestModel> {
@@ -117,24 +122,25 @@ export class RequestRepository extends AbstractRepository<RequestModel> {
     excludeUserId: string,
     limit = 10,
   ): Promise<RequestModel[]> {
-    // 1. Create the string representation of the vector for the parameter
-    const embeddingString = `[${embedding.join(",")}]`;
-    return await this.repository
+    if (!Array.isArray(embedding) || embedding.length === 0) {
+      return [];
+    }
+
+    const candidates = await this.repository
       .createQueryBuilder("request")
       .leftJoinAndSelect("request.user", "user")
-      // 2. Calculate the distance and select it as a new column named "distance"
-      .addSelect(
-        `request.embedding::vector <-> CAST(:embedding AS vector(512))`,
-        "distance",
-      )
       .where("request.embedding IS NOT NULL")
       .andWhere("CARDINALITY(request.embedding) > 0")
       .andWhere("user.firebaseUid != :excludeUserId", { excludeUserId })
-      // 3. Safely pass the embedding string as a parameter
-      .setParameter("embedding", embeddingString)
-      // 4. Order by the simple alias "distance". ASC means "smallest distance" (most similar).
-      .orderBy("distance", "ASC")
-      .take(limit)
       .getMany();
+
+    return topKByCosine(
+      embedding,
+      candidates.map((request) => ({
+        embedding: parseEmbedding(request.embedding) ?? [],
+        value: request,
+      })),
+      limit,
+    );
   }
 }

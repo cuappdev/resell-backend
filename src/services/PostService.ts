@@ -1,4 +1,4 @@
-import { ForbiddenError, NotFoundError } from "routing-controllers";
+import { BadRequestError, ForbiddenError, NotFoundError } from "routing-controllers";
 import { Service } from "typedi";
 import { EntityManager } from "typeorm";
 import { InjectManager } from "typeorm-typedi-extensions";
@@ -10,14 +10,13 @@ import Repositories, { TransactionsManager } from '../repositories';
 import { CreatePostRequest, FilterPostsRequest, FilterPostsByPriceRequest, FilterPostsByConditionRequest, GetSearchedPostsRequest, EditPostPriceRequest, FilterPostsUnifiedRequest, FilterPostsByEventTagsRequest, AddEventTagsToPostRequest, RemoveEventTagsFromPostRequest } from '../types';
 import { uploadImage } from '../utils/Requests';
 // import { encoder } from '../app';
-import { PostRepository } from "src/repositories/PostRepository";
-import { CategoryRepository } from "src/repositories/CategoryRepository";
+import { PostRepository } from "../repositories/PostRepository";
+import { CategoryRepository } from "../repositories/CategoryRepository";
 import { FindTokensRequest } from "../types";
 import { NotifService } from "./NotifService";
 import { SearchService } from "./SearchService"; // Import SearchService
-import pgvector from "pgvector";
-import { getLoadedModel } from "../utils/SentenceEncoder";
-//require('@tensorflow-models/universal-sentence-encoder')
+import { embedText } from "../utils/EmbeddingService";
+import { cosineSimilarity } from "../utils/Knn";
 
 @Service()
 export class PostService {
@@ -70,7 +69,7 @@ export class PostService {
   }
 
   public async createPost(post: CreatePostRequest, authenticatedUser: UserModel): Promise<PostModel> {
-    return this.transactions.readWrite(async (transactionalEntityManager) => {
+    const freshPost = await this.transactions.readWrite(async (transactionalEntityManager) => {
       const user = authenticatedUser;
       if (!user) throw new NotFoundError("User is null or undefined!");
       if (!user.isActive) throw new NotFoundError("User is not active!");
@@ -87,36 +86,8 @@ export class PostService {
       const categories = await categoryRepository.findOrCreateByNames(post.categories);
       const eventTagRepository = Repositories.eventTag(transactionalEntityManager);
       const eventTags = await eventTagRepository.findOrCreateByNames(post.eventTags || []);
-      let embedding = null;
-      try {
-        if (process.env.NODE_ENV === "test") {
-          console.log("Skipping embedding computation in test environment");
-        } else {
-          const embeddingPromise = (async () => {
-            const model = await getLoadedModel();
-            const sentence = `${post.title} ${post.description}`;
-            const sentences = [sentence];
-            const embeddingTensor = await model.embed(sentences);
-            const embeddingArray = await embeddingTensor.array();
-            return embeddingArray[0];
-          })();
-
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(
-              () => reject(new Error("Embedding computation timeout")),
-              10000,
-            ),
-          );
-
-          embedding = await Promise.race([embeddingPromise, timeoutPromise]);
-        }
-      } catch (error) {
-        console.error("Error computing embedding:", error);
-        embedding = null;
-      }
-      const validEmbedding =
-        Array.isArray(embedding) && embedding.length > 0 ? embedding : null;
-      const freshPost = await postRepository.createPost(
+      // Embed asynchronously after respond — don't block create on OpenAI
+      return await postRepository.createPost(
         post.title,
         post.description,
         categories,
@@ -125,24 +96,70 @@ export class PostService {
         post.originalPrice,
         images,
         user,
-        validEmbedding,
+        null,
       );
-      if (validEmbedding) {
+    });
+
+    void this.finalizePostEmbedding(
+      freshPost.id,
+      `${post.title} ${post.description}`,
+      authenticatedUser.firebaseUid,
+    );
+
+    return freshPost;
+  }
+
+  /**
+   * Compute embedding, index vector, similar-post cache, and request matches
+   * after create returns (fire-and-forget).
+   */
+  private async finalizePostEmbedding(
+    postId: string,
+    text: string,
+    ownerUid: string,
+  ): Promise<void> {
+    try {
+      const embedding = await embedText(text);
+      if (!embedding) return;
+
+      await this.transactions.readWrite(async (transactionalEntityManager) => {
+        const postRepository = Repositories.post(transactionalEntityManager);
+        const post = await postRepository.getPostById(postId);
+        if (!post) return;
+
+        // Precompute neighbors while we already have the embedding (HNSW-backed)
+        const neighbors = await postRepository.getSimilarPosts(
+          embedding,
+          postId,
+          ownerUid,
+          8,
+        );
+        const similarPostIds = neighbors.map((p) => p.id).slice(0, 4);
+
+        await postRepository.updateEmbeddingAndSimilar(
+          postId,
+          embedding,
+          similarPostIds,
+        );
+
+        const updatedPost = await postRepository.getPostById(postId);
+        if (!updatedPost) return;
+
         const requestRepository = Repositories.request(
           transactionalEntityManager,
         );
-        // TODO: how many should we get?
         const similarRequests = await requestRepository.findSimilarRequests(
-          validEmbedding,
-          user.firebaseUid,
+          embedding,
+          ownerUid,
           10,
         );
         for (const request of similarRequests) {
-          await requestRepository.addMatchToRequest(request, freshPost);
+          await requestRepository.addMatchToRequest(request, updatedPost);
         }
-      }
-      return freshPost;
-    });
+      });
+    } catch (error) {
+      console.error("Error finalizing post embedding:", error);
+    }
   }
 
   public async deletePostById(
@@ -264,9 +281,7 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
 
       // checking null and undefined, should return empty array if so
-      if (!filterPostsByEventTagsRequest.eventTags ||
-        filterPostsByEventTagsRequest.eventTags.length === 0 ||
-        !filterPostsByEventTagsRequest.eventTags.every(tag => typeof tag === 'string' && tag.trim().length > 0)) {
+      if (!this.hasValidEventTags(filterPostsByEventTagsRequest)) {
         return [];
       }
       const skip = (page - 1) * limit;
@@ -274,6 +289,24 @@ export class PostService {
       const activePosts = this.filterInactiveUserPosts(posts);
       return this.filterBlockedUserPosts(activePosts, user);
     });
+  }
+
+  /** Total number of posts `filterPostsByEventTags` returns for `user` across every page. */
+  public async countPostsByEventTags(user: UserModel, filterPostsByEventTagsRequest: FilterPostsByEventTagsRequest): Promise<number> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      if (!this.hasValidEventTags(filterPostsByEventTagsRequest)) {
+        return 0;
+      }
+      const userWithBlockedInfo = await Repositories.user(transactionalEntityManager).getUserWithBlockedInfo(user.firebaseUid);
+      const blockedSellerIds = userWithBlockedInfo?.blocking?.map((blockedUser) => blockedUser.firebaseUid) ?? [];
+      return Repositories.post(transactionalEntityManager).countPostsByEventTags(filterPostsByEventTagsRequest.eventTags, blockedSellerIds);
+    });
+  }
+
+  private hasValidEventTags(request: FilterPostsByEventTagsRequest): boolean {
+    return !!request.eventTags &&
+      request.eventTags.length > 0 &&
+      request.eventTags.every(tag => typeof tag === 'string' && tag.trim().length > 0);
   }
 
   public async filterPostsByPrice(user: UserModel, filterPostsByPriceRequest: FilterPostsByPriceRequest, page: number = 1, limit: number = 10): Promise<PostModel[]> {
@@ -476,7 +509,11 @@ export class PostService {
       };
       const notifService = new NotifService(transactionalEntityManager);
       await notifService.sendNotifs(bookmarkNotifRequest);
-      return await userRepository.savePost(user, post);
+      const userWithSaved = await userRepository.getSavedPostsByUserId(
+        user.firebaseUid,
+      );
+      if (!userWithSaved) throw new NotFoundError("User not found!");
+      return await userRepository.savePost(userWithSaved, post);
     });
   }
 
@@ -491,7 +528,11 @@ export class PostService {
       if (post.user.isActive == false)
         throw new NotFoundError("User is not active!");
       const userRepository = Repositories.user(transactionalEntityManager);
-      return await userRepository.unsavePost(user, post);
+      const userWithSaved = await userRepository.getSavedPostsByUserId(
+        user.firebaseUid,
+      );
+      if (!userWithSaved) throw new NotFoundError("User not found!");
+      return await userRepository.unsavePost(userWithSaved, post);
     });
   }
 
@@ -504,7 +545,11 @@ export class PostService {
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError("Post not found!");
       const userRepository = Repositories.user(transactionalEntityManager);
-      return await userRepository.isSavedPost(user, post);
+      const userWithSaved = await userRepository.getSavedPostsByUserId(
+        user.firebaseUid,
+      );
+      if (!userWithSaved) throw new NotFoundError("User not found!");
+      return await userRepository.isSavedPost(userWithSaved, post);
     });
   }
 
@@ -583,9 +628,69 @@ export class PostService {
   }
 
   /**
+   * Record that an authenticated user opened a post detail page.
+   * Deduped per user/post/UTC day. Seller viewing own post is ignored.
+   */
+  public async recordView(
+    user: UserModel,
+    params: UuidParam,
+  ): Promise<{ success: true; recorded: boolean }> {
+    return this.transactions.readWrite(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const post = await postRepository.getPostById(params.id);
+      if (!post) throw new NotFoundError("Post not found!");
+      if (post.user?.firebaseUid === user.firebaseUid) {
+        return { success: true as const, recorded: false };
+      }
+      const recorded = await postRepository.recordView(
+        post.id,
+        user.firebaseUid,
+      );
+      return { success: true as const, recorded };
+    });
+  }
+
+  public async getDailyPicks(
+    user: UserModel,
+    limit = 10,
+  ): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const posts = await postRepository.getDailyPicks(
+        user.firebaseUid,
+        limit,
+      );
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
+  }
+
+  public async getTrendingPosts(
+    user: UserModel,
+    category: string,
+    page = 1,
+    limit = 10,
+  ): Promise<PostModel[]> {
+    return this.transactions.readOnly(async (transactionalEntityManager) => {
+      if (!category || !category.trim()) {
+        throw new BadRequestError("Category is required!");
+      }
+      const postRepository = Repositories.post(transactionalEntityManager);
+      const skip = (page - 1) * limit;
+      const posts = await postRepository.getTrendingPosts(
+        user.firebaseUid,
+        category.trim(),
+        skip,
+        limit,
+      );
+      const activePosts = this.filterInactiveUserPosts(posts);
+      return this.filterBlockedUserPosts(activePosts, user);
+    });
+  }
+
+  /**
    * Returns the 4 closest similar posts by embedding (active, unsold only).
-   * If no similar posts (e.g. few posts, or only current user's posts), returns
-   * up to 4 other active posts as a fallback so the UI isn't empty.
+   * Prefers precomputed similarPostIds (instant). Falls back to KNN / newest.
    */
   public async similarPosts(
     user: UserModel,
@@ -596,26 +701,29 @@ export class PostService {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError("Post not found!");
+
+      // Fast path: precomputed neighbor IDs
+      if (post.similarPostIds && post.similarPostIds.length > 0) {
+        const cached = await postRepository.getPostsByIdsPreserveOrder(
+          post.similarPostIds.slice(0, SIMILAR_COUNT),
+        );
+        const active = this.filterInactiveUserPosts(cached);
+        const filtered = await this.filterBlockedUserPosts(active, user);
+        if (filtered.length > 0) {
+          return filtered.slice(0, SIMILAR_COUNT);
+        }
+      }
+
       const embedding =
         Array.isArray(post.embedding) && post.embedding.length > 0
           ? post.embedding
           : null;
 
       if (!embedding) {
-        let fallback = await postRepository.getSimilarPostsFallback(
+        return this.similarPostsFallback(
+          postRepository,
           post.id,
-          user.firebaseUid,
-          SIMILAR_COUNT,
-        );
-        if (fallback.length === 0) {
-          fallback = await postRepository.getSimilarPostsFallbackIncludeSameUser(
-            post.id,
-            SIMILAR_COUNT,
-          );
-        }
-        const active = this.filterInactiveUserPosts(fallback);
-        return (await this.filterBlockedUserPosts(active, user)).slice(
-          0,
+          user,
           SIMILAR_COUNT,
         );
       }
@@ -630,27 +738,51 @@ export class PostService {
       const filtered = await this.filterBlockedUserPosts(activePosts, user);
       const result = filtered.slice(0, SIMILAR_COUNT);
 
-      if (result.length === 0) {
-        let fallback = await postRepository.getSimilarPostsFallback(
-          post.id,
-          user.firebaseUid,
-          SIMILAR_COUNT,
-        );
-        if (fallback.length === 0) {
-          fallback = await postRepository.getSimilarPostsFallbackIncludeSameUser(
-            post.id,
-            SIMILAR_COUNT,
+      // Cache for next time (fire-and-forget; don't block response)
+      if (result.length > 0) {
+        const ids = result.map((p) => p.id);
+        void this.transactions
+          .readWrite(async (em) => {
+            const repo = Repositories.post(em);
+            await repo.setSimilarPostIds(post.id, ids);
+          })
+          .catch((err) =>
+            console.error("Error caching similarPostIds:", err),
           );
-        }
-        const active = this.filterInactiveUserPosts(fallback);
-        return (await this.filterBlockedUserPosts(active, user)).slice(
-          0,
+      }
+
+      if (result.length === 0) {
+        return this.similarPostsFallback(
+          postRepository,
+          post.id,
+          user,
           SIMILAR_COUNT,
         );
       }
 
       return result;
     });
+  }
+
+  private async similarPostsFallback(
+    postRepository: PostRepository,
+    postId: string,
+    user: UserModel,
+    limit: number,
+  ): Promise<PostModel[]> {
+    let fallback = await postRepository.getSimilarPostsFallback(
+      postId,
+      user.firebaseUid,
+      limit,
+    );
+    if (fallback.length === 0) {
+      fallback = await postRepository.getSimilarPostsFallbackIncludeSameUser(
+        postId,
+        limit,
+      );
+    }
+    const active = this.filterInactiveUserPosts(fallback);
+    return (await this.filterBlockedUserPosts(active, user)).slice(0, limit);
   }
 
   public filterInactiveUserPosts(posts: PostModel[]): PostModel[] {
@@ -664,28 +796,7 @@ export class PostService {
    * Calculate cosine similarity between two vectors
    */
   private similarity(vectorA: number[], vectorB: number[]): number {
-    if (vectorA.length !== vectorB.length) {
-      throw new Error("Vectors must have the same length");
-    }
-
-    let dotProduct = 0;
-    let normA = 0;
-    let normB = 0;
-
-    for (let i = 0; i < vectorA.length; i++) {
-      dotProduct += vectorA[i] * vectorB[i];
-      normA += vectorA[i] * vectorA[i];
-      normB += vectorB[i] * vectorB[i];
-    }
-
-    normA = Math.sqrt(normA);
-    normB = Math.sqrt(normB);
-
-    if (normA === 0 || normB === 0) {
-      return 0; // Handle zero vectors
-    }
-
-    return dotProduct / (normA * normB);
+    return cosineSimilarity(vectorA, vectorB);
   }
 
   public async filterBlockedUserPosts(

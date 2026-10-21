@@ -42,8 +42,18 @@ export class UserRepository extends AbstractRepository<UserModel> {
   }
 
   public async savePost(user: UserModel, post: PostModel): Promise<PostModel> {
-    user.saved.push(post);
+    if (!user.saved) {
+      user.saved = [];
+    }
+    if (!user.saved.some((savedPost) => savedPost.id === post.id)) {
+      user.saved.push(post);
+    }
     await this.repository.save(user);
+    // Refresh savedAt so windowed ranking reflects the latest save time
+    await this.repository.query(
+      `UPDATE "userSavedPosts" SET "savedAt" = NOW() WHERE saved = $1 AND savers = $2`,
+      [post.id, user.firebaseUid],
+    );
     return post;
   }
 

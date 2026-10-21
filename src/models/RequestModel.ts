@@ -10,7 +10,6 @@ import {
 import { Request, Uuid } from "../types";
 import { PostModel } from "./PostModel";
 import { UserModel } from "./UserModel";
-import pgvector from "pgvector";
 
 @Entity("Request")
 export class RequestModel {
@@ -27,7 +26,7 @@ export class RequestModel {
   archive: boolean;
 
   @Column("float", { array: true, nullable: true })
-  embedding: number[];
+  embedding: number[] | null;
 
   @ManyToOne(() => UserModel, (user) => user.requests, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })

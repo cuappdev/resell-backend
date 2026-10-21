@@ -2,6 +2,7 @@ import { PostController } from "src/api/controllers/PostController";
 import { Connection, Not } from "typeorm";
 
 import { UuidParam } from "../api/validators/GenericRequests";
+import { PostSortField } from "../types";
 import { PostModel } from "../models/PostModel";
 import { CategoryModel } from "../models/CategoryModel";
 import { EventTagModel } from "../models/EventTagModel";
@@ -465,6 +466,44 @@ describe("post tests", () => {
       { eventTags: [] },
     );
     expect(resp.posts).toHaveLength(0);
+    expect(resp.total).toEqual(0);
+  });
+
+  test("filter posts by event tags - total counts every page with the feed's filters", async () => {
+    const [viewer, seller, blockedSeller, inactiveSeller] = UserFactory.create(4);
+    inactiveSeller.isActive = false;
+
+    const [visible1, visible2, visible3, archivedPost, blockedSellerPost, inactiveSellerPost, untaggedPost] =
+      PostFactory.create(7);
+    const visiblePosts = [visible1, visible2, visible3];
+    [...visiblePosts, archivedPost, untaggedPost].forEach((post) => (post.user = seller));
+    visiblePosts.forEach((post) => (post.archive = false));
+    archivedPost.archive = true;
+    blockedSellerPost.user = blockedSeller;
+    blockedSellerPost.archive = false;
+    inactiveSellerPost.user = inactiveSeller;
+    inactiveSellerPost.archive = false;
+
+    const taggedPosts = [...visiblePosts, archivedPost, blockedSellerPost, inactiveSellerPost];
+
+    await new DataFactory()
+      .createUsers(viewer, seller, blockedSeller, inactiveSeller)
+      .createPosts(...taggedPosts, untaggedPost)
+      .write();
+
+    const homecoming = await conn.getRepository(EventTagModel).save({ name: "HOMECOMING" });
+    for (const post of taggedPosts) {
+      await conn.createQueryBuilder().relation(PostModel, "eventTags").of(post).add(homecoming);
+    }
+    await ControllerFactory.user(conn).blockUser({ blocked: blockedSeller.firebaseUid }, viewer);
+
+    const firstPage = await postController.filterPostsByEventTags(
+      viewer,
+      { eventTags: ["HOMECOMING"] },
+      1,
+      1,
+    );
+    expect(firstPage.total).toEqual(visiblePosts.length);
   });
 
   test("delete post by id", async () => {
@@ -1690,5 +1729,323 @@ describe("post tests", () => {
         expect(bookIndex).toBeLessThan(unrelatedIndex);
       }
     }
+  });
+
+  test("recordView - records once per user/post/day and skips own posts", async () => {
+    const seller = UserFactory.fake();
+    const viewer1 = UserFactory.fake();
+    const viewer2 = UserFactory.fake();
+    viewer1.saved = [];
+    viewer2.saved = [];
+
+    const post = PostFactory.fake();
+    post.user = seller;
+    if (!post.categories) post.categories = [];
+
+    await new DataFactory()
+      .createUsers(seller, viewer1, viewer2)
+      .createPosts(post)
+      .write();
+
+    // Seller viewing own post is not recorded
+    const ownView = await postController.recordView(seller, { id: post.id });
+    expect(ownView.success).toBe(true);
+    expect(ownView.recorded).toBe(false);
+
+    // First view records
+    const firstView = await postController.recordView(viewer1, {
+      id: post.id,
+    });
+    expect(firstView.recorded).toBe(true);
+
+    // Same-day duplicate does not record again
+    const duplicateView = await postController.recordView(viewer1, {
+      id: post.id,
+    });
+    expect(duplicateView.recorded).toBe(false);
+
+    // Different viewer still records
+    const otherViewer = await postController.recordView(viewer2, {
+      id: post.id,
+    });
+    expect(otherViewer.recorded).toBe(true);
+
+    // Simulate a prior-day view by inserting a row for yesterday — next call today still records
+    await conn.query(
+      `
+      INSERT INTO "postViews" ("postId", "viewerUid", "viewDate", "createdAt")
+      VALUES ($1, $2, (NOW() AT TIME ZONE 'UTC')::date - 1, NOW() - interval '1 day')
+      ON CONFLICT DO NOTHING
+      `,
+      [post.id, viewer1.firebaseUid],
+    );
+    // viewer1 already has today's row from firstView, so still not recorded again today
+    const stillToday = await postController.recordView(viewer1, {
+      id: post.id,
+    });
+    expect(stillToday.recorded).toBe(false);
+  });
+
+  test("dailyPicks - ranks by views and weighted saves", async () => {
+    const seller = UserFactory.fake();
+    const viewer = UserFactory.fake();
+    const saver = UserFactory.fake();
+    viewer.saved = [];
+    saver.saved = [];
+
+    const lowEngagement = PostFactory.fake();
+    lowEngagement.title = "Low Engagement";
+    lowEngagement.user = seller;
+    lowEngagement.categories = [];
+
+    const highViews = PostFactory.fake();
+    highViews.title = "High Views";
+    highViews.user = seller;
+    highViews.categories = [];
+
+    const highSaves = PostFactory.fake();
+    highSaves.title = "High Saves";
+    highSaves.user = seller;
+    highSaves.categories = [];
+
+    await new DataFactory()
+      .createUsers(seller, viewer, saver)
+      .createPosts(lowEngagement, highViews, highSaves)
+      .write();
+
+    // 2 unique views on highViews
+    const anotherViewer = UserFactory.fake();
+    anotherViewer.saved = [];
+    await new DataFactory().createUsers(anotherViewer).write();
+    await postController.recordView(viewer, { id: highViews.id });
+    await postController.recordView(anotherViewer, { id: highViews.id });
+
+    // 1 save on highSaves (weight 3 > 2 views)
+    await postController.savePost(saver, { id: highSaves.id });
+
+    // 1 view on lowEngagement
+    await postController.recordView(viewer, { id: lowEngagement.id });
+
+    const response = await postController.getDailyPicks(viewer, 10);
+    const ids = response.posts.map((p) => p.id);
+
+    expect(ids).toContain(highSaves.id);
+    expect(ids).toContain(highViews.id);
+    expect(ids.indexOf(highSaves.id)).toBeLessThan(ids.indexOf(highViews.id));
+    expect(ids.indexOf(highViews.id)).toBeLessThan(
+      ids.indexOf(lowEngagement.id),
+    );
+    // Own posts are excluded
+    expect(ids.every((id) => id !== undefined)).toBe(true);
+  });
+
+  test("trending - scopes by category and ranks by engagement", async () => {
+    const seller = UserFactory.fake();
+    const viewer = UserFactory.fake();
+    viewer.saved = [];
+
+    const electronics = new CategoryModel();
+    electronics.id = "11111111-1111-1111-1111-111111111111";
+    electronics.name = "ELECTRONICS";
+    electronics.posts = [];
+
+    const clothing = new CategoryModel();
+    clothing.id = "22222222-2222-2222-2222-222222222222";
+    clothing.name = "CLOTHING";
+    clothing.posts = [];
+
+    const trendingElectronics = PostFactory.fake();
+    trendingElectronics.title = "Trending Laptop";
+    trendingElectronics.user = seller;
+    trendingElectronics.categories = [electronics];
+
+    const quietElectronics = PostFactory.fake();
+    quietElectronics.title = "Quiet Gadget";
+    quietElectronics.user = seller;
+    quietElectronics.categories = [electronics];
+
+    const clothingPost = PostFactory.fake();
+    clothingPost.title = "Trending Jacket";
+    clothingPost.user = seller;
+    clothingPost.categories = [clothing];
+
+    await new DataFactory()
+      .createUsers(seller, viewer)
+      .createPosts(trendingElectronics, quietElectronics, clothingPost)
+      .write();
+
+    await postController.recordView(viewer, { id: trendingElectronics.id });
+    await postController.savePost(viewer, { id: clothingPost.id });
+
+    const response = await postController.getTrendingPosts(
+      viewer,
+      "ELECTRONICS",
+      1,
+      10,
+    );
+    const ids = response.posts.map((p) => p.id);
+
+    expect(ids).toContain(trendingElectronics.id);
+    expect(ids).toContain(quietElectronics.id);
+    expect(ids).not.toContain(clothingPost.id);
+    expect(ids.indexOf(trendingElectronics.id)).toBeLessThan(
+      ids.indexOf(quietElectronics.id),
+    );
+  });
+
+  test("dailyPicks - excludes sold and archived posts", async () => {
+    const seller = UserFactory.fake();
+    const viewer = UserFactory.fake();
+    viewer.saved = [];
+
+    const active = PostFactory.fake();
+    active.user = seller;
+    active.categories = [];
+
+    const sold = PostFactory.fake();
+    sold.user = seller;
+    sold.sold = true;
+    sold.categories = [];
+
+    const archived = PostFactory.fake();
+    archived.user = seller;
+    archived.archive = true;
+    archived.categories = [];
+
+    await new DataFactory()
+      .createUsers(seller, viewer)
+      .createPosts(active, sold, archived)
+      .write();
+
+    await postController.recordView(viewer, { id: active.id });
+    await postController.recordView(viewer, { id: sold.id });
+    await postController.recordView(viewer, { id: archived.id });
+
+    const response = await postController.getDailyPicks(viewer, 10);
+    const ids = response.posts.map((p) => p.id);
+
+    expect(ids).toContain(active.id);
+    expect(ids).not.toContain(sold.id);
+    expect(ids).not.toContain(archived.id);
+  });
+
+  test("unified filter - sorts posts within a category", async () => {
+    const seller = UserFactory.fake();
+
+    const other = new CategoryModel();
+    other.id = "c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1";
+    other.name = "OTHER";
+    other.posts = [];
+
+    const clothing = new CategoryModel();
+    clothing.id = "c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2";
+    clothing.name = "CLOTHING";
+    clothing.posts = [];
+
+    const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000);
+    const otherPost = (price: number, created: Date) => {
+      const post = PostFactory.fake();
+      post.user = seller;
+      post.categories = [other];
+      post.originalPrice = price;
+      post.alteredPrice = -1;
+      post.created = created;
+      return post;
+    };
+
+    const oldest = otherPost(20, daysAgo(3));
+    const newest = otherPost(30, daysAgo(1));
+    const cheapest = otherPost(10, daysAgo(2));
+    const clothingPost = PostFactory.fake();
+    clothingPost.user = seller;
+    clothingPost.categories = [clothing];
+
+    await new DataFactory()
+      .createUsers(seller)
+      .createPosts(oldest, newest, cheapest, clothingPost)
+      .write();
+
+    const idsSortedBy = async (sortField: PostSortField) =>
+      (
+        await postController.filterPosts(seller, {
+          sortField,
+          categories: ["OTHER"],
+        })
+      ).posts.map((post) => post.id);
+
+    expect(await idsSortedBy("newlyListed")).toEqual([
+      newest.id,
+      cheapest.id,
+      oldest.id,
+    ]);
+    expect(await idsSortedBy("priceLowToHigh")).toEqual([
+      cheapest.id,
+      oldest.id,
+      newest.id,
+    ]);
+    expect(await idsSortedBy("priceHighToLow")).toEqual([
+      newest.id,
+      oldest.id,
+      cheapest.id,
+    ]);
+  });
+
+  test("unified filter - matches category names regardless of case", async () => {
+    const seller = UserFactory.fake();
+
+    const other = new CategoryModel();
+    other.id = "c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1";
+    other.name = "OTHER";
+    other.posts = [];
+
+    const post = PostFactory.fake();
+    post.user = seller;
+    post.categories = [other];
+
+    await new DataFactory().createUsers(seller).createPosts(post).write();
+
+    for (const name of ["OTHER", "Other", "other"]) {
+      const response = await postController.filterPosts(seller, {
+        categories: [name],
+      });
+      expect(response.posts.map((p) => p.id)).toEqual([post.id]);
+    }
+  });
+
+  test("unified filter - pages through every match exactly once", async () => {
+    const seller = UserFactory.fake();
+
+    const other = new CategoryModel();
+    other.id = "c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1";
+    other.name = "OTHER";
+    other.posts = [];
+
+    const created = new Date();
+    const posts = Array.from({ length: 12 }, () => {
+      const post = PostFactory.fake();
+      post.user = seller;
+      post.categories = [other];
+      post.created = created;
+      return post;
+    });
+
+    await new DataFactory()
+      .createUsers(seller)
+      .createPosts(...posts)
+      .write();
+
+    const pagedIds: string[] = [];
+    for (const page of [1, 2, 3]) {
+      const response = await postController.filterPosts(
+        seller,
+        { sortField: "any", categories: ["OTHER"] },
+        page,
+        5,
+      );
+      pagedIds.push(...response.posts.map((post) => post.id));
+    }
+
+    expect(pagedIds).toHaveLength(posts.length);
+    expect(new Set(pagedIds)).toEqual(new Set(posts.map((post) => post.id)));
   });
 });

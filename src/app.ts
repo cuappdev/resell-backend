@@ -35,9 +35,7 @@ import {
 routingUseContainer(Container);
 useContainer(Container);
 
-// Initialize and start application
-async function main() {
-  // Initialize database connection
+async function createApp(): Promise<Express> {
   await resellConnection().catch((error: unknown) => {
     console.log(error);
     throw new Error("Connection to DB failed. Check console output");
@@ -135,11 +133,15 @@ async function main() {
 
   const port = process.env.PORT ?? 3000;
 
-  const swaggerDocument = require(path.join(__dirname, "../swagger.json"));
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-  console.log(
-    `Swagger documentation available at http://localhost:${port}/api-docs`,
-  );
+  try {
+    const swaggerDocument = require(path.join(__dirname, "../swagger.json"));
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    console.log(
+      `Swagger documentation available at http://localhost:${port}/api-docs`,
+    );
+  } catch (error) {
+    console.warn("Swagger docs not mounted:", error);
+  }
 
   /**
    * Health check endpoint
@@ -154,6 +156,26 @@ async function main() {
         .status(500)
         .json({ status: "Error", database: "Not connected", error: error });
     }
+  });
+
+  /**
+   * Vercel Cron / external scheduler entrypoint.
+   * Requires Authorization: Bearer ${CRON_SECRET}.
+   * Transaction confirmation work is still disabled in NotifService until re-enabled.
+   */
+  // Vercel Cron invokes GET; protect with CRON_SECRET Bearer token.
+  app.get("/api/cron/transaction-confirmations", async (req: Request, res: Response) => {
+    const secret = process.env.CRON_SECRET;
+    const authHeader = req.headers.authorization;
+    if (!secret || authHeader !== `Bearer ${secret}`) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    res.status(200).json({
+      status: "ok",
+      message:
+        "Cron endpoint reachable. Re-enable sendPendingTransactionConfirmations when ready.",
+    });
   });
 
   const entityManager = getManager();
@@ -197,12 +219,22 @@ async function main() {
     });
   });
 
+  // Vercel Fluid Express supports app.listen(); skip in-process cron on Vercel.
   app.listen(port, () => {
-    // Start cron jobs after server is running
-    console.log(`Resell backend bartering on http://localhost:${port}`);
-
-    startTransactionConfirmationCron();
+    console.log(`Resell backend listening on port ${port}`);
+    if (!process.env.VERCEL) {
+      startTransactionConfirmationCron();
+    }
   });
+
+  return app;
 }
 
-main();
+// Bootstrap for local and Vercel (listen is detected by Vercel Express).
+createApp().catch((error: unknown) => {
+  console.error("Failed to start Resell backend:", error);
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
+  throw error;
+});

@@ -100,6 +100,12 @@ export interface GetPostsResponse {
   posts: Post[];
 }
 
+export interface GetEventPostsResponse {
+  posts: Post[];
+  /** Matching posts across every page, counted with the same filters as `posts`. */
+  total: number;
+}
+
 export interface GetSearchedPostsResponse {
   posts: Post[];
   searchId: string;
@@ -111,6 +117,11 @@ export interface GetPostResponse {
 
 export interface IsSavedPostResponse {
   isSaved: boolean;
+}
+
+export interface RecordViewResponse {
+  success: true;
+  recorded: boolean;
 }
 
 export interface EditPriceResponse {
