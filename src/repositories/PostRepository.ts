@@ -187,6 +187,27 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .getMany();
   }
 
+  /**
+   * Counts the unarchived posts with any of `eventTags` from active sellers
+   * outside `excludedSellerIds` — the posts `filterPostsByEventTags` pages
+   * through once inactive and blocked sellers are dropped.
+   */
+  public async countPostsByEventTags(eventTags: string[], excludedSellerIds: string[]): Promise<number> {
+    const query = this.repository
+      .createQueryBuilder("post")
+      .innerJoin("post.eventTags", "eventTag")
+      .innerJoin("post.user", "user")
+      .where("eventTag.name IN (:...eventTags)", { eventTags })
+      .andWhere("post.archive = false")
+      .andWhere("user.isActive = true");
+
+    if (excludedSellerIds.length > 0) {
+      query.andWhere("user.firebaseUid NOT IN (:...excludedSellerIds)", { excludedSellerIds });
+    }
+
+    return query.getCount();
+  }
+
   public async filterPostsByPrice(
     lowerBound: number,
     upperBound: number,

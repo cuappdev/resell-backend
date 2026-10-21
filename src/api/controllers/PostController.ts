@@ -22,6 +22,7 @@ import {
   FilterPostsByEventTagsRequest,
   AddEventTagsToPostRequest,
   RemoveEventTagsFromPostRequest,
+  GetEventPostsResponse,
   GetPostResponse,
   GetPostsResponse,
   GetSearchedPostsRequest,
@@ -138,8 +139,11 @@ export class PostController {
     @Body() filterPostsByEventTagsRequest: FilterPostsByEventTagsRequest,
     @QueryParam('page', { required: false }) page: number = 1,
     @QueryParam('limit', { required: false }) limit: number = 10
-  ): Promise<GetPostsResponse> {
-    return { posts: await this.postService.filterPostsByEventTags(user, filterPostsByEventTagsRequest, page, limit) };
+  ): Promise<GetEventPostsResponse> {
+    return {
+      posts: await this.postService.filterPostsByEventTags(user, filterPostsByEventTagsRequest, page, limit),
+      total: await this.postService.countPostsByEventTags(user, filterPostsByEventTagsRequest),
+    };
   }
 
   @Post('event-tags/add/:id/')
