@@ -363,17 +363,26 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .select("post.id")
       .where("post.archive = false");
 
-    // Categories
+    // Categories. Matched with EXISTS rather than a join: TypeORM paginates a
+    // joined query through a DISTINCT subquery that drops the sort columns, so
+    // combining categories with a sort failed with a query error. Names are
+    // compared case-insensitively because older listings store them uppercase
+    // ("OTHER") and newer ones as the app titles them ("Other").
     if (
       filterPostsUnifiedRequest.categories &&
       filterPostsUnifiedRequest.categories.length > 0
     ) {
-      qb.innerJoin(
-        "post.categories",
-        "catFilter",
-        "catFilter.name IN (:...categories)",
+      qb.andWhere(
+        `EXISTS (
+          SELECT 1
+          FROM "postCategories" pc
+          JOIN "Category" c ON c.id = pc.categories
+          WHERE pc.posts = post.id AND LOWER(c.name) IN (:...categories)
+        )`,
         {
-          categories: filterPostsUnifiedRequest.categories,
+          categories: filterPostsUnifiedRequest.categories.map((category) =>
+            category.toLowerCase(),
+          ),
         },
       );
     }
@@ -404,29 +413,26 @@ export class PostRepository extends AbstractRepository<PostModel> {
       });
     }
 
-    // Sorting
-    if (
-      filterPostsUnifiedRequest.sortField &&
-      filterPostsUnifiedRequest.sortField !== "any"
-    ) {
-      switch (filterPostsUnifiedRequest.sortField) {
-        case "priceLowToHigh":
-          qb.orderBy(
-            "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
-            "ASC",
-          );
-          break;
-        case "priceHighToLow":
-          qb.orderBy(
-            "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
-            "DESC",
-          );
-          break;
-        case "newlyListed":
-          qb.orderBy("post.created", "DESC");
-          break;
-      }
+    // Sorting. "any" falls back to newest first, and post.id breaks ties, so
+    // every page comes from the same total order and none repeat or skip posts.
+    switch (filterPostsUnifiedRequest.sortField) {
+      case "priceLowToHigh":
+        qb.orderBy(
+          "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
+          "ASC",
+        );
+        break;
+      case "priceHighToLow":
+        qb.orderBy(
+          "(CASE WHEN post.alteredPrice = -1 THEN post.originalPrice ELSE post.alteredPrice END)",
+          "DESC",
+        );
+        break;
+      default:
+        qb.orderBy("post.created", "DESC");
+        break;
     }
+    qb.addOrderBy("post.id", "ASC");
 
     qb.skip(skip).take(limit);
 
@@ -434,13 +440,16 @@ export class PostRepository extends AbstractRepository<PostModel> {
     const ids = postIds.map((post) => post.id);
     if (ids.length === 0) return [];
 
-    return await this.repository
+    const posts = await this.repository
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("post.categories", "categories")
       .leftJoinAndSelect("post.eventTags", "eventTags")
       .where("post.id IN (:...ids)", { ids })
       .getMany();
+    // The IN lookup returns rows in no particular order; restore the sorted one.
+    const byId = new Map(posts.map((post) => [post.id, post]));
+    return ids.map((id) => byId.get(id)).filter((post): post is PostModel => !!post);
   }
 
   public async getAllArchivedPosts(): Promise<PostModel[]> {
