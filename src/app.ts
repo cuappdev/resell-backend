@@ -1,6 +1,5 @@
 // Load environment and Firebase configuration first
-import dotenv from "dotenv";
-dotenv.config();
+import "./utils/loadEnv";
 import "./firebase";
 import "reflect-metadata";
 
@@ -8,7 +7,6 @@ import {
   createExpressServer,
   useContainer as routingUseContainer,
   ForbiddenError,
-  HttpError,
   UnauthorizedError,
 } from "routing-controllers";
 import { getManager, useContainer } from "typeorm";
@@ -107,9 +105,8 @@ async function createApp(): Promise<Express> {
           throw error;
         }
         if (error.code == "auth/argument-error") {
-          throw new HttpError(
-            408,
-            "Request timed out while waiting for response",
+          throw new UnauthorizedError(
+            "Invalid Firebase ID token. Use the ID token returned by /api/authToken/, not a Firebase UID or FCM token.",
           );
         }
         if (error.code === "auth/id-token-expired") {

@@ -4,6 +4,7 @@
   "description": "An open-sourced backend service for Resell.",
   "main": "src/app.ts",
   "scripts": {
+    "dev:auth": "NODE_ENV=development ENABLE_LOCAL_AUTH=true npm run dev",
     "dev": "tsc-watch --onSuccess \"ts-node src/app.ts\"",
     "start": "ts-node src/app.ts",
     "test": "jest",
@@ -30,7 +31,7 @@
     "@types/faker": "^5.5.5",
     "@types/jest": "^27.0.2",
     "@types/multer": "^2.0.0",
-    "@types/node": "^16.9.0",
+    "@types/node": "^16.18.126",
     "@types/node-fetch": "^2.6.1",
     "@types/swagger-ui-express": "^4.1.7",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
@@ -45,6 +46,8 @@
     "typescript": "^4.4.2"
   },
   "dependencies": {
+    "@neon/config": "^1.3.2",
+    "@neon/env": "^1.2.3",
     "@types/node-cron": "^3.0.11",
     "body-parser": "^1.19.1",
     "class-transformer": "^0.5.1",
