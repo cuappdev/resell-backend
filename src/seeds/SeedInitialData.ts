@@ -11,6 +11,7 @@ import { CategoryModel } from '../models/CategoryModel';
 import { EventTagModel } from '../models/EventTagModel';
 import { getRepository } from 'typeorm';
 import { NotifModel } from '../models/NotifModel'
+import { CATEGORY_NAMES } from '../utils/categoryNames';
 
 export default class SeedInitialData implements Seeder {
   public async run(factory: Factory): Promise<void> {
@@ -49,14 +50,7 @@ export default class SeedInitialData implements Seeder {
 
     // Create categories first
     const categories = [];
-    const categoryNames = [
-      "HANDMADE",
-      "ELECTRONICS",
-      "CLOTHING",
-      "BOOKS",
-      "FURNITURE",
-    ];
-    for (const categoryName of categoryNames) {
+    for (const categoryName of CATEGORY_NAMES) {
       const category = await factory(CategoryModel)({
         name: categoryName,
       }).create();
