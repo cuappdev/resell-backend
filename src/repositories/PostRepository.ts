@@ -146,7 +146,9 @@ export class PostRepository extends AbstractRepository<PostModel> {
       .createQueryBuilder("post")
       .select("post.id")
       .innerJoin("post.categories", "category")
-      .where("category.name IN (:...categories)", { categories })
+      .where("LOWER(category.name) IN (:...categories)", {
+        categories: categories.map((category) => category.toLowerCase()),
+      })
       .andWhere("post.archive = false")
       .skip(skip)
       .take(limit)
@@ -872,12 +874,14 @@ export class PostRepository extends AbstractRepository<PostModel> {
     let categoryClause = "";
     if (options.category) {
       params.push(options.category);
+      // Case-insensitive: listings store names as clients send them
+      // ("Electronics"), while seeds and older rows use "ELECTRONICS".
       categoryClause = `
         AND EXISTS (
           SELECT 1
           FROM "postCategories" pc
           JOIN "Category" c ON c.id = pc.categories
-          WHERE pc.posts = p.id AND c.name = $${params.length}
+          WHERE pc.posts = p.id AND LOWER(c.name) = LOWER($${params.length})
         )
       `;
     }
