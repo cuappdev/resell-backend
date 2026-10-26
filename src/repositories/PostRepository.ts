@@ -389,8 +389,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
     // Categories. Matched with EXISTS rather than a join: TypeORM paginates a
     // joined query through a DISTINCT subquery that drops the sort columns, so
     // combining categories with a sort failed with a query error. Names are
-    // compared case-insensitively: they are stored as the app titles them
-    // ("Other"), but clients may send any casing ("OTHER").
+    // compared case-insensitively because older listings store them uppercase
+    // ("OTHER") and newer ones as the app titles them ("Other").
     if (
       filterPostsUnifiedRequest.categories &&
       filterPostsUnifiedRequest.categories.length > 0
@@ -874,8 +874,8 @@ export class PostRepository extends AbstractRepository<PostModel> {
     let categoryClause = "";
     if (options.category) {
       params.push(options.category);
-      // Case-insensitive: names are stored as the app titles them
-      // ("Electronics"), while released iOS builds request "ELECTRONICS".
+      // Case-insensitive: listings store names as clients send them
+      // ("Electronics"), while seeds and older rows use "ELECTRONICS".
       categoryClause = `
         AND EXISTS (
           SELECT 1

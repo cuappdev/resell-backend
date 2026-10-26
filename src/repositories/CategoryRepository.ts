@@ -1,7 +1,6 @@
 import { AbstractRepository, EntityRepository } from "typeorm";
 
 import { CategoryModel } from "../models/CategoryModel";
-import { canonicalCategoryName } from "../utils/categoryNames";
 
 @EntityRepository(CategoryModel)
 export class CategoryRepository extends AbstractRepository<CategoryModel> {
@@ -12,31 +11,18 @@ export class CategoryRepository extends AbstractRepository<CategoryModel> {
       .getMany();
   }
 
-  /**
-   * Stores names in canonical form and matches existing rows case-insensitively,
-   * so "ELECTRONICS" reuses the stored "Electronics" instead of duplicating it.
-   */
   public async findOrCreateByNames(names: string[]): Promise<CategoryModel[]> {
-    const namesByLowercase = new Map<string, string>();
-    for (const name of names.map(canonicalCategoryName)) {
-      if (name.length > 0 && !namesByLowercase.has(name.toLowerCase())) {
-        namesByLowercase.set(name.toLowerCase(), name);
-      }
-    }
-    if (namesByLowercase.size === 0) return [];
-
+    if (names.length === 0) return [];
     const existing = await this.repository
       .createQueryBuilder("category")
-      .where("LOWER(category.name) IN (:...names)", {
-        names: [...namesByLowercase.keys()],
-      })
+      .where("category.name IN (:...names)", { names })
       .getMany();
 
-    const existingNames = new Set(existing.map((c) => c.name.toLowerCase()));
+    const existingNames = new Set(existing.map((c) => c.name));
 
-    const newNames = [...namesByLowercase.entries()]
-      .filter(([lowercase]) => !existingNames.has(lowercase))
-      .map(([, name]) => name);
+    const newNames = [
+      ...new Set(names.filter((name) => !existingNames.has(name))),
+    ];
 
     // Create in-memory entities (not saving them)
     const newCategories = newNames.map((name) =>
@@ -51,9 +37,7 @@ export class CategoryRepository extends AbstractRepository<CategoryModel> {
   }
 
   public async createCategory(name: string): Promise<CategoryModel> {
-    const category = this.repository.create({
-      name: canonicalCategoryName(name),
-    });
+    const category = this.repository.create({ name });
     return await this.repository.save(category);
   }
 }

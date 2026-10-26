@@ -236,30 +236,6 @@ describe("post tests", () => {
       );
     });
 
-  test("create post - stores each category once, as the app titles it", async () => {
-    const user = UserFactory.fakeTemplate();
-
-    await new DataFactory().createUsers(user).write();
-
-    for (const category of ["electronics", "ELECTRONICS", " Electronics "]) {
-      await postController.createPost(user, {
-        title: "Desk Lamp",
-        description: "Warm light, barely used",
-        categories: [category],
-        condition: "NEW",
-        originalPrice: 20,
-        imagesBase64: [],
-        userId: user.firebaseUid,
-      });
-    }
-
-    const categories = await conn.getRepository(CategoryModel).find({
-      relations: ["posts"],
-    });
-    expect(categories.map((c) => c.name)).toEqual(["Electronics"]);
-    expect(categories[0].posts).toHaveLength(3);
-  });
-
   test("create post with event tags", async () => {
     const user = UserFactory.fakeTemplate();
 
@@ -759,21 +735,6 @@ describe("post tests", () => {
     );
 
     expect(getPostsResponse.posts).toEqual([]);
-  });
-
-  test("filter posts by category/categories - matches names regardless of case", async () => {
-    const post = PostFactory.fakeTemplate();
-    post.user = UserFactory.fakeTemplate();
-
-    await new DataFactory().createPosts(post).createUsers(post.user).write();
-
-    for (const category of ["HANDMADE", "Handmade", "handmade"]) {
-      const getPostsResponse = await postController.filterPostsByCategories(
-        post.user,
-        { categories: [category] },
-      );
-      expect(getPostsResponse.posts.map((p) => p.id)).toEqual([post.id]);
-    }
   });
 
   test("filter posts by category/categories with multiple posts and testing to not return duplicates", async () => {

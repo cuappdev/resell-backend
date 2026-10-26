@@ -6,7 +6,7 @@ import { CategoryModel } from "../models/CategoryModel";
 define(CategoryModel, (_, context?: { name?: string }) => {
   const category = new CategoryModel();
 
-  const categoryName = context?.name ?? "Handmade";
+  const categoryName = context?.name ?? "HANDMADE";
   category.name = categoryName;
 
   return category;
