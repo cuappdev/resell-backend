@@ -26,13 +26,15 @@ Semantic similarity (similar posts, request matching, search vectors) uses **Ope
    npx add-mcp https://mcp.neon.tech/mcp -a zed -g
    ```
 
-4. Link env vars to the Neon project (writes `DATABASE_URL` / `DATABASE_URL_UNPOOLED` into `.env`):
+4. Pull `DATABASE_URL` / `DATABASE_URL_UNPOOLED` from the linked Neon branch:
 
    ```bash
    npx neon@latest env pull
    ```
 
    Or copy [`.env_template`](.env_template) to `.env` and fill values manually.
+
+   The app and migration CLI load `.env.local` first, then `.env` for missing values. Existing shell or deployment environment variables take precedence over both files. Run commands from the repo root.
 
 5. Firebase: set either `FIREBASE_SERVICE_ACCOUNT_JSON` (stringified JSON, preferred for Vercel) or `FIREBASE_SERVICE_ACCOUNT_PATH` (local file path).
 
@@ -52,13 +54,41 @@ Semantic similarity (similar posts, request matching, search vectors) uses **Ope
 
 Neon branches used by this project:
 
-| Neon branch | Use |
-|-------------|-----|
-| `production` | Vercel Production |
-| `staging` | Vercel Preview / `main` deploys |
-| `dev` | Local development (optional personal branches later) |
+| Neon branch  | Use                                                  |
+| ------------ | ---------------------------------------------------- |
+| `production` | Vercel Production                                    |
+| `staging`    | Vercel Preview / `main` deploys                      |
+| `dev`        | Local development (optional personal branches later) |
 
-Project context is stored in [`.neon`](.neon) (safe to commit; no secrets).
+Project context is stored in [`.neon`](.neon).
+
+## Local test authentication
+
+Start the backend with the token helper explicitly enabled:
+
+```bash
+npm run dev:auth
+```
+
+Copy an existing test user's UID from Firebase Console → Authentication → Users,
+then request an ID token:
+
+```bash
+curl -X POST http://localhost:3000/api/authToken/ \
+  -H 'Content-Type: application/json' \
+  -d '{"uid":"YOUR_FIREBASE_UID"}'
+```
+
+Use the returned `token` as `Authorization: Bearer <token>` on API requests.
+Firebase credentials must be configured and the server must be able to reach Firebase.
+Normal user registration and email restrictions still apply to authenticated routes.
+
+All `/api/authToken/` helpers (including the legacy GET and account creation routes)
+return 404 unless explicitly enabled in development, with `IS_PROD` unset/false and
+outside Vercel. Only direct loopback requests without forwarding headers are accepted.
+Browser requests must come from the same local server origin. You can also open
+`http://localhost:3000/api-docs`, execute **POST /authToken/** under **Auth**, and
+paste the returned token into **Authorize** (without the `Bearer` prefix).
 
 ## Migrations
 

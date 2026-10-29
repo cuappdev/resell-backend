@@ -1,10 +1,12 @@
 .envrc
 .env
+.env.local
+.neon
 dist/
 node_modules/
 yarn.lock
 *.DS_Store
 *.pem
 firebase-admin-service-account.json
-# Firebase secrets
 secrets/
+

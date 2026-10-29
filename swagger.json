@@ -62,10 +62,73 @@
     }
   ],
   "paths": {
+    "/authToken/": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get a local test ID token from a Firebase UID",
+        "description": "Local development only: start with NODE_ENV=development ENABLE_LOCAL_AUTH=true and open Swagger on this same local server. Accepts an existing Firebase user UID. Copy the returned token into Swagger Authorize without the Bearer prefix. Disabled on Vercel and in production.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "uid"
+                ],
+                "properties": {
+                  "uid": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "description": "Existing Firebase Authentication user UID",
+                    "example": "YOUR_FIREBASE_UID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Firebase ID token for authenticated API requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "token"
+                  ],
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "Paste this value into Swagger Authorize."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid Firebase UID"
+          },
+          "404": {
+            "description": "Local helper disabled or request not from an allowed local origin"
+          },
+          "500": {
+            "description": "Firebase user lookup or token exchange failed"
+          }
+        }
+      }
+    },
     "/auth": {
       "post": {
         "tags": ["Auth"],
-        "summary": "Authorize user",
+        "summary": "Register notification token and get current user",
+        "description": "Requires a Firebase ID token via Swagger Authorize. The request body token is an FCM push-notification token, not a Firebase UID or ID token. For local ID token generation, use POST /authToken/.",
         "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
