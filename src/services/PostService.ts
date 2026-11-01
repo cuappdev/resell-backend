@@ -451,10 +451,9 @@ export class PostService {
       if (!userWithSaved) throw new NotFoundError("User not found");
 
       const filteredPosts: PostModel[] = [];
-      const postRepository = Repositories.post(transactionalEntityManager);
 
       for (const post of userWithSaved.saved) {
-        const postAuthor = await postRepository.getUserByPostId(post.id);
+        const postAuthor = post.user;
         if (!postAuthor) throw new NotFoundError("Post author not found");
 
         // Check if the current user blocked the post author
