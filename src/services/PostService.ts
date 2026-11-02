@@ -69,6 +69,9 @@ export class PostService {
   }
 
   public async createPost(post: CreatePostRequest, authenticatedUser: UserModel): Promise<PostModel> {
+    if (typeof post.condition !== "string" || !post.condition.trim()) {
+      throw new BadRequestError("A post condition is required.");
+    }
     const freshPost = await this.transactions.readWrite(async (transactionalEntityManager) => {
       const user = authenticatedUser;
       if (!user) throw new NotFoundError("User is null or undefined!");
