@@ -1,7 +1,13 @@
 import {
   assertTarget,
   pendingCleanup,
+  expectedMigrationNames,
 } from "../../scripts/database-cleanup/guards";
+
+import { assertPreserved } from "../../scripts/database-cleanup/verification";
+
+import { AlignActiveDatabaseIntegrity1793574441324 } from "../migrations/1793574441324-AlignActiveDatabaseIntegrity";
+import { MarkKnownLegacySaveDatesUnknown1793574441325 } from "../migrations/1793574441325-MarkKnownLegacySaveDatesUnknown";
 
 const approved = [
   "AlignActiveDatabaseIntegrity1793574441324",
@@ -16,6 +22,13 @@ const host = "ep-dawn-waterfall-aualz1hc.c-10.us-east-1.aws.neon.tech";
 const url = `postgresql://test@${host}/neondb?sslmode=require`;
 
 describe("cleanup target and pending-migration guards", () => {
+  test("expected migration names match the executable migration pair in order", () => {
+    expect([
+      new AlignActiveDatabaseIntegrity1793574441324().name,
+      new MarkKnownLegacySaveDatesUnknown1793574441325().name,
+    ]).toEqual([...expectedMigrationNames]);
+  });
+
   test("accepts the API-verified direct active target", () => {
     expect(() => assertTarget(branch, host, url)).not.toThrow();
   });
@@ -113,6 +126,49 @@ describe("cleanup target and pending-migration guards", () => {
     ).toThrow();
     expect(() =>
       pendingCleanup([approved[0], approved[0]], approved),
+    ).toThrow();
+  });
+});
+
+describe("cleanup preservation checks", () => {
+  const before = {
+    tables: { Post: { count: 2, fingerprint: "original-values" } },
+    dates: [
+      { key: "legacy", value: "2026-10-25 18:48:35.538726+00" },
+      { key: "genuine", value: "2026-10-25 18:48:35.538727+00" },
+    ],
+    protectedSchema: { type: "unchanged", indexes: ["unchanged-index"] },
+  };
+  const after = {
+    ...before,
+    dates: [{ key: "legacy", value: null }, before.dates[1]],
+  };
+
+  test("allows only the exact known artificial date to become unknown", () => {
+    expect(() => assertPreserved(before, after)).not.toThrow();
+  });
+
+  test("rejects clearing a genuine date one microsecond away", () => {
+    expect(() =>
+      assertPreserved(before, {
+        ...after,
+        dates: after.dates.map((date) => ({ ...date, value: null })),
+      }),
+    ).toThrow();
+  });
+
+  test("rejects changed business data or excluded schema", () => {
+    expect(() =>
+      assertPreserved(before, {
+        ...after,
+        tables: { Post: { count: 2, fingerprint: "changed-values" } },
+      }),
+    ).toThrow();
+    expect(() =>
+      assertPreserved(before, {
+        ...after,
+        protectedSchema: { type: "changed" },
+      }),
     ).toThrow();
   });
 });
