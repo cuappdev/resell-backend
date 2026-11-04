@@ -86,6 +86,7 @@ export class UserRepository extends AbstractRepository<UserModel> {
       .leftJoinAndSelect("user.blocking", "user_blocking_users.blocking")
       .where("user.firebaseUid = :id", { id })
       .leftJoinAndSelect("user.saved", "post")
+      .leftJoinAndSelect("post.user", "postAuthor")
       .getOne();
   }
 
