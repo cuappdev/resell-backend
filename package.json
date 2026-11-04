@@ -13,6 +13,7 @@
     "db:migrate:create": "ts-node ./node_modules/typeorm/cli.js migration:create -n",
     "db:migrate:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate -n",
     "db:migrate": "ts-node ./node_modules/typeorm/cli.js migration:run",
+    "embeddings:backfill": "node -r ts-node/register scripts/backfill-embeddings.js",
     "db:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert",
     "db:seed": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed"
   },
