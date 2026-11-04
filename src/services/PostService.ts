@@ -69,6 +69,9 @@ export class PostService {
   }
 
   public async createPost(post: CreatePostRequest, authenticatedUser: UserModel): Promise<PostModel> {
+    if (typeof post.condition !== "string" || !post.condition.trim()) {
+      throw new BadRequestError("A post condition is required.");
+    }
     const freshPost = await this.transactions.readWrite(async (transactionalEntityManager) => {
       const user = authenticatedUser;
       if (!user) throw new NotFoundError("User is null or undefined!");
@@ -451,10 +454,9 @@ export class PostService {
       if (!userWithSaved) throw new NotFoundError("User not found");
 
       const filteredPosts: PostModel[] = [];
-      const postRepository = Repositories.post(transactionalEntityManager);
 
       for (const post of userWithSaved.saved) {
-        const postAuthor = await postRepository.getUserByPostId(post.id);
+        const postAuthor = post.user;
         if (!postAuthor) throw new NotFoundError("Post author not found");
 
         // Check if the current user blocked the post author

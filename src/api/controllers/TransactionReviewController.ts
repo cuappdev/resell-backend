@@ -38,7 +38,7 @@ export class TransactionReviewController {
     return { review: await this.transactionReviewService.getTransactionReviewById(params) };
   }
 
-  @Get('transactionId/:transactionId/')
+  @Get('transactionId/:id/')
   async getTransactionReviewByTransactionId(@Params() params: UuidParam): Promise<{ review: TransactionReviewModel }> {
     return { review: await this.transactionReviewService.getTransactionReviewByTransactionId(params) };
   }
