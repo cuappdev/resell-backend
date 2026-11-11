@@ -49,7 +49,7 @@ async function backfill(client, embed, { dryRun = false, limit = Infinity, log =
 }
 
 async function main() {
-  require('../src/utils/loadEnv');
+  require('dotenv').config();
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
     console.log('npm run embeddings:backfill -- [--dry-run] [--limit N]');
@@ -64,8 +64,8 @@ async function main() {
       if (!Number.isSafeInteger(limit) || limit <= 0) throw new Error('--limit must be a positive integer');
     } else throw new Error(`Unknown argument: ${args[i]}`);
   }
-  if (!process.env.DATABASE_URL) throw new Error('Set DATABASE_URL in .env.local');
-  if (!dryRun && !process.env.OPENAI_API_KEY) throw new Error('Set OPENAI_API_KEY in .env.local');
+  if (!process.env.DATABASE_URL) throw new Error('Set DATABASE_URL in .env');
+  if (!dryRun && !process.env.OPENAI_API_KEY) throw new Error('Set OPENAI_API_KEY in .env');
   if (!dryRun && process.env.NODE_ENV === 'test') throw new Error('Embedding generation is disabled with NODE_ENV=test');
   const url = new URL(process.env.DATABASE_URL);
   console.log(`Target: ${url.hostname}${url.pathname}${dryRun ? ' (dry run; no API calls or writes)' : ''}`);
