@@ -62,7 +62,7 @@ Project context is stored in [`.neon`](.neon) (safe to commit; no secrets).
 
 ## Backfill post embeddings
 
-Set `DATABASE_URL` and `OPENAI_API_KEY` in `.env.local`. The command targets that
+Set `DATABASE_URL` and `OPENAI_API_KEY` in `.env`. The command targets that
 database (shell variables take precedence), prints its host/name without credentials,
 and includes archived and sold posts that have no embedding.
 
