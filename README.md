@@ -99,6 +99,28 @@ If the API says **User not found**, register the signed-in account through **POS
 
 The legacy `GET /api/authToken/` and `POST /api/authToken/create/` routes have been removed. The backend rejects emulator settings on Vercel and outside local development. Keep `FIREBASE_AUTH_EMULATOR_HOST` and `FIRESTORE_EMULATOR_HOST` out of Production and Preview settings. [Firebase Auth Emulator token behavior](https://firebase.google.com/docs/emulator-suite/connect_auth)
 
+## Backfill post embeddings
+
+Set `DATABASE_URL` and `OPENAI_API_KEY` in `.env`. The command targets that
+database (shell variables take precedence), prints its host/name without credentials,
+and includes archived and sold posts that have no embedding.
+
+```bash
+npm run embeddings:backfill -- --dry-run
+npm run embeddings:backfill -- --limit 5
+npm run embeddings:backfill
+```
+
+The dry run only counts missing embeddings; it makes no OpenAI requests or writes.
+The backfill sends each post's title and description to the existing OpenAI embedding
+service and saves its 512-dimensional vector in `Post.embedding`. It reads 25 posts
+at a time, processes requests sequentially, and retries failed generation up to three
+times. Successful writes are saved immediately, so rerunning skips completed posts.
+Failed posts remain missing and produce a nonzero exit status. Concurrently changed
+posts are skipped to avoid saving stale embeddings. Similar-item caches for updated
+posts are cleared and populated lazily by similar-item requests. Existing populated
+embeddings are never overwritten. API usage is billed to the configured key.
+
 ## Migrations
 
 ```bash
