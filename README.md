@@ -52,11 +52,11 @@ Semantic similarity (similar posts, request matching, search vectors) uses **Ope
 
 Neon branches used by this project:
 
-| Neon branch | Use |
-|-------------|-----|
-| `production` | Vercel Production |
-| `staging` | Vercel Preview / `main` deploys |
-| `dev` | Local development (optional personal branches later) |
+| Neon branch  | Use                                                  |
+| ------------ | ---------------------------------------------------- |
+| `production` | Vercel Production                                    |
+| `staging`    | Vercel Preview / `main` deploys                      |
+| `dev`        | Local development (optional personal branches later) |
 
 Project context is stored in [`.neon`](.neon) (safe to commit; no secrets).
 
@@ -116,41 +116,3 @@ Seeding is skipped when `IS_PROD=true`.
 - Local Homebrew / Docker Postgres install (use Neon `dev` instead)
 - DigitalOcean dump/import scripts (one-time migration only if needed)
 - [`Dockerfile`](Dockerfile) / [`docker-compose.yml`](docker-compose.yml) and the disabled Swarm workflows under `.github/workflows/deploy-*.yml`
-
-### Proposal acceptance retries
-
-`POST /api/chat/proposal/:id` treats accepted proposals with the same chat, buyer,
-seller, listing, and meeting start/end instants as one operation. No new request
-fields are required. Equivalent timezone representations produce the same ID.
-The first acceptance creates a deterministic UUID transaction; retries preserve
-its ID, timestamp, amount, and completion state. A changed meeting interval is a
-separate acceptance. Intentionally separate proposals with identical details are
-also treated as one acceptance because the current API has no proposal ID.
-
-A deterministic Firestore message is created atomically with the chat timestamp.
-If Postgres commits and Firestore fails, retrying repairs the missing message
-without inserting another transaction. Repeated successful requests do not create
-another message or resend the confirmation push. Push delivery remains best effort:
-a crash or lost acknowledgement after the Firestore commit can still lose the push.
-This does not make Postgres and Firestore one atomic transaction.
-
-No database migration is needed: uniqueness uses the existing transaction primary
-key. This applies to acceptances created by the new implementation; it does not
-reconcile historical transactions/messages created with random IDs. Acceptance
-requires a matching authenticated sender and a valid, increasing meeting interval.
-
-The focused tests include an optional real-Postgres concurrency suite (Firestore
-and FCM are mocked). Run it only against a dedicated temporary local cluster:
-
-```sh
-proposal_pg_dir=$(mktemp -d /tmp/resell-idempotency.XXXXXX)
-initdb -D "$proposal_pg_dir/data" -A trust --no-locale
-pg_ctl -D "$proposal_pg_dir/data" -l "$proposal_pg_dir/server.log" \
-  -o "-h '' -k $proposal_pg_dir -p 55439" -w start
-PROPOSAL_TEST_PG_SOCKET="$proposal_pg_dir" npx jest src/tests/ProposalIdempotency.test.ts --runInBand
-pg_ctl -D "$proposal_pg_dir/data" -m fast -w stop
-```
-
-The integration suite creates and drops a synthetic `Transaction` table in that
-isolated cluster. Without `PROPOSAL_TEST_PG_SOCKET`, those integration cases are
-skipped; the deterministic-ID unit test still runs.
