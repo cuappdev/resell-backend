@@ -1,7 +1,6 @@
 // Load environment and Firebase configuration first
-import dotenv from "dotenv";
-dotenv.config();
-import "./firebase";
+import "./utils/loadEnv";
+import { firebaseAdmin as admin, useFirebaseEmulators } from "./firebase";
 import "reflect-metadata";
 
 import {
@@ -16,7 +15,6 @@ import { Container } from "typeorm-typedi-extensions";
 import { Express, Request, Response } from "express";
 import * as swaggerUi from "swagger-ui-express";
 import * as path from "path";
-import { firebaseAdmin as admin } from "./firebase";
 
 import { controllers } from './api/controllers';
 import { middlewares } from './api/middlewares';
@@ -220,12 +218,17 @@ async function createApp(): Promise<Express> {
   });
 
   // Vercel Fluid Express supports app.listen(); skip in-process cron on Vercel.
-  app.listen(port, () => {
+  const onListen = () => {
     console.log(`Resell backend listening on port ${port}`);
     if (!process.env.VERCEL) {
       startTransactionConfirmationCron();
     }
-  });
+  };
+  if (useFirebaseEmulators) {
+    app.listen(Number(port), "127.0.0.1", onListen);
+  } else {
+    app.listen(port, onListen);
+  }
 
   return app;
 }

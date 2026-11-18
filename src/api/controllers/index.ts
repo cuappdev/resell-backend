@@ -11,13 +11,11 @@ import { ReportController } from './ReportController';
 import { TransactionController } from './TransactionController';
 import { TransactionReviewController } from './TransactionReviewController';
 import { ChatController } from './ChatController';
-import { AuthTokenController } from './AuthToken';
 import { SearchController } from './SearchController';
 import { VersionController } from './VersionController';
 
 export const controllers = [
   AuthController,
-  AuthTokenController,
   AvailabilityController,
   ChatController,
   FeedbackController,

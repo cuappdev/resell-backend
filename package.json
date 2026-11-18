@@ -5,6 +5,8 @@
   "main": "src/app.ts",
   "scripts": {
     "dev": "tsc-watch --onSuccess \"ts-node src/app.ts\"",
+    "dev:emulators": "firebase emulators:start --only auth,firestore --project demo-resell-local --import=.firebase/local --export-on-exit=.firebase/local",
+    "dev:local": "NODE_ENV=development FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run dev",
     "start": "ts-node src/app.ts",
     "test": "jest",
     "format": "prettier --write \"src/**/*.ts\"",
