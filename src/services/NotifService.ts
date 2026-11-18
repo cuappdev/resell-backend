@@ -27,6 +27,10 @@ interface NotifPayload {
 interface NotifResult {
     message: string;
     httpCode: number;
+    // Omitted when an unexpected error prevents determining delivery outcomes.
+    sentCount?: number;
+    failedCount?: number;
+    persistenceFailedCount?: number;
 }
 
 @Service()
@@ -49,25 +53,37 @@ export class NotifService {
     }
 
     /**
-     * send notification to a user and persist it, skips invalid tokens
+     * Send to every token and report FCM and persistence outcomes separately.
      */
     private async sendToUser(
         userId: string,
         tokens: string[],
         payload: NotifPayload,
         notifRepository: ReturnType<typeof Repositories.notification>
-    ): Promise<void> {
+    ): Promise<Required<Pick<NotifResult, 'sentCount' | 'failedCount' | 'persistenceFailedCount'>>> {
+        // "Sent" means accepted by FCM, not confirmed delivery to the device.
+        const result = { sentCount: 0, failedCount: 0, persistenceFailedCount: 0 };
         for (const token of tokens) {
             const msg: Message = {
                 notification: {
                     title: payload.title,
                     body: payload.body,
                 },
-                data: payload.data as { [key: string]: string },
+                // FCM rejects numeric/null data values; a type assertion does not convert them.
+                data: Object.fromEntries(Object.entries(payload.data ?? {}).map(
+                    ([key, value]) => [key, value == null ? '' : String(value)]
+                )),
                 token: token,
             };
             try {
                 await getMessaging().send(msg);
+                result.sentCount++;
+            } catch (error) {
+                result.failedCount++;
+                console.warn(`Failed to send notification "${payload.title}": ${error.message}`);
+                continue;
+            }
+            try {
                 await notifRepository.save({
                     userId: userId,
                     title: payload.title,
@@ -76,10 +92,11 @@ export class NotifService {
                     read: false
                 });
             } catch (error) {
-                console.warn(`Skipping invalid token for notification "${payload.title}": ${error.message}`);
-                continue;
+                result.persistenceFailedCount++;
+                console.error(`Failed to persist notification "${payload.title}": ${error.message}`);
             }
         }
+        return result;
     }
 
     /**
@@ -96,15 +113,39 @@ export class NotifService {
 
         const tokens = await this.getTokensForUser(fcmTokenRepository, userId);
         if (tokens.length === 0) {
-            return { message: "No device tokens found", httpCode: 200 };
+            return { message: "No device tokens found", httpCode: 200, sentCount: 0, failedCount: 0, persistenceFailedCount: 0 };
         }
 
         try {
-            await this.sendToUser(userId, tokens, payload, notifRepository);
-            return { message: "Notification sent successfully", httpCode: 200 };
+            const result = await this.sendToUser(userId, tokens, payload, notifRepository);
+            if (result.sentCount === 0) {
+                return { message: "Notification not sent", httpCode: 500, ...result };
+            }
+            if (result.persistenceFailedCount > 0) {
+                return { message: "Notification sending completed with persistence failures", httpCode: 500, ...result };
+            }
+            if (result.failedCount > 0) {
+                return { message: "Notification partially sent", httpCode: 207, ...result };
+            }
+            return { message: "Notification sent successfully", httpCode: 200, ...result };
         } catch (err) {
             console.error('Failed to send notification:', err);
-            return { message: "Notification not sent", httpCode: 500 };
+            // Preserve callers' ability to continue after notification failures.
+            // Some pushes may already have been accepted; do not invent counts.
+            return { message: "Notification processing failed; delivery outcome unknown", httpCode: 500 };
+        }
+    }
+
+    /** Best-effort delivery after the caller's primary write has committed. */
+    public async sendNotifsSafely(request: FindTokensRequest): Promise<void> {
+        try {
+            const result = await this.sendNotifs(request);
+            if (!result.sentCount || result.failedCount || result.persistenceFailedCount) {
+                console.warn('Notification delivery incomplete:', result);
+            }
+        } catch (error) {
+            // Includes recipient lookup and notification-transaction failures.
+            console.error('Notification delivery failed after primary write:', error);
         }
     }
 

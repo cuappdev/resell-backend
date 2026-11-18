@@ -1,5 +1,9 @@
 .envrc
 .env
+.env.local
+.firebase/
+firebase-debug*.log
+firestore-debug*.log
 dist/
 node_modules/
 yarn.lock

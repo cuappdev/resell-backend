@@ -1,4 +1,4 @@
-import { Body, CurrentUser, ForbiddenError, BadRequestError, JsonController, Params, Post } from 'routing-controllers';
+import { Body, CurrentUser, ForbiddenError, BadRequestError, NotFoundError, JsonController, Params, Post } from 'routing-controllers';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getManager, getConnection } from 'typeorm';
 import { ChatParam, ChatReadParam } from '../validators/GenericRequests';
@@ -6,6 +6,7 @@ import { CreateChatMessage, CreateAvailabilityChat, CreateProposalChat, RespondP
 import { UserModel } from '../../models/UserModel';
 import { PostModel } from '../../models/PostModel';
 import { NotifService } from '../../services/NotifService';
+import { proposalAcceptanceId } from '../../utils/proposalAcceptanceId';
 
 const db = getFirestore();
 const chatsRef = db.collection("chats_refactored");
@@ -73,6 +74,26 @@ export class ChatController {
     if (!chatBody.senderId) {
       throw new BadRequestError("senderId is required");
     }
+    if (chatBody.senderId !== user.firebaseUid) {
+      throw new ForbiddenError("senderId must match the authenticated user");
+    }
+
+    // Existing chat participants come from Firestore, never from the request.
+    const chatData = doc.exists ? doc.data() : {
+      buyerID: chatBody.buyerId,
+      sellerID: chatBody.sellerId,
+      listingID: chatBody.listingId,
+      userIDs: [chatBody.buyerId, chatBody.sellerId],
+    };
+    if (!chatData?.userIDs?.includes(user.firebaseUid)) {
+      throw new ForbiddenError("This user is not part of this chat");
+    }
+    const participants = [chatData.buyerID, chatData.sellerID];
+    if (participants.some(id => typeof id !== 'string' || !id.trim()) ||
+        participants[0] === participants[1] || !participants.includes(user.firebaseUid)) {
+      throw new BadRequestError("Chat requires distinct buyer and seller IDs including the sender");
+    }
+    const recipientId = participants.find(id => id !== user.firebaseUid)!;
 
     const message = {
       "type": "message",
@@ -82,15 +103,35 @@ export class ChatController {
       "timestamp": now,
       "read": false
     }
-    if (doc.exists) {
-      const userCheck = await checkUsers(chatId, user.firebaseUid);
-      if (!userCheck) {
-        //TODO: factor this part out into a checkPermissions function that we can call in all the route
-        throw new ForbiddenError("This user is not part of this chat");
-      }
+    await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, chatBody.text ?? "");
 
+    // Await the push attempt, but never fail an already-saved message on push errors.
+    try {
+      const manager = getManager();
+      const recipient = await manager.findOne(UserModel, { firebaseUid: recipientId });
+      if (!recipient) {
+        console.warn(`Message notification skipped for chat ${chatId}: recipient not found`);
+      } else {
+        const result = await new NotifService(manager).sendNotifs({
+          email: recipient.email,
+          title: user.username || 'New message',
+          body: message.text.trim().slice(0, 200) || (message.images.length ? 'Sent a photo' : 'Sent a message'),
+          data: {
+            type: 'messages',
+            chatId,
+            postId: String(chatData.listingID ?? ''),
+            senderId: user.firebaseUid,
+            senderUsername: user.username || '',
+            senderPhotoUrl: user.photoUrl || '',
+          } as unknown as JSON,
+        });
+        if (!result.sentCount || result.failedCount || result.persistenceFailedCount) {
+          console.warn(`Message notification incomplete for chat ${chatId}`, result);
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to send message notification for chat ${chatId}`, error);
     }
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, chatBody.text ?? "");
     return message;
 
   }
@@ -131,7 +172,7 @@ export class ChatController {
         throw new ForbiddenError("This user is not part of this chat");
       }
     }
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
 
     return responseMessage;
   }
@@ -164,7 +205,7 @@ export class ChatController {
         throw new ForbiddenError("This user is not part of this chat");
       }
     }
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
     return message;
   }
 
@@ -186,7 +227,22 @@ export class ChatController {
       throw new BadRequestError("startDate and endDate are required");
     }
 
-    const message: any = {
+    if (chatBody.senderId !== user.firebaseUid) {
+      throw new ForbiddenError("senderId must match the authenticated user");
+    }
+    if (typeof chatBody.accepted !== 'boolean') {
+      throw new BadRequestError("accepted must be a boolean");
+    }
+    const startDate = new Date(chatBody.startDate);
+    const endDate = new Date(chatBody.endDate);
+    if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate <= startDate) {
+      throw new BadRequestError("A valid meeting interval is required");
+    }
+    if (chatBody.accepted && !doc.exists) {
+      throw new NotFoundError("Chat not found");
+    }
+
+    let message: any = {
       "type": "proposal",
       "senderID": chatBody.senderId,
       "timestamp": now,
@@ -204,6 +260,7 @@ export class ChatController {
 
     // If proposal is accepted, create a transaction
     let transactionId: string | undefined;
+    let proposalNotification: FindTokensRequest | undefined;
     console.log(`[PROPOSAL] chatBody.accepted = ${chatBody.accepted}, doc.exists = ${doc.exists}`);
 
     if (chatBody.accepted === true && doc.exists) {
@@ -225,23 +282,29 @@ export class ChatController {
           const connection = getConnection();
           const queryRunner = connection.createQueryRunner();
           await queryRunner.connect();
-          await queryRunner.startTransaction();
 
           const amount = post.alteredPrice ?? post.originalPrice;
-          const transactionDate = new Date(chatBody.startDate);
+          const transactionDate = startDate;
+          const acceptanceId = proposalAcceptanceId(chatId, buyer.firebaseUid, seller.firebaseUid, post.id, startDate, endDate);
 
           try {
-            const result = await queryRunner.query(`
-              INSERT INTO "Transaction" (location, amount, completed, "postId", "buyerId", "sellerId", "transactionDate", "confirmationSent")
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-              RETURNING id
-            `, ["", amount, false, post.id, buyer.firebaseUid, seller.firebaseUid, transactionDate, false]);
-
+            await queryRunner.startTransaction("READ COMMITTED");
+            // The primary-key constraint serializes concurrent retries. Never overwrite
+            // amount/completion or other mutable fields on an existing transaction.
+            await queryRunner.query(`
+              INSERT INTO "Transaction" (id, location, amount, completed, "postId", "buyerId", "sellerId", "transactionDate", "confirmationSent")
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+              ON CONFLICT (id) DO NOTHING
+            `, [acceptanceId, "", amount, false, post.id, buyer.firebaseUid, seller.firebaseUid, transactionDate, false]);
+            const result = await queryRunner.query(
+              `SELECT id, "createdAt" FROM "Transaction" WHERE id = $1`, [acceptanceId],
+            );
             await queryRunner.commitTransaction();
             transactionId = result[0].id;
+            message.timestamp = new Date(result[0].createdAt);
             console.log(`[PROPOSAL] Transaction COMMITTED to DB: ${transactionId}`);
           } catch (saveError) {
-            await queryRunner.rollbackTransaction();
+            if (queryRunner.isTransactionActive) await queryRunner.rollbackTransaction();
             console.error(`[PROPOSAL] Failed to save transaction:`, saveError);
             throw saveError;
           } finally {
@@ -253,43 +316,55 @@ export class ChatController {
 
           console.log(`Transaction created: ${transactionId} for chat ${chatId}`);
 
-          // Send notification to the buyer that their proposal was accepted
-          // NOTE: This is done AFTER transaction is saved, so notification failures won't affect transaction
-          try {
-            const notifService = new NotifService(getManager());  // Use fresh manager to avoid transaction issues
-            const imageUrl = post.images && post.images.length > 0 ? post.images[0] : null;
-
-            // FCM requires all data values to be STRINGS
-            const buyerNotifRequest: FindTokensRequest = {
-              email: buyer.email,
-              title: "Meeting Confirmed!",
-              body: `${seller.username} accepted your meeting proposal for "${post.title}"`,
-              data: {
-                type: "messages",
-                imageUrl: imageUrl || "",
-                postId: post.id,
-                postTitle: post.title,
-                transactionId: transactionId,
-                chatId: chatId,
-                sellerId: seller.firebaseUid,
-                sellerUsername: seller.username,
-                sellerPhotoUrl: seller.photoUrl || "",
-                meetingTime: String(chatBody.startDate)  // Convert to string for FCM
-              } as unknown as JSON
-            };
-            await notifService.sendNotifs(buyerNotifRequest);
-            console.log(`Notification sent to buyer ${buyer.email}`);
-          } catch (notifError) {
-            console.error(`Failed to send notification: ${notifError}`);
-            // Don't fail the transaction creation if notification fails
-          }
+          // Prepare the push now; send only after the chat write succeeds.
+          const imageUrl = post.images && post.images.length > 0 ? post.images[0] : null;
+          proposalNotification = {
+            email: buyer.email,
+            title: "Meeting Confirmed!",
+            body: `${seller.username} accepted your meeting proposal for "${post.title}"`,
+            data: {
+              type: "messages",
+              imageUrl: imageUrl || "",
+              postId: post.id,
+              postTitle: post.title,
+              transactionId: transactionId,
+              chatId: chatId,
+              sellerId: seller.firebaseUid,
+              sellerUsername: seller.username,
+              sellerPhotoUrl: seller.photoUrl || "",
+              meetingTime: String(chatBody.startDate)  // Convert to string for FCM
+            } as unknown as JSON
+          };
         } else {
-          console.error(`Failed to create transaction: buyer=${!!buyer}, seller=${!!seller}, post=${!!post}`);
+          throw new NotFoundError("Proposal buyer, seller, or listing not found");
         }
       }
     }
 
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    if (transactionId) {
+      const chatRef = chatsRef.doc(chatId);
+      const messageRef = chatRef.collection("messages").doc(`proposal-acceptance-${transactionId}`);
+      const saved = await db.runTransaction(async firestoreTransaction => {
+        const existing = await firestoreTransaction.get(messageRef);
+        if (existing.exists) return { created: false, message: existing.data()! };
+        // Atomically persist the message and chat timestamp. Retrying after a
+        // Firestore failure repairs the missing message without another SQL row.
+        firestoreTransaction.create(messageRef, message);
+        firestoreTransaction.update(chatRef, { updatedAt: message.timestamp });
+        return { created: true, message };
+      });
+      message = saved.message;
+      // Firestore reads return Timestamp objects; preserve the endpoint's Date response.
+      for (const field of ['timestamp', 'startDate', 'endDate']) {
+        if (typeof message[field]?.toDate === 'function') message[field] = message[field].toDate();
+      }
+      // Best effort, once per created acceptance. Retrying must not spam the buyer.
+      if (saved.created && proposalNotification) {
+        await new NotifService(getManager()).sendNotifsSafely(proposalNotification);
+      }
+    } else {
+      await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    }
 
     return {
       ...message,
@@ -325,7 +400,7 @@ export class ChatController {
         throw new ForbiddenError("This user is not part of this chat");
       }
     }
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
     return message;
   }
 

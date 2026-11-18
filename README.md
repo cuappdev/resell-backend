@@ -52,11 +52,11 @@ Semantic similarity (similar posts, request matching, search vectors) uses **Ope
 
 Neon branches used by this project:
 
-| Neon branch | Use |
-|-------------|-----|
-| `production` | Vercel Production |
-| `staging` | Vercel Preview / `main` deploys |
-| `dev` | Local development (optional personal branches later) |
+| Neon branch  | Use                                                  |
+| ------------ | ---------------------------------------------------- |
+| `production` | Vercel Production                                    |
+| `staging`    | Vercel Preview / `main` deploys                      |
+| `dev`        | Local development (optional personal branches later) |
 
 Project context is stored in [`.neon`](.neon) (safe to commit; no secrets).
 
