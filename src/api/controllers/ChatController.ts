@@ -73,6 +73,26 @@ export class ChatController {
     if (!chatBody.senderId) {
       throw new BadRequestError("senderId is required");
     }
+    if (chatBody.senderId !== user.firebaseUid) {
+      throw new ForbiddenError("senderId must match the authenticated user");
+    }
+
+    // Existing chat participants come from Firestore, never from the request.
+    const chatData = doc.exists ? doc.data() : {
+      buyerID: chatBody.buyerId,
+      sellerID: chatBody.sellerId,
+      listingID: chatBody.listingId,
+      userIDs: [chatBody.buyerId, chatBody.sellerId],
+    };
+    if (!chatData?.userIDs?.includes(user.firebaseUid)) {
+      throw new ForbiddenError("This user is not part of this chat");
+    }
+    const participants = [chatData.buyerID, chatData.sellerID];
+    if (participants.some(id => typeof id !== 'string' || !id.trim()) ||
+        participants[0] === participants[1] || !participants.includes(user.firebaseUid)) {
+      throw new BadRequestError("Chat requires distinct buyer and seller IDs including the sender");
+    }
+    const recipientId = participants.find(id => id !== user.firebaseUid)!;
 
     const message = {
       "type": "message",
@@ -82,15 +102,35 @@ export class ChatController {
       "timestamp": now,
       "read": false
     }
-    if (doc.exists) {
-      const userCheck = await checkUsers(chatId, user.firebaseUid);
-      if (!userCheck) {
-        //TODO: factor this part out into a checkPermissions function that we can call in all the route
-        throw new ForbiddenError("This user is not part of this chat");
-      }
+    await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, chatBody.text ?? "");
 
+    // Await the push attempt, but never fail an already-saved message on push errors.
+    try {
+      const manager = getManager();
+      const recipient = await manager.findOne(UserModel, { firebaseUid: recipientId });
+      if (!recipient) {
+        console.warn(`Message notification skipped for chat ${chatId}: recipient not found`);
+      } else {
+        const result = await new NotifService(manager).sendNotifs({
+          email: recipient.email,
+          title: user.username || 'New message',
+          body: message.text.trim().slice(0, 200) || (message.images.length ? 'Sent a photo' : 'Sent a message'),
+          data: {
+            type: 'messages',
+            chatId,
+            postId: String(chatData.listingID ?? ''),
+            senderId: user.firebaseUid,
+            senderUsername: user.username || '',
+            senderPhotoUrl: user.photoUrl || '',
+          } as unknown as JSON,
+        });
+        if (!result.sentCount || result.failedCount || result.persistenceFailedCount) {
+          console.warn(`Message notification incomplete for chat ${chatId}`, result);
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to send message notification for chat ${chatId}`, error);
     }
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, chatBody.text ?? "");
     return message;
 
   }
