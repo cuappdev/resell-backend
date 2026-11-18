@@ -6,7 +6,7 @@ import { UserModel } from '../models/UserModel';
 import { CreateChatMessage } from '../types';
 
 jest.mock('firebase-admin/firestore', () => ({
-  getFirestore: () => ({ collection: () => ({ doc: () => mockDoc }) }),
+  getFirestore: () => ({ collection: () => ({ doc: () => mockDoc }), runTransaction: (...args: any[]) => mockFirestoreTransaction(...args) }),
 }));
 jest.mock('typeorm', () => ({
   ...jest.requireActual('typeorm'),
@@ -21,10 +21,13 @@ const mockQueryRunner = {
   connect: jest.fn(), startTransaction: jest.fn(), query: jest.fn(),
   commitTransaction: jest.fn(), rollbackTransaction: jest.fn(), release: jest.fn(),
 };
+const mockFirestoreTransaction = jest.fn();
+const mockFirestoreCreate = jest.fn();
+const mockMessageRef = {};
 const mockAdd = jest.fn();
 const mockDoc = {
   get: jest.fn(), set: jest.fn(), update: jest.fn(),
-  collection: () => ({ add: mockAdd }),
+  collection: () => ({ add: mockAdd, doc: () => mockMessageRef }),
 };
 const mockFindUser = jest.fn();
 const mockSend = jest.fn();
@@ -44,6 +47,9 @@ beforeEach(() => {
   jest.resetAllMocks();
   mockDoc.get.mockResolvedValue({ exists: true, data: () => storedChat });
   mockAdd.mockResolvedValue({ id: 'message' });
+  mockFirestoreTransaction.mockImplementation(async fn => fn({
+    get: async () => ({ exists: false }), create: mockFirestoreCreate, update: mockDoc.update,
+  }));
   mockFindUser.mockResolvedValue({ email: 'recipient@example.com' });
   mockSend.mockResolvedValue({ sentCount: 1, failedCount: 0, persistenceFailedCount: 0 });
   jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -141,9 +147,9 @@ test('rejects invalid new-chat participants before writing or notifying', async 
 
 const otherChatWrites = [
   () => controller.postAvailability(user, { id: 'chat' }, { ...body, availabilities: [] }),
-  () => controller.sendProposal(user, { id: 'chat' }, { ...body, startDate: new Date(), endDate: new Date() } as any),
-  () => controller.respondProposal(user, { id: 'chat' }, { ...body, accepted: false, startDate: new Date(), endDate: new Date() } as any),
-  () => controller.cancelProposal(user, { id: 'chat' }, { ...body, startDate: new Date(), endDate: new Date() } as any),
+  () => controller.sendProposal(user, { id: 'chat' }, { ...body, startDate: new Date(), endDate: new Date(Date.now() + 3600000) } as any),
+  () => controller.respondProposal(user, { id: 'chat' }, { ...body, accepted: false, startDate: new Date(), endDate: new Date(Date.now() + 3600000) } as any),
+  () => controller.cancelProposal(user, { id: 'chat' }, { ...body, startDate: new Date(), endDate: new Date(Date.now() + 3600000) } as any),
 ];
 
 test.each(otherChatWrites.map((write, index) => ({ write, index })))('chat write $index waits for Firestore and propagates save failure', async ({ write }) => {
@@ -165,10 +171,10 @@ test.each([false, true])('accepted proposal notifies only after successful chat 
     .mockResolvedValueOnce({ firebaseUid: 'buyer', email: 'buyer@example.com' })
     .mockResolvedValueOnce({ firebaseUid: 'seller', username: 'Seller' })
     .mockResolvedValueOnce({ id: 'listing', title: 'Listing', originalPrice: 10, images: [] });
-  mockQueryRunner.query.mockResolvedValue([{ id: 'transaction' }]);
-  if (saveFails) mockAdd.mockRejectedValueOnce(new Error('Save failed'));
+  mockQueryRunner.query.mockResolvedValue([{ id: 'transaction', createdAt: new Date() }]);
+  if (saveFails) mockFirestoreTransaction.mockRejectedValueOnce(new Error('Save failed'));
   const pending = controller.respondProposal(user, { id: 'chat' }, {
-    ...body, accepted: true, startDate: new Date(), endDate: new Date(),
+    ...body, accepted: true, startDate: new Date(), endDate: new Date(Date.now() + 3600000),
   } as any);
   if (saveFails) {
     await expect(pending).rejects.toThrow('Save failed');
