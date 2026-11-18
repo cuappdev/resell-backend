@@ -27,9 +27,10 @@ interface NotifPayload {
 interface NotifResult {
     message: string;
     httpCode: number;
-    sentCount: number;
-    failedCount: number;
-    persistenceFailedCount: number;
+    // Omitted when an unexpected error prevents determining delivery outcomes.
+    sentCount?: number;
+    failedCount?: number;
+    persistenceFailedCount?: number;
 }
 
 @Service()
@@ -59,7 +60,7 @@ export class NotifService {
         tokens: string[],
         payload: NotifPayload,
         notifRepository: ReturnType<typeof Repositories.notification>
-    ): Promise<Pick<NotifResult, 'sentCount' | 'failedCount' | 'persistenceFailedCount'>> {
+    ): Promise<Required<Pick<NotifResult, 'sentCount' | 'failedCount' | 'persistenceFailedCount'>>> {
         // "Sent" means accepted by FCM, not confirmed delivery to the device.
         const result = { sentCount: 0, failedCount: 0, persistenceFailedCount: 0 };
         for (const token of tokens) {
@@ -68,7 +69,10 @@ export class NotifService {
                     title: payload.title,
                     body: payload.body,
                 },
-                data: payload.data as { [key: string]: string },
+                // FCM rejects numeric/null data values; a type assertion does not convert them.
+                data: Object.fromEntries(Object.entries(payload.data ?? {}).map(
+                    ([key, value]) => [key, value == null ? '' : String(value)]
+                )),
                 token: token,
             };
             try {
@@ -126,7 +130,22 @@ export class NotifService {
             return { message: "Notification sent successfully", httpCode: 200, ...result };
         } catch (err) {
             console.error('Failed to send notification:', err);
-            throw err;
+            // Preserve callers' ability to continue after notification failures.
+            // Some pushes may already have been accepted; do not invent counts.
+            return { message: "Notification processing failed; delivery outcome unknown", httpCode: 500 };
+        }
+    }
+
+    /** Best-effort delivery after the caller's primary write has committed. */
+    public async sendNotifsSafely(request: FindTokensRequest): Promise<void> {
+        try {
+            const result = await this.sendNotifs(request);
+            if (!result.sentCount || result.failedCount || result.persistenceFailedCount) {
+                console.warn('Notification delivery incomplete:', result);
+            }
+        } catch (error) {
+            // Includes recipient lookup and notification-transaction failures.
+            console.error('Notification delivery failed after primary write:', error);
         }
     }
 

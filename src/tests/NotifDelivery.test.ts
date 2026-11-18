@@ -41,6 +41,27 @@ beforeEach(() => {
 
 afterEach(() => jest.restoreAllMocks());
 
+test.each([false, true])("returns a failure result on unexpected errors (prior send: %s)", async priorSend => {
+  const error = new Error("Unexpected notification processing failure");
+  // Inject a failure at the delivery boundary, including after a push was accepted.
+  jest.spyOn(service as any, "sendToUser").mockImplementationOnce(async () => {
+    if (priorSend) await mockSend();
+    throw error;
+  });
+  const continueCaller = jest.fn();
+  const result = await service.sendNotifs(request);
+  continueCaller(result);
+
+  expect(continueCaller).toHaveBeenCalledWith({
+    message: "Notification processing failed; delivery outcome unknown",
+    httpCode: 500,
+  });
+  expect(result).not.toHaveProperty("sentCount");
+  expect(result).not.toHaveProperty("failedCount");
+  expect(result).not.toHaveProperty("persistenceFailedCount");
+  expect(console.error).toHaveBeenCalledWith("Failed to send notification:", error);
+});
+
 test("reports failure when every FCM send fails", async () => {
   mockSend.mockRejectedValue(new Error("FCM unavailable"));
   expect(await service.sendNotifs(request)).toEqual({
@@ -88,4 +109,15 @@ test("does not misreport an accepted push as a send failure when persistence fai
   });
   expect(console.warn).not.toHaveBeenCalled();
   expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Failed to persist"));
+});
+
+test('converts numeric and null payload data into FCM strings', async () => {
+  await service.sendNotifs({ ...request, data: { price: 10, imageUrl: null, postId: 'post' } as unknown as JSON });
+  expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({ data: { price: '10', imageUrl: '', postId: 'post' } }));
+});
+
+test('best-effort delivery logs incomplete results without throwing', async () => {
+  mockSend.mockRejectedValue(new Error('FCM unavailable'));
+  await expect(service.sendNotifsSafely(request)).resolves.toBeUndefined();
+  expect(console.warn).toHaveBeenCalledWith('Notification delivery incomplete:', expect.objectContaining({ sentCount: 0, failedCount: 2 }));
 });

@@ -11,11 +11,16 @@ jest.mock('firebase-admin/firestore', () => ({
 jest.mock('typeorm', () => ({
   ...jest.requireActual('typeorm'),
   getManager: () => ({ findOne: mockFindUser }),
+  getConnection: () => ({ createQueryRunner: () => mockQueryRunner }),
 }));
 jest.mock('../services/NotifService', () => ({
-  NotifService: class { sendNotifs = mockSend; },
+  NotifService: class { sendNotifs = mockSend; sendNotifsSafely = mockSend; },
 }));
 
+const mockQueryRunner = {
+  connect: jest.fn(), startTransaction: jest.fn(), query: jest.fn(),
+  commitTransaction: jest.fn(), rollbackTransaction: jest.fn(), release: jest.fn(),
+};
 const mockAdd = jest.fn();
 const mockDoc = {
   get: jest.fn(), set: jest.fn(), update: jest.fn(),
@@ -132,4 +137,46 @@ test('rejects invalid new-chat participants before writing or notifying', async 
   await expect(send({ buyerId: 'outsider' })).rejects.toThrow('not part');
   expect(mockDoc.set).not.toHaveBeenCalled();
   expect(mockSend).not.toHaveBeenCalled();
+});
+
+const otherChatWrites = [
+  () => controller.postAvailability(user, { id: 'chat' }, { ...body, availabilities: [] }),
+  () => controller.sendProposal(user, { id: 'chat' }, { ...body, startDate: new Date(), endDate: new Date() } as any),
+  () => controller.respondProposal(user, { id: 'chat' }, { ...body, accepted: false, startDate: new Date(), endDate: new Date() } as any),
+  () => controller.cancelProposal(user, { id: 'chat' }, { ...body, startDate: new Date(), endDate: new Date() } as any),
+];
+
+test.each(otherChatWrites.map((write, index) => ({ write, index })))('chat write $index waits for Firestore and propagates save failure', async ({ write }) => {
+  let rejectSave!: (error: Error) => void;
+  mockAdd.mockImplementationOnce(() => new Promise((_resolve, reject) => { rejectSave = reject; }));
+  const settled = jest.fn();
+  const pending = write();
+  void pending.then(settled, settled);
+  await new Promise(resolve => setImmediate(resolve));
+  expect(settled).not.toHaveBeenCalled();
+  rejectSave(new Error('Firestore unavailable'));
+  await expect(pending).rejects.toThrow('Firestore unavailable');
+  expect(mockSend).not.toHaveBeenCalled();
+});
+
+
+test.each([false, true])('accepted proposal notifies only after successful chat persistence (save fails: %s)', async saveFails => {
+  mockFindUser
+    .mockResolvedValueOnce({ firebaseUid: 'buyer', email: 'buyer@example.com' })
+    .mockResolvedValueOnce({ firebaseUid: 'seller', username: 'Seller' })
+    .mockResolvedValueOnce({ id: 'listing', title: 'Listing', originalPrice: 10, images: [] });
+  mockQueryRunner.query.mockResolvedValue([{ id: 'transaction' }]);
+  if (saveFails) mockAdd.mockRejectedValueOnce(new Error('Save failed'));
+  const pending = controller.respondProposal(user, { id: 'chat' }, {
+    ...body, accepted: true, startDate: new Date(), endDate: new Date(),
+  } as any);
+  if (saveFails) {
+    await expect(pending).rejects.toThrow('Save failed');
+    expect(mockSend).not.toHaveBeenCalled();
+  } else {
+    await expect(pending).resolves.toMatchObject({ transactionId: 'transaction' });
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    expect(mockDoc.update.mock.invocationCallOrder[0]).toBeLessThan(mockSend.mock.invocationCallOrder[0]);
+    expect(mockQueryRunner.commitTransaction.mock.invocationCallOrder[0]).toBeLessThan(mockSend.mock.invocationCallOrder[0]);
+  }
 });

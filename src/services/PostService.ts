@@ -22,7 +22,7 @@ import { cosineSimilarity } from "../utils/Knn";
 export class PostService {
   private transactions: TransactionsManager;
 
-  constructor(@InjectManager() entityManager: EntityManager) {
+  constructor(@InjectManager() private readonly entityManager: EntityManager) {
     this.transactions = new TransactionsManager(entityManager);
   }
 
@@ -489,7 +489,7 @@ export class PostService {
     user: UserModel,
     params: UuidParam,
   ): Promise<PostModel> {
-    return this.transactions.readWrite(async (transactionalEntityManager) => {
+    const { savedPost, notification } = await this.transactions.readWrite(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const post = await postRepository.getPostById(params.id);
       if (!post) throw new NotFoundError("Post not found!");
@@ -509,14 +509,15 @@ export class PostService {
           bookmarkedByUsername: user.username,
         } as unknown as JSON,
       };
-      const notifService = new NotifService(transactionalEntityManager);
-      await notifService.sendNotifs(bookmarkNotifRequest);
       const userWithSaved = await userRepository.getSavedPostsByUserId(
         user.firebaseUid,
       );
       if (!userWithSaved) throw new NotFoundError("User not found!");
-      return await userRepository.savePost(userWithSaved, post);
+      const savedPost = await userRepository.savePost(userWithSaved, post);
+      return { savedPost, notification: bookmarkNotifRequest };
     });
+    await new NotifService(this.entityManager).sendNotifsSafely(notification);
+    return savedPost;
   }
 
   public async unsavePost(

@@ -20,7 +20,7 @@ import { NotifService } from "./NotifService";
 export class TransactionService {
   private transactions: TransactionsManager;
 
-  constructor(@InjectManager() entityManager: EntityManager) {
+  constructor(@InjectManager() private readonly entityManager: EntityManager) {
     this.transactions = new TransactionsManager(entityManager);
   }
 
@@ -111,7 +111,7 @@ export class TransactionService {
     params: UuidParam,
     request: UpdateTransactionStatusRequest,
   ): Promise<TransactionModel> {
-    return this.transactions.readWrite(async (transactionalEntityManager) => {
+    const { completedTransaction, notifications } = await this.transactions.readWrite(async (transactionalEntityManager) => {
       const postRepository = Repositories.post(transactionalEntityManager);
       const transactionRepository = Repositories.transaction(
         transactionalEntityManager,
@@ -131,7 +131,7 @@ export class TransactionService {
 
       // Track notified users by their ids
       const notifiedUserIds = new Set<string>();
-      const notifService = new NotifService(transactionalEntityManager);
+      const notifications: FindTokensRequest[] = [];
 
       // Get the first image from the post (if available)
       const imageUrl = post.images && post.images.length > 0 ? post.images[0] : null;
@@ -154,7 +154,7 @@ export class TransactionService {
             price: transaction.amount
           } as unknown as JSON
         };
-        await notifService.sendNotifs(buyerNotifRequest);
+        notifications.push(buyerNotifRequest);
         notifiedUserIds.add(transaction.buyer.firebaseUid);
       }
 
@@ -176,7 +176,7 @@ export class TransactionService {
             price: transaction.amount
           } as unknown as JSON
         };
-        await notifService.sendNotifs(sellerNotifRequest);
+        notifications.push(sellerNotifRequest);
         notifiedUserIds.add(transaction.seller.firebaseUid);
       }
 
@@ -206,7 +206,7 @@ export class TransactionService {
                 buyerUsername: transaction.buyer.username,
               } as unknown as JSON,
             };
-            await notifService.sendNotifs(postSoldNotifRequest);
+            notifications.push(postSoldNotifRequest);
             notifiedUserIds.add(user.firebaseUid);
           }
         }
@@ -215,8 +215,14 @@ export class TransactionService {
       // Need to now archive the sold post from the seller's active posts
       await postRepository.archivePost(post);
 
-      return await transactionRepository.completeTransaction(transaction);
+      const completedTransaction = await transactionRepository.completeTransaction(transaction);
+      return { completedTransaction, notifications };
     });
+    const notifService = new NotifService(this.entityManager);
+    for (const notification of notifications) {
+      await notifService.sendNotifsSafely(notification);
+    }
+    return completedTransaction;
   }
 
   // Get transaction by post ID

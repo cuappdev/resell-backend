@@ -171,7 +171,7 @@ export class ChatController {
         throw new ForbiddenError("This user is not part of this chat");
       }
     }
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
 
     return responseMessage;
   }
@@ -204,7 +204,7 @@ export class ChatController {
         throw new ForbiddenError("This user is not part of this chat");
       }
     }
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
     return message;
   }
 
@@ -244,6 +244,7 @@ export class ChatController {
 
     // If proposal is accepted, create a transaction
     let transactionId: string | undefined;
+    let proposalNotification: FindTokensRequest | undefined;
     console.log(`[PROPOSAL] chatBody.accepted = ${chatBody.accepted}, doc.exists = ${doc.exists}`);
 
     if (chatBody.accepted === true && doc.exists) {
@@ -293,43 +294,35 @@ export class ChatController {
 
           console.log(`Transaction created: ${transactionId} for chat ${chatId}`);
 
-          // Send notification to the buyer that their proposal was accepted
-          // NOTE: This is done AFTER transaction is saved, so notification failures won't affect transaction
-          try {
-            const notifService = new NotifService(getManager());  // Use fresh manager to avoid transaction issues
-            const imageUrl = post.images && post.images.length > 0 ? post.images[0] : null;
-
-            // FCM requires all data values to be STRINGS
-            const buyerNotifRequest: FindTokensRequest = {
-              email: buyer.email,
-              title: "Meeting Confirmed!",
-              body: `${seller.username} accepted your meeting proposal for "${post.title}"`,
-              data: {
-                type: "messages",
-                imageUrl: imageUrl || "",
-                postId: post.id,
-                postTitle: post.title,
-                transactionId: transactionId,
-                chatId: chatId,
-                sellerId: seller.firebaseUid,
-                sellerUsername: seller.username,
-                sellerPhotoUrl: seller.photoUrl || "",
-                meetingTime: String(chatBody.startDate)  // Convert to string for FCM
-              } as unknown as JSON
-            };
-            await notifService.sendNotifs(buyerNotifRequest);
-            console.log(`Notification sent to buyer ${buyer.email}`);
-          } catch (notifError) {
-            console.error(`Failed to send notification: ${notifError}`);
-            // Don't fail the transaction creation if notification fails
-          }
+          // Prepare the push now; send only after the chat write succeeds.
+          const imageUrl = post.images && post.images.length > 0 ? post.images[0] : null;
+          proposalNotification = {
+            email: buyer.email,
+            title: "Meeting Confirmed!",
+            body: `${seller.username} accepted your meeting proposal for "${post.title}"`,
+            data: {
+              type: "messages",
+              imageUrl: imageUrl || "",
+              postId: post.id,
+              postTitle: post.title,
+              transactionId: transactionId,
+              chatId: chatId,
+              sellerId: seller.firebaseUid,
+              sellerUsername: seller.username,
+              sellerPhotoUrl: seller.photoUrl || "",
+              meetingTime: String(chatBody.startDate)  // Convert to string for FCM
+            } as unknown as JSON
+          };
         } else {
           console.error(`Failed to create transaction: buyer=${!!buyer}, seller=${!!seller}, post=${!!post}`);
         }
       }
     }
 
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    if (proposalNotification) {
+      await new NotifService(getManager()).sendNotifsSafely(proposalNotification);
+    }
 
     return {
       ...message,
@@ -365,7 +358,7 @@ export class ChatController {
         throw new ForbiddenError("This user is not part of this chat");
       }
     }
-    updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
+    await updateFirestore(chatId, doc.exists, chatBody, message, chatsRef, "");
     return message;
   }
 
