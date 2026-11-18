@@ -9,11 +9,6 @@ export interface FcmTokenRequest {
   token: string;
 }
 
-export interface emailAndPass {
-  email: string;
-  password: string;
-}
-
 export interface GoogleLoginUser {
   id: string;
   email: string;

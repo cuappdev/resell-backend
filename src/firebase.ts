@@ -1,5 +1,29 @@
 import * as firebaseAdmin from "firebase-admin";
 
+const authEmulatorHost = process.env.FIREBASE_AUTH_EMULATOR_HOST;
+const firestoreEmulatorHost = process.env.FIRESTORE_EMULATOR_HOST;
+export const useFirebaseEmulators = Boolean(authEmulatorHost || firestoreEmulatorHost);
+
+if (useFirebaseEmulators) {
+  if (
+    process.env.NODE_ENV !== "development" ||
+    process.env.IS_PROD?.trim().toLowerCase() === "true" ||
+    process.env.VERCEL ||
+    process.env.VERCEL_ENV
+  ) {
+    throw new Error("Firebase emulators are only supported in local development.");
+  }
+
+  if (
+    authEmulatorHost !== "127.0.0.1:9099" ||
+    firestoreEmulatorHost !== "127.0.0.1:8080"
+  ) {
+    throw new Error(
+      "Local testing requires both Firebase emulators. Use FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 and FIRESTORE_EMULATOR_HOST=127.0.0.1:8080.",
+    );
+  }
+}
+
 function parseServiceAccount(raw: string): firebaseAdmin.ServiceAccount {
   try {
     return JSON.parse(raw) as firebaseAdmin.ServiceAccount;
@@ -36,12 +60,14 @@ function loadServiceAccount(): firebaseAdmin.ServiceAccount {
   return require(serviceAccountPath) as firebaseAdmin.ServiceAccount;
 }
 
-const serviceAccount = loadServiceAccount();
-
 if (!firebaseAdmin.apps.length) {
-  firebaseAdmin.initializeApp({
-    credential: firebaseAdmin.credential.cert(serviceAccount),
-  });
+  if (useFirebaseEmulators) {
+    firebaseAdmin.initializeApp({ projectId: "demo-resell-local" });
+  } else {
+    firebaseAdmin.initializeApp({
+      credential: firebaseAdmin.credential.cert(loadServiceAccount()),
+    });
+  }
 }
 
 export { firebaseAdmin };
